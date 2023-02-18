@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
+use App\Http\Controllers\Dvdrental\CommonController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +14,5 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/', function () {
-    return Inertia::render('app');
-});
+Route::get('/', [CommonController::class, 'home'])->name('home');
+Route::get('/catalog', [CommonController::class, 'catalog'])->name('catalog');

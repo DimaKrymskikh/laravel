@@ -1,0 +1,70 @@
+@layer base {
+    html {
+        font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    }
+    h1 {
+        @apply text-3xl mb-4;
+    }
+    h2 {
+        @apply text-2xl mb-2;
+    }
+    h3 {
+        @apply text-xl mb-1;
+    }
+    table {
+        @apply border-collapse border border-slate-400;
+    }
+    caption {
+        @apply font-sans text-left;
+    }
+    thead tr {
+        @apply first:bg-orange-200;
+    }
+    tbody tr {
+        @apply odd:bg-orange-50 even:bg-white;
+    }
+    th {
+        @apply border border-slate-300 p-1;
+    }
+    input {
+        @apply bg-orange-50 border border-orange-300 focus:ring-orange-700 focus:border-orange-700 text-sm rounded-lg block w-full px-4 py-2;
+    }
+    td {
+        @apply border border-slate-300 p-1;
+    }
+    .nav-tab {
+        @apply px-2 flex;
+    }
+    .nav-link {
+        @apply self-end font-sans text-2xl text-orange-700 hover:text-orange-100 border-b-4 border-orange-300;
+    }
+    .nav-link.router-link-active {
+        @apply border-orange-700 hover:border-orange-100;
+    }
+    .active {
+        @apply text-orange-100 bg-orange-700 cursor-not-allowed;
+    }
+    .disabled {
+        @apply border-gray-300 text-gray-300 bg-gray-100 cursor-not-allowed;
+    }
+    .stop-event {
+        @apply cursor-not-allowed;
+    }
+    .small-caps {
+        font-variant-caps: small-caps;
+    }
+    .pagination {
+        @apply mx-px px-2 py-1 border border-orange-300 text-orange-700 bg-orange-100 hover:text-orange-800 hover:bg-orange-200;
+    }
+    .pagination-active {
+        @apply mx-px px-2 py-1 border border-orange-500 text-orange-900 bg-orange-300 cursor-not-allowed;
+    }
+    .pagination-disabled {
+        @apply mx-px px-2 py-1 border border-gray-300 text-gray-500 bg-white cursor-not-allowed;
+    }
+}
+
+// Убираем синюю рамку при фокусировании
+input:focus {
+    outline:none;
+}

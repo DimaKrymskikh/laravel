@@ -1,3 +1,4 @@
+import "../scss/main.scss";
 import './bootstrap';
 
 import { createApp, h } from 'vue'
