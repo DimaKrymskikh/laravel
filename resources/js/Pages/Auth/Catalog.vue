@@ -1,22 +1,22 @@
 <script setup>
 import { Head } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AppLayout.vue';
+import AuthLayout from '@/Layouts/AuthLayout.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 
 const { films } = defineProps({
-    title: String,
-    films: Object,
-    isGuest: Boolean
+    films: Object
 });
+
+const titlePage = 'Каталог';
 
 let counter = films.from;
 </script>
 
 <template>
-    <Head :title="title" />
-    <AppLayout :isGuest="isGuest">
-        <h1>{{ title }}</h1>
+    <Head :title="titlePage" />
+    <AuthLayout>
+        <h1>{{ titlePage }}</h1>
         <table class="container">
             <caption>
                 <Info :films='films' />
@@ -27,14 +27,14 @@ let counter = films.from;
                     <th>Название</th>
                     <th>Описание</th>
                     <th>Язык</th>
-                    <th v-if="!isGuest"></th>
+                    <th></th>
                 </tr>
                 <tr>
                     <th></th>
                     <th><input type="text"></th>
                     <th><input type="text"></th>
                     <th></th>
-                    <th v-if="!isGuest"></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -43,11 +43,11 @@ let counter = films.from;
                     <td>{{ film.title }}</td>
                     <td>{{ film.description }}</td>
                     <td>{{ film.language.name }}</td>
-                    <td v-if="!isGuest"></td>
+                    <th></th>
                 </tr>
             </tbody>
         </table>
         
         <Buttons :films="films"/>
-    </Applayout>
+    </AuthLayout>
 </template>

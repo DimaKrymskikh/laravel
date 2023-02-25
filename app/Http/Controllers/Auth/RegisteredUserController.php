@@ -16,10 +16,7 @@ class RegisteredUserController extends Controller
 {
     public function create(): Response
     {
-        return Inertia::render('Register', [
-            'title' => 'Регистрация',
-            'isGuest' => !Auth::check()
-        ]);
+        return Inertia::render('Guest/Register');
     }
     
     public function store(RegisterRequest $request): RedirectResponse

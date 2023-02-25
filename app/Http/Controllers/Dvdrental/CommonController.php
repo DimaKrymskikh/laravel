@@ -12,18 +12,15 @@ class CommonController extends Controller
 {
     public function home(): Response
     {
-        return Inertia::render('Home', [
-            'title' => 'Главная страница',
-            'isGuest' => !Auth::check()
-        ]);
+        return Inertia::render((Auth::check() ? 'Auth/' : 'Guest/') . 'Home');
     }
     
     public function catalog(): Response
     {
-        return Inertia::render('Films', [
-                'title' => 'Каталог',
+        $view = (Auth::check() ? 'Auth/' : 'Guest/') . 'Catalog';
+        
+        return Inertia::render($view, [
                 'films' => Film::with('language:id,name')->select('id', 'title', 'description', 'language_id')->orderBy('title')->paginate(20),
-                'isGuest' => !Auth::check()
             ]);
     }
 }

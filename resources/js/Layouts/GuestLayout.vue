@@ -1,10 +1,6 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
-
-defineProps({
-    isGuest: Boolean
-});
 </script>
 
 <template>
@@ -19,14 +15,8 @@ defineProps({
                 <li class="nav-tab">
                     <Link class="nav-link small-caps" href="/catalog">каталог</Link>
                 </li>
-                <li class="nav-tab" v-if="!isGuest">
-                    <Link class="nav-link small-caps" href="/account">лк</Link>
-                </li>
-                <li class="nav-tab" v-if="isGuest">
+                <li class="nav-tab">
                     <Link class="nav-link small-caps" href="/login">вход</Link>
-                </li>
-                <li class="nav-tab" v-if="!isGuest">
-                    <Link class="nav-link small-caps" href="/logout">выход</Link>
                 </li>
             </ul>
         </div>

@@ -1,23 +1,20 @@
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
-import AppLayout from '@/Layouts/AppLayout.vue';
-
-defineProps({
-    title: String,
-    isGuest: Boolean
-});
+import GuestLayout from '@/Layouts/GuestLayout.vue';
 
 const form = useForm({
     login: null,
     password: null,
     password_confirmation: null
 });
+
+const titlePage = 'Регистрация';
 </script>
 
 <template>
-    <Head :title="title" />
-    <AppLayout :isGuest="isGuest">
-        <h1>{{ title }}</h1>
+    <Head :title="titlePage" />
+    <GuestLayout>
+        <h1>{{ titlePage }}</h1>
 
         <form @submit.prevent="form.post('/register')">
             <div class="mb-3 w-1/3 pr-4">
@@ -62,5 +59,5 @@ const form = useForm({
                 </button>
             </div>
         </form>
-    </Applayout>
+    </GuestLayout>
 </template>

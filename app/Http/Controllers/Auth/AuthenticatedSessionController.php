@@ -16,10 +16,7 @@ class AuthenticatedSessionController extends Controller
 {
     public function create(): Response
     {
-        return Inertia::render('Login', [
-            'title' => 'Вход',
-            'isGuest' => !Auth::check()
-        ]);
+        return Inertia::render('Guest/Login');
     }
     
     public function store(LoginRequest $request): RedirectResponse

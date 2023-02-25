@@ -38,9 +38,6 @@
     .nav-link {
         @apply self-end font-sans text-2xl text-orange-700 hover:text-orange-100 border-b-4 border-orange-300;
     }
-    .nav-link.router-link-active {
-        @apply border-orange-700 hover:border-orange-100;
-    }
     .active {
         @apply text-orange-100 bg-orange-700 cursor-not-allowed;
     }
