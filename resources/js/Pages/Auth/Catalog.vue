@@ -3,6 +3,8 @@ import { Head } from '@inertiajs/vue3'
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
+import CheckCircleSvg from '@/Components/Svg/CheckCircleSvg.vue';
+import PlusCircleSvg from '@/Components/Svg/PlusCircleSvg.vue';
 
 const { films } = defineProps({
     films: Object
@@ -43,7 +45,10 @@ let counter = films.from;
                     <td>{{ film.title }}</td>
                     <td>{{ film.description }}</td>
                     <td>{{ film.language.name }}</td>
-                    <th></th>
+                    <th>
+                        <CheckCircleSvg v-if="film.isAvailable" />
+                        <PlusCircleSvg v-else />
+                    </th>
                 </tr>
             </tbody>
         </table>
