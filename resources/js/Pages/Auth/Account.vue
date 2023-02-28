@@ -50,7 +50,7 @@ let counter = films.from;
                     <td>{{ film.description }}</td>
                     <td>{{ film.language.name }}</td>
                     <td>
-                        <EyeSvg />
+                        <Link :href="`/filmcard/${film.id}`"><EyeSvg /></Link>
                     </td>
                     <td>
                         <TrashSvg />

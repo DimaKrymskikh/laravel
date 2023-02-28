@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Dvdrental\CommonController;
 use App\Http\Controllers\Dvdrental\AccountController;
+use App\Http\Controllers\Dvdrental\FilmCardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,4 +37,7 @@ Route::middleware('auth')->group(function () {
     
     Route::get('account', [AccountController::class, 'create'])
                 ->name('account');
+    
+    Route::get('filmcard/{film_id}', [FilmCardController::class, 'create'])
+                ->name('filmcard');
 });

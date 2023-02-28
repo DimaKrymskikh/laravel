@@ -1,0 +1,43 @@
+<script setup>
+import { Head, Link } from '@inertiajs/vue3';
+import AuthLayout from '@/Layouts/AuthLayout.vue';
+
+const { film } = defineProps({
+    film: Object
+});
+
+const titlePage = film.title;
+</script>
+
+<template>
+    <Head :title="titlePage" />
+    <AuthLayout>
+        <h1>{{ titlePage }}</h1>
+        
+        <div class="flex">
+            <div class="w-1/4 pr-4">
+                <h3>Основная информация</h3>
+            </div>
+            <div class="w-1/2 px-4">
+                <h3>Описание</h3>
+            </div>
+            <div class="w-1/4 pl-4">
+                <h3>Актёры</h3>
+            </div>
+        </div>
+
+        <div class="flex">
+            <div class="w-1/4 pr-4">
+                <div>Фильм вышел в {{ film.release_year }} году</div>
+                <div>Язык фильма: {{ film.language.name }}</div>
+            </div>
+            <div class="w-1/2 px-4">
+                <div>{{ film.description }}</div>
+            </div>
+            <div class="w-1/4 pl-4">
+                <div v-for="actor in film.actors">{{ actor.first_name }} {{ actor.last_name}}</div>
+            </div>
+        </div>
+        
+    </AuthLayout>
+</template>
