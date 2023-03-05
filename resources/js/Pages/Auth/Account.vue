@@ -8,17 +8,16 @@ import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 
 const { films } = defineProps({
     films: Object,
-    user: Object
+    user: Object,
+    errors: Object | null
 });
 
 const titlePage = 'Аккаунт';
-
-let counter = films.from;
 </script>
 
 <template>
     <Head :title="titlePage" />
-    <AuthLayout>
+    <AuthLayout :errors="errors">
         <h1>Добрый день, {{ user.login }}</h1>
 
         <table class="container" @click="handlerFilms">
@@ -44,8 +43,8 @@ let counter = films.from;
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="film in films.data" class="hover:bg-green-300">
-                    <td>{{ counter++ }}</td>
+                <tr v-for="(film, index) in films.data" class="hover:bg-green-300">
+                    <td>{{ films.from + index }}</td>
                     <td>{{ film.title }}</td>
                     <td>{{ film.description }}</td>
                     <td>{{ film.language.name }}</td>

@@ -38,6 +38,8 @@ Route::middleware('auth')->group(function () {
     Route::get('account', [AccountController::class, 'create'])
                 ->name('account');
     
+    Route::post('account/addfilm/{film_id}', [AccountController::class, 'addFilm']);
+    
     Route::get('filmcard/{film_id}', [FilmCardController::class, 'create'])
                 ->name('filmcard');
 });

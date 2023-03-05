@@ -11,9 +11,4 @@ class User extends Model
     use HasFactory;
     
     protected $table = 'person.users';
-    
-    public function film(): BelongsToMany
-    {
-        return $this->belongsToMany(Film::class, 'person.users_films', 'user_id', 'film_id');
-    }
 }

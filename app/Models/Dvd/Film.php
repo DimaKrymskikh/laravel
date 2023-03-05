@@ -21,11 +21,6 @@ class Film extends Model
         return $this->hasOne(Language::class, 'id', 'language_id');
     }
     
-    public function user(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class, 'person.users_films', 'film_id', 'user_id');
-    }
-    
     public function actors(): BelongsToMany
     {
         return $this->belongsToMany(Actor::class, 'dvd.films_actors', 'film_id', 'actor_id');

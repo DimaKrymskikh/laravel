@@ -5,8 +5,6 @@ const { films } = defineProps({
     films: Object
 });
 
-const filmsNumber = films.links.slice(1, -1);
-
 </script>
 
 <template>
@@ -23,7 +21,7 @@ const filmsNumber = films.links.slice(1, -1);
                 </svg>
             </Link>
 
-            <template  v-for="element in filmsNumber">
+            <template  v-for="element in films.links.slice(1, -1)">
                 <Link 
                     :href="element.url" 
                     class="pagination inline-flex items-center text-sm font-medium leading-5 focus:z-10 focus:outline-none focus:ring ring-gray-300 focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150"

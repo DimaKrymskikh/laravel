@@ -2,6 +2,10 @@
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 
+defineProps({
+    errors: Object | null
+});
+
 const form = useForm({
     login: null,
     password: null
@@ -12,7 +16,7 @@ const titlePage = 'Вход';
 
 <template>
     <Head :title="titlePage" />
-    <GuestLayout>
+    <GuestLayout :errors="errors">
         <h1>{{ titlePage }}</h1>
 
         <form @submit.prevent="form.post('/login')">

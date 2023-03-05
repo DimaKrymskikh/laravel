@@ -1,6 +1,11 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
+import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
+
+defineProps({
+    errors: Object | null
+});
 </script>
 
 <template>
@@ -25,4 +30,6 @@ import HouseSvg from '@/Components/Svg/HouseSvg.vue';
     <main class="lg:container">
         <slot />
     </main>
+    
+    <ForbiddenModal :errors="errors" />
 </template>
