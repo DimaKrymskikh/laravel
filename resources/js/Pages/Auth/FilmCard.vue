@@ -3,7 +3,8 @@ import { Head, Link } from '@inertiajs/vue3';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 
 const { film } = defineProps({
-    film: Object
+    film: Object,
+    errors: Object | null
 });
 
 const titlePage = film.title;
@@ -11,7 +12,7 @@ const titlePage = film.title;
 
 <template>
     <Head :title="titlePage" />
-    <AuthLayout>
+    <AuthLayout :errors="errors">
         <h1>{{ titlePage }}</h1>
         
         <div class="flex">

@@ -6,6 +6,7 @@ use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,6 +30,13 @@ class AccountController extends Controller
         ]);
     }
     
+    /**
+     * Добавляет фильм с film_id в коллекцию пользователя
+     * @param Request $request
+     * @param string $film_id
+     * @return RedirectResponse
+     * @throws type
+     */
     public function addFilm(Request $request, string $film_id): RedirectResponse
     {
         // Проверка наличия в таблице 'person.users_films' пары первичных ключей (user_id, film_id)
@@ -53,5 +61,29 @@ class AccountController extends Controller
         $userFilm->save();
         
         return redirect("/catalog?page=$request->page");
+    }
+    
+    /**
+     * Удаляет фильм с film_id из коллекции пользователя
+     * @param Request $request
+     * @param string $film_id
+     * @return RedirectResponse
+     * @throws type
+     */
+    public function removeFilm(Request $request, string $film_id): RedirectResponse
+    {
+        // Если пароль введён неверно, бросается исключение
+        if (! Hash::check($request->password, Auth::getUser()->password)) {
+            throw ValidationException::withMessages([
+                'password' => trans('user.password.wrong')
+            ]);
+        }
+        
+        // Удаление фильма с film_id из коллекции пользователя
+        UserFilm::where('user_id', '=', Auth::id())
+                ->where('film_id', '=', $film_id)
+                ->delete();
+        
+        return redirect("/account?page=$request->page");
     }
 }

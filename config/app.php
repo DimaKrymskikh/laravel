@@ -194,6 +194,9 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        
+        // Можно раскомментировать, чтобы лучше видеть спиннер
+//        App\Providers\SleepProvider::class,
 
     ],
 

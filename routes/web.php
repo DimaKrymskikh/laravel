@@ -40,6 +40,8 @@ Route::middleware('auth')->group(function () {
     
     Route::post('account/addfilm/{film_id}', [AccountController::class, 'addFilm']);
     
+    Route::delete('account/removefilm/{film_id}', [AccountController::class, 'removeFilm']);
+    
     Route::get('filmcard/{film_id}', [FilmCardController::class, 'create'])
                 ->name('filmcard');
 });

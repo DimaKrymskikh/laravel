@@ -1,0 +1,81 @@
+<script setup>
+import { ref } from 'vue';
+import { router } from '@inertiajs/vue3';
+import BaseModal from '@/components/Modal/BaseModal.vue';
+import Spinner from '@/components/Svg/Spinner.vue';
+import { getPageAfterRemoveItem } from '@/Tools/Paginate';
+
+const { films, removeFilmId, hideFilmRemoveModal } = defineProps({
+    films: Object,
+    errors: Object,
+    removeFilmTitle: String,
+    removeFilmId: String,
+    hideFilmRemoveModal: Function
+});
+
+// Величина поля для пароля
+const inputPassword = ref('');
+// Сообщение об ошибке ввода пароля.
+// При монтировании компоненты - пустая строка, чтобы после закрытия модального окна с сообщением об ошибке,
+// при последующем открытии модального окна этого сообщения об ошибке не было.
+const errorsPassword = ref('');
+// Выполняется ли запрос на сервер
+const isRequest = ref(false);
+
+/**
+ * Обработчик удаления фильма
+ * @param {Event} e
+ * @returns {undefined}
+ */
+const handlerRemoveFilm = function(e) {
+    // Защита от повторного запроса
+    if(e.currentTarget.classList.contains('disabled')) {
+        return;
+    }
+
+    const pageNumber = getPageAfterRemoveItem(films);
+    
+    router.delete(`account/removefilm/${removeFilmId}?page=${pageNumber}`, {
+        preserveScroll: true,
+        data: {
+            password: inputPassword.value
+        },
+        onBefore: () => {
+            isRequest.value = true;
+        },
+        onSuccess: () => {
+            hideFilmRemoveModal();
+        },
+        onError: errors => {
+            errorsPassword.value = errors.password;
+        },
+        onFinish: () => {
+            isRequest.value = false;
+        }
+    });
+};
+</script>
+
+<template>
+    <BaseModal
+        modalId="film-remove-modal"
+        headerTitle="Подтверждение удаления фильма"
+        :hideModal="hideFilmRemoveModal"
+        :handlerSubmit="handlerRemoveFilm"
+        :isRequest="isRequest"
+    >
+        <template v-slot:body>
+            Вы действительно хотите удалить фильм 
+            <span>{{ removeFilmTitle }}</span>?
+            <div class="mb-3">
+                <Spinner hSpinner="h-8" v-if="isRequest" />
+                <template v-else>
+                    <label>Введите пароль:
+                        <input type="password" v-model="inputPassword" />
+                    </label>
+                    <div v-if="errorsPassword" class="error">{{ errorsPassword }}</div>
+                </template>
+            </div>
+        </template>
+    </BaseModal>
+</template>

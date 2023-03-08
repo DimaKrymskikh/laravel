@@ -13,12 +13,18 @@ defineProps({
 
 const titlePage = 'Каталог';
 
+/**
+ * Добавляет фильм в коллекцию пользователя
+ * @param {Element} tag
+ * @returns {undefined}
+ */
 const addFilm = function(tag) {
+    const td = tag.closest('td');
     // Защита от повторного клика
-    tag.classList.contains('add-film') ? tag.classList.remove('add-film') : tag.parentNode.classList.remove('add-film');
- 
+    td.classList.remove('add-film');
+    
     const page = tag.closest('table').getAttribute('data-page');
-    const filmId = tag.classList.contains('add-film') ? tag.getAttribute('data-film_id') : tag.parentNode.getAttribute('data-film_id');
+    const filmId = td.getAttribute('data-film_id');
 
     router.visit(`account/addfilm/${filmId}`, {
         method: 'post',
@@ -29,8 +35,13 @@ const addFilm = function(tag) {
     });
 };
 
+/**
+ * Управляет изменениями в таблице фильмов
+ * @param {Event} e
+ * @returns {undefined}
+ */
 const handlerTableChange = function(e) {
-    if (e.target.classList.contains('add-film') || e.target.parentNode.classList.contains('add-film')) {
+    if (e.target.closest('td').classList.contains('add-film')) {
         addFilm(e.target);
     }
 };
@@ -66,10 +77,13 @@ const handlerTableChange = function(e) {
                     <td>{{ film.title }}</td>
                     <td>{{ film.description }}</td>
                     <td>{{ film.language.name }}</td>
-                    <th>
+                    <td
+                        :class="film.isAvailable ? null : 'add-film'"
+                        :data-film_id="film.isAvailable ? null : film.id"
+                    >
                         <CheckCircleSvg v-if="film.isAvailable" />
-                        <PlusCircleSvg :filmId="film.id" v-else />
-                    </th>
+                        <PlusCircleSvg v-else />
+                    </td>
                 </tr>
             </tbody>
         </table>

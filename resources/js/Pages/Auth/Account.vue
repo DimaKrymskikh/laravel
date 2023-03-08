@@ -1,10 +1,12 @@
 <script setup>
+import { ref } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 import EyeSvg from '@/Components/Svg/EyeSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
+import FilmRemoveModal from '@/Components/Modal/FilmRemoveModal.vue';
 
 const { films } = defineProps({
     films: Object,
@@ -13,6 +15,36 @@ const { films } = defineProps({
 });
 
 const titlePage = 'Аккаунт';
+
+// Отслеживает отрисовку/удаление модального окна для удаления фильма
+const isShowFilmRemoveModal = ref(false);
+// id удаляемого фильма
+const removeFilmId = ref('');
+// Название удаляемого фильма
+const removeFilmTitle = ref('');
+
+/**
+ * Управляет изменениями в таблице фильмов
+ * @param {Event} e
+ * @returns {undefined}
+ */
+const handlerTableChange = function(e) {
+    // Показывает модальное окно для удаления фильма
+    // Находятся id и название удаляемого фильма
+    if (e.target.closest('td').classList.contains('remove-film')) {
+        removeFilmId.value = e.target.closest('td').getAttribute('data-film_id');
+        removeFilmTitle.value = e.target.closest('td').getAttribute('data-film_title');
+        isShowFilmRemoveModal.value = true;
+    }
+};
+
+/**
+ * Скрывает модальное окно для удаления фильма
+ * @returns {undefined}
+ */
+const hideFilmRemoveModal = function() {
+    isShowFilmRemoveModal.value = false;
+};
 </script>
 
 <template>
@@ -20,7 +52,7 @@ const titlePage = 'Аккаунт';
     <AuthLayout :errors="errors">
         <h1>Добрый день, {{ user.login }}</h1>
 
-        <table class="container" @click="handlerFilms">
+        <table class="container" @click="handlerTableChange">
             <caption>
                 <Info :films='films' />
             </caption>
@@ -51,7 +83,7 @@ const titlePage = 'Аккаунт';
                     <td>
                         <Link :href="`/filmcard/${film.id}`"><EyeSvg /></Link>
                     </td>
-                    <td>
+                    <td class="remove-film" :data-film_id="film.id" :data-film_title="film.title">
                         <TrashSvg />
                     </td>
                 </tr>
@@ -59,5 +91,14 @@ const titlePage = 'Аккаунт';
         </table>
         
         <Buttons :films="films"/>
+        
+        <FilmRemoveModal
+            :films="films"
+            :errors="errors"
+            :removeFilmTitle="removeFilmTitle"
+            :removeFilmId="removeFilmId"
+            :hideFilmRemoveModal="hideFilmRemoveModal"
+            v-if="isShowFilmRemoveModal"
+        />
     </AuthLayout>
 </template>
