@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/BaseModal.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
 import { getPageAfterRemoveItem } from '@/Tools/Paginate';
@@ -69,12 +70,12 @@ const handlerRemoveFilm = function(e) {
             <span>{{ removeFilmTitle }}</span>?
             <div class="mb-3">
                 <Spinner hSpinner="h-8" v-if="isRequest" />
-                <template v-else>
-                    <label>Введите пароль:
-                        <input type="password" v-model="inputPassword" />
-                    </label>
-                    <div v-if="errorsPassword" class="error">{{ errorsPassword }}</div>
-                </template>
+                <InputField v-else
+                    titleText="Введите пароль:"
+                    type="password"
+                    :errorsMessage="errorsPassword"
+                    v-model="inputPassword"
+                />
             </div>
         </template>
     </BaseModal>
