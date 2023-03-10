@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
@@ -28,6 +29,22 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        return redirect(RouteServiceProvider::HOME);
+    }
+    
+    /**
+     * Удаление аккаунта
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function remove(Request $request): RedirectResponse
+    {
+        Auth::getUser()->delete();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+        
         return redirect(RouteServiceProvider::HOME);
     }
 }

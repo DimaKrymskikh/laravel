@@ -6,7 +6,6 @@ use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -72,13 +71,6 @@ class AccountController extends Controller
      */
     public function removeFilm(Request $request, string $film_id): RedirectResponse
     {
-        // Если пароль введён неверно, бросается исключение
-        if (! Hash::check($request->password, Auth::getUser()->password)) {
-            throw ValidationException::withMessages([
-                'password' => trans('user.password.wrong')
-            ]);
-        }
-        
         // Удаление фильма с film_id из коллекции пользователя
         UserFilm::where('user_id', '=', Auth::id())
                 ->where('film_id', '=', $film_id)

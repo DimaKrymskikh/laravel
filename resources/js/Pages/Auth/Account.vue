@@ -6,6 +6,7 @@ import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 import EyeSvg from '@/Components/Svg/EyeSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
+import AccountRemoveModal from '@/Components/Modal/AccountRemoveModal.vue';
 import FilmRemoveModal from '@/Components/Modal/FilmRemoveModal.vue';
 
 const { films } = defineProps({
@@ -23,6 +24,8 @@ const removeFilmId = ref('');
 // Название удаляемого фильма
 const removeFilmTitle = ref('');
 
+const isShowAccountRemoveModal = ref(false);
+
 /**
  * Управляет изменениями в таблице фильмов
  * @param {Event} e
@@ -31,7 +34,7 @@ const removeFilmTitle = ref('');
 const handlerTableChange = function(e) {
     // Показывает модальное окно для удаления фильма
     // Находятся id и название удаляемого фильма
-    if (e.target.closest('td').classList.contains('remove-film')) {
+    if (e.target.closest('td') && e.target.closest('td').classList.contains('remove-film')) {
         removeFilmId.value = e.target.closest('td').getAttribute('data-film_id');
         removeFilmTitle.value = e.target.closest('td').getAttribute('data-film_title');
         isShowFilmRemoveModal.value = true;
@@ -45,12 +48,29 @@ const handlerTableChange = function(e) {
 const hideFilmRemoveModal = function() {
     isShowFilmRemoveModal.value = false;
 };
+
+const showAccountRemoveModal = function() {
+    isShowAccountRemoveModal.value = true;
+};
+
+const hideAccountRemoveModal = function() {
+    isShowAccountRemoveModal.value = false;
+};
 </script>
 
 <template>
     <Head :title="titlePage" />
     <AuthLayout :errors="errors">
         <h1>Добрый день, {{ user.login }}</h1>
+        
+        <div class="flex justify-between">
+            <button
+                class="px-4 py-2 bg-red-100 text-red-700 hover:bg-red-300 hover:text-red-900 rounded-lg"
+                @click="showAccountRemoveModal"
+            >
+                Удалить аккаунт
+            </button>
+        </div>
 
         <table class="container" @click="handlerTableChange">
             <caption>
@@ -99,6 +119,12 @@ const hideFilmRemoveModal = function() {
             :removeFilmId="removeFilmId"
             :hideFilmRemoveModal="hideFilmRemoveModal"
             v-if="isShowFilmRemoveModal"
+        />
+        
+        <AccountRemoveModal
+            :errors="errors"
+            :hideAccountRemoveModal="hideAccountRemoveModal"
+            v-if="isShowAccountRemoveModal"
         />
     </AuthLayout>
 </template>

@@ -35,12 +35,14 @@ Route::middleware('auth')->group(function () {
     Route::get('logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->name('logout');
     
+    Route::delete('register', [RegisteredUserController::class, 'remove'])->middleware('check.password');
+    
     Route::get('account', [AccountController::class, 'create'])
                 ->name('account');
     
     Route::post('account/addfilm/{film_id}', [AccountController::class, 'addFilm']);
     
-    Route::delete('account/removefilm/{film_id}', [AccountController::class, 'removeFilm']);
+    Route::delete('account/removefilm/{film_id}', [AccountController::class, 'removeFilm'])->middleware('check.password');
     
     Route::get('filmcard/{film_id}', [FilmCardController::class, 'create'])
                 ->name('filmcard');

@@ -41,7 +41,7 @@ const addFilm = function(tag) {
  * @returns {undefined}
  */
 const handlerTableChange = function(e) {
-    if (e.target.closest('td').classList.contains('add-film')) {
+    if (e.target.closest('td') && e.target.closest('td').classList.contains('add-film')) {
         addFilm(e.target);
     }
 };
