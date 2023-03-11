@@ -8,7 +8,7 @@ const { films } = defineProps({
 </script>
 
 <template>
-    <nav class="font-sans py-4" v-if="films.last_page > 0">
+    <nav class="font-sans py-4">
         <div class="flex items-center justify-center">
             <span class="pagination-disabled inline-flex items-center text-sm font-medium rounded-l-md leading-5" v-if="films.links[1].active">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">

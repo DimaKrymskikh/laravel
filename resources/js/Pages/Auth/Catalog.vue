@@ -53,7 +53,7 @@ const handlerTableChange = function(e) {
         <h1>{{ titlePage }}</h1>
         <table class="container" :data-page="films.current_page" @click="handlerTableChange">
             <caption>
-                <Info :films='films' />
+                <Info :films='films' v-if="films.total > 0" />
             </caption>
             <thead>
                 <tr>
@@ -88,6 +88,6 @@ const handlerTableChange = function(e) {
             </tbody>
         </table>
         
-        <Buttons :films="films"/>
+        <Buttons :films="films" v-if="films.total > 0" />
     </AuthLayout>
 </template>

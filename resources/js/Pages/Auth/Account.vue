@@ -63,7 +63,7 @@ const hideAccountRemoveModal = function() {
     <AuthLayout :errors="errors">
         <h1>Добрый день, {{ user.login }}</h1>
         
-        <div class="flex justify-between">
+        <div class="flex justify-between pb-4">
             <button
                 class="px-4 py-2 bg-red-100 text-red-700 hover:bg-red-300 hover:text-red-900 rounded-lg"
                 @click="showAccountRemoveModal"
@@ -74,7 +74,7 @@ const hideAccountRemoveModal = function() {
 
         <table class="container" @click="handlerTableChange">
             <caption>
-                <Info :films='films' />
+                <Info :films='films' v-if="films.total > 0" />
             </caption>
             <thead>
                 <tr>
@@ -110,7 +110,7 @@ const hideAccountRemoveModal = function() {
             </tbody>
         </table>
         
-        <Buttons :films="films"/>
+        <Buttons :films="films" v-if="films.total > 0" />
         
         <FilmRemoveModal
             :films="films"
