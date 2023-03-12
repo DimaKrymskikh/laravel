@@ -1,7 +1,8 @@
 <script setup>
-import { ref } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { ref, inject } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
+import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 import EyeSvg from '@/Components/Svg/EyeSvg.vue';
@@ -16,6 +17,9 @@ const { films } = defineProps({
 });
 
 const titlePage = 'Аккаунт';
+
+const paginationAccount = inject('paginationAccount');
+paginationAccount.setData(films.current_page, films.per_page);
 
 // Отслеживает отрисовку/удаление модального окна для удаления фильма
 const isShowFilmRemoveModal = ref(false);
@@ -56,6 +60,11 @@ const showAccountRemoveModal = function() {
 const hideAccountRemoveModal = function() {
     isShowAccountRemoveModal.value = false;
 };
+
+// Изменяет число фильмов на странице
+const changeNumberOfFilmsOnPage = function(newNumber) {
+    router.get(`account?page=1&number=${newNumber}`);
+};
 </script>
 
 <template>
@@ -64,6 +73,11 @@ const hideAccountRemoveModal = function() {
         <h1>Добрый день, {{ user.login }}</h1>
         
         <div class="flex justify-between pb-4">
+            <Dropdown
+                buttonName="Число фильмов на странице"
+                :itemsNumberOnPage="films.per_page"
+                :changeNumber="changeNumberOfFilmsOnPage"
+            />
             <button
                 class="px-4 py-2 bg-red-100 text-red-700 hover:bg-red-300 hover:text-red-900 rounded-lg"
                 @click="showAccountRemoveModal"

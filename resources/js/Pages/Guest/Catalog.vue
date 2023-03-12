@@ -1,6 +1,9 @@
 <script setup>
+import { inject } from 'vue';
 import { Head } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
+import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 
@@ -10,15 +13,32 @@ const { films } = defineProps({
 });
 
 const titlePage = 'Каталог';
+
+const paginationCatalog = inject('paginationCatalog');
+paginationCatalog.setData(films.current_page, films.per_page);
+
+// Изменяет число фильмов на странице
+const changeNumberOfFilmsOnPage = function(newNumber) {
+    router.get(`catalog?page=1&number=${newNumber}`);
+};
 </script>
 
 <template>
     <Head :title="titlePage" />
     <GuestLayout :errors="errors">
         <h1>{{ titlePage }}</h1>
+        
+        <div class="flex justify-between pb-4">
+            <Dropdown
+                buttonName="Число фильмов на странице"
+                :itemsNumberOnPage="films.per_page"
+                :changeNumber="changeNumberOfFilmsOnPage"
+            />
+        </div>
+        
         <table class="container">
             <caption>
-                <Info :films='films' />
+                <Info :films='films' v-if="films.total > 0" />
             </caption>
             <thead>
                 <tr>
@@ -44,6 +64,6 @@ const titlePage = 'Каталог';
             </tbody>
         </table>
         
-        <Buttons :films="films"/>
+        <Buttons :films="films" v-if="films.total > 0" />
     </GuestLayout>
 </template>

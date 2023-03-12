@@ -1,17 +1,22 @@
 <script setup>
+import { inject } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
+import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 import CheckCircleSvg from '@/Components/Svg/CheckCircleSvg.vue';
 import PlusCircleSvg from '@/Components/Svg/PlusCircleSvg.vue';
 
-defineProps({
+const { films } = defineProps({
     films: Object,
     errors: Object | null
 });
 
 const titlePage = 'Каталог';
+
+const paginationCatalog = inject('paginationCatalog');
+paginationCatalog.setData(films.current_page, films.per_page);
 
 /**
  * Добавляет фильм в коллекцию пользователя
@@ -45,12 +50,26 @@ const handlerTableChange = function(e) {
         addFilm(e.target);
     }
 };
+
+// Изменяет число фильмов на странице
+const changeNumberOfFilmsOnPage = function(newNumber) {
+    router.get(`catalog?page=1&number=${newNumber}`);
+};
 </script>
 
 <template>
     <Head :title="titlePage" />
     <AuthLayout :errors="errors">
         <h1>{{ titlePage }}</h1>
+        
+        <div class="flex justify-between pb-4">
+            <Dropdown
+                buttonName="Число фильмов на странице"
+                :itemsNumberOnPage="films.per_page"
+                :changeNumber="changeNumberOfFilmsOnPage"
+            />
+        </div>
+        
         <table class="container" :data-page="films.current_page" @click="handlerTableChange">
             <caption>
                 <Info :films='films' v-if="films.total > 0" />

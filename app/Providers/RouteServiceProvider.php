@@ -18,6 +18,8 @@ class RouteServiceProvider extends ServiceProvider
      * @var string
      */
     public const HOME = '/';
+    
+    public const PAGINATE_DEFAULT_PER_PAGE = 20;
 
     /**
      * Define your route model bindings, pattern filters, and other route configuration.

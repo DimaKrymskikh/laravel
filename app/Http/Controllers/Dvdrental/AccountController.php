@@ -12,11 +12,15 @@ use Inertia\Response;
 use App\Http\Controllers\Controller;
 use App\Models\Dvd\Film;
 use App\Models\Person\UserFilm;
+use App\Providers\RouteServiceProvider;
 
 class AccountController extends Controller
 {
-    public function create(): Response
+    public function create(Request $request): Response
     {
+        // Число фильмов на странице
+        $perPage = $request->number ?? RouteServiceProvider::PAGINATE_DEFAULT_PER_PAGE;
+        
         return Inertia::render('Auth/Account', [
             'films' => Film::with('language:id,name')
                 ->join('person.users_films', function(JoinClause $join) {
@@ -24,7 +28,7 @@ class AccountController extends Controller
                         ->where('person.users_films.user_id', '=', Auth::id());
                 })
                 ->select('id', 'title', 'description', 'language_id')
-                ->orderBy('title')->paginate(20),
+                ->orderBy('title')->paginate($perPage)->appends(['number' => $perPage]),
             'user' => Auth::getUser()
         ]);
     }

@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Dvdrental;
 
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Http\Controllers\Controller;
 use App\Models\Dvd\Film;
+use App\Providers\RouteServiceProvider;
 
 class CommonController extends Controller
 {
@@ -16,7 +18,7 @@ class CommonController extends Controller
         return Inertia::render((Auth::check() ? 'Auth/' : 'Guest/') . 'Home');
     }
     
-    public function catalog(): Response
+    public function catalog(Request $request): Response
     {
         $view = (Auth::check() ? 'Auth/' : 'Guest/') . 'Catalog';
         $query = Film::with('language:id,name');
@@ -37,8 +39,11 @@ class CommonController extends Controller
             $query = $query->selectRaw('coalesce (person.users_films.user_id::bool, false) AS "isAvailable"');
         }
         
+        // Число фильмов на странице
+        $perPage = $request->number ?? RouteServiceProvider::PAGINATE_DEFAULT_PER_PAGE;
+        
         return Inertia::render($view, [
-                'films' => $query->orderBy('title')->paginate(20),
+                'films' => $query->orderBy('title')->paginate($perPage)->appends(['number' => $perPage]),
             ]);
     }
 }
