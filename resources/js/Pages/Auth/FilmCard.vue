@@ -1,6 +1,8 @@
 <script setup>
+import { inject } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
+import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 
 const { film } = defineProps({
     film: Object,
@@ -8,11 +10,25 @@ const { film } = defineProps({
 });
 
 const titlePage = film.title;
+
+const paginationAccount = inject('paginationAccount');
+
+// Список для хлебных крошек
+const linksList = [{
+            link: '/',
+            text: 'Главная страница'
+        }, {
+            link: `/account?page=${paginationAccount.page}&number=${paginationAccount.perPage}`,
+            text: 'ЛК'
+        }, {
+            text: titlePage
+        }];
 </script>
 
 <template>
     <Head :title="titlePage" />
     <AuthLayout :errors="errors">
+        <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
         
         <div class="flex">

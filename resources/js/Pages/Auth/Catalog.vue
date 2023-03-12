@@ -2,6 +2,7 @@
 import { inject } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
+import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
@@ -14,6 +15,14 @@ const { films } = defineProps({
 });
 
 const titlePage = 'Каталог';
+
+// Список для хлебных крошек
+const linksList = [{
+            link: '/',
+            text: 'Главная страница'
+        }, {
+            text: 'Каталог'
+        }];
 
 const paginationCatalog = inject('paginationCatalog');
 paginationCatalog.setData(films.current_page, films.per_page);
@@ -60,6 +69,7 @@ const changeNumberOfFilmsOnPage = function(newNumber) {
 <template>
     <Head :title="titlePage" />
     <AuthLayout :errors="errors">
+        <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
         
         <div class="flex justify-between pb-4">

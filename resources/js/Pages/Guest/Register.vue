@@ -1,6 +1,7 @@
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
+import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 
 defineProps({
     errors: Object | null
@@ -13,11 +14,23 @@ const form = useForm({
 });
 
 const titlePage = 'Регистрация';
+
+// Список для хлебных крошек
+const linksList = [{
+            link: '/',
+            text: 'Главная страница'
+        }, {
+            link: '/login',
+            text: 'Вход'
+        }, {
+            text: 'Регистрация'
+        }];
 </script>
 
 <template>
     <Head :title="titlePage" />
     <GuestLayout :errors="errors">
+        <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
 
         <form @submit.prevent="form.post('/register')">
