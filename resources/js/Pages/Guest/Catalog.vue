@@ -23,12 +23,23 @@ const linksList = [{
             text: 'Каталог'
         }];
 
-const paginationCatalog = inject('paginationCatalog');
-paginationCatalog.setData(films.current_page, films.per_page);
+const filmsCatalog = inject('filmsCatalog');
+filmsCatalog.page = films.current_page;
 
 // Изменяет число фильмов на странице
 const changeNumberOfFilmsOnPage = function(newNumber) {
-    router.get(`catalog?page=1&number=${newNumber}`);
+    filmsCatalog.page = 1;
+    filmsCatalog.perPage = newNumber;
+    router.get(filmsCatalog.getUrl());
+};
+
+const putFilms = function(e) {
+    if(e.key.toLowerCase() !== "enter") {
+        return;
+    }
+    
+    filmsCatalog.page = 1;
+    router.get(filmsCatalog.getUrl());
 };
 </script>
 
@@ -59,8 +70,8 @@ const changeNumberOfFilmsOnPage = function(newNumber) {
                 </tr>
                 <tr>
                     <th></th>
-                    <th><input type="text"></th>
-                    <th><input type="text"></th>
+                    <th><input type="text" v-model="filmsCatalog.title" @keyup="putFilms"></th>
+                    <th><input type="text" v-model="filmsCatalog.description" @keyup="putFilms"></th>
                     <th></th>
                 </tr>
             </thead>

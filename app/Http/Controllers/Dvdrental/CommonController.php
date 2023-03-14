@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dvdrental;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,11 +40,22 @@ class CommonController extends Controller
             $query = $query->selectRaw('coalesce (person.users_films.user_id::bool, false) AS "isAvailable"');
         }
         
+        $query = $query->when($request->title, function (Builder $query, string $title) {
+                    $query->where('title', 'ILIKE', "%$title%");
+                })
+                ->when($request->description, function (Builder $query, string $description) {
+                    $query->where('description', 'ILIKE', "%$description%");
+                });
+   
         // Число фильмов на странице
         $perPage = $request->number ?? RouteServiceProvider::PAGINATE_DEFAULT_PER_PAGE;
         
         return Inertia::render($view, [
-                'films' => $query->orderBy('title')->paginate($perPage)->appends(['number' => $perPage]),
+                'films' => $query->orderBy('title')->paginate($perPage)->appends([
+                    'number' => $perPage,
+                    'title' => $request->title,
+                    'description' => $request->description
+                ]),
             ]);
     }
 }

@@ -8,8 +8,8 @@ defineProps({
     errors: Object | null
 });
 
-const paginationCatalog = inject('paginationCatalog');
-const paginationAccount = inject('paginationAccount');
+const filmsCatalog = inject('filmsCatalog');
+const filmsAccount = inject('filmsAccount');
 </script>
 
 <template>
@@ -24,14 +24,14 @@ const paginationAccount = inject('paginationAccount');
                 <li class="nav-tab">
                     <Link
                         class="nav-link small-caps"
-                        :href="`/catalog?page=${paginationCatalog.page}&number=${paginationCatalog.perPage}`"
+                        :href="filmsCatalog.getUrl()"
                         :class="{ 'router-link-active': $page.component === 'Auth/Catalog' }"
                     >каталог</Link>
                 </li>
                 <li class="nav-tab">
                     <Link
                         class="nav-link small-caps"
-                        :href="`/account?page=${paginationAccount.page}&number=${paginationAccount.perPage}`"
+                        :href="filmsAccount.getUrl()"
                         :class="{ 'router-link-active': $page.component === 'Auth/Account' }"
                     >лк</Link>
                 </li>

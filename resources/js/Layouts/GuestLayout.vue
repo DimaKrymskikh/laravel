@@ -8,7 +8,7 @@ defineProps({
     errors: Object | null
 });
 
-const paginationCatalog = inject('paginationCatalog');
+const filmsCatalog = inject('filmsCatalog');
 </script>
 
 <template>
@@ -23,7 +23,7 @@ const paginationCatalog = inject('paginationCatalog');
                 <li class="nav-tab">
                     <Link
                         class="nav-link small-caps"
-                        :href="`/catalog?page=${paginationCatalog.page}&number=${paginationCatalog.perPage}`"
+                        :href="filmsCatalog.getUrl()"
                         :class="{ 'router-link-active': $page.component === 'Guest/Catalog' }"
                     >каталог</Link>
                 </li>

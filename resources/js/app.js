@@ -4,7 +4,7 @@ import './bootstrap';
 import { createApp, h } from 'vue';
 import { createPinia } from 'pinia';
 import { createInertiaApp } from '@inertiajs/vue3';
-import { paginationCatalogStore, paginationAccountStore } from '@/Stores/pagination';
+import { filmsCatalogStore, filmsAccountStore } from '@/Stores/films';
 
 const app = createInertiaApp({
     resolve: name => {
@@ -15,8 +15,8 @@ const app = createInertiaApp({
         const app = createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(createPinia())
-            .provide('paginationCatalog', paginationCatalogStore())
-            .provide('paginationAccount', paginationAccountStore())
+            .provide('filmsCatalog', filmsCatalogStore())
+            .provide('filmsAccount', filmsAccountStore())
             .mount(el);
     },
 })

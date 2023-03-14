@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/BaseModal.vue';
@@ -13,6 +13,8 @@ const { films, removeFilmId, hideFilmRemoveModal } = defineProps({
     removeFilmId: String,
     hideFilmRemoveModal: Function
 });
+
+const filmsAccount = inject('filmsAccount');
 
 // Величина поля для пароля
 const inputPassword = ref('');
@@ -34,12 +36,16 @@ const handlerRemoveFilm = function(e) {
         return;
     }
 
-    const pageNumber = getPageAfterRemoveItem(films);
+    filmsAccount.page = getPageAfterRemoveItem(films);
     
-    router.delete(`account/removefilm/${removeFilmId}?page=${pageNumber}`, {
+    router.delete(`account/removefilm/${removeFilmId}`, {
         preserveScroll: true,
         data: {
-            password: inputPassword.value
+            password: inputPassword.value,
+            page: filmsAccount.page,
+            number: filmsAccount.perPage,
+            title: filmsAccount.title,
+            description: filmsAccount.description
         },
         onBefore: () => {
             isRequest.value = true;

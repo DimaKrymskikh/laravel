@@ -11,14 +11,14 @@ const { film } = defineProps({
 
 const titlePage = film.title;
 
-const paginationAccount = inject('paginationAccount');
+const filmsAccount = inject('filmsAccount');
 
 // Список для хлебных крошек
 const linksList = [{
             link: '/',
             text: 'Главная страница'
         }, {
-            link: `/account?page=${paginationAccount.page}&number=${paginationAccount.perPage}`,
+            link: filmsAccount.getUrl(),
             text: 'ЛК'
         }, {
             text: titlePage

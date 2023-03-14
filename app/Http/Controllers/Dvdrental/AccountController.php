@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dvdrental;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,7 +29,17 @@ class AccountController extends Controller
                         ->where('person.users_films.user_id', '=', Auth::id());
                 })
                 ->select('id', 'title', 'description', 'language_id')
-                ->orderBy('title')->paginate($perPage)->appends(['number' => $perPage]),
+                ->when($request->title, function (Builder $query, string $title) {
+                    $query->where('title', 'ILIKE', "%$title%");
+                })
+                ->when($request->description, function (Builder $query, string $description) {
+                    $query->where('description', 'ILIKE', "%$description%");
+                })
+                ->orderBy('title')->paginate($perPage)->appends([
+                    'number' => $perPage,
+                    'title' => $request->title,
+                    'description' => $request->description
+                ]),
             'user' => Auth::getUser()
         ]);
     }
@@ -63,7 +74,7 @@ class AccountController extends Controller
         $userFilm->film_id = $film_id;
         $userFilm->save();
         
-        return redirect("/catalog?page=$request->page");
+        return redirect($this->getUrl('/catalog', $request));
     }
     
     /**
@@ -80,6 +91,17 @@ class AccountController extends Controller
                 ->where('film_id', '=', $film_id)
                 ->delete();
         
-        return redirect("/account?page=$request->page");
+        return redirect($this->getUrl('/account', $request));
+    }
+    
+    /**
+     * Формирует url с настройками списка фильмов
+     * @param string $url - базовый url
+     * @param Request $request
+     * @return string
+     */
+    private function getUrl(string $url, Request $request): string
+    {
+        return "$url?page=$request->page&number=$request->number&title=$request->title&description=$request->description";
     }
 }

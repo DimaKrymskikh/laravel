@@ -27,8 +27,8 @@ const linksList = [{
             text: 'ЛК'
         }];
 
-const paginationAccount = inject('paginationAccount');
-paginationAccount.setData(films.current_page, films.per_page);
+const filmsAccount = inject('filmsAccount');
+filmsAccount.page = films.current_page;
 
 // Отслеживает отрисовку/удаление модального окна для удаления фильма
 const isShowFilmRemoveModal = ref(false);
@@ -72,7 +72,18 @@ const hideAccountRemoveModal = function() {
 
 // Изменяет число фильмов на странице
 const changeNumberOfFilmsOnPage = function(newNumber) {
-    router.get(`account?page=1&number=${newNumber}`);
+    filmsAccount.page = 1;
+    filmsAccount.perPage = newNumber;
+    router.get(filmsAccount.getUrl());
+};
+
+const putFilms = function(e) {
+    if(e.key.toLowerCase() !== "enter") {
+        return;
+    }
+    
+    filmsAccount.page = 1;
+    router.get(filmsAccount.getUrl());
 };
 </script>
 
@@ -111,8 +122,8 @@ const changeNumberOfFilmsOnPage = function(newNumber) {
                 </tr>
                 <tr>
                     <th></th>
-                    <th><input type="text"></th>
-                    <th><input type="text"></th>
+                    <th><input type="text" v-model="filmsAccount.title" @keyup="putFilms"></th>
+                    <th><input type="text" v-model="filmsAccount.description" @keyup="putFilms"></th>
                     <th></th>
                     <th></th>
                     <th></th>

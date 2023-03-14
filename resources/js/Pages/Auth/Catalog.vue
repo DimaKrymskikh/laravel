@@ -24,8 +24,8 @@ const linksList = [{
             text: 'Каталог'
         }];
 
-const paginationCatalog = inject('paginationCatalog');
-paginationCatalog.setData(films.current_page, films.per_page);
+const filmsCatalog = inject('filmsCatalog');
+filmsCatalog.page = films.current_page;
 
 /**
  * Добавляет фильм в коллекцию пользователя
@@ -37,16 +37,16 @@ const addFilm = function(tag) {
     // Защита от повторного клика
     td.classList.remove('add-film');
     
-    const page = tag.closest('table').getAttribute('data-page');
     const filmId = td.getAttribute('data-film_id');
 
-    router.visit(`account/addfilm/${filmId}`, {
-        method: 'post',
-        preserveScroll: true,
-        data: {
-            page
-        }
-    });
+    router.post(`account/addfilm/${filmId}`, {
+            page: filmsCatalog.page,
+            number: filmsCatalog.perPage,
+            title: filmsCatalog.title,
+            description: filmsCatalog.description
+        }, {
+            preserveScroll: true
+        });
 };
 
 /**
@@ -62,7 +62,18 @@ const handlerTableChange = function(e) {
 
 // Изменяет число фильмов на странице
 const changeNumberOfFilmsOnPage = function(newNumber) {
-    router.get(`catalog?page=1&number=${newNumber}`);
+    filmsCatalog.page = 1;
+    filmsCatalog.perPage = newNumber;
+    router.get(filmsCatalog.getUrl());
+};
+
+const putFilms = function(e) {
+    if(e.key.toLowerCase() !== "enter") {
+        return;
+    }
+    
+    filmsCatalog.page = 1;
+    router.get(filmsCatalog.getUrl());
 };
 </script>
 
@@ -80,7 +91,7 @@ const changeNumberOfFilmsOnPage = function(newNumber) {
             />
         </div>
         
-        <table class="container" :data-page="films.current_page" @click="handlerTableChange">
+        <table class="container" @click="handlerTableChange">
             <caption>
                 <Info :films='films' v-if="films.total > 0" />
             </caption>
@@ -94,8 +105,8 @@ const changeNumberOfFilmsOnPage = function(newNumber) {
                 </tr>
                 <tr>
                     <th></th>
-                    <th><input type="text"></th>
-                    <th><input type="text"></th>
+                    <th><input type="text" v-model="filmsCatalog.title" @keyup="putFilms"></th>
+                    <th><input type="text" v-model="filmsCatalog.description" @keyup="putFilms"></th>
                     <th></th>
                     <th></th>
                 </tr>
