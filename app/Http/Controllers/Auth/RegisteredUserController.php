@@ -40,6 +40,8 @@ class RegisteredUserController extends Controller
     public function remove(Request $request): RedirectResponse
     {
         Auth::getUser()->delete();
+        
+        Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 

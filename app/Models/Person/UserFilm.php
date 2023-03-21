@@ -2,7 +2,9 @@
 
 namespace App\Models\Person;
 
+use Database\Factories\Person\UserFilmFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 
 class UserFilm extends Model
@@ -16,4 +18,9 @@ class UserFilm extends Model
     
     // Метод save() будет возвращать user_id
     protected $primaryKey = 'user_id';
+    
+    protected static function newFactory(): Factory
+    {
+        return UserFilmFactory::new();
+    }
 }
