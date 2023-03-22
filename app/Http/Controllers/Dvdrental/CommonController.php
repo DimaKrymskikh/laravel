@@ -16,12 +16,12 @@ class CommonController extends Controller
 {
     public function home(): Response
     {
-        return Inertia::render((Auth::check() ? 'Auth/' : 'Guest/') . 'Home');
+        return Inertia::render((Auth::check() ? 'Auth' : 'Guest') . '/Home');
     }
     
     public function catalog(Request $request): Response
     {
-        $view = (Auth::check() ? 'Auth/' : 'Guest/') . 'Catalog';
+        $view = (Auth::check() ? 'Auth' : 'Guest') . '/Catalog';
         $query = Film::with('language:id,name');
         
         // Для аутентифицированного пользователя указывается принадлежность фильма его коллекции
