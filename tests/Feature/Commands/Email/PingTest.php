@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Email;
+namespace Tests\Feature\Commands\Email;
 
 use App\Mail\Ping;
 use Illuminate\Support\Facades\Mail;
