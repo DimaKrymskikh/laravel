@@ -1,13 +1,18 @@
 <?php
 
-namespace Tests\Feature\Dvdrental;
+namespace Tests\Feature\Controllers\Dvdrental;
 
 use App\Models\User;
 use App\Models\Dvd\Film;
 use App\Models\Person\UserFilm;
+use App\Notifications\Dvdrental\AddFilmNotification;
+use App\Notifications\Dvdrental\RemoveFilmNotification;
+
 use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class AccountTest extends TestCase
@@ -59,6 +64,11 @@ class AccountTest extends TestCase
     
     public function test_film_add_in_user_list(): void
     {
+        Notification::fake();
+        
+        // Получаем пользователя BaseTestLogin
+        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        
         $response = $this->beforeTest()->post('account/addfilm/123', [
             'page' => 1,
             'number' => 100
@@ -66,7 +76,12 @@ class AccountTest extends TestCase
         
         // У BaseTestLogin теперь 4 фидьма (было 3 и 1 добавился)
         $this->assertEquals(4, UserFilm::where('user_id', 1)->count());
-
+        
+        // Отправляется оповещение о добавлении фильма
+        Notification::assertSentTo(
+            [$userBaseTestLogin], AddFilmNotification::class
+        );
+        
         $response
             ->assertStatus(302)
             ->assertRedirect('catalog?page=1&number=100&title=&description=');
@@ -74,6 +89,11 @@ class AccountTest extends TestCase
     
     public function test_film_add_in_user_list_with_duplicate(): void
     {
+        Notification::fake();
+        
+        // Получаем пользователя BaseTestLogin
+        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        
         // Попытка добавить в список пользователя уже существующий там фильм
         $response = $this->beforeTest()->post('account/addfilm/7', [
             'page' => 1,
@@ -82,6 +102,11 @@ class AccountTest extends TestCase
         
         // У BaseTestLogin по-прежнему 3 фильма
         $this->assertEquals(3, UserFilm::where('user_id', 1)->count());
+
+        // Оповещение о добавлении фильма не отправляется
+        Notification::assertNotSentTo(
+            [$userBaseTestLogin], AddFilmNotification::class
+        );
 
         $response->assertInvalid([
                 'message' => trans("user.film.message", [
@@ -92,6 +117,11 @@ class AccountTest extends TestCase
     
     public function test_film_remove_from_user_list(): void
     {
+        Notification::fake();
+        
+        // Получаем пользователя BaseTestLogin
+        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        
         $response = $this->beforeTest()->delete('account/removefilm/7', [
             'password' => 'TestPassword7',
             'page' => 1,
@@ -101,6 +131,11 @@ class AccountTest extends TestCase
         // У BaseTestLogin теперь 2 фидьма (было 3 и 1 удалился)
         $this->assertEquals(2, UserFilm::where('user_id', 1)->count());
 
+        // Отправляется оповещение об удалении фильма
+        Notification::assertSentTo(
+            [$userBaseTestLogin], RemoveFilmNotification::class
+        );
+
         $response
             ->assertStatus(302)
             ->assertRedirect('account?page=1&number=100&title=&description=');
@@ -108,6 +143,11 @@ class AccountTest extends TestCase
     
     public function test_film_can_not_remove_from_user_list_with_wrong_password(): void
     {
+        Notification::fake();
+        
+        // Получаем пользователя BaseTestLogin
+        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        
         $response = $this->beforeTest()->delete('account/removefilm/7', [
             'password' => 'wrongPassword7',
             'page' => 1,
@@ -116,6 +156,11 @@ class AccountTest extends TestCase
         
         // У BaseTestLogin по-прежнему 3 фильма
         $this->assertEquals(3, UserFilm::where('user_id', 1)->count());
+
+        // Оповещение об удалении фильма не отправляется
+        Notification::assertNotSentTo(
+            [$userBaseTestLogin], RemoveFilmNotification::class
+        );
 
         $response->assertInvalid([
                 'password' => trans("user.password.wrong")
@@ -144,10 +189,12 @@ class AccountTest extends TestCase
                 ))
                 ->create();
     
-        // Получаем пользователя BaseTestLogin
-        $userBaseTestLogin = User::find(1);
-        
         // Логинится пользователь BaseTestLogin
-        return $this->actingAs($userBaseTestLogin);
+        return $this->actingAs($this->getUserBaseTestLogin());
+    }
+    
+    private function getUserBaseTestLogin(): User
+    {
+        return User::find(1);
     }
 }

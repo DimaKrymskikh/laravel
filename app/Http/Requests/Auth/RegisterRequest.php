@@ -28,6 +28,7 @@ class RegisterRequest extends FormRequest
     {
         return [
             'login' => ['unique:App\Models\User', 'required', 'min:4', 'max:18', new CapitalfirstLogin, new WLogin],
+            'email' => ['unique:App\Models\User', 'required', 'email'],
             'password' => ['required', 'confirmed', Password::min(6)->rules([new MixedCasePassword, new NumbersPassword])],
         ];
     }
@@ -39,6 +40,9 @@ class RegisterRequest extends FormRequest
             'login.required' => trans("auth.required.login"),
             'login.max' => trans("auth.max.login"),
             'login.min' => trans("auth.min.login"),
+            'email.unique' => trans("auth.unique.email"),
+            'email.required' => trans("auth.required.email"),
+            'email.email' => trans("auth.email"),
             'password.required' => trans("auth.required.password"),
             'password.confirmed' => trans("auth.confirmed.password"),
             'password.min' => trans("auth.min.password"),

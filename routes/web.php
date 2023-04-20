@@ -1,11 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Dvdrental\CommonController;
 use App\Http\Controllers\Dvdrental\AccountController;
 use App\Http\Controllers\Dvdrental\FilmCardController;
+
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +34,17 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+//    Route::get('verify-email', [VerifyEmailController::class, 'notice'])
+//                ->name('verification.notice');
+    
+    Route::get('verify-email/{id}/{hash}', [VerifyEmailController::class, 'verify'])
+                ->middleware(['signed', 'throttle:6,1'])
+                ->name('verification.verify');
+
+    Route::post('verify-email', [VerifyEmailController::class, 'store'])
+                ->middleware('throttle:6,1')
+                ->name('verification.send');
+    
     Route::get('logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->name('logout');
     
@@ -47,3 +60,34 @@ Route::middleware('auth')->group(function () {
     Route::get('filmcard/{film_id}', [FilmCardController::class, 'create'])
                 ->name('filmcard');
 });
+
+/**
+ * Просмотр писем и оповещений в браузере
+ */
+//Route::get('/notification', function () {
+// 
+//    return (new \Illuminate\Auth\Notifications\VerifyEmail())
+//                ->toMail(new class {
+//                    public function getKey() {
+//                        return 'aaa';
+//                    }
+//                    public function getEmailForVerification() {
+//                        return 'bbb';
+//                    }
+//                });
+//});
+
+//Route::get('/notification', function () {
+//    $title = \App\Models\Dvd\Film::select('title')
+//            ->where('id', 28)
+//            ->first()->title;
+//    $login = \App\Models\User::select('login')
+//            ->where('id', 9)
+//            ->first()->login;
+//
+//    return (new \App\Notifications\Dvdrental\AddFilmNotification())
+//                ->toMail((object) [
+//                    'login' => $login,
+//                    'title' => $title
+//                ]);
+//});

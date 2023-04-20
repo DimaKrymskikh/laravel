@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Events\AddFilm;
+use App\Events\RemoveFilm;
+use App\Listeners\SendEmailAddFilmNotification;
+use App\Listeners\SendEmailRemoveFilmNotification;
+
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -18,6 +22,12 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        AddFilm::class => [
+            SendEmailAddFilmNotification::class
+        ],
+        RemoveFilm::class => [
+            SendEmailRemoveFilmNotification::class
+        ]
     ];
 
     /**

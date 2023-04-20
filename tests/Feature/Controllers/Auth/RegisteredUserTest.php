@@ -1,11 +1,14 @@
 <?php
 
-namespace Tests\Feature\Auth;
+namespace Tests\Feature\Controllers\Auth;
 
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
+
 use Inertia\Testing\AssertableInertia as Assert;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class RegisteredUserTest extends TestCase
@@ -27,18 +30,26 @@ class RegisteredUserTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
+        Event::fake();
+        
         $response = $this->post('register', [
             'login' => 'TestLogin',
+            'email' => 'testlogin@example.com',
             'password' => 'TestPassword7',
             'password_confirmation' => 'TestPassword7',
         ]);
 
         $this->assertAuthenticated();
         $response->assertRedirect(RouteServiceProvider::HOME);
+        
+        // Отправляется событие, которое отправляет email для подтверждения адреса эл. почты
+        Event::assertDispatched(Registered::class, 1);
     }
 
     public function test_new_users_can_not_register_with_invalid_login_unique(): void
     {
+        Event::fake();
+        
         $response = $this->post('register', [
             'login' => 'BaseTestLogin',
             'password' => 'TestPassword7',
@@ -49,6 +60,9 @@ class RegisteredUserTest extends TestCase
         $response->assertInvalid([
                 'login' => trans("auth.unique.login")
             ]);
+        
+        // Событие, которое должно отправить email для подтверждения адреса эл. почты, не отправляется
+        Event::assertNotDispatched(Registered::class);
     }
 
     public function test_new_users_can_not_register_if_login_contains_not_only_latin_letters_or_numbers(): void

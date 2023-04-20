@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers\Dvdrental;
 
+use App\Events\AddFilm;
+use App\Events\RemoveFilm;
+use App\Http\Controllers\Controller;
+use App\Models\Dvd\Film;
+use App\Models\Person\UserFilm;
+use App\Providers\RouteServiceProvider;
+
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\RedirectResponse;
@@ -10,13 +17,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Http\Controllers\Controller;
-use App\Models\Dvd\Film;
-use App\Models\Person\UserFilm;
-use App\Providers\RouteServiceProvider;
 
 class AccountController extends Controller
 {
+    /**
+     * Отрисовывает страницу аккаунта
+     * 
+     * @param Request $request
+     * @return Response
+     */
     public function create(Request $request): Response
     {
         // Число фильмов на странице
@@ -46,6 +55,7 @@ class AccountController extends Controller
     
     /**
      * Добавляет фильм с film_id в коллекцию пользователя
+     * 
      * @param Request $request
      * @param string $film_id
      * @return RedirectResponse
@@ -72,13 +82,18 @@ class AccountController extends Controller
         $userFilm = new UserFilm;
         $userFilm->user_id = Auth::id();
         $userFilm->film_id = $film_id;
-        $userFilm->save();
+        
+        // Если запись была успешной, пользователь получает оповещение
+        if ($userFilm->save()) {
+            event(new AddFilm($userFilm));
+        }
         
         return redirect($this->getUrl('/catalog', $request));
     }
     
     /**
-     * Удаляет фильм с film_id из коллекции пользователя
+     * Удаляет фильм с film_id из коллекции пользователя.
+     * 
      * @param Request $request
      * @param string $film_id
      * @return RedirectResponse
@@ -86,16 +101,24 @@ class AccountController extends Controller
      */
     public function removeFilm(Request $request, string $film_id): RedirectResponse
     {
-        // Удаление фильма с film_id из коллекции пользователя
-        UserFilm::where('user_id', '=', Auth::id())
-                ->where('film_id', '=', $film_id)
-                ->delete();
+        $query = UserFilm::where('user_id', '=', Auth::id())
+                ->where('film_id', '=', $film_id);
+        
+        // Получаем данные строки, которую хотим удалить.
+        $userFilm = $query->first();
+        
+        // Удаление фильма с film_id из коллекции пользователя.
+        if ($query->delete()) {
+            // При успешном удалении фильма пользователь получает оповещение
+            event(new RemoveFilm($userFilm));
+        }
         
         return redirect($this->getUrl('/account', $request));
     }
     
     /**
      * Формирует url с настройками списка фильмов
+     * 
      * @param string $url - базовый url
      * @param Request $request
      * @return string

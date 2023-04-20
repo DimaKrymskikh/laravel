@@ -19,6 +19,7 @@ class UserFactory extends Factory
         return [
             'login' => 'TestLogin',
             'password' => '$2y$10$C1KS0X3nGPMyirf4AXh9t.pzeEulJfgr.CWsKNsFAsQ7bDmC2oVOS', // TestPassword7
+            'email' => 'testlogin@example.com',
         ];
     }
 

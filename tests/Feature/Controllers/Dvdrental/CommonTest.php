@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Dvdrental;
+namespace Tests\Feature\Controllers\Dvdrental;
 
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;

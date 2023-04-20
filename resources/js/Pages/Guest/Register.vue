@@ -9,6 +9,7 @@ defineProps({
 
 const form = useForm({
     login: null,
+    email: null,
     password: null,
     password_confirmation: null
 });
@@ -44,6 +45,18 @@ const linksList = [{
                     v-model="form.login"
                 >
                 <div v-if="form.errors.login" class="error">{{ form.errors.login }}</div>
+            </div>
+            
+            <div class="mb-3 w-1/3 pr-4">
+                <label for="email" class="block font-medium text-sm text-gray-700">
+                    Электронная почта:
+                </label>
+                <input
+                    id="email" type="text" name="email" 
+                    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                    v-model="form.email"
+                >
+                <div v-if="form.errors.email" class="error">{{ form.errors.email }}</div>
             </div>
 
             <div class="mb-3 w-1/3 pr-4">

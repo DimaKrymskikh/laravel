@@ -38,7 +38,10 @@ class FilmsStatisticsAvailableToUsersTest extends TestCase
         $userTestLogin = User::factory()->create();
         
         $userTestLogin2 = User::factory()
-            ->state(['login' => 'UserTestLogin2'])
+            ->state([
+                'login' => 'UserTestLogin2',
+                'email' => 'usertestlogin2@example.com'
+            ])
             ->create();
 
         UserFilm::factory()
