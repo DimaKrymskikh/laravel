@@ -5,8 +5,10 @@ namespace App\Providers;
 use App\Events\AddFilm;
 use App\Events\RemoveFilm;
 use App\Listeners\SendEmailAddFilmNotification;
+use App\Listeners\SendEmailNewPasswordNotification;
 use App\Listeners\SendEmailRemoveFilmNotification;
 
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -21,6 +23,9 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+        PasswordReset::class => [
+            SendEmailNewPasswordNotification::class,
         ],
         AddFilm::class => [
             SendEmailAddFilmNotification::class

@@ -4,7 +4,8 @@ import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 
 defineProps({
-    errors: Object | null
+    errors: Object | null,
+    status: String
 });
 
 const form = useForm({
@@ -28,6 +29,10 @@ const linksList = [{
     <GuestLayout :errors="errors">
         <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
+
+        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
+            {{ status }}
+        </div>
 
         <form @submit.prevent="form.post('/login')">
             <div class="mb-3 w-1/3 pr-4">
@@ -64,6 +69,11 @@ const linksList = [{
         <div class="mb-4">
             Не зарегистрированы?
             <Link class="ml-2 text-orange-700 hover:text-orange-900" href="/register">Регистрация</Link>
+        </div>
+
+        <div class="mb-4">
+            Забыли пароль?
+            <Link class="ml-2 text-orange-700 hover:text-orange-900" href="/forgot-password">Сброс пароля</Link>
         </div>
     </GuestLayout>
 </template>

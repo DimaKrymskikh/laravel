@@ -2,18 +2,19 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Rules\Auth\CapitalfirstLogin;
 use App\Rules\Auth\MixedCasePassword;
 use App\Rules\Auth\NumbersPassword;
-use App\Rules\Auth\WLogin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
-class RegisterRequest extends FormRequest
+/**
+ * Проверяет запрос, который задаёт новый пароль пользователя
+ */
+class NewPasswordRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Проверка авторизации пользователя не нужна.
      */
     public function authorize(): bool
     {
@@ -21,27 +22,26 @@ class RegisterRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
+     * 
      * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
     public function rules(): array
     {
         return [
-            'login' => ['unique:App\Models\User', 'required', 'min:4', 'max:18', new CapitalfirstLogin, new WLogin],
-            'email' => ['unique:App\Models\User', 'required', 'email'],
+            'token' => 'required',
+            'email' => ['required', 'email'],
             'password' => ['required', 'confirmed', Password::min(6)->rules([new MixedCasePassword, new NumbersPassword])],
         ];
     }
     
+    /**
+     * 
+     * @return array
+     */
     public function messages(): array
     {
         return [
-            'login.unique' => trans("auth.unique.login"),
-            'login.required' => trans("auth.required.login"),
-            'login.max' => trans("auth.max.login"),
-            'login.min' => trans("auth.min.login"),
-            'email.unique' => trans("auth.unique.email"),
+            'token.required' => trans("auth.required.token"),
             'email.required' => trans("auth.required.email"),
             'email.email' => trans("auth.email"),
             'password.required' => trans("auth.required.password"),
