@@ -2,21 +2,26 @@
 
 namespace App\Notifications\Dvdrental;
 
+use App\Models\Person\UserFilm;
+use App\Models\ModelsFields;
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class AddFilmNotification extends Notification
+class AddFilmNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, ModelsFields;
+    
+    private string $title;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(UserFilm $userFilm)
     {
-        //
+        $this->title = $this->getFilmTitle($userFilm->film_id);
     }
 
     /**
@@ -37,9 +42,9 @@ class AddFilmNotification extends Notification
         return (new MailMessage)
                     ->subject('Добавление фильма')
                     ->view(
-                        'vendor.notifications.addfilm', [
+                        'notifications.dvdrental.addfilm', [
                             'login' => $notifiable->login,
-                            'title' => $notifiable->title
+                            'title' => $this->title,
                         ]
                     );
     }

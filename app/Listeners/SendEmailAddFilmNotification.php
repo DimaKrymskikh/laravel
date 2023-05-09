@@ -3,19 +3,21 @@
 namespace App\Listeners;
 
 use App\Events\AddFilm;
-use App\Models\UserTrait;
+use App\Models\User;
 use App\Notifications\Dvdrental\AddFilmNotification;
+
+use Illuminate\Support\Facades\Auth;
 
 class SendEmailAddFilmNotification
 {
-    use UserTrait;
-    
+    private User $user;
+
     /**
      * Create the event listener.
      */
     public function __construct()
     {
-        //
+        $this->user = Auth::getUser();
     }
 
     /**
@@ -23,8 +25,6 @@ class SendEmailAddFilmNotification
      */
     public function handle(AddFilm $event): void
     {
-        $user = $this->getUserWithFilm($event->userFilm);
-        
-        $user->notify(new AddFilmNotification);
+        $this->user->notify(new AddFilmNotification($event->userFilm));
     }
 }
