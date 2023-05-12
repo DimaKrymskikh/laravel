@@ -172,9 +172,21 @@ COMMENT ON COLUMN person.users.created_at IS
 
 COMMENT ON COLUMN person.users.updated_at IS 
     'Время последнего изменения аккаунта';
------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ALTER TABLE person.users ADD CHECK (login ~ '^[A-Z]\w{3,17}$');
+
+ALTER TABLE person.users ADD COLUMN email text;
+ALTER TABLE person.users ADD CONSTRAINT users_email_unique UNIQUE (email);
+ALTER TABLE person.users ALTER COLUMN email SET NOT NULL;
+
+COMMENT ON COLUMN person.users.email IS 
+    'email пользователя';
+
+ALTER TABLE person.users ADD COLUMN email_verified_at timestamptz;
+
+COMMENT ON COLUMN person.users.email_verified_at IS 
+    'Время подтверждения email пользователя';
+-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -192,4 +204,26 @@ COMMENT ON TABLE person.users_films IS
 
 COMMENT ON COLUMN dvd.films_actors.created_at IS 
     'Время создания записи';
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE person.password_resets (
+    email text PRIMARY KEY NOT NULL,
+    token text NOT NULL,
+    created_at timestamp(0)
+);
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE thesaurus.failed_jobs (
+    id bigserial PRIMARY KEY NOT NULL,
+    uuid varchar(255) UNIQUE NOT NULL,
+    "connection" text NOT NULL,
+    queue text NOT NULL,
+    payload text NOT NULL,
+    "exception" text NOT NULL,
+    failed_at timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 -----------------------------------------------------------------------------------------------------------------------------------------------------
