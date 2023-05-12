@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\ModelsFields;
 use App\Models\Person\UserFilm;
 
 use Illuminate\Broadcasting\Channel;
@@ -12,9 +13,11 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class RemoveFilm
+class RemoveFilm implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable, InteractsWithSockets, SerializesModels, ModelsFields;
+    
+    public string $message;
 
     /**
      * Create a new event instance.
@@ -23,7 +26,7 @@ class RemoveFilm
             public UserFilm $userFilm
     )
     {
-        //
+        $this->message = 'Вы удалили из своей коллекции фильм '.$this->getFilmTitle($userFilm->film_id);
     }
 
     /**
@@ -34,7 +37,12 @@ class RemoveFilm
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new PrivateChannel("film.{$this->userFilm->user_id}"),
         ];
+    }
+    
+    public function broadcastWith(): array
+    {
+        return ['message' => $this->message];
     }
 }

@@ -6,6 +6,7 @@ import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 
 const { film } = defineProps({
     film: Object,
+    user: Object,
     errors: Object | null
 });
 
@@ -27,7 +28,7 @@ const linksList = [{
 
 <template>
     <Head :title="titlePage" />
-    <AuthLayout :errors="errors">
+    <AuthLayout :errors="errors" :user_id="user.id">
         <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
         

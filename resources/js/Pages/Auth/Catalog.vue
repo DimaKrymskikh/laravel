@@ -11,6 +11,7 @@ import PlusCircleSvg from '@/Components/Svg/PlusCircleSvg.vue';
 
 const { films } = defineProps({
     films: Object,
+    user: Object,
     errors: Object | null
 });
 
@@ -79,7 +80,7 @@ const putFilms = function(e) {
 
 <template>
     <Head :title="titlePage" />
-    <AuthLayout :errors="errors">
+    <AuthLayout :errors="errors" :user_id="user.id">
         <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
         

@@ -1,12 +1,23 @@
 <script setup>
-import { inject } from 'vue';
+import { inject, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
 
-defineProps({
+const { user_id } = defineProps({
+    user_id: Number,
     errors: Object | null
 });
+
+const message = ref('');
+
+Echo.private(`film.${user_id}`)
+    .listen('AddFilm', (e) => {
+        message.value = e.message;
+    })
+    .listen('RemoveFilm', (e) => {
+        message.value = e.message;
+    });
 
 const filmsCatalog = inject('filmsCatalog');
 const filmsAccount = inject('filmsAccount');
@@ -14,7 +25,7 @@ const filmsAccount = inject('filmsAccount');
 
 <template>
     <nav id="main-nav" class="bg-orange-300 shadow shadow-orange-200">
-        <div class="lg:container">
+        <div class="lg:container flex justify-between">
             <ul class="flex flex-row pt-2">
                 <li class="nav-tab">
                     <Link class="nav-link self-center" href="/" :class="{ 'router-link-active': $page.component === 'Auth/Home' }">
@@ -39,6 +50,7 @@ const filmsAccount = inject('filmsAccount');
                     <Link class="nav-link small-caps" href="/logout" :class="{ 'router-link-active': $page.url === '/logout' }">выход</Link>
                 </li>
             </ul>
+            <span class="text-orange-700 py-2">{{ message }}</span>
         </div>
     </nav>
 

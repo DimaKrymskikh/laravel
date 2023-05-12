@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Dvdrental;
 
-use Inertia\Inertia;
-use Inertia\Response;
 use App\Http\Controllers\Controller;
 use App\Models\Dvd\Film;
+
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class FilmCardController extends Controller
 {
@@ -18,7 +20,8 @@ class FilmCardController extends Controller
             ])
             ->select('id', 'title', 'description', 'release_year', 'language_id')
             ->where('id', '=', $film_id)
-            ->first()
+            ->first(),
+            'user' => Auth::getUser()
         ]);
     }
 }

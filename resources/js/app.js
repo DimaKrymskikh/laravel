@@ -19,4 +19,4 @@ const app = createInertiaApp({
             .provide('filmsAccount', filmsAccountStore())
             .mount(el);
     },
-})
+});

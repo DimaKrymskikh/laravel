@@ -4,6 +4,7 @@ import AuthLayout from '@/Layouts/AuthLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 
 defineProps({
+    user: Object,
     errors: Object | null
 });
 
@@ -17,7 +18,7 @@ const linksList = [{
 
 <template>
     <Head :title="titlePage" />
-    <AuthLayout :errors="errors">
+    <AuthLayout :errors="errors" :user_id="user.id">
         <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
     </AuthLayout>

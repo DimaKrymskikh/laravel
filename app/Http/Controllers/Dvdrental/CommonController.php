@@ -2,21 +2,24 @@
 
 namespace App\Http\Controllers\Dvdrental;
 
+use App\Http\Controllers\Controller;
+use App\Models\Dvd\Film;
+use App\Providers\RouteServiceProvider;
+
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Http\Controllers\Controller;
-use App\Models\Dvd\Film;
-use App\Providers\RouteServiceProvider;
 
 class CommonController extends Controller
 {
     public function home(): Response
     {
-        return Inertia::render((Auth::check() ? 'Auth' : 'Guest') . '/Home');
+        return Inertia::render((Auth::check() ? 'Auth' : 'Guest') . '/Home', [
+            'user' => Auth::getUser()
+        ]);
     }
     
     public function catalog(Request $request): Response
@@ -56,6 +59,7 @@ class CommonController extends Controller
                     'title' => $request->title,
                     'description' => $request->description
                 ]),
+                'user' => Auth::getUser()
             ]);
     }
 }

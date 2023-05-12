@@ -99,7 +99,7 @@ const putFilms = function(e) {
 
 <template>
     <Head :title="titlePage" />
-    <AuthLayout :errors="errors">
+    <AuthLayout :errors="errors" :user_id="user.id">
         <BreadCrumb :linksList="linksList" />
         <div class="relative">
             <div class="absolute right-0">
