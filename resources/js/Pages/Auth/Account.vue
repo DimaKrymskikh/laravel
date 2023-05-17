@@ -12,6 +12,7 @@ import CheckSvg from '@/Components/Svg/CheckSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import AccountRemoveModal from '@/Components/Modal/AccountRemoveModal.vue';
 import FilmRemoveModal from '@/Components/Modal/FilmRemoveModal.vue';
+import FormButton from '@/Components/Elements/FormButton.vue';
 
 const { films } = defineProps({
     films: Object,
@@ -33,6 +34,8 @@ const filmsAccount = inject('filmsAccount');
 filmsAccount.page = films.current_page;
 
 const isPersonalData = ref(false);
+// Выполняется ли запрос на сервер
+const isRequest = ref(false);
 
 // Отслеживает отрисовку/удаление модального окна для удаления фильма
 const isShowFilmRemoveModal = ref(false);
@@ -95,6 +98,13 @@ const putFilms = function(e) {
     filmsAccount.page = 1;
     router.get(filmsAccount.getUrl());
 };
+    
+const handlerVerifyEmail = function() {
+    form.post('/verify-email', {
+        onBefore: () => isRequest.value = true,
+        onFinish: () => isRequest.value = false
+    });
+};
 </script>
 
 <template>
@@ -121,10 +131,8 @@ const putFilms = function(e) {
                             Вы можете нажать на эту кнопку для отправки нового письма
                         </div>
                         <div class="text-center">
-                            <form @submit.prevent="form.post('/verify-email')">
-                                <button class="m-2 p-2 bg-orange-300" :disabled="form.processing">
-                                    Отправка нового письма
-                                </button>
+                            <form @submit.prevent="handlerVerifyEmail">
+                                <FormButton class="w-56" text="Отправка нового письма" :form="form" :isRequest="isRequest" />
                             </form>
                         </div>
                     </div>

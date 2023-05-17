@@ -75,7 +75,7 @@ const handlerRemoveFilm = function(e) {
             Вы действительно хотите удалить фильм 
             <span>{{ removeFilmTitle }}</span>?
             <div class="mb-3">
-                <Spinner hSpinner="h-8" v-if="isRequest" />
+                <Spinner hSpinner="h-8" class="flex justify-center" v-if="isRequest" />
                 <InputField v-else
                     titleText="Введите пароль:"
                     type="password"

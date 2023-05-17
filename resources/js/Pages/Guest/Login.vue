@@ -1,7 +1,9 @@
 <script setup>
+import { ref } from 'vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
+import FormButton from '@/Components/Elements/FormButton.vue';
 
 defineProps({
     errors: Object | null,
@@ -22,6 +24,21 @@ const linksList = [{
         }, {
             text: 'Вход'
         }];
+
+// Выполняется ли запрос на сервер
+const isRequest = ref(false);
+    
+const handlerLogin = function() {
+    form.post('/login', {
+        onBefore: () => {
+            isRequest.value = true;
+        },
+        onFinish: () => {
+            isRequest.value = false;
+            form.reset('password');
+        }
+    });
+};
 </script>
 
 <template>
@@ -34,7 +51,7 @@ const linksList = [{
             {{ status }}
         </div>
 
-        <form @submit.prevent="form.post('/login')">
+        <form @submit.prevent="handlerLogin">
             <div class="mb-3 w-1/3 pr-4">
                 <label for="login" class="block font-medium text-sm text-gray-700">
                     Логин:
@@ -60,9 +77,7 @@ const linksList = [{
             </div>
 
             <div class="mb-3 w-1/3 pr-4 text-right">
-                <button class="p-1 w-36 rounded-lg bg-orange-300 text-orange-700 hover:bg-orange-200 text-orange-600" :disabled="form.processing">
-                    Вход
-                </button>
+                <FormButton class="w-36" text="Вход" :form="form" :isRequest="isRequest" />
             </div>
         </form>
 

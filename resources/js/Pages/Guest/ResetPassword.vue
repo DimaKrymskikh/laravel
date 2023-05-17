@@ -1,7 +1,9 @@
 <script setup>
+import { ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
+import FormButton from '@/Components/Elements/FormButton.vue';
 
 const props = defineProps({
     email: String,
@@ -18,6 +20,9 @@ const form = useForm({
 
 const titlePage = 'Сброс пароля';
 
+// Выполняется ли запрос на сервер
+const isRequest = ref(false);
+
 // Список для хлебных крошек
 const linksList = [{
             link: '/',
@@ -29,9 +34,13 @@ const linksList = [{
             text: 'Сброс пароля'
         }];
 
-const submit = () => {
+const handlerResetPassword = () => {
     form.post('/reset-password', {
-        onFinish: () => form.reset('password', 'password_confirmation'),
+        onBefore: () => isRequest.value = true,
+        onFinish: () => {
+            form.reset('password', 'password_confirmation');
+            isRequest.value = false;
+        }
     });
 };
 </script>
@@ -42,7 +51,7 @@ const submit = () => {
         <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
 
-        <form @submit.prevent="submit">
+        <form @submit.prevent="handlerResetPassword">
             <div class="mb-3 w-1/3 pr-4">
                 <label for="email" class="block font-medium text-sm text-gray-700">
                     Электронная почта:
@@ -87,9 +96,7 @@ const submit = () => {
             </div>
 
             <div class="mb-3 w-1/3 pr-4 text-right">
-                <button class="p-1 w-48 rounded-lg bg-orange-300 text-orange-700 hover:bg-orange-200 text-orange-600" :disabled="form.processing">
-                    Задать новый пароль
-                </button>
+                <FormButton class="w-48" text="Задать новый пароль" :form="form" :isRequest="isRequest" />
             </div>
         </form>
     </GuestLayout>

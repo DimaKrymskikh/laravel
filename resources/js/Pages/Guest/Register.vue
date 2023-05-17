@@ -1,7 +1,9 @@
 <script setup>
+import { ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
+import FormButton from '@/Components/Elements/FormButton.vue';
 
 defineProps({
     errors: Object | null
@@ -16,6 +18,9 @@ const form = useForm({
 
 const titlePage = 'Регистрация';
 
+// Выполняется ли запрос на сервер
+const isRequest = ref(false);
+
 // Список для хлебных крошек
 const linksList = [{
             link: '/',
@@ -26,6 +31,18 @@ const linksList = [{
         }, {
             text: 'Регистрация'
         }];
+    
+const handlerRegister = function() {
+    form.post('/register', {
+        onBefore: () => {
+            isRequest.value = true;
+        },
+        onFinish: () => {
+            isRequest.value = false;
+            form.reset('password', 'password_confirmation');
+        }
+    });
+};
 </script>
 
 <template>
@@ -34,7 +51,7 @@ const linksList = [{
         <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
 
-        <form @submit.prevent="form.post('/register')">
+        <form @submit.prevent="handlerRegister">
             <div class="mb-3 w-1/3 pr-4">
                 <label for="login" class="block font-medium text-sm text-gray-700">
                     Логин:
@@ -84,9 +101,7 @@ const linksList = [{
             </div>
 
             <div class="mb-3 w-1/3 pr-4 text-right">
-                <button class="p-1 w-48 rounded-lg bg-orange-300 text-orange-700 hover:bg-orange-200 text-orange-600" :disabled="form.processing">
-                    Зарегистрироваться
-                </button>
+                <FormButton class="w-48" text="Зарегистрироваться" :form="form" :isRequest="isRequest" />
             </div>
         </form>
     </GuestLayout>

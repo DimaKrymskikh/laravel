@@ -1,5 +1,5 @@
 <script setup>
-import { inject } from 'vue';
+import { ref, inject } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
@@ -8,6 +8,7 @@ import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 import CheckCircleSvg from '@/Components/Svg/CheckCircleSvg.vue';
 import PlusCircleSvg from '@/Components/Svg/PlusCircleSvg.vue';
+import Spinner from '@/components/Svg/Spinner.vue';
 
 const { films } = defineProps({
     films: Object,
@@ -16,6 +17,11 @@ const { films } = defineProps({
 });
 
 const titlePage = 'Каталог';
+
+// Выполняется ли запрос на сервер
+const isRequest = ref(false);
+// id фильма, который добавляется в коллекцию пользователя
+const filmId = ref(null);
 
 // Список для хлебных крошек
 const linksList = [{
@@ -38,15 +44,17 @@ const addFilm = function(tag) {
     // Защита от повторного клика
     td.classList.remove('add-film');
     
-    const filmId = td.getAttribute('data-film_id');
+    filmId.value = td.getAttribute('data-film_id');
 
-    router.post(`account/addfilm/${filmId}`, {
+    router.post(`account/addfilm/${filmId.value}`, {
             page: filmsCatalog.page,
             number: filmsCatalog.perPage,
             title: filmsCatalog.title,
             description: filmsCatalog.description
         }, {
-            preserveScroll: true
+            preserveScroll: true,
+            onBefore: () => isRequest.value = true,
+            onFinish: () => isRequest.value = false
         });
 };
 
@@ -122,8 +130,11 @@ const putFilms = function(e) {
                         :class="film.isAvailable ? null : 'add-film'"
                         :data-film_id="film.isAvailable ? null : film.id"
                     >
-                        <CheckCircleSvg v-if="film.isAvailable" />
-                        <PlusCircleSvg v-else />
+                        <Spinner hSpinner="h-4" class="flex justify-center" v-if="isRequest && filmId == film.id" />
+                        <template v-else>
+                            <CheckCircleSvg v-if="film.isAvailable" />
+                            <PlusCircleSvg v-else />
+                        </template>
                     </td>
                 </tr>
             </tbody>
