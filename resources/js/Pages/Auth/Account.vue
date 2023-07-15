@@ -15,8 +15,9 @@ import FilmRemoveModal from '@/Components/Modal/FilmRemoveModal.vue';
 import FormButton from '@/Components/Elements/FormButton.vue';
 
 const { films } = defineProps({
-    films: Object,
-    user: Object,
+    films: Object | null,
+    user: Object | null,
+    token: String | null,
     errors: Object | null
 });
 
@@ -105,6 +106,14 @@ const handlerVerifyEmail = function() {
         onFinish: () => isRequest.value = false
     });
 };
+
+const handlerGettingToken = function() {
+    form.post('/account/getting-token', {
+        onBefore: () => isRequest.value = true,
+        onFinish: () => isRequest.value = false,
+        only: ['token']
+    });
+};
 </script>
 
 <template>
@@ -133,6 +142,20 @@ const handlerVerifyEmail = function() {
                         <div class="text-center">
                             <form @submit.prevent="handlerVerifyEmail">
                                 <FormButton class="w-56" text="Отправка нового письма" :form="form" :isRequest="isRequest" />
+                            </form>
+                        </div>
+                    </div>
+                    <div class="text-orange-900">
+                        Токен:
+                    </div>
+                    <div class="flex justify-between mb-2 overflow-x-scroll py-4">
+                        <span v-if="token">{{ token }}</span>
+                        <span v-else>Токен не получен</span>
+                    </div>
+                    <div>
+                        <div class="text-center">
+                            <form @submit.prevent="handlerGettingToken">
+                                <FormButton class="w-56" :text="token ? 'Получить новый токен' : 'Получить токен'" :form="form" :isRequest="isRequest" />
                             </form>
                         </div>
                     </div>

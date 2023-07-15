@@ -67,6 +67,8 @@ Route::middleware('auth')->group(function () {
     Route::get('account', [AccountController::class, 'create'])
                 ->name('account');
     
+    Route::post('account/getting-token', [AccountController::class, 'getToken']);
+    
     Route::post('account/addfilm/{film_id}', [AccountController::class, 'addFilm']);
     
     Route::delete('account/removefilm/{film_id}', [AccountController::class, 'removeFilm'])->middleware('check.password');

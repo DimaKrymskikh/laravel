@@ -11,7 +11,6 @@ use App\Notifications\Dvdrental\RemoveFilmNotification;
 use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
@@ -165,6 +164,21 @@ class AccountTest extends TestCase
         $response->assertInvalid([
                 'password' => trans("user.password.wrong")
             ]);
+    }
+    
+    public function test_token_can_be_gotten_for_auth(): void
+    {
+        $acting = $this->actingAs($this->getUserBaseTestLogin());
+        $response = $acting->post('account/getting-token');
+
+        $response
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => 
+                    $page->component('Auth/Account')
+                        ->has('errors', 0)
+                        ->has('token')
+                        ->etc()
+            );
     }
     
     private function beforeTest(): static
