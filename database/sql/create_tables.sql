@@ -227,3 +227,20 @@ CREATE TABLE thesaurus.failed_jobs (
     failed_at timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 -----------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE person.personal_access_tokens (
+    id bigserial PRIMARY KEY,
+    tokenable_type varchar(255) NOT NULL,
+    tokenable_id int8 NOT NULL,
+    "name" varchar(255) NOT NULL,
+    "token" varchar(64) NOT NULL UNIQUE,
+    abilities text NULL,
+    last_used_at timestamp(0) NULL,
+    expires_at timestamp(0) NULL,
+    created_at timestamp(0) NULL,
+    updated_at timestamp(0) NULL
+);
+CREATE INDEX ON person.personal_access_tokens USING btree (tokenable_type, tokenable_id);
+-----------------------------------------------------------------------------------------------------------------------------------------------------
