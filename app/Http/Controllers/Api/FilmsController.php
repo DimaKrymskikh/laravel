@@ -3,12 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Extraction\Dvd\Films;
 use App\Models\Dvd\Film;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\Request;
 
 class FilmsController extends Controller
 {
+    use Films;
+    
+    /**
+     * Отдаёт список фильмов пользователя
+     * 
+     * @param Request $request
+     * @return string
+     */
     public function getFilms(Request $request): string
     {
         return json_encode([
@@ -20,6 +29,19 @@ class FilmsController extends Controller
                 ->select('id', 'title', 'description', 'language_id')
                 ->orderBy('title')
                 ->get()
+        ]);
+    }
+    
+    /**
+     * Отдаёт карточку фильма
+     * 
+     * @param int $film_id
+     * @return string
+     */
+    public function getFilm(int $film_id): string
+    {
+        return json_encode([
+            'film' => $this->getFilmCard($film_id)
         ]);
     }
 }

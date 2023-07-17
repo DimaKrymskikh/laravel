@@ -39,4 +39,21 @@ trait Films
                     'description' => $request->description
                 ]);
     }
+    
+    /**
+     * Возвращает карточку фильма по id фильма
+     * 
+     * @param int $film_id
+     * @return object
+     */
+    public function getFilmCard(int $film_id): object
+    {
+        return Film::with([
+                'language:id,name',
+                'actors:id,first_name,last_name'
+            ])
+            ->select('id', 'title', 'description', 'release_year', 'language_id')
+            ->where('id', '=', $film_id)
+            ->first();
+    }
 }
