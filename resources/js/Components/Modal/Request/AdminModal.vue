@@ -1,57 +1,42 @@
-<script setup>
+<script setup lang="ts">
 import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
-import { getPageAfterRemoveItem } from '@/Tools/Paginate';
 
-const { films, removeFilmId, hideFilmRemoveModal } = defineProps({
-    films: Object,
+const { hideAdminModal, admin } = defineProps({
     errors: Object,
-    removeFilmTitle: String,
-    removeFilmId: String,
-    hideFilmRemoveModal: Function
+    hideAdminModal: Function,
+    admin: Boolean
 });
 
 const filmsAccount = inject('filmsAccount');
 
-// Величина поля для пароля
 const inputPassword = ref('');
-// Сообщение об ошибке ввода пароля.
-// При монтировании компоненты - пустая строка, чтобы после закрытия модального окна с сообщением об ошибке,
-// при последующем открытии модального окна этого сообщения об ошибке не было.
 const errorsPassword = ref('');
-// Выполняется ли запрос на сервер
 const isRequest = ref(false);
 
-/**
- * Обработчик удаления фильма
- * @param {Event} e
- * @returns {undefined}
- */
-const handlerRemoveFilm = function(e) {
+const handlerSubmit = function(e) {
     // Защита от повторного запроса
     if(e.currentTarget.classList.contains('disabled')) {
         return;
     }
-
-    filmsAccount.page = getPageAfterRemoveItem(films);
     
-    router.delete(`account/removefilm/${removeFilmId}`, {
-        preserveScroll: true,
-        data: {
+    let url = admin ? 'admin/destroy' : 'admin/create';
+    
+    router.post(url, {
             password: inputPassword.value,
             page: filmsAccount.page,
             number: filmsAccount.perPage,
             title: filmsAccount.title,
             description: filmsAccount.description
-        },
+        }, {
         onBefore: () => {
             isRequest.value = true;
             errorsPassword.value = '';
         },
         onSuccess: () => {
-            hideFilmRemoveModal();
+            hideAdminModal();
         },
         onError: errors => {
             errorsPassword.value = errors.password;
@@ -61,20 +46,20 @@ const handlerRemoveFilm = function(e) {
         }
     });
 };
+
 </script>
 
 <template>
     <BaseModal
-        modalId="film-remove-modal"
-        headerTitle="Подтверждение удаления фильма"
-        :hideModal="hideFilmRemoveModal"
-        :handlerSubmit="handlerRemoveFilm"
+        modalId="admin-modal"
+        :headerTitle="admin ? 'Отказ от статуса админа' : 'Подтверждение статуса админа'"
+        :hideModal="hideAdminModal"
+        :handlerSubmit="handlerSubmit"
         :isRequest="isRequest"
     >
         <template v-slot:body>
             <div class="mb-2">
-                Вы действительно хотите удалить фильм 
-                <span>{{ removeFilmTitle }}</span>?
+                {{ admin ? 'Вы хотите отказаться от статуса админа?' : 'Вы хотите получить права админа?' }}
             </div>
             <div class="mb-3">
                 <InputField

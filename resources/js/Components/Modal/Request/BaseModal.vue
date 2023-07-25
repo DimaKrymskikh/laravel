@@ -27,7 +27,7 @@ const hideBaseModal = function(e) {
             <div class="relative bg-white rounded-lg shadow">
                 <!-- Modal header -->
                 <div class="flex items-start justify-between px-6 py-3 border-b rounded-t">
-                    <div class="text-xl font-semibold text-gray-900">
+                    <div class="text-xl font-semibold text-orange-700">
                         {{ headerTitle }}
                     </div>
                     <button 

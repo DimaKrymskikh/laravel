@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
-import BaseModal from '@/components/Modal/BaseModal.vue';
+import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
 
 const { hideAccountRemoveModal } = defineProps({
@@ -27,6 +27,7 @@ const handlerRemoveAccount = function(e) {
         },
         onBefore: () => {
             isRequest.value = true;
+            errorsPassword.value = '';
         },
         onSuccess: () => {
             hideAccountRemoveModal();
@@ -44,21 +45,23 @@ const handlerRemoveAccount = function(e) {
 
 <template>
     <BaseModal
-        modalId="film-remove-modal"
+        modalId="account-remove-modal"
         headerTitle="Подтверждение удаления аккаунта"
         :hideModal="hideAccountRemoveModal"
         :handlerSubmit="handlerRemoveAccount"
         :isRequest="isRequest"
     >
         <template v-slot:body>
-            Вы действительно хотите удалить свой аккаунт?
+            <div class="mb-2">
+                Вы действительно хотите удалить свой аккаунт?
+            </div>
             <div class="mb-3">
                 <label>
-                    <Spinner hSpinner="h-8" class="flex justify-center" v-if="isRequest"/>
-                    <InputField v-else
+                    <InputField
                         titleText="Введите пароль:"
                         type="password"
                         :errorsMessage="errorsPassword"
+                        :isRequest="isRequest"
                         v-model="inputPassword"
                     />
                 </label>
