@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AdminController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Dvdrental\CommonController;
 use App\Http\Controllers\Dvdrental\AccountController;
 use App\Http\Controllers\Dvdrental\FilmCardController;
+use App\Http\Controllers\OpenWeather\CityController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -75,6 +77,17 @@ Route::middleware('auth')->group(function () {
     
     Route::get('filmcard/{film_id}', [FilmCardController::class, 'create'])
                 ->name('filmcard');
+    
+    Route::get('admin', [AdminController::class, 'index'])->middleware('all.action');
+    Route::post('admin/create', [AdminController::class, 'create'])->middleware('check.password');
+    Route::post('admin/destroy', [AdminController::class, 'destroy'])->middleware(['check.password', 'all.action']);
+    
+    Route::middleware('all.action')->group(function () {
+        Route::resource('cities', CityController::class)->only([
+            'index', 'store', 'update'
+        ]);
+        Route::delete('cities/{id}', [CityController::class, 'destroy'])->middleware('check.password');
+    });
 });
 
 /**
