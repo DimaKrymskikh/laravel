@@ -83,7 +83,7 @@ class AccountTest extends TestCase
         
         $response
             ->assertStatus(302)
-            ->assertRedirect('catalog?page=1&number=100&title=&description=');
+            ->assertRedirect('catalog?page=1&number=100');
     }
     
     public function test_film_add_in_user_list_with_duplicate(): void
@@ -137,7 +137,7 @@ class AccountTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('account?page=1&number=100&title=&description=');
+            ->assertRedirect('account?page=1&number=100');
     }
     
     public function test_film_can_not_remove_from_user_list_with_wrong_password(): void
