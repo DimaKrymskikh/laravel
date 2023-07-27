@@ -2,6 +2,8 @@
 import { ref, inject } from 'vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
+import DangerButton from '@/Components/Buttons/Variants/DangerButton.vue';
+import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
@@ -10,8 +12,9 @@ import Bars3 from '@/Components/Svg/Bars3.vue';
 import EyeSvg from '@/Components/Svg/EyeSvg.vue';
 import CheckSvg from '@/Components/Svg/CheckSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
-import AccountRemoveModal from '@/Components/Modal/AccountRemoveModal.vue';
-import FilmRemoveModal from '@/Components/Modal/FilmRemoveModal.vue';
+import AccountRemoveModal from '@/Components/Modal/Request/AccountRemoveModal.vue';
+import AdminModal from '@/Components/Modal/Request/AdminModal.vue';
+import FilmRemoveModal from '@/Components/Modal/Request/FilmRemoveModal.vue';
 import FormButton from '@/Components/Elements/FormButton.vue';
 
 const { films } = defineProps({
@@ -44,6 +47,8 @@ const isShowFilmRemoveModal = ref(false);
 const removeFilmId = ref('');
 // Название удаляемого фильма
 const removeFilmTitle = ref('');
+
+const isShowAdminModal = ref(false);
 
 const isShowAccountRemoveModal = ref(false);
 
@@ -84,6 +89,13 @@ const hideAccountRemoveModal = function() {
     isShowAccountRemoveModal.value = false;
 };
 
+const showAdminModal = function() {
+    isShowAdminModal.value = true;
+};
+const hideAdminModal = function() {
+    isShowAdminModal.value = false;
+};
+
 // Изменяет число фильмов на странице
 const changeNumberOfFilmsOnPage = function(newNumber) {
     filmsAccount.page = 1;
@@ -118,7 +130,7 @@ const handlerGettingToken = function() {
 
 <template>
     <Head :title="titlePage" />
-    <AuthLayout :errors="errors" :user_id="user.id">
+    <AuthLayout :errors="errors" :user="user">
         <BreadCrumb :linksList="linksList" />
         <div class="relative">
             <div class="absolute right-0">
@@ -170,12 +182,23 @@ const handlerGettingToken = function() {
                         :itemsNumberOnPage="films.per_page"
                         :changeNumber="changeNumberOfFilmsOnPage"
                     />
-                    <button
-                        class="px-4 py-2 bg-red-100 text-red-700 hover:bg-red-300 hover:text-red-900 rounded-lg"
-                        @click="showAccountRemoveModal"
-                    >
-                        Удалить аккаунт
-                    </button>
+                    <DangerButton
+                        buttonText="Удалить аккаунт"
+                        :handler="showAccountRemoveModal"
+                    />
+                </div>
+
+                <div class="flex justify-end">
+                    <PrimaryButton
+                        buttonText="Отказаться от администрирования"
+                        :handler="showAdminModal"
+                        v-if="user.is_admin"
+                    />
+                    <PrimaryButton
+                        buttonText="Сделать себя админом"
+                        :handler="showAdminModal"
+                        v-else
+                    />
                 </div>
 
                 <table class="container" @click="handlerTableChange">
@@ -233,6 +256,13 @@ const handlerGettingToken = function() {
             :errors="errors"
             :hideAccountRemoveModal="hideAccountRemoveModal"
             v-if="isShowAccountRemoveModal"
+        />
+        
+        <AdminModal
+            :errors="errors"
+            :hideAdminModal="hideAdminModal"
+            :admin="user.is_admin"
+            v-if="isShowAdminModal"
         />
     </AuthLayout>
 </template>

@@ -4,14 +4,14 @@ import { Link } from '@inertiajs/vue3';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
 
-const { user_id } = defineProps({
-    user_id: Number,
+const { user } = defineProps({
+    user: Object | null,
     errors: Object | null
 });
 
 const message = ref('');
 
-Echo.private(`film.${user_id}`)
+Echo.private(`film.${user.id}`)
     .listen('AddFilm', (e) => {
         message.value = e.message;
     })
@@ -46,8 +46,13 @@ const filmsAccount = inject('filmsAccount');
                         :class="{ 'router-link-active': $page.component === 'Auth/Account' }"
                     >лк</Link>
                 </li>
+                <li class="nav-tab" v-if="user.is_admin">
+                    <Link class="nav-link small-caps" href="/admin">
+                        администрирование
+                    </Link>
+                </li>
                 <li class="nav-tab">
-                    <Link class="nav-link small-caps" href="/logout" :class="{ 'router-link-active': $page.url === '/logout' }">выход</Link>
+                    <Link class="nav-link small-caps" href="/logout">выход</Link>
                 </li>
             </ul>
             <span class="text-orange-700 py-2">{{ message }}</span>

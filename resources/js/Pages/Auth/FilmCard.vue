@@ -28,7 +28,7 @@ const linksList = [{
 
 <template>
     <Head :title="titlePage" />
-    <AuthLayout :errors="errors" :user_id="user.id">
+    <AuthLayout :errors="errors" :user="user">
         <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
         
