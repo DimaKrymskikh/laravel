@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dvdrental;
 use App\Events\AddFilm;
 use App\Events\RemoveFilm;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Url;
 use App\Http\Extraction\Dvd\Films;
 use App\Models\Dvd\Film;
 use App\Models\Person\UserFilm;
@@ -18,7 +19,7 @@ use Inertia\Response;
 
 class AccountController extends Controller
 {
-    use Films;
+    use Films, Url;
     
     /**
      * Отрисовывает страницу аккаунта
@@ -69,7 +70,12 @@ class AccountController extends Controller
             event(new AddFilm($userFilm));
         }
         
-        return redirect($this->getUrl('/catalog', $request));
+        return redirect($this->getUrl('/catalog', [
+            'page' => $request->page,
+            'number' => $request->number,
+            'title' => $request->title,
+            'description' => $request->description
+        ]));
     }
     
     /**
@@ -94,7 +100,12 @@ class AccountController extends Controller
             event(new RemoveFilm($userFilm));
         }
         
-        return redirect($this->getUrl('/account', $request));
+        return redirect($this->getUrl('/account', [
+            'page' => $request->page,
+            'number' => $request->number,
+            'title' => $request->title,
+            'description' => $request->description
+        ]));
     }
     
     /**
@@ -112,17 +123,5 @@ class AccountController extends Controller
         return Inertia::render('Auth/Account', [
             'token' => $user->createToken("api token")->plainTextToken
         ]);
-    }
-    
-    /**
-     * Формирует url с настройками списка фильмов
-     * 
-     * @param string $url - базовый url
-     * @param Request $request
-     * @return string
-     */
-    private function getUrl(string $url, Request $request): string
-    {
-        return "$url?page=$request->page&number=$request->number&title=$request->title&description=$request->description";
     }
 }
