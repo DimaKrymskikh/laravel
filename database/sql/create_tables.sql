@@ -8,6 +8,7 @@
 CREATE SCHEMA dvd;
 CREATE SCHEMA person;
 CREATE SCHEMA thesaurus;
+CREATE SCHEMA open_weather;
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -288,6 +289,64 @@ CREATE TABLE person.personal_access_tokens (
     updated_at timestamp(0) NULL
 );
 CREATE INDEX ON person.personal_access_tokens USING btree (tokenable_type, tokenable_id);
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+/****************************************************************************************************************************************************/
+/****************************************************************************************************************************************************/
+
+
+/****************************************************************************************************************************************************/
+/********** Схема open_weather    *******************************************************************************************************************/
+/****************************************************************************************************************************************************/
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE open_weather.weather (
+    id bigserial PRIMARY KEY,
+    city_id int NOT NULL REFERENCES thesaurus.cities(id) ON DELETE CASCADE,
+    weather_description text,
+    main_temp float,
+    main_feels_like float,
+    main_pressure int,
+    main_humidity int,
+    visibility int,
+    wind_speed float,
+    wind_deg int,
+    clouds_all int,
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+
+COMMENT ON TABLE open_weather.weather IS
+    'Таблица данных о погоде с сервиса OpenWeather';
+
+COMMENT ON COLUMN open_weather.weather.weather_description IS 
+    'Описание погодных условий';
+
+COMMENT ON COLUMN open_weather.weather.main_temp IS 
+    'Температура, C';
+
+COMMENT ON COLUMN open_weather.weather.main_feels_like IS 
+    'Этот температурный параметр определяет человеческое восприятие погоды, C';
+
+COMMENT ON COLUMN open_weather.weather.main_pressure IS 
+    'Атмосферное давление, hPa';
+
+COMMENT ON COLUMN open_weather.weather.main_humidity IS 
+    'Влажность, %';
+
+COMMENT ON COLUMN open_weather.weather.visibility IS 
+    'Видимость, m';
+
+COMMENT ON COLUMN open_weather.weather.wind_speed IS 
+    'Скорость ветра, m/s';
+
+COMMENT ON COLUMN open_weather.weather.wind_deg IS 
+    'Направление ветра, градусы (метеорологические)';
+
+COMMENT ON COLUMN open_weather.weather.clouds_all IS 
+    'Облачность, %';
+
+COMMENT ON COLUMN open_weather.weather.created_at IS 
+    'Время создания записи';
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 /****************************************************************************************************************************************************/
