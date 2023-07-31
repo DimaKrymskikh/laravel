@@ -18,7 +18,7 @@ class CityFactory extends Factory
     {
         return [
             'name' => 'TestCity',
-            'open_weather_id' => '1'
+            'open_weather_id' => 1
         ];
     }
 }

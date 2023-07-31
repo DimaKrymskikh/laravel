@@ -33,6 +33,7 @@ class FilmsStatisticsAvailableToUsersTest extends TestCase
             ->artisan('statistics:filmsAndUsers true')
             ->assertExitCode(0);
     }
+    
     private function getData(): array
     {
         $userTestLogin = User::factory()->create();
