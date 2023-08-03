@@ -22,11 +22,11 @@ describe("@/Components/Elements/BreadCrumb.vue", () => {
         const li = wrapper.findAll('li');
         // Присутствует ссылка на 'Главную страницу'
         expect(li[0].exists()).toBe(true);
-        expect(li[0].find('a[href="/"').exists()).toBe(true);
+        expect(li[0].find('a[href="/"]').exists()).toBe(true);
         expect(li[0].text()).toBe('Главная страница');
         // Присутствует ссылка на 'Другую страницу'
         expect(li[1].exists()).toBe(true);
-        expect(li[1].find('a[href="/another"').exists()).toBe(true);
+        expect(li[1].find('a[href="/another"]').exists()).toBe(true);
         expect(li[1].text()).toBe('Другая страница');
         // 'Данная страница' - страница посещения
         expect(li[2].exists()).toBe(true);
