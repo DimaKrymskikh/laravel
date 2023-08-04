@@ -5,7 +5,7 @@ const { errors } = defineProps({
     errors: Object | null
 });
 
-const isShowModal = ref(!!errors.message);
+const isShowModal = ref(!!errors && !!errors.message);
 
 const hideModal = function() {
     isShowModal.value = false;
@@ -15,6 +15,7 @@ const hideModal = function() {
 
 <template>
     <div
+        id="forbidden-modal"
         class="fixed top-0 left-0 right-0 w-full overflow-x-hidden overflow-y-auto h-screen"
         tabindex="-1"
         v-if="isShowModal"
@@ -23,7 +24,7 @@ const hideModal = function() {
         <div class="relative top-12 m-auto max-w-xl z-10">
             <div class="relative bg-white rounded-lg shadow">
                 <!-- Modal body -->
-                <div class="px-6 py-3">
+                <div id="errors-message" class="px-6 py-3">
                     {{ errors.message }}
                 </div>
                 <!-- Modal footer -->
