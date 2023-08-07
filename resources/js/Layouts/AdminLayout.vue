@@ -8,8 +8,6 @@ defineProps({
     errors: Object | null
 });
 
-const message = ref('');
-
 const filmsAccount = inject('filmsAccount');
 </script>
 
@@ -18,7 +16,7 @@ const filmsAccount = inject('filmsAccount');
         <div class="lg:container flex justify-between">
             <ul class="flex flex-row pt-2">
                 <li class="nav-tab">
-                    <Link class="nav-link self-center" href="/admin" :class="{ 'router-link-active': $page.component === 'Auth/Home' }">
+                    <Link class="nav-link self-center" href="/admin" :class="{ 'router-link-active': $page.component === 'Admin/Home' }">
                         <HouseSvg />
                     </Link>
                 </li>
@@ -36,7 +34,6 @@ const filmsAccount = inject('filmsAccount');
                     >лк</Link>
                 </li>
             </ul>
-            <span class="text-orange-700 py-2">{{ message }}</span>
         </div>
     </nav>
 
@@ -46,4 +43,3 @@ const filmsAccount = inject('filmsAccount');
     
     <ForbiddenModal :errors="errors" />
 </template>
-

@@ -111,7 +111,7 @@ describe("@/Layouts/AuthLayout.vue", () => {
         expect(li[1].find('.router-link-active').exists()).toBe(false);
         expect(li[1].find('a[href="/catalog?page=1&number=20&title=&description="]').text()).toBe('каталог');
 
-        // Третья ссылка 'каталог' активна с дефолтным url ($page.component === 'Auth/Account')
+        // Третья ссылка 'лк' активна с дефолтным url ($page.component === 'Auth/Account')
         expect(li[2].find('a[href="/account?page=1&number=20&title=&description="]').exists()).toBe(true);
         expect(li[2].find('.router-link-active').exists()).toBe(true);
         expect(li[2].find('a[href="/account?page=1&number=20&title=&description="]').text()).toBe('лк');
