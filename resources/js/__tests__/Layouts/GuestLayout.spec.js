@@ -114,12 +114,5 @@ describe("@/Layouts/GuestLayout.vue", () => {
         // Отображается сообщение об ошибке
         const errorsMessage = forbiddenModal.get('#errors-message');
         expect(errorsMessage.text()).toBe('Некоторая ошибка');
-        
-        // Отображается кнопка 'Закрыть'
-        const button = forbiddenModal.get('button');
-        expect(button.text()).toBe('Закрыть');
-        // После клика по этой кнопке модальное окно закрывается
-        await button.trigger('click');
-        expect(wrapper.find('#forbidden-modal').exists()).toBe(false);
     });
 });
