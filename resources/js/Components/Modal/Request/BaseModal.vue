@@ -21,7 +21,12 @@ const hideBaseModal = function(e) {
         class="fixed top-0 left-0 right-0 w-full overflow-x-hidden overflow-y-auto h-screen"
         tabindex="-1"
     >
-        <div class="fixed opacity-25 bg-gray-500 w-full h-screen z-5" :class="isRequest ? 'stop-event' : ''" @click="hideBaseModal"></div>
+        <div
+            id="modal-background"
+            class="fixed opacity-25 bg-gray-500 w-full h-screen z-5"
+            :class="isRequest ? 'stop-event' : ''"
+            @click="hideBaseModal"
+        ></div>
         <div class="relative top-12 m-auto max-w-xl z-10">
             <!-- Modal content -->
             <div class="relative bg-white rounded-lg shadow">
@@ -30,7 +35,8 @@ const hideBaseModal = function(e) {
                     <div class="text-xl font-semibold text-orange-700">
                         {{ headerTitle }}
                     </div>
-                    <button 
+                    <button
+                        id="modal-cross"
                         type="button" 
                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
                         :class="isRequest ? 'stop-event' : ''"
@@ -47,7 +53,9 @@ const hideBaseModal = function(e) {
                 </div>
                 <!-- Modal footer -->
                 <div class="flex items-center justify-end px-6 py-3 space-x-2 border-t border-gray-200 rounded-b">
-                    <button type="button"
+                    <button
+                        id="modal-no"
+                        type="button"
                         class="px-3 py-1.5 text-sm text-center font-medium rounded-lg border"
                         :class="isRequest ? 'disabled' : 'text-green-700 bg-green-100 hover:bg-green-700 hover:text-green-100 border-green-700'"
                         @click="hideBaseModal"
@@ -55,6 +63,7 @@ const hideBaseModal = function(e) {
                         Нет
                     </button>
                     <button 
+                        id="modal-yes"
                         type="button" 
                         class="px-3 py-1.5 text-sm text-center font-medium rounded-lg border"
                         :class="isRequest ? 'disabled' : 'text-red-700 bg-red-100 hover:bg-red-700 hover:text-red-100 border-red-700'"
