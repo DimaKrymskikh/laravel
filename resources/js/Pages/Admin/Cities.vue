@@ -11,7 +11,7 @@ import PencilSvg from '@/Components/Svg/PencilSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 
 defineProps({
-    cities: Object | null,
+    cities: Array | null,
     errors: Object | null
 });
 
@@ -43,9 +43,6 @@ const removeCity = reactive({
     name: '',
     open_weather_id: 0
 });
-const showRemoveCityModal = function() {
-    isShowRemoveCityModal.value = true;
-};
 const hideRemoveCityModal = function() {
     isShowRemoveCityModal.value = false;
 };
@@ -55,9 +52,6 @@ const updateCity = reactive({
     id: 0,
     name: ''
 });
-const showUpdateCityModal = function() {
-    isShowUpdateCityModal.value = true;
-};
 const hideUpdateCityModal = function() {
     isShowUpdateCityModal.value = false;
 };
@@ -91,12 +85,13 @@ const handlerTableChange = function(e) {
         
         <div class="flex justify-start mb-4">
             <PrimaryButton
+                id="add-city"
                 buttonText="Добавить город"
                 :handler="showAddCityModal"
             />
         </div>
         
-        <table @click="handlerTableChange">
+        <table @click="handlerTableChange" v-if="cities.length">
             <thead>
                 <tr>
                     <th>#</th>
@@ -124,6 +119,9 @@ const handlerTableChange = function(e) {
                 </tr>
             </tbody>
         </table>
+        <div v-else>
+            Ещё ни один город не добавлен
+        </div>
         
         <AddCityModal
             :hideAddCityModal="hideAddCityModal"

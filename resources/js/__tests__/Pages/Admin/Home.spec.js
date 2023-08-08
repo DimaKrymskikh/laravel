@@ -24,7 +24,7 @@ describe("@/Pages/Admin/Home.vue", () => {
                 },
                 mocks: {
                     $page: {
-                        component: 'Auth/Home'
+                        component: 'Admin/Home'
                     }
                 },
                 provide: { filmsAccount }

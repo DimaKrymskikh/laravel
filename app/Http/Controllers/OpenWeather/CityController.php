@@ -19,7 +19,7 @@ class CityController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/Cities', [
-            'cities' => City::all()
+            'cities' => City::all('id', 'name', 'open_weather_id')
         ]);
     }
 
