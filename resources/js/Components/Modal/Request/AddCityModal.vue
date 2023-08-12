@@ -47,7 +47,7 @@ const handlerAddCity = function(e) {
 
 <template>
     <BaseModal
-        modalId="add-film-modal"
+        modalId="add-city-modal"
         headerTitle="Добавление города"
         :hideModal="hideAddCityModal"
         :handlerSubmit="handlerAddCity"

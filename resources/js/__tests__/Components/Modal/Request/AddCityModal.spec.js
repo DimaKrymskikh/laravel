@@ -28,7 +28,7 @@ describe("@/Components/Modal/Request/AddCityModal.vue", () => {
         expect(wrapper.vm.isRequest).toBe(false);
 
         // id модального окна задаётся
-        expect(wrapper.get('#add-film-modal').isVisible()).toBe(true);
+        expect(wrapper.get('#add-city-modal').isVisible()).toBe(true);
         // Заголовок модального окна задаётся
         expect(wrapper.text()).toContain('Добавление города');
         // Присутствуют названия полей
