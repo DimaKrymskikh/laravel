@@ -48,7 +48,7 @@ const handlerUpdateCity = function(e) {
 
 <template>
     <BaseModal
-        modalId="city-remove-modal"
+        modalId="update-city-modal"
         headerTitle="Изменение названия города"
         :hideModal="hideUpdateCityModal"
         :handlerSubmit="handlerUpdateCity"
