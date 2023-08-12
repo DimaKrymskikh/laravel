@@ -53,7 +53,7 @@ const handlerRemoveCity = function(e) {
 
 <template>
     <BaseModal
-        modalId="city-remove-modal"
+        modalId="remove-city-modal"
         headerTitle="Подтверждение удаления города"
         :hideModal="hideRemoveCityModal"
         :handlerSubmit="handlerRemoveCity"
