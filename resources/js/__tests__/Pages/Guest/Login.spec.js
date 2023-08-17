@@ -1,5 +1,4 @@
 import { mount } from "@vue/test-utils";
-import { useForm } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
 import Login from "@/Pages/Guest/Login.vue";
@@ -96,10 +95,7 @@ describe("@/Pages/Guest/Login.vue", () => {
         // Когда wrapper.vm.form.processing = false 
         // появляется 
         // [Vue warn]: Failed setting prop "disabled" on <button>: value false is invalid. TypeError: Cannot read properties of null (reading 'name')
-        // Сам тест проваливается
-        // AssertionError: expected undefined to be false
-        // Выше имеется проверка expect(wrapper.vm.form.processing).toBe(false)
-//        expect(button.attributes('disabled')).toBe(false);
+        expect(button.attributes('disabled')).toBe(undefined);
 
         // На кнопке отправки формы виден текст, а спиннер отсутствует
         expect(button.find('span').text()).toBe('Вход');
