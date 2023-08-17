@@ -7,7 +7,7 @@ import FormButton from '@/Components/Elements/FormButton.vue';
 
 defineProps({
     errors: Object | null,
-    status: String
+    status: String | null
 });
 
 const form = useForm({
@@ -44,7 +44,7 @@ const handlerForgotPassword = function() {
         <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
 
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
+        <div id="forgot-password-status" v-if="status" class="mb-4 font-medium text-sm text-green-600">
             {{ status }}
         </div>
 
