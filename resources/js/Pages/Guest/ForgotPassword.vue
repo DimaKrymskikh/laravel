@@ -62,7 +62,7 @@ const handlerForgotPassword = function() {
             </div>
 
             <div class="mb-3 w-1/3 pr-4 text-right">
-                <FormButton class="w-96" text="Ссылка для сброса пароля электронной почты" :form="form" :isRequest="isRequest" />
+                <FormButton class="w-96" text="Ссылка для сброса пароля электронной почты" :processing="form.processing" :isRequest="isRequest" />
             </div>
         </form>
     </GuestLayout>

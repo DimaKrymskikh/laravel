@@ -7,7 +7,7 @@ import FormButton from '@/Components/Elements/FormButton.vue';
 
 defineProps({
     errors: Object | null,
-    status: String
+    status: String | null
 });
 
 const form = useForm({
@@ -47,7 +47,7 @@ const handlerLogin = function() {
         <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
 
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
+        <div id="login-status" v-if="status" class="mb-4 font-medium text-sm text-green-600">
             {{ status }}
         </div>
 
@@ -77,7 +77,7 @@ const handlerLogin = function() {
             </div>
 
             <div class="mb-3 w-1/3 pr-4 text-right">
-                <FormButton class="w-36" text="Вход" :form="form" :isRequest="isRequest" />
+                <FormButton class="w-36" text="Вход" :processing="form.processing" :isRequest="isRequest" />
             </div>
         </form>
 

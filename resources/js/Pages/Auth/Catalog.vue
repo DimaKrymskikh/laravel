@@ -140,6 +140,6 @@ const putFilms = function(e) {
             </tbody>
         </table>
         
-        <Buttons :films="films" v-if="films.total > 0" />
+        <Buttons :links="films.links" v-if="films.total > 0" />
     </AuthLayout>
 </template>

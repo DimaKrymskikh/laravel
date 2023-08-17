@@ -153,7 +153,7 @@ const handlerGettingToken = function() {
                         </div>
                         <div class="text-center">
                             <form @submit.prevent="handlerVerifyEmail">
-                                <FormButton class="w-56" text="Отправка нового письма" :form="form" :isRequest="isRequest" />
+                                <FormButton class="w-56" text="Отправка нового письма" :processing="form.processing" :isRequest="isRequest" />
                             </form>
                         </div>
                     </div>
@@ -167,7 +167,7 @@ const handlerGettingToken = function() {
                     <div>
                         <div class="text-center">
                             <form @submit.prevent="handlerGettingToken">
-                                <FormButton class="w-56" :text="token ? 'Получить новый токен' : 'Получить токен'" :form="form" :isRequest="isRequest" />
+                                <FormButton class="w-56" :text="token ? 'Получить новый токен' : 'Получить токен'" :processing="form.processing" :isRequest="isRequest" />
                             </form>
                         </div>
                     </div>
@@ -239,7 +239,7 @@ const handlerGettingToken = function() {
                     </tbody>
                 </table>
 
-                <Buttons :films="films" v-if="films.total > 0" />
+                <Buttons :links="films.links" v-if="films.total > 0" />
             </div>
         </div>
         
