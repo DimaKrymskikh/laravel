@@ -25,8 +25,7 @@ describe("@/Pages/Guest/Register.vue", () => {
         
         const wrapper = mount(Register, {
             props: {
-                errors: null,
-                status: null
+                errors: null
             },
             global: {
                 mocks: {
@@ -121,8 +120,7 @@ describe("@/Pages/Guest/Register.vue", () => {
         
         const wrapper = mount(Register, {
             props: {
-                errors: null,
-                status: null
+                errors: null
             },
             global: {
                 mocks: {
