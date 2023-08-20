@@ -137,7 +137,7 @@ const handlerGettingToken = function() {
                 <div class="flex justify-end">
                     <Bars3 class="cursor-pointer" @click="togglePersonalData" />
                 </div>
-                <div class="w-80 h-screen bg-white p-4 shadow shadow-gray-500" v-if="isPersonalData">
+                <div id="personal-data" class="w-80 h-screen bg-white p-4 shadow shadow-gray-500" v-if="isPersonalData">
                     <div class="text-orange-900">
                         Эл. почта:
                     </div>
