@@ -183,3 +183,25 @@ export const films_0 = {
         }
     ]
 };
+
+export const filmCard = {
+    id: 986,
+    title: "Wonka Sea",
+    description: "A Brilliant Saga of a Boat And a Mad Scientist who must Meet a Moose in Ancient India",
+    release_year: 2006,
+    language_id: 1,
+    language: { id: 1, name: "English" },
+    actors: [
+        {
+            id: 27,
+            first_name: "Julia",
+            last_name: "Mcqueen",
+            pivot: { film_id: 986, actor_id: 27 }
+        }, {
+            id: 60,
+            first_name: "Henry",
+            last_name: "Berry",
+            pivot: { film_id: 986, actor_id: 60 }
+        }
+    ]
+};
