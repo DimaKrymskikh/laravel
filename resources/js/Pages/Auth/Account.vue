@@ -253,7 +253,6 @@ const handlerGettingToken = function() {
         />
         
         <AccountRemoveModal
-            :errors="errors"
             :hideAccountRemoveModal="hideAccountRemoveModal"
             v-if="isShowAccountRemoveModal"
         />

@@ -6,7 +6,6 @@ import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
 
 const { hideAccountRemoveModal } = defineProps({
-    errors: Object,
     hideAccountRemoveModal: Function
 });
 
