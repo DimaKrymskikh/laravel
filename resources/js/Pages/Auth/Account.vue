@@ -258,7 +258,6 @@ const handlerGettingToken = function() {
         />
         
         <AdminModal
-            :errors="errors"
             :hideAdminModal="hideAdminModal"
             :admin="user.is_admin"
             v-if="isShowAdminModal"

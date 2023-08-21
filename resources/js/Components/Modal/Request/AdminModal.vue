@@ -5,7 +5,6 @@ import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 
 const { hideAdminModal, admin } = defineProps({
-    errors: Object,
     hideAdminModal: Function,
     admin: Boolean
 });
