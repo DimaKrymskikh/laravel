@@ -245,7 +245,6 @@ const handlerGettingToken = function() {
         
         <FilmRemoveModal
             :films="films"
-            :errors="errors"
             :removeFilmTitle="removeFilmTitle"
             :removeFilmId="removeFilmId"
             :hideFilmRemoveModal="hideFilmRemoveModal"

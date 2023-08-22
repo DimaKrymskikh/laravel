@@ -7,7 +7,6 @@ import { getPageAfterRemoveItem } from '@/Tools/Paginate';
 
 const { films, removeFilmId, hideFilmRemoveModal } = defineProps({
     films: Object,
-    errors: Object,
     removeFilmTitle: String,
     removeFilmId: String,
     hideFilmRemoveModal: Function
