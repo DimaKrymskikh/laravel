@@ -1,6 +1,6 @@
 <script setup>
 import { ref, inject } from 'vue';
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import DangerButton from '@/Components/Buttons/Variants/DangerButton.vue';
 import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
@@ -10,12 +10,11 @@ import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 import Bars3 from '@/Components/Svg/Bars3.vue';
 import EyeSvg from '@/Components/Svg/EyeSvg.vue';
-import CheckSvg from '@/Components/Svg/CheckSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import AccountRemoveModal from '@/Components/Modal/Request/AccountRemoveModal.vue';
 import AdminModal from '@/Components/Modal/Request/AdminModal.vue';
 import FilmRemoveModal from '@/Components/Modal/Request/FilmRemoveModal.vue';
-import FormButton from '@/Components/Elements/FormButton.vue';
+import PersonalData from '@/Pages/Auth/Account/PersonalData.vue';
 
 const { films } = defineProps({
     films: Object | null,
@@ -38,8 +37,6 @@ const filmsAccount = inject('filmsAccount');
 filmsAccount.page = films.current_page;
 
 const isPersonalData = ref(false);
-// Выполняется ли запрос на сервер
-const isRequest = ref(false);
 
 // Отслеживает отрисовку/удаление модального окна для удаления фильма
 const isShowFilmRemoveModal = ref(false);
@@ -55,8 +52,6 @@ const isShowAccountRemoveModal = ref(false);
 const togglePersonalData = function() {
     isPersonalData.value = !isPersonalData.value;
 };
-
-const form = useForm({});
 
 /**
  * Управляет изменениями в таблице фильмов
@@ -111,21 +106,6 @@ const putFilms = function(e) {
     filmsAccount.page = 1;
     router.get(filmsAccount.getUrl());
 };
-    
-const handlerVerifyEmail = function() {
-    form.post('/verify-email', {
-        onBefore: () => isRequest.value = true,
-        onFinish: () => isRequest.value = false
-    });
-};
-
-const handlerGettingToken = function() {
-    form.post('/account/getting-token', {
-        onBefore: () => isRequest.value = true,
-        onFinish: () => isRequest.value = false,
-        only: ['token']
-    });
-};
 </script>
 
 <template>
@@ -137,41 +117,7 @@ const handlerGettingToken = function() {
                 <div class="flex justify-end">
                     <Bars3 class="cursor-pointer" @click="togglePersonalData" />
                 </div>
-                <div id="personal-data" class="w-80 h-screen bg-white p-4 shadow shadow-gray-500" v-if="isPersonalData">
-                    <div class="text-orange-900">
-                        Эл. почта:
-                    </div>
-                    <div class="flex justify-between mb-2">
-                        <span>{{ user.email }}</span>
-                        <CheckSvg v-if="user.email_verified_at" />
-                    </div>
-                    <div v-if="!user.email_verified_at">
-                        <div class="text-sm text-justify text-red-700">
-                            Ваша эл. почта не подтверждена.
-                            В почтовом ящике должно быть письмо со ссылкой для подтверждения.
-                            Вы можете нажать на эту кнопку для отправки нового письма
-                        </div>
-                        <div class="text-center">
-                            <form @submit.prevent="handlerVerifyEmail">
-                                <FormButton class="w-56" text="Отправка нового письма" :processing="form.processing" :isRequest="isRequest" />
-                            </form>
-                        </div>
-                    </div>
-                    <div class="text-orange-900">
-                        Токен:
-                    </div>
-                    <div class="flex justify-between mb-2 overflow-x-scroll py-4">
-                        <span v-if="token">{{ token }}</span>
-                        <span v-else>Токен не получен</span>
-                    </div>
-                    <div>
-                        <div class="text-center">
-                            <form @submit.prevent="handlerGettingToken">
-                                <FormButton class="w-56" :text="token ? 'Получить новый токен' : 'Получить токен'" :processing="form.processing" :isRequest="isRequest" />
-                            </form>
-                        </div>
-                    </div>
-                </div>
+                <PersonalData :user="user" :token="token" v-if="isPersonalData" />
             </div>
             <div>
                 <h1>Добрый день, {{ user.login }}</h1>

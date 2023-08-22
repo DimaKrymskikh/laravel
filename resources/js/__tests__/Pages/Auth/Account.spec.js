@@ -5,6 +5,7 @@ import '@/bootstrap';
 
 import { setActivePinia, createPinia } from 'pinia';
 import Account from "@/Pages/Auth/Account.vue";
+import PersonalData from '@/Pages/Auth/Account/PersonalData.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
@@ -88,7 +89,7 @@ describe("@/Pages/Auth/Account.vue", () => {
         expect(wrapper.getComponent(Bars3).attributes('title')).toBe('Личные данные');
         // Персональные данные скрыты
         expect(wrapper.vm.isPersonalData).toBe(false);
-        expect(wrapper.find('#personal-data').exists()).toBe(false);
+        expect(wrapper.findComponent(PersonalData).exists()).toBe(false);
         
         // Отрисовывается заголовок страницы
         const h1 = wrapper.get('h1');
@@ -192,17 +193,17 @@ describe("@/Pages/Auth/Account.vue", () => {
         expect(bar3.attributes('title')).toBe('Личные данные');
         // Персональные данные скрыты
         expect(wrapper.vm.isPersonalData).toBe(false);
-        expect(wrapper.find('#personal-data').exists()).toBe(false);
+        expect(wrapper.findComponent(PersonalData).exists()).toBe(false);
         
         // Клик по кнопке открывает личные данные
         await bar3.trigger('click');
         expect(wrapper.vm.isPersonalData).toBe(true);
-        expect(wrapper.find('#personal-data').exists()).toBe(true);
+        expect(wrapper.findComponent(PersonalData).exists()).toBe(true);
         
         // Повторный клик по кнопке скрывает личные данные
         await bar3.trigger('click');
         expect(wrapper.vm.isPersonalData).toBe(false);
-        expect(wrapper.find('#personal-data').exists()).toBe(false);
+        expect(wrapper.findComponent(PersonalData).exists()).toBe(false);
     });
     
     it("Показать/скрыть модальное окно удаления аккаунта", async () => {
