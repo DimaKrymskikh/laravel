@@ -103,15 +103,11 @@ describe("@/Pages/Guest/Register.vue", () => {
         
         const button = formButton.get('button');
         expect(button.isVisible()).toBe(true);
-        
-        // Существует проблема при тестировании
-        // Когда wrapper.vm.form.processing = false 
-        // появляется 
-        // [Vue warn]: Failed setting prop "disabled" on <button>: value false is invalid. TypeError: Cannot read properties of null (reading 'name')
+        // Атрибут 'disabled' отсутствует
         expect(button.attributes('disabled')).toBe(undefined);
 
         // На кнопке отправки формы виден текст, а спиннер отсутствует
-        expect(button.find('span').text()).toBe('Зарегистрироваться');
+        expect(button.text()).toBe('Зарегистрироваться');
         expect(button.findComponent(Spinner).exists()).toBe(false);
     });
     

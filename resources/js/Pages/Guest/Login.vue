@@ -77,7 +77,7 @@ const handlerLogin = function() {
             </div>
 
             <div class="mb-3 w-1/3 pr-4 text-right">
-                <FormButton class="w-36" text="Вход" :processing="form.processing" :isRequest="isRequest" />
+                <FormButton class="w-36" text="Вход" :isRequest="isRequest" />
             </div>
         </form>
 

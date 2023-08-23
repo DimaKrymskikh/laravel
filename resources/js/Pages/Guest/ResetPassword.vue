@@ -96,7 +96,7 @@ const handlerResetPassword = () => {
             </div>
 
             <div class="mb-3 w-1/3 pr-4 text-right">
-                <FormButton class="w-48" text="Задать новый пароль" :processing="form.processing" :isRequest="isRequest" />
+                <FormButton class="w-48" text="Задать новый пароль" :isRequest="isRequest" />
             </div>
         </form>
     </GuestLayout>

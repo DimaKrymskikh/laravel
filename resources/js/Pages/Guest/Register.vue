@@ -101,7 +101,7 @@ const handlerRegister = function() {
             </div>
 
             <div class="mb-3 w-1/3 pr-4 text-right">
-                <FormButton class="w-48" text="Зарегистрироваться" :processing="form.processing" :isRequest="isRequest" />
+                <FormButton class="w-48" text="Зарегистрироваться" :isRequest="isRequest" />
             </div>
         </form>
     </GuestLayout>

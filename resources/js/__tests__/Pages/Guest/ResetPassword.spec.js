@@ -20,7 +20,7 @@ describe("@/Pages/Guest/ResetPassword.vue", () => {
         setActivePinia(createPinia());
     });
     
-    it("Отрисовка формы регистрации", () => {
+    it("Отрисовка формы сброса пароля", () => {
         const filmsCatalog = filmsCatalogStore();
         
         const wrapper = mount(ResetPassword, {
@@ -96,19 +96,15 @@ describe("@/Pages/Guest/ResetPassword.vue", () => {
         
         const button = formButton.get('button');
         expect(button.isVisible()).toBe(true);
-        
-        // Существует проблема при тестировании
-        // Когда wrapper.vm.form.processing = false 
-        // появляется 
-        // [Vue warn]: Failed setting prop "disabled" on <button>: value false is invalid. TypeError: Cannot read properties of null (reading 'name')
+        // Атрибут 'disabled' отсутствует
         expect(button.attributes('disabled')).toBe(undefined);
 
         // На кнопке отправки формы виден текст, а спиннер отсутствует
-        expect(button.find('span').text()).toBe('Задать новый пароль');
+        expect(button.text()).toBe('Задать новый пароль');
         expect(button.findComponent(Spinner).exists()).toBe(false);
     });
     
-    it("Отправка формы регистрации", async () => {
+    it("Отправка формы сброса пароля", async () => {
         const filmsCatalog = filmsCatalogStore();
         
         const wrapper = mount(ResetPassword, {

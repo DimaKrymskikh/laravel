@@ -15,13 +15,9 @@ describe("@/Components/Elements/FormButton.vue", () => {
         
         // Текст кнопки присутствует, спиннер отсутствует
         const button = wrapper.get('button');
-        const span = button.find('span');
-        expect(span.text()).toBe('Текст кнопки');
+        expect(button.text()).toBe('Текст кнопки');
         expect(button.findComponent(Spinner).exists()).toBe(false);
-        // Существует проблема при тестировании
-        // Когда processing = false 
-        // появляется 
-        // [Vue warn]: Failed setting prop "disabled" on <button>: value false is invalid. TypeError: Cannot read properties of null (reading 'name')
+        // Атрибут 'disabled' отсутствует
         expect(button.attributes('disabled')).toBe(undefined);
     });
     
@@ -36,9 +32,9 @@ describe("@/Components/Elements/FormButton.vue", () => {
         
         // Текст кнопки отсутствует, спиннер присутствует
         const button = wrapper.get('button');
-        const span = button.find('span');
-        expect(span.exists()).toBe(false);
+        expect(button.text()).toBe('');
         expect(button.findComponent(Spinner).exists()).toBe(true);
+        // Атрибут 'disabled' присутствует
         expect(button.attributes('disabled')).toBe('');
     });
 });
