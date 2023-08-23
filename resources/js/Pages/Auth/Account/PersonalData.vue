@@ -5,8 +5,7 @@ import CheckSvg from '@/Components/Svg/CheckSvg.vue';
 import FormButton from '@/Components/Elements/FormButton.vue';
     
 defineProps({
-    user: Object | null,
-    token: String | null
+    user: Object | null
 });
 
 const form = useForm({});
@@ -25,7 +24,6 @@ const handlerGettingToken = function() {
     form.post('/account/getting-token', {
         onBefore: () => isRequest.value = true,
         onFinish: () => isRequest.value = false,
-        only: ['token']
     });
 };
 
@@ -54,18 +52,19 @@ const handlerGettingToken = function() {
                 </div>
             </div>
         </div>
-        <div class="text-orange-900">
-            Токен:
-        </div>
-        <div class="flex justify-between mb-2 overflow-x-scroll py-4">
-            <span v-if="token">{{ token }}</span>
-            <span v-else>Токен не получен</span>
-        </div>
-        <div>
-            <div class="text-center">
-                <form @submit.prevent="handlerGettingToken">
-                    <FormButton class="w-56" :text="token ? 'Получить новый токен' : 'Получить токен'" :processing="form.processing" :isRequest="isRequest" />
-                </form>
+        <div id="pd-token">
+            <div class="text-orange-900">
+                Токен:
+            </div>
+            <div class="text-sm text-justify mb-2">
+                Получите токен для взаимодействия с приложением через API.
+            </div>
+            <div>
+                <div class="text-center">
+                    <form @submit.prevent="handlerGettingToken">
+                        <FormButton class="w-56" text="Получить токен" :processing="form.processing" :isRequest="isRequest" />
+                    </form>
+                </div>
             </div>
         </div>
     </div>

@@ -57,8 +57,7 @@ describe("@/Pages/Auth/Account.vue", () => {
                     id: 77,
                     is_admin: false,
                     login: 'TestLogin'
-                },
-                token: null
+                }
             },
             global: {
                 mocks: {
@@ -174,8 +173,7 @@ describe("@/Pages/Auth/Account.vue", () => {
                     id: 77,
                     is_admin: false,
                     login: 'TestLogin'
-                },
-                token: null
+                }
             },
             global: {
                 mocks: {
@@ -218,8 +216,7 @@ describe("@/Pages/Auth/Account.vue", () => {
                     id: 77,
                     is_admin: false,
                     login: 'TestLogin'
-                },
-                token: null
+                }
             },
             global: {
                 mocks: {
@@ -256,8 +253,7 @@ describe("@/Pages/Auth/Account.vue", () => {
                     id: 77,
                     is_admin: false,
                     login: 'TestLogin'
-                },
-                token: null
+                }
             },
             global: {
                 mocks: {
@@ -294,8 +290,7 @@ describe("@/Pages/Auth/Account.vue", () => {
                     id: 77,
                     is_admin: true,
                     login: 'TestLogin'
-                },
-                token: null
+                }
             },
             global: {
                 mocks: {
@@ -332,8 +327,7 @@ describe("@/Pages/Auth/Account.vue", () => {
                     id: 77,
                     is_admin: true,
                     login: 'TestLogin'
-                },
-                token: null
+                }
             },
             global: {
                 mocks: {

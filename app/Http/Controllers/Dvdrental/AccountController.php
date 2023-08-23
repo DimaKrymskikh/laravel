@@ -120,8 +120,9 @@ class AccountController extends Controller
         // Удаляем существующие токены пользователя
         $user->tokens()->delete();
         
-        return Inertia::render('Auth/Account', [
-            'token' => $user->createToken("api token")->plainTextToken
+        return Inertia::render('Auth/Token', [
+            'token' => $user->createToken("api token")->plainTextToken,
+            'user' => $user
         ]);
     }
 }

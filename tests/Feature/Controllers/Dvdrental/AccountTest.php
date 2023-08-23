@@ -174,9 +174,10 @@ class AccountTest extends TestCase
         $response
             ->assertOk()
             ->assertInertia(fn (Assert $page) => 
-                    $page->component('Auth/Account')
+                    $page->component('Auth/Token')
                         ->has('errors', 0)
                         ->has('token')
+                        ->has('user')
                         ->etc()
             );
     }

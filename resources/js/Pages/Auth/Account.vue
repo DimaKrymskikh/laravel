@@ -19,7 +19,6 @@ import PersonalData from '@/Pages/Auth/Account/PersonalData.vue';
 const { films } = defineProps({
     films: Object | null,
     user: Object | null,
-    token: String | null,
     errors: Object | null
 });
 
@@ -117,7 +116,7 @@ const putFilms = function(e) {
                 <div class="flex justify-end">
                     <Bars3 class="cursor-pointer" @click="togglePersonalData" />
                 </div>
-                <PersonalData :user="user" :token="token" v-if="isPersonalData" />
+                <PersonalData :user="user" v-if="isPersonalData" />
             </div>
             <div>
                 <h1>Добрый день, {{ user.login }}</h1>

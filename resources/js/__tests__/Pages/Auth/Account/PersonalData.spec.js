@@ -1,8 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
-import '@/bootstrap';
-
 import PersonalData from '@/Pages/Auth/Account/PersonalData.vue';
 import CheckSvg from '@/Components/Svg/CheckSvg.vue';
 import FormButton from '@/Components/Elements/FormButton.vue';
@@ -34,6 +32,9 @@ describe("@/Pages/Auth/Account/PersonalData.vue", () => {
         expect(pdEmail.text()).toContain('Ваша эл. почта не подтверждена.');
         expect(pdEmail.findComponent(CheckSvg).exists()).toBe(false);
         expect(pdEmail.findComponent(FormButton).exists()).toBe(true);
+        
+        // Проверяем блок токена
+        checkTokenBlock(wrapper);
     });
     
     it("Отрисовка личных данных в ЛК (почта подтверждена)", () => {
@@ -62,5 +63,15 @@ describe("@/Pages/Auth/Account/PersonalData.vue", () => {
         expect(pdEmail.text()).not.toContain('Ваша эл. почта не подтверждена.');
         expect(pdEmail.findComponent(CheckSvg).exists()).toBe(true);
         expect(pdEmail.findComponent(FormButton).exists()).toBe(false);
+        
+        // Проверяем блок токена
+        checkTokenBlock(wrapper);
     });
+    
+    function checkTokenBlock(wrapper) {
+        const pdToken = wrapper.get('#pd-token');
+        expect(pdToken.text()).toContain('Токен:');
+        expect(pdToken.text()).toContain('Получите токен для взаимодействия с приложением через API.');
+        expect(pdToken.findComponent(FormButton).exists()).toBe(true);
+    }
 });
