@@ -35,13 +35,7 @@ services:
             POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
         volumes:
             - 'sail-pgsql:/var/lib/postgresql/data'
-            - './database/init-data.sh:/docker-entrypoint-initdb.d/init-data.sh'
-            - './database/sql/create_tables.sql:/home/create_tables.sql'
-            - './database/csv/languages.csv:/home/languages.csv'
-            - './database/csv/films.csv:/home/films.csv'
-            - './database/csv/actors.csv:/home/actors.csv'
-            - './database/csv/films_actors.csv:/home/films_actors.csv'
-#            - './vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+            - './vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
         networks:
             - sail
         healthcheck:

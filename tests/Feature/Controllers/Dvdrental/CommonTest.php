@@ -40,6 +40,11 @@ class CommonTest extends TestCase
     
     public function test_catalog_displayed_for_guest(): void
     {
+        $this->seed([
+            \Database\Seeders\Thesaurus\LanguageSeeder::class,
+            \Database\Seeders\Dvd\FilmSeeder::class,
+        ]);
+        
         $response = $this->get('catalog?page=7&number=50&title=&description=');
 
         $response
@@ -65,6 +70,11 @@ class CommonTest extends TestCase
     {
         $user = User::factory()->create();
         $acting = $this->actingAs($user);
+        
+        $this->seed([
+            \Database\Seeders\Thesaurus\LanguageSeeder::class,
+            \Database\Seeders\Dvd\FilmSeeder::class,
+        ]);
         
         $response = $acting->get('catalog?number=10&title=ar&description=ep&page=2');
 

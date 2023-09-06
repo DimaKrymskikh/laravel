@@ -50,8 +50,14 @@ class RegisteredUserTest extends TestCase
     {
         Event::fake();
         
+        $this->seed([
+            \Database\Seeders\Person\BaseTestUserSeeder::class,
+        ]);
+        
+        // Вводиться существующий логин
         $response = $this->post('register', [
             'login' => 'BaseTestLogin',
+            'email' => 'testlogin@example.com',
             'password' => 'TestPassword7',
             'password_confirmation' => 'TestPassword7',
         ]);
@@ -65,10 +71,38 @@ class RegisteredUserTest extends TestCase
         Event::assertNotDispatched(Registered::class);
     }
 
+    public function test_new_users_can_not_register_with_invalid_email_unique(): void
+    {
+        Event::fake();
+        
+        $this->seed([
+            \Database\Seeders\Person\BaseTestUserSeeder::class,
+        ]);
+        
+        // Вводиться существующая почта
+        $response = $this->post('register', [
+            'login' => 'TestLogin',
+            // Задаётся почта пользователя BaseTestLogin
+            'email' => 'basetestlogin@example.com',
+            'password' => 'TestPassword7',
+            'password_confirmation' => 'TestPassword7',
+        ]);
+
+        $this->assertGuest();
+        $response->assertInvalid([
+                'email' => trans("auth.unique.email")
+            ]);
+        
+        // Событие, которое должно отправить email для подтверждения адреса эл. почты, не отправляется
+        Event::assertNotDispatched(Registered::class);
+    }
+
     public function test_new_users_can_not_register_if_login_contains_not_only_latin_letters_or_numbers(): void
     {
         $response = $this->post('register', [
+            // Логин содержит не латинские буквы
             'login' => 'Пользователь',
+            'email' => 'testlogin@example.com',
             'password' => 'TestPassword7',
             'password_confirmation' => 'TestPassword7',
         ]);
@@ -82,7 +116,9 @@ class RegisteredUserTest extends TestCase
     public function test_new_users_can_not_register_with_invalid_login_capitalfirst(): void
     {
         $response = $this->post('register', [
+            // Логин начинается не с заглавной буквы
             'login' => 'testLogin',
+            'email' => 'testlogin@example.com',
             'password' => 'TestPassword7',
             'password_confirmation' => 'TestPassword7',
         ]);
@@ -97,6 +133,7 @@ class RegisteredUserTest extends TestCase
     {
         $response = $this->post('register', [
             'login' => 'TestLogin',
+            'email' => 'testlogin@example.com',
             'password' => 'TestPassword7',
             // Подтверждение не совпадает с паролем
             'password_confirmation' => 'TestPassword',
@@ -112,6 +149,8 @@ class RegisteredUserTest extends TestCase
     {
         $response = $this->post('register', [
             'login' => 'TestLogin',
+            'email' => 'testlogin@example.com',
+            // Пароль не имеет заглавной латинской буквы
             'password' => 'testpassword7',
             'password_confirmation' => 'testpassword7',
         ]);
@@ -126,6 +165,8 @@ class RegisteredUserTest extends TestCase
     {
         $response = $this->post('register', [
             'login' => 'TestLogin',
+            'email' => 'testlogin@example.com',
+            // Пароль не имеет цифры
             'password' => 'TestPassword',
             'password_confirmation' => 'TestPassword',
         ]);

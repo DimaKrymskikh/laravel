@@ -16,6 +16,13 @@ class FilmCardTest extends TestCase
         $user = User::factory()->create();
         $acting = $this->actingAs($user);
         
+        $this->seed([
+            \Database\Seeders\Thesaurus\LanguageSeeder::class,
+            \Database\Seeders\Dvd\ActorSeeder::class,
+            \Database\Seeders\Dvd\FilmSeeder::class,
+            \Database\Seeders\Dvd\FilmActorSeeder::class,
+        ]);
+        
         $response = $acting->get('filmcard/150');
 
         $response

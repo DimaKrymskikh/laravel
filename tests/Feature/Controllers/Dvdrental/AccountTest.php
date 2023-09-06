@@ -20,7 +20,10 @@ class AccountTest extends TestCase
     
     public function test_account_displayed_for_auth(): void
     {
-        $response = $this->beforeTest()->get('account');
+        // Получаем пользователя BaseTestLogin
+        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        
+        $response = $this->before($userBaseTestLogin)->get('account');
 
         $response
             ->assertOk()
@@ -46,7 +49,10 @@ class AccountTest extends TestCase
     
     public function test_account_displayed_for_auth_with_filter(): void
     {
-        $response = $this->beforeTest()->get('account?page=1&number=10&title=center&description=drama');
+        // Получаем пользователя BaseTestLogin
+        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        
+        $response = $this->before($userBaseTestLogin)->get('account?page=1&number=10&title=center&description=drama');
 
         $response
             ->assertOk()
@@ -68,13 +74,13 @@ class AccountTest extends TestCase
         // Получаем пользователя BaseTestLogin
         $userBaseTestLogin = $this->getUserBaseTestLogin();
         
-        $response = $this->beforeTest()->post('account/addfilm/123', [
+        $response = $this->before($userBaseTestLogin)->post('account/addfilm/123', [
             'page' => 1,
             'number' => 100
         ]);
         
         // У BaseTestLogin теперь 4 фидьма (было 3 и 1 добавился)
-        $this->assertEquals(4, UserFilm::where('user_id', 1)->count());
+        $this->assertEquals(4, UserFilm::where('user_id', $userBaseTestLogin->id)->count());
         
         // Отправляется оповещение о добавлении фильма
         Notification::assertSentTo(
@@ -94,13 +100,13 @@ class AccountTest extends TestCase
         $userBaseTestLogin = $this->getUserBaseTestLogin();
         
         // Попытка добавить в список пользователя уже существующий там фильм
-        $response = $this->beforeTest()->post('account/addfilm/7', [
+        $response = $this->before($userBaseTestLogin)->post('account/addfilm/7', [
             'page' => 1,
             'number' => 100
         ]);
         
         // У BaseTestLogin по-прежнему 3 фильма
-        $this->assertEquals(3, UserFilm::where('user_id', 1)->count());
+        $this->assertEquals(3, UserFilm::where('user_id', $userBaseTestLogin->id)->count());
 
         // Оповещение о добавлении фильма не отправляется
         Notification::assertNotSentTo(
@@ -121,14 +127,14 @@ class AccountTest extends TestCase
         // Получаем пользователя BaseTestLogin
         $userBaseTestLogin = $this->getUserBaseTestLogin();
         
-        $response = $this->beforeTest()->delete('account/removefilm/7', [
-            'password' => 'TestPassword7',
+        $response = $this->before($userBaseTestLogin)->delete('account/removefilm/7', [
+            'password' => 'BaseTestPassword0',
             'page' => 1,
             'number' => 100
         ]);
         
-        // У BaseTestLogin теперь 2 фидьма (было 3 и 1 удалился)
-        $this->assertEquals(2, UserFilm::where('user_id', 1)->count());
+        // У BaseTestLogin теперь 2 фильма (было 3 и 1 удалился)
+        $this->assertEquals(2, UserFilm::where('user_id', $userBaseTestLogin->id)->count());
 
         // Отправляется оповещение об удалении фильма
         Notification::assertSentTo(
@@ -147,14 +153,14 @@ class AccountTest extends TestCase
         // Получаем пользователя BaseTestLogin
         $userBaseTestLogin = $this->getUserBaseTestLogin();
         
-        $response = $this->beforeTest()->delete('account/removefilm/7', [
+        $response = $this->before($userBaseTestLogin)->delete('account/removefilm/7', [
             'password' => 'wrongPassword7',
             'page' => 1,
             'number' => 100
         ]);
         
         // У BaseTestLogin по-прежнему 3 фильма
-        $this->assertEquals(3, UserFilm::where('user_id', 1)->count());
+        $this->assertEquals(3, UserFilm::where('user_id', $userBaseTestLogin->id)->count());
 
         // Оповещение об удалении фильма не отправляется
         Notification::assertNotSentTo(
@@ -182,34 +188,48 @@ class AccountTest extends TestCase
             );
     }
     
-    private function beforeTest(): static
+    private function before(User $user): static
     {
         $userTestLogin = User::factory()->create();
+        
+        $this->seed([
+            \Database\Seeders\Thesaurus\LanguageSeeder::class,
+            \Database\Seeders\Dvd\FilmSeeder::class,
+        ]);
+        
+        $films = Film::whereIn('id', [7, 15, 21])->get();
 
         // Создаём 4 записи в person.users_films
-        // 3 для BaseTestLogin
+        // 3 для BaseTestLogin ($user)
         // 1 для TestLogin
         UserFilm::factory()->count(4)
                 ->state(new Sequence(
-                    // Airplane Sierra [A Touching Saga of a Hunter And a Butler who must Discover a Butler in A Jet Boat]
-                    ['film_id' => 7],
-                    // Alien Center [A Brilliant Drama of a Cat And a Mad Scientist who must Battle a Feminist in A MySQL Convention]
-                    ['film_id' => 15],
-                    // American Circus [A Insightful Drama of a Girl And a Astronaut who must Face a Database Administrator in A Shark Tank]
-                    ['film_id' => 21],
                     [
+                        'user_id' => $user->id,
+                        'film_id' => $films->get('id', 7),
+                    ], [
+                        'user_id' => $user->id,
+                        'film_id' => $films->get('id', 15),
+                    ], [
+                        'user_id' => $user->id,
+                        'film_id' => $films->get('id', 21),
+                    ], [
                         'user_id' => $userTestLogin->id,
-                        'film_id' => 7
+                        'film_id' => $films->get('id', 7),
                     ]
                 ))
                 ->create();
     
         // Логинится пользователь BaseTestLogin
-        return $this->actingAs($this->getUserBaseTestLogin());
+        return $this->actingAs($user);
     }
     
     private function getUserBaseTestLogin(): User
     {
-        return User::find(1);
+        $this->seed([
+            \Database\Seeders\Person\BaseTestUserSeeder::class,
+        ]);
+        
+        return User::where('login', 'BaseTestLogin')->first();
     }
 }
