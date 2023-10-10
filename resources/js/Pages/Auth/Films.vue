@@ -130,7 +130,7 @@ const putFilms = function(e) {
                         :class="film.isAvailable ? null : 'add-film'"
                         :data-film_id="film.isAvailable ? null : film.id"
                     >
-                        <Spinner styleSpinner="h-4" class="flex justify-center" v-if="app.isRequest && filmId == film.id" />
+                        <Spinner styleSpinner="h-4 text-orange-200 fill-orange-700" class="flex justify-center" v-if="app.isRequest && filmId == film.id" />
                         <template v-else>
                             <CheckCircleSvg v-if="film.isAvailable" title="Данный фильм уже в вашей коллекции" />
                             <PlusCircleSvg v-else title="Добавить фильм в коллекцию" />

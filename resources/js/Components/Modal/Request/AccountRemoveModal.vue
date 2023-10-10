@@ -3,7 +3,6 @@ import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
-import Spinner from '@/components/Svg/Spinner.vue';
 
 const { hideAccountRemoveModal } = defineProps({
     hideAccountRemoveModal: Function

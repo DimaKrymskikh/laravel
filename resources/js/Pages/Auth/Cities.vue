@@ -35,7 +35,7 @@ const addCity = function(tag) {
     
     cityId.value = td.getAttribute('data-city_id');
 
-    router.post(`/auth/cities/addcity/${cityId.value}`, {}, {
+    router.post(`/cities/addcity/${cityId.value}`, {}, {
             preserveScroll: true,
             onBefore: () => app.isRequest = true,
             onFinish: () => app.isRequest = false
@@ -76,7 +76,7 @@ const handlerTableChange = function(e) {
                                 :class="city.isAvailable ? null : 'add-city'"
                                 :data-city_id="city.isAvailable ? null : city.id"
                             >
-                                <Spinner styleSpinner="h-4" class="flex justify-center" v-if="app.isRequest && cityId == city.id" />
+                                <Spinner styleSpinner="h-4 text-orange-200 fill-orange-700" class="flex justify-center" v-if="app.isRequest && cityId == city.id" />
                                 <template v-else>
                                     <CheckCircleSvg v-if="city.isAvailable" title="Данный город уже в вашей коллекции" />
                                     <PlusCircleSvg v-else title="Добавить город в коллекцию" />

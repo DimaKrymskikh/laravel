@@ -38,6 +38,6 @@ class CityController extends Controller
         $userCity->city_id = $city_id;
         $userCity->save();
         
-        return redirect('auth/cities');
+        return redirect('cities');
     }
 }
