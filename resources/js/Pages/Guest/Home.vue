@@ -17,8 +17,9 @@ const linksList = [{
 
 <template>
     <Head :title="titlePage" />
-    <GuestLayout :errors="errors">
+    <GuestLayout>
         <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
+        <div>Главная страница для не аутентифицированного пользователя</div>
     </GuestLayout>
 </template>

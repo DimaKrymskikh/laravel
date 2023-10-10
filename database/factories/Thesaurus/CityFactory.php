@@ -17,8 +17,10 @@ class CityFactory extends Factory
     public function definition(): array
     {
         return [
+            'id' => 1,
             'name' => 'TestCity',
-            'open_weather_id' => 1
+            'open_weather_id' => 1,
+            'timezone_id' => null
         ];
     }
 }

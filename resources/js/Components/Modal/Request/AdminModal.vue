@@ -9,11 +9,11 @@ const { hideAdminModal, admin } = defineProps({
     admin: Boolean
 });
 
+const app = inject('app');
 const filmsAccount = inject('filmsAccount');
 
 const inputPassword = ref('');
 const errorsPassword = ref('');
-const isRequest = ref(false);
 
 const handlerSubmit = function(e) {
     // Защита от повторного запроса
@@ -31,7 +31,7 @@ const handlerSubmit = function(e) {
             description: filmsAccount.description
         }, {
         onBefore: () => {
-            isRequest.value = true;
+            app.isRequest = true;
             errorsPassword.value = '';
         },
         onSuccess: () => {
@@ -41,7 +41,7 @@ const handlerSubmit = function(e) {
             errorsPassword.value = errors.password;
         },
         onFinish: () => {
-            isRequest.value = false;
+            app.isRequest = false;
         }
     });
 };
@@ -50,11 +50,9 @@ const handlerSubmit = function(e) {
 
 <template>
     <BaseModal
-        modalId="admin-modal"
         :headerTitle="admin ? 'Отказ от статуса админа' : 'Подтверждение статуса админа'"
         :hideModal="hideAdminModal"
         :handlerSubmit="handlerSubmit"
-        :isRequest="isRequest"
     >
         <template v-slot:body>
             <div class="mb-2">
@@ -65,7 +63,7 @@ const handlerSubmit = function(e) {
                     titleText="Введите пароль:"
                     type="password"
                     :errorsMessage="errorsPassword"
-                    :isRequest="isRequest"
+                    :isInputAutofocus="true"
                     v-model="inputPassword"
                 />
             </div>

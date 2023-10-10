@@ -5,21 +5,17 @@ import '@/bootstrap';
 
 import { setActivePinia, createPinia } from 'pinia';
 import Account from "@/Pages/Auth/Account.vue";
-import PersonalData from '@/Pages/Auth/Account/PersonalData.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
-import DangerButton from '@/Components/Buttons/Variants/DangerButton.vue';
-import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
 import Info from '@/Components/Pagination/Info.vue';
-import Bars3 from '@/Components/Svg/Bars3.vue';
 import EyeSvg from '@/Components/Svg/EyeSvg.vue';
-import CheckSvg from '@/Components/Svg/CheckSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
-import AccountRemoveModal from '@/Components/Modal/Request/AccountRemoveModal.vue';
-import AdminModal from '@/Components/Modal/Request/AdminModal.vue';
+import AccountRemoveBlock from '@/Pages/Auth/Account/AccountRemoveBlock.vue';
+import AdminBlock from '@/Pages/Auth/Account/AdminBlock.vue';
 import FilmRemoveModal from '@/Components/Modal/Request/FilmRemoveModal.vue';
-import { filmsCatalogStore, filmsAccountStore } from '@/Stores/films';
+import { useAppStore } from '@/Stores/app';
+import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
 
 import { films_10_user } from '@/__tests__/data/films';
 
@@ -46,8 +42,9 @@ describe("@/Pages/Auth/Account.vue", () => {
     });
     
     it("Отрисовка ЛК", () => {
-        const filmsCatalog = filmsCatalogStore();
-        const filmsAccount = filmsAccountStore();
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
+        const filmsAccount = useFilmsAccountStore();
         
         const wrapper = mount(Account, {
             props: {
@@ -65,30 +62,20 @@ describe("@/Pages/Auth/Account.vue", () => {
                         component: 'Auth/Account'
                     }
                 },
-                provide: { filmsCatalog, filmsAccount }
+                provide: { app, filmsList, filmsAccount }
             }
         });
         
-        // Проверяем, что текущая страница пагинации сохранена в filmsCatalog
+        // Проверяем, что текущая страница пагинации сохранена в filmsList
         expect(wrapper.vm.filmsAccount.page).toBe(films_10_user.current_page);
         
         // Отрисовывается кнопка изменения числа фильмов
         const dropdown = wrapper.getComponent(Dropdown);
         expect(dropdown.text()).toBe('Число фильмов на странице');
         
-        // Отрисовывается кнопка удаления аккаунта
-        const dangerButton = wrapper.getComponent(DangerButton);
-        expect(dangerButton.text()).toBe('Удалить аккаунт');
+        expect(wrapper.findComponent(AccountRemoveBlock).exists()).toBe(true);
         
-        // Отрисовывается кнопка манипуляции с администрированием (is_admin: false)
-        const primaryButton = wrapper.getComponent(PrimaryButton);
-        expect(primaryButton.text()).toBe('Сделать себя админом');
-        
-        // Имеется кнопка для открытия/скрытия личных данных
-        expect(wrapper.getComponent(Bars3).attributes('title')).toBe('Личные данные');
-        // Персональные данные скрыты
-        expect(wrapper.vm.isPersonalData).toBe(false);
-        expect(wrapper.findComponent(PersonalData).exists()).toBe(false);
+        expect(wrapper.findComponent(AdminBlock).exists()).toBe(true);
         
         // Отрисовывается заголовок страницы
         const h1 = wrapper.get('h1');
@@ -161,163 +148,10 @@ describe("@/Pages/Auth/Account.vue", () => {
         expect(buttons.exists()).toBe(true);
     });
     
-    it("Показать/скрыть личные данные", async () => {
-        const filmsCatalog = filmsCatalogStore();
-        const filmsAccount = filmsAccountStore();
-        
-        const wrapper = mount(Account, {
-            props: {
-                errors: null,
-                films: films_10_user,
-                user: {
-                    id: 77,
-                    is_admin: false,
-                    login: 'TestLogin'
-                }
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Account'
-                    }
-                },
-                provide: { filmsCatalog, filmsAccount },
-                stubs: { FormButton: true }
-            }
-        });
-        
-        // Имеется кнопка для открытия/скрытия личных данных
-        const bar3 = wrapper.getComponent(Bars3);
-        expect(bar3.attributes('title')).toBe('Личные данные');
-        // Персональные данные скрыты
-        expect(wrapper.vm.isPersonalData).toBe(false);
-        expect(wrapper.findComponent(PersonalData).exists()).toBe(false);
-        
-        // Клик по кнопке открывает личные данные
-        await bar3.trigger('click');
-        expect(wrapper.vm.isPersonalData).toBe(true);
-        expect(wrapper.findComponent(PersonalData).exists()).toBe(true);
-        
-        // Повторный клик по кнопке скрывает личные данные
-        await bar3.trigger('click');
-        expect(wrapper.vm.isPersonalData).toBe(false);
-        expect(wrapper.findComponent(PersonalData).exists()).toBe(false);
-    });
-    
-    it("Показать/скрыть модальное окно удаления аккаунта", async () => {
-        const filmsCatalog = filmsCatalogStore();
-        const filmsAccount = filmsAccountStore();
-        
-        const wrapper = mount(Account, {
-            props: {
-                errors: null,
-                films: films_10_user,
-                user: {
-                    id: 77,
-                    is_admin: false,
-                    login: 'TestLogin'
-                }
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Account'
-                    }
-                },
-                provide: { filmsCatalog, filmsAccount }
-            }
-        });
-        
-        // Имеется кнопка 'Удалить аккаунт'
-        const dangerButton = wrapper.getComponent(DangerButton);
-        expect(dangerButton.text()).toBe('Удалить аккаунт');
-        // Модальное окно для удаления аккаунта скрыто
-        expect(wrapper.vm.isShowAccountRemoveModal).toBe(false);
-        expect(wrapper.findComponent(AccountRemoveModal).exists()).toBe(false);
-        
-        // Клик по кнопке открывает модальное окно
-        await dangerButton.trigger('click');
-        expect(wrapper.vm.isShowAccountRemoveModal).toBe(true);
-        expect(wrapper.findComponent(AccountRemoveModal).exists()).toBe(true);
-    });
-    
-    it("Показать/скрыть модальное окно администрирования (is_admin: false)", async () => {
-        const filmsCatalog = filmsCatalogStore();
-        const filmsAccount = filmsAccountStore();
-        
-        const wrapper = mount(Account, {
-            props: {
-                errors: null,
-                films: films_10_user,
-                user: {
-                    id: 77,
-                    is_admin: false,
-                    login: 'TestLogin'
-                }
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Account'
-                    }
-                },
-                provide: { filmsCatalog, filmsAccount }
-            }
-        });
-        
-        // Имеется кнопка манипуляции с администрированием (is_admin: false)
-        const primaryButton = wrapper.getComponent(PrimaryButton);
-        expect(primaryButton.text()).toBe('Сделать себя админом');
-        // Модальное окно для манипуляции с администрированием скрыто
-        expect(wrapper.vm.isShowAdminModal).toBe(false);
-        expect(wrapper.findComponent(AdminModal).exists()).toBe(false);
-        
-        // Клик по кнопке открывает модальное окно
-        await primaryButton.trigger('click');
-        expect(wrapper.vm.isShowAdminModal).toBe(true);
-        expect(wrapper.findComponent(AdminModal).exists()).toBe(true);
-    });
-    
-    it("Показать/скрыть модальное окно администрирования (is_admin: true)", async () => {
-        const filmsCatalog = filmsCatalogStore();
-        const filmsAccount = filmsAccountStore();
-        
-        const wrapper = mount(Account, {
-            props: {
-                errors: null,
-                films: films_10_user,
-                user: {
-                    id: 77,
-                    is_admin: true,
-                    login: 'TestLogin'
-                }
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Account'
-                    }
-                },
-                provide: { filmsCatalog, filmsAccount }
-            }
-        });
-        
-        // Имеется кнопка манипуляции с администрированием (is_admin: false)
-        const primaryButton = wrapper.getComponent(PrimaryButton);
-        expect(primaryButton.text()).toBe('Отказаться от администрирования');
-        // Модальное окно для манипуляции с администрированием скрыто
-        expect(wrapper.vm.isShowAdminModal).toBe(false);
-        expect(wrapper.findComponent(AdminModal).exists()).toBe(false);
-        
-        // Клик по кнопке открывает модальное окно
-        await primaryButton.trigger('click');
-        expect(wrapper.vm.isShowAdminModal).toBe(true);
-        expect(wrapper.findComponent(AdminModal).exists()).toBe(true);
-    });
-    
     it("Показать/скрыть модальное окно удаления фильма", async () => {
-        const filmsCatalog = filmsCatalogStore();
-        const filmsAccount = filmsAccountStore();
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
+        const filmsAccount = useFilmsAccountStore();
         
         const wrapper = mount(Account, {
             props: {
@@ -335,7 +169,7 @@ describe("@/Pages/Auth/Account.vue", () => {
                         component: 'Auth/Account'
                     }
                 },
-                provide: { filmsCatalog, filmsAccount }
+                provide: { app, filmsList, filmsAccount }
             }
         });
         

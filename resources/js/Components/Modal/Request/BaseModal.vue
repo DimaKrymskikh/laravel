@@ -1,11 +1,13 @@
 <script setup>
+import { inject } from 'vue';
+
 const { hideModal } = defineProps({
-    modalId: String,
     headerTitle: String,
-    isRequest: Boolean,
     hideModal: Function,
-    handlerSubmit: Function
+    handlerSubmit: Function | undefined
 });
+
+const app = inject('app');
 
 const hideBaseModal = function(e) {
     if(e.currentTarget.classList.contains('disabled') || e.currentTarget.classList.contains('stop-event')) {
@@ -17,14 +19,13 @@ const hideBaseModal = function(e) {
 
 <template>
     <div
-        :id="modalId"
         class="fixed top-0 left-0 right-0 w-full overflow-x-hidden overflow-y-auto h-screen"
         tabindex="-1"
     >
         <div
             id="modal-background"
             class="fixed opacity-25 bg-gray-500 w-full h-screen z-5"
-            :class="isRequest ? 'stop-event' : ''"
+            :class="app.isRequest ? 'stop-event' : ''"
             @click="hideBaseModal"
         ></div>
         <div class="relative top-12 m-auto max-w-xl z-10">
@@ -39,7 +40,7 @@ const hideBaseModal = function(e) {
                         id="modal-cross"
                         type="button" 
                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
-                        :class="isRequest ? 'stop-event' : ''"
+                        :class="app.isRequest ? 'stop-event' : ''"
                         @click="hideBaseModal"
                     >
                         <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -52,12 +53,12 @@ const hideBaseModal = function(e) {
                     <slot name="body"></slot>
                 </div>
                 <!-- Modal footer -->
-                <div class="flex items-center justify-end px-6 py-3 space-x-2 border-t border-gray-200 rounded-b">
+                <div class="flex justify-end px-6 py-3 space-x-2 border-t border-gray-200 rounded-b" v-if="handlerSubmit">
                     <button
                         id="modal-no"
                         type="button"
                         class="px-3 py-1.5 text-sm text-center font-medium rounded-lg border"
-                        :class="isRequest ? 'disabled' : 'text-green-700 bg-green-100 hover:bg-green-700 hover:text-green-100 border-green-700'"
+                        :class="app.isRequest ? 'disabled' : 'text-green-700 bg-green-100 hover:bg-green-700 hover:text-green-100 border-green-700'"
                         @click="hideBaseModal"
                     >
                         Нет
@@ -66,10 +67,21 @@ const hideBaseModal = function(e) {
                         id="modal-yes"
                         type="button" 
                         class="px-3 py-1.5 text-sm text-center font-medium rounded-lg border"
-                        :class="isRequest ? 'disabled' : 'text-red-700 bg-red-100 hover:bg-red-700 hover:text-red-100 border-red-700'"
+                        :class="app.isRequest ? 'disabled' : 'text-red-700 bg-red-100 hover:bg-red-700 hover:text-red-100 border-red-700'"
                         @click="handlerSubmit"
                     >
                         Да
+                    </button>
+                </div>
+                <div class="flex justify-center px-6 py-3 space-x-2 border-t border-gray-200 rounded-b" v-else>
+                    <button
+                        id="modal-no"
+                        type="button"
+                        class="px-3 py-1.5 text-sm text-center font-medium rounded-lg border"
+                        :class="app.isRequest ? 'disabled' : ' text-orange-700 bg-orange-100 hover:bg-orange-700 hover:text-orange-100 border-orange-700'"
+                        @click="hideBaseModal"
+                    >
+                        Закрыть
                     </button>
                 </div>
             </div>

@@ -89,7 +89,7 @@ class AccountTest extends TestCase
         
         $response
             ->assertStatus(302)
-            ->assertRedirect('catalog?page=1&number=100');
+            ->assertRedirect('films?page=1&number=100');
     }
     
     public function test_film_add_in_user_list_with_duplicate(): void

@@ -1,15 +1,28 @@
 <?php
 
-use App\Http\Controllers\Auth\AdminController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Dvdrental\CommonController;
+
 use App\Http\Controllers\Dvdrental\AccountController;
 use App\Http\Controllers\Dvdrental\FilmCardController;
-use App\Http\Controllers\OpenWeather\CityController;
+
+use App\Http\Controllers\Project\Admin\AdminController;
+use App\Http\Controllers\Project\Admin\HomeController as AdminHomeController;
+use App\Http\Controllers\Project\Admin\Content\CityController as AdminCityController;
+use App\Http\Controllers\Project\Admin\TimezoneController;
+
+use App\Http\Controllers\Project\Auth\HomeController;
+use App\Http\Controllers\Project\Auth\Content\CityController;
+use App\Http\Controllers\Project\Auth\Content\FilmController;
+
+use App\Http\Controllers\Project\Guest\Content\CityController as GuestCityController;
+use App\Http\Controllers\Project\Guest\Content\FilmController as GuestFilmController;
+use App\Http\Controllers\Project\Guest\HomeController as GuestHomeController;
+
+use App\Http\Controllers\OpenWeather\WeatherController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -23,9 +36,6 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-Route::get('/', [CommonController::class, 'home'])->name('home');
-Route::get('/catalog', [CommonController::class, 'catalog'])->name('catalog');
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
@@ -47,6 +57,10 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
                 ->name('password.store');
+    
+    Route::get('guest', [GuestHomeController::class, 'index']);
+    Route::get('guest/cities', [GuestCityController::class, 'index']);
+    Route::get('guest/films', [GuestFilmController::class, 'index']);
 });
 
 Route::middleware('auth')->group(function () {
@@ -78,17 +92,29 @@ Route::middleware('auth')->group(function () {
     Route::get('filmcard/{film_id}', [FilmCardController::class, 'create'])
                 ->name('filmcard');
     
-    Route::get('admin', [AdminController::class, 'index'])->middleware('all.action');
-    Route::post('admin/create', [AdminController::class, 'create'])->middleware('check.password');
-    Route::post('admin/destroy', [AdminController::class, 'destroy'])->middleware(['check.password', 'all.action']);
+    Route::get('weather', [WeatherController::class, 'index']);
     
-    Route::middleware('all.action')->group(function () {
-        Route::resource('cities', CityController::class)->only([
-            'index', 'store', 'update'
-        ]);
-        Route::delete('cities/{id}', [CityController::class, 'destroy'])->middleware('check.password');
-    });
+    Route::post('admin/create', [AdminController::class, 'create'])->middleware('check.password');
+    
+    Route::get('/', [HomeController::class, 'index']);
+    Route::get('cities', [CityController::class, 'index']);
+    Route::post('cities/addcity/{city_id}', [CityController::class, 'addCity']);
+    Route::get('films', [FilmController::class, 'index']);
 });
+
+Route::middleware(['auth', 'all.action'])->group(function () {
+    Route::get('admin', [AdminHomeController::class, 'index']);
+    Route::post('admin/destroy', [AdminController::class, 'destroy'])->middleware('check.password');
+    
+    Route::resource('admin/cities', AdminCityController::class)->only([
+        'index', 'store', 'update'
+    ]);
+    Route::delete('admin/cities/{id}', [AdminCityController::class, 'destroy'])->middleware('check.password');
+    Route::put('admin/cities/{city_id}/timezone/{timezone_id}', [AdminCityController::class, 'setTimezone']);
+    
+    Route::get('admin/timezone', [TimezoneController::class, 'index']);
+});
+
 
 /**
  * Просмотр писем и оповещений в браузере

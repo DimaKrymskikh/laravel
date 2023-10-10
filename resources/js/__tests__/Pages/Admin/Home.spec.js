@@ -3,7 +3,7 @@ import { mount } from "@vue/test-utils";
 import { setActivePinia, createPinia } from 'pinia';
 import Home from "@/Pages/Admin/Home.vue";
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import { filmsAccountStore } from '@/Stores/films';
+import { useFilmsAccountStore } from '@/Stores/films';
 
 describe("@/Pages/Admin/Home.vue", () => {
     beforeEach(() => {
@@ -11,7 +11,7 @@ describe("@/Pages/Admin/Home.vue", () => {
     });
     
     it("Отрисовка страницы 'Страница админа'", () => {
-        const filmsAccount = filmsAccountStore();
+        const filmsAccount = useFilmsAccountStore();
         
         const wrapper = mount(Home, {
             props: {

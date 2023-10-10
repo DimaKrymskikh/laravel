@@ -5,7 +5,8 @@ import '@/bootstrap';
 import { setActivePinia, createPinia } from 'pinia';
 import FilmCard from "@/Pages/Auth/FilmCard.vue";
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import { filmsCatalogStore, filmsAccountStore } from '@/Stores/films';
+import { useAppStore } from '@/Stores/app';
+import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
 
 import { filmCard } from '@/__tests__/data/films';
 
@@ -24,8 +25,9 @@ describe("@/Pages/Auth/FilmCard.vue", () => {
     });
     
     it("Отрисовка карточки фильма", () => {
-        const filmsCatalog = filmsCatalogStore();
-        const filmsAccount = filmsAccountStore();
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
+        const filmsAccount = useFilmsAccountStore();
         
         const wrapper = mount(FilmCard, {
             props: {
@@ -42,7 +44,7 @@ describe("@/Pages/Auth/FilmCard.vue", () => {
                         component: 'Auth/FilmCard'
                     }
                 },
-                provide: { filmsCatalog, filmsAccount }
+                provide: { app, filmsList, filmsAccount }
             }
         });
         
@@ -59,7 +61,7 @@ describe("@/Pages/Auth/FilmCard.vue", () => {
         expect(li.length).toBe(3);
         expect(li[0].find('a[href="/"]').exists()).toBe(true);
         expect(li[0].text()).toBe('Главная страница');
-        expect(li[1].find('a').attributes('href')).toBe(filmsAccount.getUrl());
+        expect(li[1].find('a').attributes('href')).toBe(filmsAccount.getUrl('/account'));
         expect(li[1].text()).toBe('ЛК');
         expect(li[2].find('a').exists()).toBe(false);
         expect(li[2].text()).toBe(wrapper.vm.titlePage);

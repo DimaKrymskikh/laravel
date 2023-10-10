@@ -3,9 +3,11 @@ import { mount } from "@vue/test-utils";
 import { setActivePinia, createPinia } from 'pinia';
 import ResetPassword from "@/Pages/Guest/ResetPassword.vue";
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import FormButton from '@/Components/Elements/FormButton.vue';
-import Spinner from '@/components/Svg/Spinner.vue';
-import { filmsCatalogStore } from '@/Stores/films';
+import { useAppStore } from '@/Stores/app';
+import { useFilmsListStore } from '@/Stores/films';
+
+import { checkFormButton } from '@/__tests__/methods/checkFormButton';
+import { checkInputField } from '@/__tests__/methods/checkInputField';
 
 vi.mock('@inertiajs/vue3', async () => {
     const actual = await vi.importActual("@inertiajs/vue3");
@@ -15,19 +17,12 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-describe("@/Pages/Guest/ResetPassword.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
-    it("Отрисовка формы сброса пароля", () => {
-        const filmsCatalog = filmsCatalogStore();
-        
-        const wrapper = mount(ResetPassword, {
+const getWrapper = function(app, filmsList, status = null) {
+    return mount(ResetPassword, {
             props: {
                 email: 'test@example.com',
                 token: 'testtoken',
-                errors: null
+                status
             },
             global: {
                 mocks: {
@@ -35,102 +30,128 @@ describe("@/Pages/Guest/ResetPassword.vue", () => {
                         component: 'Guest/ResetPassword'
                     }
                 },
-                provide: { filmsCatalog }
+                provide: { app, filmsList }
             }
         });
+};
+
+// Проверка названия страницы
+const checkH1 = function(wrapper) {
+    const h1 = wrapper.get('h1');
+    expect(h1.text()).toBe('Сброс пароля');
+};
+
+// Проверка хлебных крошек
+const checkBreadCrumb = function(wrapper) {
+    // Отрисовываются хлебные крошки
+    const breadCrumb = wrapper.findComponent(BreadCrumb);
+    expect(breadCrumb.exists()).toBe(true);
+    // Проверяем хлебные крошки
+    const li = breadCrumb.findAll('li');
+    expect(li.length).toBe(3);
+    // Ссылка на страницу 'Главная страница'
+    const a0 = li[0].find('a');
+    expect(a0.attributes('href')).toBe('/guest');
+    expect(a0.text()).toBe('Главная страница');
+    // Ссылка на страницу 'Вход'
+    const a1 = li[1].find('a');
+    expect(a1.attributes('href')).toBe('/login');
+    expect(a1.text()).toBe('Вход');
+    // Название текущей страницы
+    expect(li[2].find('a').exists()).toBe(false);
+    expect(li[2].text()).toBe('Сброс пароля');
+};
+
+describe("@/Pages/Guest/ResetPassword.vue", () => {
+    beforeEach(() => {
+        setActivePinia(createPinia());
+    });
+    
+    it("Отрисовка формы сброса пароля (isRequest: false)", async () => {
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
+        
+        const wrapper = getWrapper(app, filmsList);
+        
+        const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
         expect(wrapper.vm.form.token).toBe('testtoken');
         expect(wrapper.vm.form.email).toBe('test@example.com');
         expect(wrapper.vm.form.password).toBe('');
         expect(wrapper.vm.form.password_confirmation).toBe('');
         expect(wrapper.vm.form.errors).toStrictEqual({});
-        expect(wrapper.vm.form.processing).toBe(false);
-        expect(wrapper.vm.isRequest).toBe(false);
         
-        // Отрисовывается заголовок страницы
-        const h1 = wrapper.get('h1');
-        expect(h1.text()).toBe('Сброс пароля');
+        expect(wrapper.find('#reset-password-status').exists()).toBe(false);
         
-        // Отрисовываются хлебные крошки
-        const breadCrumb = wrapper.findComponent(BreadCrumb);
-        expect(breadCrumb.exists()).toBe(true);
+        checkH1(wrapper);
         
-        // Проверяем хлебные крошки
-        const li = breadCrumb.findAll('li');
-        expect(li.length).toBe(3);
-        expect(li[0].find('a[href="/"]').exists()).toBe(true);
-        expect(li[0].text()).toBe('Главная страница');
-        expect(li[1].find('a[href="/login"]').exists()).toBe(true);
-        expect(li[1].text()).toBe('Вход');
-        expect(li[2].find('a').exists()).toBe(false);
-        expect(li[2].text()).toBe('Сброс пароля');
+        checkBreadCrumb(wrapper);
         
         const formTag = wrapper.get('form');
         expect(formTag.isVisible()).toBe(true);
         
-        const label = formTag.findAll('label');
-        expect(label.length).toBe(3);
-        expect(label[0].text()).toBe('Электронная почта:');
-        expect(label[1].text()).toBe('Пароль:');
-        expect(label[2].text()).toBe('Подтверждение пароля:');
-        
-        const input = formTag.findAll('input');
-        expect(input.length).toBe(3);
-        expect(input[0].element.value).toBe('test@example.com');
-        expect(input[1].element.value).toBe('');
-        expect(input[2].element.value).toBe('');
-        
-        input[1].setValue('TestPassword');
-        expect(input[1].element.value).toBe('TestPassword');
-        expect(wrapper.vm.form.password).toBe('TestPassword');
-        
-        input[2].setValue('TestPassword');
-        expect(input[2].element.value).toBe('TestPassword');
-        expect(wrapper.vm.form.password_confirmation).toBe('TestPassword');
-        
-        const error = formTag.findAll('.error');
-        expect(error.length).toBe(0);
-        
-        const formButton = formTag.getComponent(FormButton);
-        expect(formButton.isVisible()).toBe(true);
-        
-        const button = formButton.get('button');
-        expect(button.isVisible()).toBe(true);
-        // Атрибут 'disabled' отсутствует
-        expect(button.attributes('disabled')).toBe(undefined);
+        const inputFields = checkInputField.findNumberOfInputFieldOnPage(formTag, 3);
+        checkInputField.checkPropsInputField(inputFields[0], 'Электронная почта:', 'text', wrapper.vm.form.errors.email, wrapper.vm.form.email, undefined, true);
+        checkInputField.checkPropsInputField(inputFields[1], 'Введите пароль:', 'password', wrapper.vm.form.errors.password, wrapper.vm.form.password, true);
+        checkInputField.checkPropsInputField(
+                inputFields[2], 'Подтверждение пароля:', 'password', wrapper.vm.form.errors.password_confirmation, wrapper.vm.form.password_confirmation
+        );
 
-        // На кнопке отправки формы виден текст, а спиннер отсутствует
-        expect(button.text()).toBe('Задать новый пароль');
-        expect(button.findComponent(Spinner).exists()).toBe(false);
+        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[1], '', 'TestPassword');
+        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[2], '', 'TestPassword');
+        
+        checkFormButton.checkPropsFormButton(wrapper, 'Задать новый пароль', 'w-48');
+        await checkFormButton.submitFormButton(wrapper, formPost);
     });
     
-    it("Отправка формы сброса пароля", async () => {
-        const filmsCatalog = filmsCatalogStore();
+    it("Отрисовка формы сброса пароля (isRequest: true)", async () => {
+        const app = useAppStore();
+        // Выполняется запрос
+        app.isRequest = true;
         
-        const wrapper = mount(ResetPassword, {
-            props: {
-                email: 'test@example.com',
-                token: 'testtoken',
-                errors: null
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/ResetPassword'
-                    }
-                },
-                provide: { filmsCatalog }
-            }
-        });
+        const filmsList = useFilmsListStore();
+        
+        const wrapper = getWrapper(app, filmsList);
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
-        const formTag = wrapper.get('form');
-        const formButton = formTag.getComponent(FormButton);
-        const button = formButton.get('button');
+        expect(wrapper.find('#reset-password-status').exists()).toBe(false);
         
-        expect(formPost).not.toHaveBeenCalled();
-        await button.trigger('submit');
-        expect(formPost).toHaveBeenCalledTimes(1);
+        checkH1(wrapper);
+        
+        checkBreadCrumb(wrapper);
+        
+        const formTag = wrapper.get('form');
+        expect(formTag.isVisible()).toBe(true);
+        
+        const inputFields = checkInputField.findNumberOfInputFieldOnPage(formTag, 3);
+        checkInputField.checkPropsInputField(inputFields[0], 'Электронная почта:', 'text', wrapper.vm.form.errors.email, wrapper.vm.form.email, undefined, true);
+        checkInputField.checkPropsInputField(inputFields[1], 'Введите пароль:', 'password', wrapper.vm.form.errors.password, wrapper.vm.form.password, true);
+        checkInputField.checkPropsInputField(
+                inputFields[2], 'Подтверждение пароля:', 'password', wrapper.vm.form.errors.password_confirmation, wrapper.vm.form.password_confirmation
+        );
+
+        checkInputField.checkInputFieldWhenRequestIsMade(inputFields[1], '', 'TestPassword');
+        checkInputField.checkInputFieldWhenRequestIsMade(inputFields[2], '', 'TestPassword');
+        
+        checkFormButton.checkPropsFormButton(wrapper, 'Задать новый пароль', 'w-48');
+        await checkFormButton.notSubmitFormButton(wrapper, formPost);
+    });
+    
+    it("Отрисовка статуса", () => {
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
+        
+        const wrapper = getWrapper(app, filmsList, 'Некоторый статус');
+        
+        const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
+        
+        checkH1(wrapper);
+        
+        checkBreadCrumb(wrapper);
+        
+        const passwordStatus = wrapper.find('#reset-password-status');
+        expect(passwordStatus.exists()).toBe(true);
+        expect(passwordStatus.text()).toBe('Некоторый статус');
     });
 });

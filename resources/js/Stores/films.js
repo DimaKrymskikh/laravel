@@ -1,18 +1,19 @@
+import { ref } from 'vue';
 import { defineStore } from "pinia";
 
-const filmsModel = function(url) {
+const filmsModel = function() {
     return function() {
         // Сортировка по названию фильмов
-        const title = '';
+        const title = ref('');
         // Сортировка по описанию фильмов
-        const description = '';
+        const description = ref('');
         // Активная страница
-        const page = 1;
+        const page = ref(1);
         // Число элементов на странице
-        const perPage = 20;
+        const perPage = ref(20);
 
-        const getUrl = function() {
-            return `${url}?page=${this.page}&number=${this.perPage}&title=${this.title}&description=${this.description}`;
+        const getUrl = function(url) {
+            return `${url}?page=${page.value}&number=${perPage.value}&title=${title.value}&description=${description.value}`;
         };
 
         return {
@@ -25,5 +26,5 @@ const filmsModel = function(url) {
     };
 };
 
-export const filmsCatalogStore = defineStore("filmsCatalog", filmsModel('/catalog'));
-export const filmsAccountStore = defineStore("filmsAccount", filmsModel('/account'));
+export const useFilmsListStore = defineStore("filmsList", filmsModel());
+export const useFilmsAccountStore = defineStore("filmsAccount", filmsModel());

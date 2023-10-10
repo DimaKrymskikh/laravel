@@ -44,6 +44,12 @@
     .active {
         @apply text-orange-100 bg-orange-700 cursor-not-allowed;
     }
+    .tabs-li {
+        @apply bg-orange-50 text-orange-700 hover:bg-orange-100 hover:text-orange-900;
+    }
+    .tabs-link-active {
+        @apply bg-orange-400 text-white hover:bg-orange-500 hover:text-orange-100;
+    }
     .disabled {
         @apply border-gray-300 text-gray-300 bg-gray-100 cursor-not-allowed;
     }

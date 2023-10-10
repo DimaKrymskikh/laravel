@@ -3,7 +3,8 @@ import { mount } from "@vue/test-utils";
 import { setActivePinia, createPinia } from 'pinia';
 import Home from "@/Pages/Guest/Home.vue";
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import { filmsCatalogStore } from '@/Stores/films';
+import { useAppStore } from '@/Stores/app';
+import { useFilmsListStore } from '@/Stores/films';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -20,7 +21,8 @@ describe("@/Pages/Guest/Home.vue", () => {
     });
     
     it("Отрисовка домашней страницы (гостевой режим)", () => {
-        const filmsCatalog = filmsCatalogStore();
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
         
         const wrapper = mount(Home, {
             props: {
@@ -32,7 +34,7 @@ describe("@/Pages/Guest/Home.vue", () => {
                         component: 'Guest/Catalog'
                     }
                 },
-                provide: { filmsCatalog }
+                provide: { app, filmsList }
             }
         });
         

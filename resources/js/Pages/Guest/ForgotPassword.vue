@@ -1,14 +1,16 @@
 <script setup>
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import FormButton from '@/Components/Elements/FormButton.vue';
+import InputField from '@/components/Elements/InputField.vue';
 
 defineProps({
-    errors: Object | null,
     status: String | null
 });
+
+const app = inject('app');
 
 const form = useForm({
     email: null
@@ -16,12 +18,9 @@ const form = useForm({
 
 const titlePage = 'Сброс пароля';
 
-// Выполняется ли запрос на сервер
-const isRequest = ref(false);
-
 // Список для хлебных крошек
 const linksList = [{
-            link: '/',
+            link: '/guest',
             text: 'Главная страница'
         }, {
             link: '/login',
@@ -32,15 +31,15 @@ const linksList = [{
     
 const handlerForgotPassword = function() {
     form.post('/forgot-password', {
-        onBefore: () => isRequest.value = true,
-        onFinish: () => isRequest.value = false
+        onBefore: () => app.isRequest = true,
+        onFinish: () => app.isRequest = false
     });
 };
 </script>
 
 <template>
     <Head :title="titlePage" />
-    <GuestLayout :errors="errors">
+    <GuestLayout>
         <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
 
@@ -48,23 +47,20 @@ const handlerForgotPassword = function() {
             {{ status }}
         </div>
 
-        <form @submit.prevent="handlerForgotPassword">
-            <div class="mb-3 w-1/3 pr-4">
-                <label for="email" class="block font-medium text-sm text-gray-700">
-                    Электронная почта:
-                </label>
-                <input
-                    id="email" type="email" name="email" 
-                    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+        <form @submit.prevent="handlerForgotPassword" autocomplete="off">
+            <div class="w-1/3">
+                <InputField
+                    titleText="Введите электронную почту:"
+                    type="text"
+                    :isInputAutofocus="true"
+                    :errorsMessage="form.errors.email"
                     v-model="form.email"
-                >
-                <div v-if="form.errors.email" class="error">{{ form.errors.email }}</div>
+                />
             </div>
 
-            <div class="mb-3 w-1/3 pr-4 text-right">
-                <FormButton class="w-96" text="Ссылка для сброса пароля электронной почты" :isRequest="isRequest" />
+            <div class="w-1/3 text-right">
+                <FormButton class="w-96" text="Ссылка для сброса пароля электронной почты" />
             </div>
         </form>
     </GuestLayout>
 </template>
-

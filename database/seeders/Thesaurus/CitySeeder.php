@@ -21,7 +21,7 @@ class CitySeeder extends Seeder implements SequencesInterface
         $tableName = 'thesaurus.cities';
         
         foreach ($this->getCities() as $city) {
-            DB::table('thesaurus.cities')->insert([
+            DB::table($tableName)->insert([
                 'id' => $city->id,
                 'name' => $city->name,
                 'open_weather_id' => $city->open_weather_id,

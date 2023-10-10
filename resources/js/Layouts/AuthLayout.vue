@@ -3,11 +3,14 @@ import { inject, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
+import AuthContentTabs from '@/components/Tabs/AuthContentTabs.vue';
 
 const { user } = defineProps({
     user: Object | null,
     errors: Object | null
 });
+
+const filmsAccount = inject('filmsAccount');
 
 const message = ref('');
 
@@ -18,9 +21,6 @@ Echo.private(`film.${user.id}`)
     .listen('RemoveFilm', (e) => {
         message.value = e.message;
     });
-
-const filmsCatalog = inject('filmsCatalog');
-const filmsAccount = inject('filmsAccount');
 </script>
 
 <template>
@@ -32,17 +32,11 @@ const filmsAccount = inject('filmsAccount');
                         <HouseSvg />
                     </Link>
                 </li>
+                <AuthContentTabs />
                 <li class="nav-tab">
                     <Link
                         class="nav-link small-caps"
-                        :href="filmsCatalog.getUrl()"
-                        :class="{ 'router-link-active': $page.component === 'Auth/Catalog' }"
-                    >каталог</Link>
-                </li>
-                <li class="nav-tab">
-                    <Link
-                        class="nav-link small-caps"
-                        :href="filmsAccount.getUrl()"
+                        :href="filmsAccount.getUrl('/account')"
                         :class="{ 'router-link-active': $page.component === 'Auth/Account' }"
                     >лк</Link>
                 </li>
@@ -63,5 +57,5 @@ const filmsAccount = inject('filmsAccount');
         <slot />
     </main>
     
-    <ForbiddenModal :errors="errors" />
+    <ForbiddenModal />
 </template>

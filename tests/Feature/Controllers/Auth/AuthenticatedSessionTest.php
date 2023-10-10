@@ -70,7 +70,7 @@ class AuthenticatedSessionTest extends TestCase
         $response = $this->authUser()->get('logout');
         $this->assertGuest();
         
-        $response->assertRedirect(RouteServiceProvider::HOME);
+        $response->assertRedirect('guest');
     }
     
     private function authUser(): static 

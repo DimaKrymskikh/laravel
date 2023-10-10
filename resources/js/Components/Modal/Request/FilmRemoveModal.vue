@@ -12,6 +12,7 @@ const { films, removeFilmId, hideFilmRemoveModal } = defineProps({
     hideFilmRemoveModal: Function
 });
 
+const app = inject('app');
 const filmsAccount = inject('filmsAccount');
 
 // Величина поля для пароля
@@ -20,8 +21,6 @@ const inputPassword = ref('');
 // При монтировании компоненты - пустая строка, чтобы после закрытия модального окна с сообщением об ошибке,
 // при последующем открытии модального окна этого сообщения об ошибке не было.
 const errorsPassword = ref('');
-// Выполняется ли запрос на сервер
-const isRequest = ref(false);
 
 /**
  * Обработчик удаления фильма
@@ -46,7 +45,7 @@ const handlerRemoveFilm = function(e) {
             description: filmsAccount.description
         },
         onBefore: () => {
-            isRequest.value = true;
+            app.isRequest = true;
             errorsPassword.value = '';
         },
         onSuccess: () => {
@@ -56,7 +55,7 @@ const handlerRemoveFilm = function(e) {
             errorsPassword.value = errors.password;
         },
         onFinish: () => {
-            isRequest.value = false;
+            app.isRequest = false;
         }
     });
 };
@@ -64,26 +63,26 @@ const handlerRemoveFilm = function(e) {
 
 <template>
     <BaseModal
-        modalId="film-remove-modal"
         headerTitle="Подтверждение удаления фильма"
         :hideModal="hideFilmRemoveModal"
         :handlerSubmit="handlerRemoveFilm"
-        :isRequest="isRequest"
     >
         <template v-slot:body>
             <div class="mb-2">
                 Вы действительно хотите удалить фильм 
                 <span>{{ removeFilmTitle }}</span>?
             </div>
-            <div class="mb-3">
-                <InputField
-                    titleText="Введите пароль:"
-                    type="password"
-                    :errorsMessage="errorsPassword"
-                    :isRequest="isRequest"
-                    v-model="inputPassword"
-                />
-            </div>
+            <form autocomplete="off">
+                <div class="mb-3">
+                    <InputField
+                        titleText="Введите пароль:"
+                        type="password"
+                        :isInputAutofocus="true"
+                        :errorsMessage="errorsPassword"
+                        v-model="inputPassword"
+                    />
+                </div>
+            </form>
         </template>
     </BaseModal>
 </template>

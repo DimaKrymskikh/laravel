@@ -3,6 +3,7 @@ import { inject, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
+import AdminContentTabs from '@/components/Tabs/AdminContentTabs.vue';
 
 defineProps({
     errors: Object | null
@@ -20,17 +21,11 @@ const filmsAccount = inject('filmsAccount');
                         <HouseSvg />
                     </Link>
                 </li>
+                <AdminContentTabs />
                 <li class="nav-tab">
                     <Link
                         class="nav-link small-caps"
-                        href="/cities"
-                        :class="{ 'router-link-active': $page.component === 'Admin/Cities' }"
-                    >города</Link>
-                </li>
-                <li class="nav-tab">
-                    <Link
-                        class="nav-link small-caps"
-                        :href="filmsAccount.getUrl()"
+                        :href="filmsAccount.getUrl('/account')"
                     >лк</Link>
                 </li>
             </ul>
@@ -41,5 +36,5 @@ const filmsAccount = inject('filmsAccount');
         <slot />
     </main>
     
-    <ForbiddenModal :errors="errors" />
+    <ForbiddenModal />
 </template>

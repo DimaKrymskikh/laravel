@@ -69,6 +69,7 @@ class WeatherStatisticsByCityTest extends TestCase
                         return ['city_id' => $city->id];
                     }))
                 ->create([
+                    'id' => 2,
                     'name' => 'TwoCity',
                     'open_weather_id' => 2
                 ]);

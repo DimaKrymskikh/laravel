@@ -70,7 +70,7 @@ class AccountController extends Controller
             event(new AddFilm($userFilm));
         }
         
-        return redirect($this->getUrl('/catalog', [
+        return redirect($this->getUrl('/films', [
             'page' => $request->page,
             'number' => $request->number,
             'title' => $request->title,

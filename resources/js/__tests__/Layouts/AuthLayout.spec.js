@@ -6,7 +6,8 @@ import { setActivePinia, createPinia } from 'pinia';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
-import { filmsCatalogStore, filmsAccountStore } from '@/Stores/films';
+import { useAppStore } from '@/Stores/app';
+import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
 
 describe("@/Layouts/AuthLayout.vue", () => {
     beforeEach(() => {
@@ -14,8 +15,9 @@ describe("@/Layouts/AuthLayout.vue", () => {
     });
     
     it("Монтирование шаблона AuthLayout для не админа", () => {
-        const filmsCatalog = filmsCatalogStore();
-        const filmsAccount = filmsAccountStore();
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
+        const filmsAccount = useFilmsAccountStore();
      
         const wrapper = mount(AuthLayout, {
             props: {
@@ -27,10 +29,10 @@ describe("@/Layouts/AuthLayout.vue", () => {
             global: {
                 mocks: {
                     $page: {
-                        component: 'Auth/Catalog'
+                        component: 'Auth/Films'
                     }
                 },
-                provide: { filmsCatalog, filmsAccount }
+                provide: { app, filmsList, filmsAccount }
             }
         });
 
@@ -42,16 +44,17 @@ describe("@/Layouts/AuthLayout.vue", () => {
         const li = nav.findAll('li');
         expect(li.length).toBe(4);
         
-        // Первая ссылка не активна
+        // Первая вкладка - неактивная ссылка
         expect(li[0].find('a[href="/"]').exists()).toBe(true);
         expect(li[0].find('.router-link-active').exists()).toBe(false);
         // Содержит иконку HouseSvg
         expect(li[0].find('a[href="/"]').findComponent(HouseSvg).exists()).toBe(true);
 
-        // Вторая ссылка 'каталог' активна с дефолтным url ($page.component === 'Auth/Catalog')
-        expect(li[1].find('a[href="/catalog?page=1&number=20&title=&description="]').exists()).toBe(true);
+        // Вторая вкладка 'контент' активная
         expect(li[1].find('.router-link-active').exists()).toBe(true);
-        expect(li[1].find('a[href="/catalog?page=1&number=20&title=&description="]').text()).toBe('каталог');
+        expect(li[1].find('span').text()).toBe('контент');
+        // Ссылки выпадашки отсутствуют
+        expect(li[1].find('ul').exists()).toBe(false);
 
         // Третья ссылка 'каталог' не активна с дефолтным url
         expect(li[2].find('a[href="/account?page=1&number=20&title=&description="]').exists()).toBe(true);
@@ -71,8 +74,9 @@ describe("@/Layouts/AuthLayout.vue", () => {
     });
     
     it("Монтирование шаблона AuthLayout для админа", () => {
-        const filmsCatalog = filmsCatalogStore();
-        const filmsAccount = filmsAccountStore();
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
+        const filmsAccount = useFilmsAccountStore();
      
         const wrapper = mount(AuthLayout, {
             props: {
@@ -87,7 +91,7 @@ describe("@/Layouts/AuthLayout.vue", () => {
                         component: 'Auth/Account'
                     }
                 },
-                provide: { filmsCatalog, filmsAccount }
+                provide: { app, filmsList, filmsAccount }
             }
         });
 
@@ -104,11 +108,12 @@ describe("@/Layouts/AuthLayout.vue", () => {
         expect(li[0].find('.router-link-active').exists()).toBe(false);
         // Содержит иконку HouseSvg
         expect(li[0].find('a[href="/"]').findComponent(HouseSvg).exists()).toBe(true);
-
-        // Вторая ссылка 'каталог' не активна с дефолтным url ($page.component === 'Auth/Catalog')
-        expect(li[1].find('a[href="/catalog?page=1&number=20&title=&description="]').exists()).toBe(true);
+        
+        // Вторая вкладка 'контент' не активная
         expect(li[1].find('.router-link-active').exists()).toBe(false);
-        expect(li[1].find('a[href="/catalog?page=1&number=20&title=&description="]').text()).toBe('каталог');
+        expect(li[1].find('span').text()).toBe('контент');
+        // Ссылки выпадашки отсутствуют
+        expect(li[1].find('ul').exists()).toBe(false);
 
         // Третья ссылка 'лк' активна с дефолтным url ($page.component === 'Auth/Account')
         expect(li[2].find('a[href="/account?page=1&number=20&title=&description="]').exists()).toBe(true);
@@ -127,6 +132,64 @@ describe("@/Layouts/AuthLayout.vue", () => {
         
         // Присутствует пустая компонента ForbiddenModal
         forbiddenModalExists(wrapper);
+    });
+    
+    it("Проверка выпадашки", async () => {
+        const app = useAppStore();
+        
+        const filmsList = useFilmsListStore();
+        filmsList.page = 5;
+        filmsList.perPage = 100;
+        filmsList.title = 'abc';
+        filmsList.description = 'xy';
+        
+        const filmsAccount = useFilmsAccountStore();
+        
+        const wrapper = mount(AuthLayout, {
+            props: {
+                errors: null,
+                user: {
+                    is_admin: true
+                }
+            },
+            global: {
+                mocks: {
+                    $page: {
+                        component: 'Auth/Films'
+                    }
+                },
+                provide: { app, filmsList, filmsAccount }
+            }
+        });
+
+        const nav = wrapper.find('nav');
+        const liNav = nav.findAll('li');
+        
+        // Вкладка 'контент'
+        const span = liNav[1].find('span');
+        expect(span.text()).toBe('контент');
+        // Ссылки выпадашки отсутствуют
+        expect(liNav[1].find('ul').exists()).toBe(false);
+        
+        // После клика по выпадашке появляются ссылки
+        await span.trigger('click');
+        expect(liNav[1].find('ul').exists()).toBe(true);
+        const liUl = liNav[1].find('ul').findAll('li');
+        expect(liUl.length).toBe(3);
+        
+        // Первая вкладка - активная ссылка 'фильмы'
+        expect(liUl[0].find('a[href="/films?page=5&number=100&title=abc&description=xy"]').exists()).toBe(true);
+        expect(liUl[0].find('.tabs-link-active').exists()).toBe(true);
+        expect(liUl[0].find('a[href="/films?page=5&number=100&title=abc&description=xy"]').text()).toBe('фильмы');
+        
+        // Вторая вкладка - неактивная ссылка 'города'
+        expect(liUl[1].find('a[href="/cities"]').exists()).toBe(true);
+        expect(liUl[1].find('.tabs-link-active').exists()).toBe(false);
+        expect(liUl[1].find('a[href="/cities"]').text()).toBe('города');
+        
+        // Повторный клик убирает ссылки
+        await span.trigger('click');
+        expect(liNav[1].find('ul').exists()).toBe(false);
     });
     
     const forbiddenModalExists = function(wrapper) {

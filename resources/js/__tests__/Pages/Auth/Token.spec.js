@@ -5,7 +5,8 @@ import '@/bootstrap';
 
 import { setActivePinia, createPinia } from 'pinia';
 import Token from '@/Pages/Auth/Token.vue';
-import { filmsCatalogStore, filmsAccountStore } from '@/Stores/films';
+import { useAppStore } from '@/Stores/app';
+import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -22,8 +23,9 @@ describe("@/Pages/Auth/Token.vue", () => {
     });
     
     it("Отрисовка страницы с токеном", () => {
-        const filmsCatalog = filmsCatalogStore();
-        const filmsAccount = filmsAccountStore();
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
+        const filmsAccount = useFilmsAccountStore();
         
         const wrapper = mount(Token, {
             props: {
@@ -39,7 +41,7 @@ describe("@/Pages/Auth/Token.vue", () => {
                         component: 'Auth/Token'
                     }
                 },
-                provide: { filmsCatalog, filmsAccount }
+                provide: { app, filmsList, filmsAccount }
             }
         });
         
@@ -47,7 +49,7 @@ describe("@/Pages/Auth/Token.vue", () => {
         expect(wrapper.text()).toContain('Сохраните полученный токен:');
         expect(wrapper.text()).toContain('TestToken');
         const accountLink = wrapper.get('#account-link');
-        expect(accountLink.attributes('href')).toBe(filmsAccount.getUrl());
+        expect(accountLink.attributes('href')).toBe(filmsAccount.getUrl('/account'));
         expect(accountLink.text()).toBe('Перейти в личный кабинет');
     });
 });

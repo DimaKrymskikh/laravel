@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
@@ -9,9 +9,10 @@ const { hideAccountRemoveModal } = defineProps({
     hideAccountRemoveModal: Function
 });
 
+const app = inject('app');
+
 const inputPassword = ref('');
 const errorsPassword = ref('');
-const isRequest = ref(false);
 
 // Обработчик удаления аккаунта
 const handlerRemoveAccount = function(e) {
@@ -25,7 +26,7 @@ const handlerRemoveAccount = function(e) {
             password: inputPassword.value
         },
         onBefore: () => {
-            isRequest.value = true;
+            app.isRequest = true;
             errorsPassword.value = '';
         },
         onSuccess: () => {
@@ -35,7 +36,8 @@ const handlerRemoveAccount = function(e) {
             errorsPassword.value = errors.password;
         },
         onFinish: () => {
-            isRequest.value = false;
+            app.isRequest = false;
+            inputPassword.value = '';
         }
     });
 };
@@ -44,27 +46,25 @@ const handlerRemoveAccount = function(e) {
 
 <template>
     <BaseModal
-        modalId="account-remove-modal"
         headerTitle="Подтверждение удаления аккаунта"
         :hideModal="hideAccountRemoveModal"
         :handlerSubmit="handlerRemoveAccount"
-        :isRequest="isRequest"
     >
         <template v-slot:body>
             <div class="mb-2">
                 Вы действительно хотите удалить свой аккаунт?
             </div>
-            <div class="mb-3">
-                <label>
+            <form autocomplete="off">
+                <div class="mb-3">
                     <InputField
                         titleText="Введите пароль:"
                         type="password"
                         :errorsMessage="errorsPassword"
-                        :isRequest="isRequest"
+                        :isInputAutofocus="true"
                         v-model="inputPassword"
                     />
-                </label>
-            </div>
+                </div>
+            </form>
         </template>
     </BaseModal>
 </template>

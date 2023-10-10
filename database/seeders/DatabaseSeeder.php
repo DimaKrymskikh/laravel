@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            \Database\Seeders\Thesaurus\TimezoneSeeder::class,
             \Database\Seeders\Thesaurus\CitySeeder::class,
             \Database\Seeders\Thesaurus\LanguageSeeder::class,
             \Database\Seeders\Dvd\ActorSeeder::class,

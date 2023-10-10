@@ -3,11 +3,14 @@
 namespace App\Models\Thesaurus;
 
 use App\Models\OpenWeather\Weather;
+use App\Models\Thesaurus\Timezone;
 use Database\Factories\Thesaurus\CityFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class City extends Model
 {
@@ -25,5 +28,20 @@ class City extends Model
     public function weather(): HasMany
     {
         return $this->hasMany(Weather::class);
+    }
+    
+    /**
+     * Используется для получения последних данных о погоде
+     * 
+     * @return HasOne
+     */
+    public function weatherFirst(): HasOne
+    {
+        return $this->hasOne(Weather::class);
+    }
+    
+    public function timezone(): BelongsTo
+    {
+        return $this->BelongsTo(Timezone::class);
     }
 }

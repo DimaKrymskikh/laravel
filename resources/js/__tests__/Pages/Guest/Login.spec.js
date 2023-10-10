@@ -3,9 +3,11 @@ import { mount } from "@vue/test-utils";
 import { setActivePinia, createPinia } from 'pinia';
 import Login from "@/Pages/Guest/Login.vue";
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import FormButton from '@/Components/Elements/FormButton.vue';
-import Spinner from '@/components/Svg/Spinner.vue';
-import { filmsCatalogStore } from '@/Stores/films';
+import { useAppStore } from '@/Stores/app';
+import { useFilmsListStore } from '@/Stores/films';
+
+import { checkFormButton } from '@/__tests__/methods/checkFormButton';
+import { checkInputField } from '@/__tests__/methods/checkInputField';
 
 vi.mock('@inertiajs/vue3', async () => {
     const actual = await vi.importActual("@inertiajs/vue3");
@@ -15,18 +17,10 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-describe("@/Pages/Guest/Login.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
-    it("Отрисовка формы входа", () => {
-        const filmsCatalog = filmsCatalogStore();
-        
-        const wrapper = mount(Login, {
+const getWrapper = function(app, filmsList, status = null) {
+    return mount(Login, {
             props: {
-                errors: null,
-                status: null
+                status
             },
             global: {
                 mocks: {
@@ -34,106 +28,122 @@ describe("@/Pages/Guest/Login.vue", () => {
                         component: 'Guest/Login'
                     }
                 },
-                provide: { filmsCatalog }
+                provide: { app, filmsList }
             }
         });
+};
+
+// Проверка названия страницы
+const checkH1 = function(wrapper) {
+    const h1 = wrapper.get('h1');
+    expect(h1.text()).toBe('Вход');
+};
+
+// Проверка хлебных крошек
+const checkBreadCrumb = function(wrapper) {
+    // Отрисовываются хлебные крошки
+    const breadCrumb = wrapper.findComponent(BreadCrumb);
+    expect(breadCrumb.exists()).toBe(true);
+    // Проверяем хлебные крошки
+    const li = breadCrumb.findAll('li');
+    expect(li.length).toBe(2);
+    // Первая крошка - это ссылка на главную страницу
+    const a0 = li[0].find('a');
+    expect(a0.attributes('href')).toBe('/guest');
+    expect(a0.text()).toBe('Главная страница');
+    // Вторая крошка ссылкой не является
+    expect(li[1].find('a').exists()).toBe(false);
+    expect(li[1].text()).toBe('Вход');
+};
+
+describe("@/Pages/Guest/Login.vue", () => {
+    beforeEach(() => {
+        setActivePinia(createPinia());
+    });
+    
+    it("Отрисовка формы входа (isRequest: false)", async () => {
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
         
+        const wrapper = getWrapper(app, filmsList);
+        
+        const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
+        
+        // Начальное состояние формы
         expect(wrapper.vm.form.login).toBe(null);
         expect(wrapper.vm.form.password).toBe(null);
-        expect(wrapper.vm.form.processing).toBe(false);
-        expect(wrapper.vm.isRequest).toBe(false);
         
-        // Отрисовывается заголовок страницы
-        const h1 = wrapper.get('h1');
-        expect(h1.text()).toBe('Вход');
+        checkH1(wrapper);
         
-        // Отрисовываются хлебные крошки
-        const breadCrumb = wrapper.findComponent(BreadCrumb);
-        expect(breadCrumb.exists()).toBe(true);
-        
-        // Проверяем хлебные крошки
-        const li = breadCrumb.findAll('li');
-        expect(li.length).toBe(2);
-        expect(li[0].find('a[href="/"]').exists()).toBe(true);
-        expect(li[0].text()).toBe('Главная страница');
-        expect(li[1].find('a').exists()).toBe(false);
-        expect(li[1].text()).toBe('Вход');
+        checkBreadCrumb(wrapper);
         
         expect(wrapper.find('#login-status').exists()).toBe(false);
         
         const formTag = wrapper.get('form');
         expect(formTag.isVisible()).toBe(true);
         
-        const label = formTag.findAll('label');
-        expect(label.length).toBe(2);
-        expect(label[0].text()).toBe('Логин:');
-        expect(label[1].text()).toBe('Пароль:');
+        const inputFields = checkInputField.findNumberOfInputFieldOnPage(formTag, 2);
+        checkInputField.checkPropsInputField(inputFields[0], 'Введите логин:', 'text', wrapper.vm.form.errors.login, wrapper.vm.form.login, true);
+        checkInputField.checkPropsInputField(inputFields[1], 'Введите пароль:', 'password', wrapper.vm.form.errors.password, wrapper.vm.form.password);
+        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], '', 'TestLogin');
+        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[1], '', 'TestPassword');
         
-        const input = formTag.findAll('input');
-        expect(input.length).toBe(2);
-        expect(input[0].element.value).toBe('');
-        expect(input[1].element.value).toBe('');
+        // Проверяем кнопку формы
+        checkFormButton.checkPropsFormButton(wrapper, 'Вход', 'w-36');
+        await checkFormButton.submitFormButton(wrapper, formPost);
         
-        input[0].setValue('TestLogin');
-        expect(input[0].element.value).toBe('TestLogin');
-        expect(wrapper.vm.form.login).toBe('TestLogin');
-        
-        input[1].setValue('TestPassword');
-        expect(input[1].element.value).toBe('TestPassword');
-        expect(wrapper.vm.form.password).toBe('TestPassword');
-        
-        const error = formTag.findAll('.error');
-        expect(error.length).toBe(0);
-        
-        const formButton = formTag.getComponent(FormButton);
-        expect(formButton.isVisible()).toBe(true);
-        
-        const button = formButton.get('button');
-        expect(button.isVisible()).toBe(true);
-        // Атрибут 'disabled' отсутствует
-        expect(button.attributes('disabled')).toBe(undefined);
-
-        // На кнопке отправки формы виден текст, а спиннер отсутствует
-        expect(button.text()).toBe('Вход');
-        expect(button.findComponent(Spinner).exists()).toBe(false);
-        
+        // На странице имеется ссылка 'Регистрация'
         const register = wrapper.get('a[href="/register"]');
         expect(register.text()).toBe('Регистрация');
         
+        // На странице имеется ссылка 'Сброс пароля'
         const forgotPassword = wrapper.get('a[href="/forgot-password"]');
         expect(forgotPassword.text()).toBe('Сброс пароля');
     });
     
-    it("Отправка формы", async () => {
-        const filmsCatalog = filmsCatalogStore();
+    it("Отрисовка формы входа (isRequest: true)", async () => {
+        const app = useAppStore();
+        // Выполняется запрос
+        app.isRequest = true;
         
-        const wrapper = mount(Login, {
-            props: {
-                errors: null,
-                status: null
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/Login'
-                    }
-                },
-                provide: { filmsCatalog }
-            }
-        });
+        const filmsList = useFilmsListStore();
+        
+        const wrapper = getWrapper(app, filmsList);
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
+        checkH1(wrapper);
+        
+        checkBreadCrumb(wrapper);
+        
         const formTag = wrapper.get('form');
-        const input = formTag.findAll('input');
-        input[0].setValue('TestLogin');
-        input[1].setValue('TestPassword');
+        expect(formTag.isVisible()).toBe(true);
         
-        const formButton = formTag.getComponent(FormButton);
-        const button = formButton.get('button');
+        const inputFields = checkInputField.findNumberOfInputFieldOnPage(formTag, 2);
+        checkInputField.checkPropsInputField(inputFields[0], 'Введите логин:', 'text', wrapper.vm.form.errors.login, wrapper.vm.form.login, true);
+        checkInputField.checkPropsInputField(inputFields[1], 'Введите пароль:', 'password', wrapper.vm.form.errors.password, wrapper.vm.form.password);
+        checkInputField.checkInputFieldWhenRequestIsMade(inputFields[0], '', 'TestLogin');
+        checkInputField.checkInputFieldWhenRequestIsMade(inputFields[1], '', 'TestPassword');
         
-        expect(formPost).not.toHaveBeenCalled();
-        await button.trigger('submit');
-        expect(formPost).toHaveBeenCalledTimes(1);
+        // Проверяем кнопку формы
+        checkFormButton.checkPropsFormButton(wrapper, 'Вход', 'w-36');
+        await checkFormButton.notSubmitFormButton(wrapper, formPost);
+    });
+    
+    it("Отрисовка статуса", () => {
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
+        
+        const wrapper = getWrapper(app, filmsList, 'Некоторый статус');
+        
+        const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
+        
+        checkH1(wrapper);
+        
+        checkBreadCrumb(wrapper);
+        
+        const loginStatus = wrapper.find('#login-status');
+        expect(loginStatus.exists()).toBe(true);
+        expect(loginStatus.text()).toBe('Некоторый статус');
     });
 });

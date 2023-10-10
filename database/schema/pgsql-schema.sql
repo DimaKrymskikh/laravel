@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.2 (Debian 15.2-1.pgdg110+1)
+-- Dumped from database version 15.4 (Debian 15.4-1.pgdg120+1)
 -- Dumped by pg_dump version 15.4 (Ubuntu 15.4-1.pgdg22.04+1)
 
 SET statement_timeout = 0;
@@ -475,6 +475,31 @@ COMMENT ON COLUMN person.users.email_verified_at IS 'Время подтверж
 
 
 --
+-- Name: users_cities; Type: TABLE; Schema: person; Owner: -
+--
+
+CREATE TABLE person.users_cities (
+    user_id integer NOT NULL,
+    city_id integer NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE users_cities; Type: COMMENT; Schema: person; Owner: -
+--
+
+COMMENT ON TABLE person.users_cities IS 'Таблица, связывающая таблицы person.users и thesaurus.cities';
+
+
+--
+-- Name: COLUMN users_cities.created_at; Type: COMMENT; Schema: person; Owner: -
+--
+
+COMMENT ON COLUMN person.users_cities.created_at IS 'Время создания записи';
+
+
+--
 -- Name: users_films; Type: TABLE; Schema: person; Owner: -
 --
 
@@ -490,6 +515,13 @@ CREATE TABLE person.users_films (
 --
 
 COMMENT ON TABLE person.users_films IS 'Таблица, связывающая таблицы person.users и dvd.films';
+
+
+--
+-- Name: COLUMN users_films.created_at; Type: COMMENT; Schema: person; Owner: -
+--
+
+COMMENT ON COLUMN person.users_films.created_at IS 'Время создания записи';
 
 
 --
@@ -551,7 +583,8 @@ CREATE TABLE thesaurus.cities (
     name text NOT NULL,
     open_weather_id bigint NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    timezone_id integer
 );
 
 
@@ -588,6 +621,13 @@ COMMENT ON COLUMN thesaurus.cities.created_at IS 'Время создания з
 --
 
 COMMENT ON COLUMN thesaurus.cities.updated_at IS 'Время последнего изменения записи';
+
+
+--
+-- Name: COLUMN cities.timezone_id; Type: COMMENT; Schema: thesaurus; Owner: -
+--
+
+COMMENT ON COLUMN thesaurus.cities.timezone_id IS 'Часовой пояс';
 
 
 --
@@ -705,6 +745,50 @@ ALTER SEQUENCE thesaurus.languages_id_seq OWNED BY thesaurus.languages.id;
 
 
 --
+-- Name: timezones; Type: TABLE; Schema: thesaurus; Owner: -
+--
+
+CREATE TABLE thesaurus.timezones (
+    id integer NOT NULL,
+    name text NOT NULL
+);
+
+
+--
+-- Name: TABLE timezones; Type: COMMENT; Schema: thesaurus; Owner: -
+--
+
+COMMENT ON TABLE thesaurus.timezones IS 'Временные зоны';
+
+
+--
+-- Name: COLUMN timezones.name; Type: COMMENT; Schema: thesaurus; Owner: -
+--
+
+COMMENT ON COLUMN thesaurus.timezones.name IS 'Часовой пояс';
+
+
+--
+-- Name: timezones_id_seq; Type: SEQUENCE; Schema: thesaurus; Owner: -
+--
+
+CREATE SEQUENCE thesaurus.timezones_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: timezones_id_seq; Type: SEQUENCE OWNED BY; Schema: thesaurus; Owner: -
+--
+
+ALTER SEQUENCE thesaurus.timezones_id_seq OWNED BY thesaurus.timezones.id;
+
+
+--
 -- Name: actors id; Type: DEFAULT; Schema: dvd; Owner: -
 --
 
@@ -768,6 +852,13 @@ ALTER TABLE ONLY thesaurus.languages ALTER COLUMN id SET DEFAULT nextval('thesau
 
 
 --
+-- Name: timezones id; Type: DEFAULT; Schema: thesaurus; Owner: -
+--
+
+ALTER TABLE ONLY thesaurus.timezones ALTER COLUMN id SET DEFAULT nextval('thesaurus.timezones_id_seq'::regclass);
+
+
+--
 -- Name: actors actors_pkey; Type: CONSTRAINT; Schema: dvd; Owner: -
 --
 
@@ -821,6 +912,14 @@ ALTER TABLE ONLY person.personal_access_tokens
 
 ALTER TABLE ONLY person.personal_access_tokens
     ADD CONSTRAINT personal_access_tokens_token_key UNIQUE (token);
+
+
+--
+-- Name: users_cities users_cities_pkey; Type: CONSTRAINT; Schema: person; Owner: -
+--
+
+ALTER TABLE ONLY person.users_cities
+    ADD CONSTRAINT users_cities_pkey PRIMARY KEY (user_id, city_id);
 
 
 --
@@ -896,6 +995,14 @@ ALTER TABLE ONLY thesaurus.languages
 
 
 --
+-- Name: timezones timezones_pkey; Type: CONSTRAINT; Schema: thesaurus; Owner: -
+--
+
+ALTER TABLE ONLY thesaurus.timezones
+    ADD CONSTRAINT timezones_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: actors_last_name_idx; Type: INDEX; Schema: dvd; Owner: -
 --
 
@@ -928,6 +1035,13 @@ CREATE INDEX users_films_film_id_idx ON person.users_films USING btree (film_id)
 --
 
 CREATE UNIQUE INDEX users_login_idx ON person.users USING btree (login);
+
+
+--
+-- Name: timezones_name_idx; Type: INDEX; Schema: thesaurus; Owner: -
+--
+
+CREATE UNIQUE INDEX timezones_name_idx ON thesaurus.timezones USING btree (name);
 
 
 --
@@ -998,6 +1112,22 @@ ALTER TABLE ONLY open_weather.weather
 
 
 --
+-- Name: users_cities users_cities_city_id_fkey; Type: FK CONSTRAINT; Schema: person; Owner: -
+--
+
+ALTER TABLE ONLY person.users_cities
+    ADD CONSTRAINT users_cities_city_id_fkey FOREIGN KEY (city_id) REFERENCES thesaurus.cities(id);
+
+
+--
+-- Name: users_cities users_cities_user_id_fkey; Type: FK CONSTRAINT; Schema: person; Owner: -
+--
+
+ALTER TABLE ONLY person.users_cities
+    ADD CONSTRAINT users_cities_user_id_fkey FOREIGN KEY (user_id) REFERENCES person.users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: users_films users_films_film_id_fkey; Type: FK CONSTRAINT; Schema: person; Owner: -
 --
 
@@ -1014,6 +1144,14 @@ ALTER TABLE ONLY person.users_films
 
 
 --
+-- Name: cities cities_timezone_id_fkey; Type: FK CONSTRAINT; Schema: thesaurus; Owner: -
+--
+
+ALTER TABLE ONLY thesaurus.cities
+    ADD CONSTRAINT cities_timezone_id_fkey FOREIGN KEY (timezone_id) REFERENCES thesaurus.timezones(id) ON DELETE SET NULL (timezone_id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -1021,7 +1159,7 @@ ALTER TABLE ONLY person.users_films
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.2 (Debian 15.2-1.pgdg110+1)
+-- Dumped from database version 15.4 (Debian 15.4-1.pgdg120+1)
 -- Dumped by pg_dump version 15.4 (Ubuntu 15.4-1.pgdg22.04+1)
 
 SET statement_timeout = 0;
@@ -1040,6 +1178,9 @@ SET row_security = off;
 --
 
 COPY public.migrations (id, migration, batch) FROM stdin;
+1	2023_09_09_175426_create_thesaurus_timezone_table	1
+2	2023_09_12_163234_add-column_timezone_id_in_thesaurus_timesones_table	2
+3	2023_09_17_211442_create_person_users_cities_table	3
 \.
 
 
@@ -1047,7 +1188,7 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 -- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.migrations_id_seq', 1, false);
+SELECT pg_catalog.setval('public.migrations_id_seq', 3, true);
 
 
 --

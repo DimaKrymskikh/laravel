@@ -4,7 +4,8 @@ import { setActivePinia, createPinia } from 'pinia';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
-import { filmsCatalogStore } from '@/Stores/films';
+import { useAppStore } from '@/Stores/app';
+import { useFilmsListStore } from '@/Stores/films';
 
 describe("@/Layouts/GuestLayout.vue", () => {
     beforeEach(() => {
@@ -12,19 +13,17 @@ describe("@/Layouts/GuestLayout.vue", () => {
     });
     
     it("Монтирование шаблона GuestLayout", () => {
-        const filmsCatalog = filmsCatalogStore();
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
         
         const wrapper = mount(GuestLayout, {
-            props: {
-                errors: null
-            },
             global: {
                 mocks: {
                     $page: {
                         component: 'Guest/Home'
                     }
                 },
-                provide: { filmsCatalog }
+                provide: { app, filmsList }
             }
         });
 
@@ -36,21 +35,25 @@ describe("@/Layouts/GuestLayout.vue", () => {
         const li = nav.findAll('li');
         expect(li.length).toBe(3);
         
-        // Первая ссылка активна ($page.component === 'Guest/Home')
-        expect(li[0].find('a[href="/"]').exists()).toBe(true);
-        expect(li[0].find('.router-link-active').exists()).toBe(true);
+        // Первая вкладка - активная ссылка ($page.component === 'Guest/Home')
+        const a0 = li[0].find('a');
+        expect(a0.attributes('href')).toBe('/guest');
+        expect(a0.attributes('class')).toContain('router-link-active');
         // Содержит иконку HouseSvg
-        expect(li[0].find('a[href="/"]').findComponent(HouseSvg).exists()).toBe(true);
+        expect(a0.findComponent(HouseSvg).exists()).toBe(true);
 
-        // Вторая ссылка 'каталог' не активна с дефолтным url
-        expect(li[1].find('a[href="/catalog?page=1&number=20&title=&description="]').exists()).toBe(true);
-        expect(li[1].find('.router-link-active').exists()).toBe(false);
-        expect(li[1].find('a[href="/catalog?page=1&number=20&title=&description="]').text()).toBe('каталог');
+        // Вторая вкладка - выпадашка
+        const span = li[1].find('span');
+        expect(span.attributes('class')).not.toContain('router-link-active');
+        expect(span.text()).toBe('контент');
+        // Ссылки выпадашки отсутствуют
+        expect(li[1].find('ul').exists()).toBe(false);
         
-        // Третья ссылка 'вход' не активна
-        expect(li[2].find('a[href="/login"]').exists()).toBe(true);
-        expect(li[2].find('.router-link-active').exists()).toBe(false);
-        expect(li[2].find('a[href="/login"]').text()).toBe('вход');
+        // Третья вкладка - неактивная ссылка 'вход'
+        const a2 = li[2].find('a');
+        expect(a2.attributes('href')).toBe('/login');
+        expect(a2.attributes('class')).not.toContain('router-link-active');
+        expect(a2.text()).toBe('вход');
         
         // Присутствует пустая компонента ForbiddenModal
         const forbiddenModal = wrapper.findComponent(ForbiddenModal);
@@ -58,60 +61,57 @@ describe("@/Layouts/GuestLayout.vue", () => {
         expect(forbiddenModal.html()).toBe('<!--v-if-->');
     });
     
-    it("Проверка ссылки на страницу 'каталог'", () => {
-        const filmsCatalog = filmsCatalogStore();
-        filmsCatalog.page = 5;
-        filmsCatalog.perPage = 100;
-        filmsCatalog.title = 'abc';
-        filmsCatalog.description = 'xy';
+    it("Проверка выпадашки", async () => {
+        const app = useAppStore();
+        
+        const filmsList = useFilmsListStore();
+        filmsList.page = 5;
+        filmsList.perPage = 100;
+        filmsList.title = 'abc';
+        filmsList.description = 'xy';
         
         const wrapper = mount(GuestLayout, {
-            props: {
-                errors: null
-            },
             global: {
                 mocks: {
                     $page: {
-                        component: 'Guest/Catalog'
+                        component: 'Guest/Films'
                     }
                 },
-                provide: { filmsCatalog }
+                provide: { app, filmsList }
             }
         });
 
         const nav = wrapper.find('nav');
-        const li = nav.findAll('li');
-
-        // Вторая ссылка 'каталог' активна с правильным url
-        expect(li[1].find('a[href="/catalog?page=5&number=100&title=abc&description=xy"]').exists()).toBe(true);
-        expect(li[1].find('.router-link-active').exists()).toBe(true);
-    });
-    
-    it("Отображение модального окна для ошибки", async () => {
-        const filmsCatalog = filmsCatalogStore();
+        const liNav = nav.findAll('li');
         
-        const wrapper = mount(GuestLayout, {
-            props: {
-                errors: {
-                    message: 'Некоторая ошибка'
-                }
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/Catalog'
-                    }
-                },
-                provide: { filmsCatalog }
-            }
-        });
-
-        // Модальное окно компоненты ForbiddenModal присутствует
-        const forbiddenModal = wrapper.get('#forbidden-modal');
-        expect(forbiddenModal.isVisible()).toBe(true);
+        // Вкладка 'контент'
+        const span = liNav[1].find('span');
+        expect(span.text()).toBe('контент');
+        // Ссылки выпадашки отсутствуют
+        expect(liNav[1].find('ul').exists()).toBe(false);
         
-        // Отображается сообщение об ошибке
-        const errorsMessage = forbiddenModal.get('#errors-message');
-        expect(errorsMessage.text()).toBe('Некоторая ошибка');
+        // После клика по выпадашке появляются ссылки
+        await span.trigger('click');
+        expect(liNav[1].find('ul').exists()).toBe(true);
+        const liUl = liNav[1].find('ul').findAll('li');
+        expect(liUl.length).toBe(2);
+        
+        // Первая вкладка - активная ссылка 'фильмы'
+        const a0 = liUl[0].find('a');
+        expect(a0.exists()).toBe(true);
+        expect(a0.attributes('href')).toBe('/guest/films?page=5&number=100&title=abc&description=xy');
+        expect(a0.attributes('class')).toContain('tabs-link-active');
+        expect(a0.text()).toBe('фильмы');
+        
+        // Вторая вкладка - неактивная ссылка 'города'
+        const a1 = liUl[1].find('a');
+        expect(a1.exists()).toBe(true);
+        expect(a1.attributes('href')).toBe('/guest/cities');
+        expect(a1.attributes('class')).not.toContain('tabs-link-active');
+        expect(a1.text()).toBe('города');
+        
+        // Повторный клик убирает ссылки
+        await span.trigger('click');
+        expect(liNav[1].find('ul').exists()).toBe(false);
     });
 });

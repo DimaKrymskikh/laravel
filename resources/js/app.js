@@ -4,7 +4,8 @@ import './bootstrap';
 import { createApp, h } from 'vue';
 import { createPinia } from 'pinia';
 import { createInertiaApp } from '@inertiajs/vue3';
-import { filmsCatalogStore, filmsAccountStore } from '@/Stores/films';
+import { useAppStore } from '@/Stores/app';
+import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
 
 const app = createInertiaApp({
     resolve: name => {
@@ -15,8 +16,9 @@ const app = createInertiaApp({
         const app = createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(createPinia())
-            .provide('filmsCatalog', filmsCatalogStore())
-            .provide('filmsAccount', filmsAccountStore())
+            .provide('app', useAppStore())
+            .provide('filmsList', useFilmsListStore())
+            .provide('filmsAccount', useFilmsAccountStore())
             .mount(el);
     },
 });

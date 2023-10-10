@@ -15,6 +15,10 @@ class Weather extends Model
     
     public $timestamps = false;
     
+    protected $casts = [
+        'created_at' => 'immutable_datetime:H:i:s d.m.Y',
+    ];
+    
     protected static function newFactory(): Factory
     {
         return WeatherFactory::new();

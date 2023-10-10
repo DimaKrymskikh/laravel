@@ -49,6 +49,7 @@ class GetWeatherTest extends TestCase
                 ->state(new Sequence(
                     [],
                     [
+                        'id' => 2,
                         'name' => 'NewCity',
                         'open_weather_id' => 2
                     ],

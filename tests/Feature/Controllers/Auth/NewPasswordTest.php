@@ -3,18 +3,12 @@
 namespace Tests\Feature\Controllers\Auth;
 
 use App\Models\User;
-use App\Models\Person\PasswordReset;
-
+use App\Notifications\Auth\ResetPasswordNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
-
-
-
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\Auth\ResetPasswordNotification;
-
 
 class NewPasswordTest extends TestCase
 {
@@ -73,7 +67,7 @@ class NewPasswordTest extends TestCase
             ]);
             
             $response->assertInvalid([
-                'email' => trans('passwords.token')
+                'message' => trans('passwords.token')
             ]);
 
             return true;

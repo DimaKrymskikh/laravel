@@ -5,7 +5,8 @@ import '@/bootstrap';
 import { setActivePinia, createPinia } from 'pinia';
 import Home from "@/Pages/Auth/Home.vue";
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import { filmsCatalogStore, filmsAccountStore } from '@/Stores/films';
+import { useAppStore } from '@/Stores/app';
+import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -22,8 +23,9 @@ describe("@/Pages/Auth/Home.vue", () => {
     });
     
     it("Отрисовка домашней страницы (залогиненный пользователь)", () => {
-        const filmsCatalog = filmsCatalogStore();
-        const filmsAccount = filmsAccountStore();
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
+        const filmsAccount = useFilmsAccountStore();
         
         const wrapper = mount(Home, {
             props: {
@@ -39,7 +41,7 @@ describe("@/Pages/Auth/Home.vue", () => {
                         component: 'Auth/Home'
                     }
                 },
-                provide: { filmsCatalog, filmsAccount }
+                provide: { app, filmsList, filmsAccount }
             }
         });
         

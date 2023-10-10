@@ -1,14 +1,16 @@
 <script setup>
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import FormButton from '@/Components/Elements/FormButton.vue';
+import InputField from '@/components/Elements/InputField.vue';
 
 defineProps({
-    errors: Object | null,
     status: String | null
 });
+
+const app = inject('app');
 
 const form = useForm({
     login: null,
@@ -19,22 +21,19 @@ const titlePage = 'Вход';
 
 // Список для хлебных крошек
 const linksList = [{
-            link: '/',
+            link: '/guest',
             text: 'Главная страница'
         }, {
             text: 'Вход'
         }];
-
-// Выполняется ли запрос на сервер
-const isRequest = ref(false);
     
 const handlerLogin = function() {
     form.post('/login', {
         onBefore: () => {
-            isRequest.value = true;
+            app.isRequest = true;
         },
         onFinish: () => {
-            isRequest.value = false;
+            app.isRequest = false;
             form.reset('password');
         }
     });
@@ -43,7 +42,7 @@ const handlerLogin = function() {
 
 <template>
     <Head :title="titlePage" />
-    <GuestLayout :errors="errors">
+    <GuestLayout>
         <BreadCrumb :linksList="linksList" />
         <h1>{{ titlePage }}</h1>
 
@@ -51,33 +50,28 @@ const handlerLogin = function() {
             {{ status }}
         </div>
 
-        <form @submit.prevent="handlerLogin">
-            <div class="mb-3 w-1/3 pr-4">
-                <label for="login" class="block font-medium text-sm text-gray-700">
-                    Логин:
-                </label>
-                <input
-                    id="login" type="text" name="login" 
-                    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+        <form @submit.prevent="handlerLogin" autocomplete="off">
+            <div class="w-1/3">
+                <InputField
+                    titleText="Введите логин:"
+                    type="text"
+                    :isInputAutofocus="true"
+                    :errorsMessage="form.errors.login"
                     v-model="form.login"
-                >
-                <div v-if="form.errors.login" class="error">{{ form.errors.login }}</div>
+                />
             </div>
 
-            <div class="mb-3 w-1/3 pr-4">
-                <label for="password" class="block font-medium text-sm text-gray-700">
-                    Пароль:
-                </label>
-                <input
-                    id="password" type="password" name="password"
-                    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+            <div class="w-1/3">
+                <InputField
+                    titleText="Введите пароль:"
+                    type="password"
+                    :errorsMessage="form.errors.password"
                     v-model="form.password"
-                >
-                <div v-if="form.errors.password" class="error">{{ form.errors.password }}</div>
+                />
             </div>
 
-            <div class="mb-3 w-1/3 pr-4 text-right">
-                <FormButton class="w-36" text="Вход" :isRequest="isRequest" />
+            <div class="w-1/3 text-right">
+                <FormButton class="w-36" text="Вход" />
             </div>
         </form>
 

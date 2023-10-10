@@ -3,9 +3,11 @@ import { mount } from "@vue/test-utils";
 import { setActivePinia, createPinia } from 'pinia';
 import ForgotPassword from "@/Pages/Guest/ForgotPassword.vue";
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import FormButton from '@/Components/Elements/FormButton.vue';
-import Spinner from '@/components/Svg/Spinner.vue';
-import { filmsCatalogStore } from '@/Stores/films';
+import { useAppStore } from '@/Stores/app';
+import { useFilmsListStore } from '@/Stores/films';
+
+import { checkFormButton } from '@/__tests__/methods/checkFormButton';
+import { checkInputField } from '@/__tests__/methods/checkInputField';
 
 vi.mock('@inertiajs/vue3', async () => {
     const actual = await vi.importActual("@inertiajs/vue3");
@@ -15,18 +17,10 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-describe("@/Pages/Guest/ForgotPassword.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
-    it("Отрисовка формы для сброса пароля", () => {
-        const filmsCatalog = filmsCatalogStore();
-        
-        const wrapper = mount(ForgotPassword, {
+const getWrapper = function(app, filmsList, status) {
+    return mount(ForgotPassword, {
             props: {
-                errors: null,
-                status: null
+                status
             },
             global: {
                 mocks: {
@@ -34,94 +28,105 @@ describe("@/Pages/Guest/ForgotPassword.vue", () => {
                         component: 'Guest/ForgotPassword'
                     }
                 },
-                provide: { filmsCatalog }
+                provide: { app, filmsList }
             }
         });
+};
+
+// Проверка названия страницы
+const checkH1 = function(wrapper) {
+    const h1 = wrapper.get('h1');
+    expect(h1.text()).toBe('Сброс пароля');
+};
+
+// Проверка хлебных крошек
+const checkBreadCrumb = function(wrapper) {
+    // Отрисовываются хлебные крошки
+    const breadCrumb = wrapper.findComponent(BreadCrumb);
+    expect(breadCrumb.exists()).toBe(true);
+    // Проверяем хлебные крошки
+    const li = breadCrumb.findAll('li');
+    expect(li.length).toBe(3);
+    // Ссылка на страницу 'Главная страница'
+    const a0 = li[0].find('a');
+    expect(a0.attributes('href')).toBe('/guest');
+    expect(a0.text()).toBe('Главная страница');
+    // Ссылка на страницу 'Вход'
+    const a1 = li[1].find('a');
+    expect(a1.attributes('href')).toBe('/login');
+    expect(a1.text()).toBe('Вход');
+    // Название текущей страницы
+    expect(li[2].find('a').exists()).toBe(false);
+    expect(li[2].text()).toBe('Сброс пароля');
+};
+
+describe("@/Pages/Guest/ForgotPassword.vue", () => {
+    beforeEach(() => {
+        setActivePinia(createPinia());
+    });
+    
+    it("Отрисовка формы для сброса пароля (isRequest: false)", async () => {
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
         
+        const wrapper = getWrapper(app, filmsList);
+        
+        const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
+        
+        // Начальное состояние формы
         expect(wrapper.vm.form.email).toBe(null);
-        expect(wrapper.vm.form.processing).toBe(false);
-        expect(wrapper.vm.isRequest).toBe(false);
         
-        // Отрисовывается заголовок страницы
-        const h1 = wrapper.get('h1');
-        expect(h1.text()).toBe('Сброс пароля');
+        checkH1(wrapper);
         
-        // Отрисовываются хлебные крошки
-        const breadCrumb = wrapper.findComponent(BreadCrumb);
-        expect(breadCrumb.exists()).toBe(true);
-        
-        // Проверяем хлебные крошки
-        const li = breadCrumb.findAll('li');
-        expect(li.length).toBe(3);
-        expect(li[0].find('a[href="/"]').exists()).toBe(true);
-        expect(li[0].text()).toBe('Главная страница');
-        expect(li[1].find('a[href="/login"]').exists()).toBe(true);
-        expect(li[1].text()).toBe('Вход');
-        expect(li[2].find('a').exists()).toBe(false);
-        expect(li[2].text()).toBe('Сброс пароля');
+        checkBreadCrumb(wrapper);
         
         expect(wrapper.find('#forgot-password-status').exists()).toBe(false);
         
         const formTag = wrapper.get('form');
         expect(formTag.isVisible()).toBe(true);
         
-        const label = formTag.findAll('label');
-        expect(label.length).toBe(1);
-        expect(label[0].text()).toBe('Электронная почта:');
+        const inputFields = checkInputField.findNumberOfInputFieldOnPage(formTag, 1);
+        checkInputField.checkPropsInputField(inputFields[0], 'Введите электронную почту:', 'text', wrapper.vm.form.errors.email, wrapper.vm.form.email, true);
+        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], '', 'test@example.com');
         
-        const input = formTag.findAll('input');
-        expect(input.length).toBe(1);
-        expect(input[0].element.value).toBe('');
-        
-        input[0].setValue('test@example.com');
-        expect(input[0].element.value).toBe('test@example.com');
-        expect(wrapper.vm.form.email).toBe('test@example.com');
-        
-        const error = formTag.findAll('.error');
-        expect(error.length).toBe(0);
-        
-        const formButton = formTag.getComponent(FormButton);
-        expect(formButton.isVisible()).toBe(true);
-        
-        const button = formButton.get('button');
-        expect(button.isVisible()).toBe(true);
-        // Атрибут 'disabled' отсутствует
-        expect(button.attributes('disabled')).toBe(undefined);
-
-        // На кнопке отправки формы виден текст, а спиннер отсутствует
-        expect(button.text()).toBe('Ссылка для сброса пароля электронной почты');
-        expect(button.findComponent(Spinner).exists()).toBe(false);
+        checkFormButton.checkPropsFormButton(wrapper, 'Ссылка для сброса пароля электронной почты', 'w-96');
+        await checkFormButton.submitFormButton(wrapper, formPost);
     });
     
-    it("Отправка формы для сброса пароля", async () => {
-        const filmsCatalog = filmsCatalogStore();
+    it("Отрисовка формы для сброса пароля (isRequest: false)", async () => {
+        const app = useAppStore();
+        // Выполняется запрос
+        app.isRequest = true;
         
-        const wrapper = mount(ForgotPassword, {
-            props: {
-                errors: null,
-                status: null
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/ForgotPassword'
-                    }
-                },
-                provide: { filmsCatalog }
-            }
-        });
+        const filmsList = useFilmsListStore();
+        
+        const wrapper = getWrapper(app, filmsList);
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
+        checkH1(wrapper);
+        
+        checkBreadCrumb(wrapper);
+        
+        expect(wrapper.find('#forgot-password-status').exists()).toBe(false);
+        
         const formTag = wrapper.get('form');
-        const input = formTag.findAll('input');
-        input[0].setValue('test@example.com');
+        expect(formTag.isVisible()).toBe(true);
         
-        const formButton = formTag.getComponent(FormButton);
-        const button = formButton.get('button');
+        const inputFields = checkInputField.findNumberOfInputFieldOnPage(formTag, 1);
+        checkInputField.checkPropsInputField(inputFields[0], 'Введите электронную почту:', 'text', wrapper.vm.form.errors.email, wrapper.vm.form.email, true);
+        checkInputField.checkInputFieldWhenRequestIsMade(inputFields[0], '', 'test@example.com');
         
-        expect(formPost).not.toHaveBeenCalled();
-        await button.trigger('submit');
-        expect(formPost).toHaveBeenCalledTimes(1);
+        checkFormButton.checkPropsFormButton(wrapper, 'Ссылка для сброса пароля электронной почты', 'w-96');
+        await checkFormButton.notSubmitFormButton(wrapper, formPost);
+    });
+    
+    it("Отрисовка статуса", () => {
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
+        
+        const wrapper = getWrapper(app, filmsList, 'Некоторый статус');
+        
+        expect(wrapper.find('#forgot-password-status').exists()).toBe(true);
     });
 });

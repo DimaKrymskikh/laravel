@@ -2,11 +2,11 @@
 import { ref, reactive } from 'vue';
 import { Head } from '@inertiajs/vue3'
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
+import AddCityBlock from '@/Pages/Admin/Cities/AddCityBlock.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import AddCityModal from '@/Components/Modal/Request/AddCityModal.vue';
-import RemoveCityModal from '@/Components/Modal/Request/RemoveCityModal.vue';
-import UpdateCityModal from '@/Components/Modal/Request/UpdateCityModal.vue';
+import RemoveCityModal from '@/Components/Modal/Request/Cities/RemoveCityModal.vue';
+import UpdateCityModal from '@/Components/Modal/Request/Cities/UpdateCityModal.vue';
+import UpdateTimeZoneModal from '@/Components/Modal/Request/UpdateTimeZoneModal.vue';
 import PencilSvg from '@/Components/Svg/PencilSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 
@@ -24,15 +24,6 @@ const linksList = [{
         }, {
             text: titlePage
         }];
-
-const isShowAddCityModal = ref(false);
-
-const showAddCityModal = function() {
-    isShowAddCityModal.value = true;
-};
-const hideAddCityModal = function() {
-    isShowAddCityModal.value = false;
-};
 
 // При загрузке страницы модальное окно для удаления фильма отсутствует.
 const isShowRemoveCityModal = ref(false);
@@ -56,6 +47,11 @@ const hideUpdateCityModal = function() {
     isShowUpdateCityModal.value = false;
 };
 
+const isShowUpdateTimeZoneModal = ref(false);
+const hideUpdateTimeZoneModal = function() {
+    isShowUpdateTimeZoneModal.value = false;
+};
+
 const handlerTableChange = function(e) {
     let td = e.target.closest('td');
     
@@ -68,10 +64,18 @@ const handlerTableChange = function(e) {
         isShowRemoveCityModal.value = true;
     }
     
+    // Показывает модальное окно для изменения имени города
     if (td && td.classList.contains('update-city')) {
         updateCity.id = td.getAttribute('data-city_id');
         updateCity.name = td.getAttribute('data-city_name');
         isShowUpdateCityModal.value = true;
+    }
+    
+    // Показывает модальное окно для изменения временного пояса города
+    if (td && td.classList.contains('update-timezone')) {
+        updateCity.id = td.getAttribute('data-city_id');
+        updateCity.name = td.getAttribute('data-city_name');
+        isShowUpdateTimeZoneModal.value = true;
     }
 };
 
@@ -84,11 +88,7 @@ const handlerTableChange = function(e) {
         <h1>{{ titlePage }}</h1>
         
         <div class="flex justify-start mb-4">
-            <PrimaryButton
-                id="add-city"
-                buttonText="Добавить город"
-                :handler="showAddCityModal"
-            />
+            <AddCityBlock />
         </div>
         
         <table @click="handlerTableChange" v-if="cities.length">
@@ -96,6 +96,8 @@ const handlerTableChange = function(e) {
                 <tr>
                     <th>#</th>
                     <th>Город</th>
+                    <th></th>
+                    <th>Временной пояс</th>
                     <th></th>
                     <th>OpenWeather Id</th>
                     <th></th>
@@ -108,6 +110,12 @@ const handlerTableChange = function(e) {
                     <td class="update-city" :data-city_id="city.id" :data-city_name="city.name">
                         <PencilSvg
                             title="Редактировать название фильма"
+                        />
+                    </td>
+                    <td>{{ city.timezone ? city.timezone.name : 'не задан' }}</td>
+                    <td class="update-timezone" :data-city_id="city.id" :data-city_name="city.name">
+                        <PencilSvg
+                            title="Редактировать временной пояс"
                         />
                     </td>
                     <td class="font-sans">{{ city.open_weather_id }}</td>
@@ -123,11 +131,6 @@ const handlerTableChange = function(e) {
             Ещё ни один город не добавлен
         </div>
         
-        <AddCityModal
-            :hideAddCityModal="hideAddCityModal"
-            v-if="isShowAddCityModal"
-        />
-        
         <RemoveCityModal
             :removeCity="removeCity"
             :hideRemoveCityModal="hideRemoveCityModal"
@@ -138,6 +141,12 @@ const handlerTableChange = function(e) {
             :updateCity="updateCity"
             :hideUpdateCityModal="hideUpdateCityModal"
             v-if="isShowUpdateCityModal"
+        />
+        
+        <UpdateTimeZoneModal
+            :updateCity="updateCity"
+            :hideUpdateTimeZoneModal="hideUpdateTimeZoneModal"
+            v-if="isShowUpdateTimeZoneModal"
         />
     </AdminLayout>
 </template>

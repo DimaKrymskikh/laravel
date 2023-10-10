@@ -62,7 +62,7 @@ class NewPasswordController extends Controller
 
         // Если пароль не был сброшен, на станице запроса на новый пароль появится сообщение об ошибке
         throw ValidationException::withMessages([
-            'email' => trans($status),
+            'message' => trans($status),
         ]);
     }
 }

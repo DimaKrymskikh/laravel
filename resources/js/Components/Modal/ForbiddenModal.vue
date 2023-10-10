@@ -1,16 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 
-const { errors } = defineProps({
-    errors: Object | null
-});
-
-const isShowModal = ref(!!errors && !!errors.message);
+const app = inject('app');
 
 const hideModal = function() {
-    isShowModal.value = false;
+    app.isShowForbiddenModal = false;
+    app.errorMessage = '';
 };
-
 </script>
 
 <template>
@@ -18,14 +14,14 @@ const hideModal = function() {
         id="forbidden-modal"
         class="fixed top-0 left-0 right-0 w-full overflow-x-hidden overflow-y-auto h-screen"
         tabindex="-1"
-        v-if="isShowModal"
+        v-if="app.isShowForbiddenModal"
     >
         <div class="fixed opacity-25 bg-gray-500 w-full h-screen z-5 stop-event"></div>
         <div class="relative top-12 m-auto max-w-xl z-10">
             <div class="relative bg-white rounded-lg shadow">
                 <!-- Modal body -->
-                <div id="errors-message" class="px-6 py-3">
-                    {{ errors.message }}
+                <div id="error-message" class="px-6 py-3">
+                    {{ app.errorMessage }}
                 </div>
                 <!-- Modal footer -->
                 <div class="flex items-center justify-end px-6 py-3 space-x-2 border-t border-gray-200 rounded-b">
