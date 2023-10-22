@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Controllers\OpenWeather;
+namespace Tests\Feature\Controllers\Project\Auth\Account;
 
 use App\Models\Thesaurus\City;
 use App\Models\Thesaurus\Timezone;
@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class WeatherTest extends TestCase
+class UserWeatherTest extends TestCase
 {
     use RefreshDatabase;
     
@@ -67,12 +67,12 @@ class WeatherTest extends TestCase
         
         $user = User::factory()->create(['is_admin' => true]);
         $acting = $this->actingAs($user);
-        $response = $acting->get('weather');
+        $response = $acting->get('userweather');
 
         $response
             ->assertOk()
             ->assertInertia(fn (Assert $page) => 
-                    $page->component('Auth/Weather')
+                    $page->component('Auth/Account/UserWeather')
                         ->has('errors', 0)
                         ->has('cities', 3)
                         ->has('cities.0', fn (Assert $page) => 

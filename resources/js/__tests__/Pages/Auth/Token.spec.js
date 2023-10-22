@@ -49,7 +49,7 @@ describe("@/Pages/Auth/Token.vue", () => {
         expect(wrapper.text()).toContain('Сохраните полученный токен:');
         expect(wrapper.text()).toContain('TestToken');
         const accountLink = wrapper.get('#account-link');
-        expect(accountLink.attributes('href')).toBe(filmsAccount.getUrl('/account'));
+        expect(accountLink.attributes('href')).toBe(filmsAccount.getUrl('/userfilms'));
         expect(accountLink.text()).toBe('Перейти в личный кабинет');
     });
 });

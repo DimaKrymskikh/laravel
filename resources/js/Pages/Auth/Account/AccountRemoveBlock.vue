@@ -15,10 +15,12 @@ const hideAccountRemoveModal = function() {
 </script>
 
 <template>
-    <DangerButton
-        buttonText="Удалить аккаунт"
-        :handler="showAccountRemoveModal"
-    />
+    <div class="ml-4">
+        <DangerButton
+            buttonText="Удалить аккаунт"
+            :handler="showAccountRemoveModal"
+        />
+    </div>
 
     <AccountRemoveModal
         :hideAccountRemoveModal="hideAccountRemoveModal"

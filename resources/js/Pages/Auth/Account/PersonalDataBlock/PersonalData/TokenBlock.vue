@@ -7,7 +7,7 @@ const app = inject('app');
 const form = useForm({});
 
 const handlerGettingToken = function() {
-    form.post('/account/getting-token', {
+    form.post('/token', {
         onBefore: () => {
             app.isRequest = true;
         },

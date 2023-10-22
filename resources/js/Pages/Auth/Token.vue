@@ -24,7 +24,7 @@ const filmsAccount = inject('filmsAccount');
         <div class="font-sans my-2">
             {{ token }}
         </div>
-        <Link id="account-link" class="ml-2 text-orange-700 hover:text-orange-900" :href="filmsAccount.getUrl('/account')">
+        <Link id="account-link" class="ml-2 text-orange-700 hover:text-orange-900" :href="filmsAccount.getUrl('/userfilms')">
             Перейти в личный кабинет
         </Link>
     </AuthLayout>

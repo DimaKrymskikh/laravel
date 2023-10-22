@@ -19,7 +19,7 @@ const linksList = [{
             link: '/',
             text: 'Главная страница'
         }, {
-            link: filmsAccount.getUrl('/account'),
+            link: filmsAccount.getUrl('/userfilms'),
             text: 'ЛК'
         }, {
             text: titlePage

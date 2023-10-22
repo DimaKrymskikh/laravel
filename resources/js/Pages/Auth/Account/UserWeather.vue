@@ -1,7 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3'
-import AuthLayout from '@/Layouts/AuthLayout.vue';
-import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
+import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 
 const {cities} = defineProps({
     cities: Array,
@@ -9,23 +8,20 @@ const {cities} = defineProps({
     errors: Object | null
 });
 
-const titlePage = 'Погода';
+const titlePage = 'ЛК: погода';
 
 // Список для хлебных крошек
 const linksList = [{
             link: '/',
             text: 'Главная страница'
         }, {
-            text: 'Погода'
+            text: titlePage
         }];
 </script>
 
 <template>
     <Head :title="titlePage" />
-    <AuthLayout :errors="errors" :user="user">
-        <BreadCrumb :linksList="linksList" />
-        
-        <h1>{{ titlePage }}</h1>
+    <AccountLayout :errors="errors" :user="user" :linksList="linksList">
         <div class="mx-4 w-1/2 mb-4">
             <div class="flex justify-between border-b">
                 <div class="w-1/4 pr-2">
@@ -86,5 +82,5 @@ const linksList = [{
                 </div>
             </template>
         </div>
-    </AuthLayout>
+    </AccountLayout>
 </template>

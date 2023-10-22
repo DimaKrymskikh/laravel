@@ -36,8 +36,8 @@ Echo.private(`film.${user.id}`)
                 <li class="nav-tab">
                     <Link
                         class="nav-link small-caps"
-                        :href="filmsAccount.getUrl('/account')"
-                        :class="{ 'router-link-active': $page.component === 'Auth/Account' }"
+                        :href="filmsAccount.getUrl('/userfilms')"
+                        :class="{ 'router-link-active': $page.component === 'Auth/Account/UserFilms' }"
                     >лк</Link>
                 </li>
                 <li class="nav-tab" v-if="user.is_admin">

@@ -61,7 +61,7 @@ describe("@/Pages/Auth/FilmCard.vue", () => {
         expect(li.length).toBe(3);
         expect(li[0].find('a[href="/"]').exists()).toBe(true);
         expect(li[0].text()).toBe('Главная страница');
-        expect(li[1].find('a').attributes('href')).toBe(filmsAccount.getUrl('/account'));
+        expect(li[1].find('a').attributes('href')).toBe(filmsAccount.getUrl('/userfilms'));
         expect(li[1].text()).toBe('ЛК');
         expect(li[2].find('a').exists()).toBe(false);
         expect(li[2].text()).toBe(wrapper.vm.titlePage);

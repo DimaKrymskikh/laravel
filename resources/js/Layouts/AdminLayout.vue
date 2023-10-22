@@ -25,7 +25,7 @@ const filmsAccount = inject('filmsAccount');
                 <li class="nav-tab">
                     <Link
                         class="nav-link small-caps"
-                        :href="filmsAccount.getUrl('/account')"
+                        :href="filmsAccount.getUrl('/userfilms')"
                     >лк</Link>
                 </li>
             </ul>

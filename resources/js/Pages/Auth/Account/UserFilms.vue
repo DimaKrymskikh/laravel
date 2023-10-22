@@ -1,17 +1,13 @@
 <script setup>
 import { ref, inject } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import AuthLayout from '@/Layouts/AuthLayout.vue';
-import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
+import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 import EyeSvg from '@/Components/Svg/EyeSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import FilmRemoveModal from '@/Components/Modal/Request/FilmRemoveModal.vue';
-import AccountRemoveBlock from '@/Pages/Auth/Account/AccountRemoveBlock.vue';
-import AdminBlock from '@/Pages/Auth/Account/AdminBlock.vue';
-import PersonalDataBlock from '@/Pages/Auth/Account/PersonalDataBlock.vue';
 
 const { films } = defineProps({
     films: Object | null,
@@ -19,14 +15,14 @@ const { films } = defineProps({
     errors: Object | null
 });
 
-const titlePage = 'Аккаунт';
+const titlePage = 'ЛК: фильмы';
 
 // Список для хлебных крошек
 const linksList = [{
             link: '/',
             text: 'Главная страница'
         }, {
-            text: 'ЛК'
+            text: titlePage
         }];
 
 const filmsAccount = inject('filmsAccount');
@@ -66,7 +62,7 @@ const hideFilmRemoveModal = function() {
 const changeNumberOfFilmsOnPage = function(newNumber) {
     filmsAccount.page = 1;
     filmsAccount.perPage = newNumber;
-    router.get(filmsAccount.getUrl('/account'));
+    router.get(filmsAccount.getUrl('/userfilms'));
 };
 
 const putFilms = function(e) {
@@ -75,29 +71,20 @@ const putFilms = function(e) {
     }
     
     filmsAccount.page = 1;
-    router.get(filmsAccount.getUrl('/account'));
+    router.get(filmsAccount.getUrl('/userfilms'));
 };
 </script>
 
 <template>
     <Head :title="titlePage" />
-    <AuthLayout :errors="errors" :user="user">
-        <BreadCrumb :linksList="linksList" />
-        <div class="relative">
-            <PersonalDataBlock :user="user" />
-            <h1>Добрый день, {{ user.login }}</h1>
+    <AccountLayout :errors="errors" :user="user" :linksList="linksList">
 
-            <div class="flex justify-between pb-4">
+            <div class="flex justify-start pb-4">
                 <Dropdown
                     buttonName="Число фильмов на странице"
                     :itemsNumberOnPage="films.per_page"
                     :changeNumber="changeNumberOfFilmsOnPage"
                 />
-                <AccountRemoveBlock />
-            </div>
-
-            <div class="flex justify-end pb-4">
-                <AdminBlock :user="user" />
             </div>
 
             <table class="container" @click="handlerTableChange">
@@ -139,7 +126,6 @@ const putFilms = function(e) {
             </table>
 
             <Buttons :links="films.links" v-if="films.total > 0" />
-        </div>
         
         <FilmRemoveModal
             :films="films"
@@ -148,5 +134,5 @@ const putFilms = function(e) {
             :hideFilmRemoveModal="hideFilmRemoveModal"
             v-if="isShowFilmRemoveModal"
         />
-    </AuthLayout>
+    </AccountLayout>
 </template>

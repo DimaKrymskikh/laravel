@@ -1,4 +1,4 @@
-import { mount, flushPromises } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 
 import '@/bootstrap';
 
@@ -6,8 +6,31 @@ import { setActivePinia, createPinia } from 'pinia';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
+import AuthContentTabs from '@/components/Tabs/AuthContentTabs.vue';
 import { useAppStore } from '@/Stores/app';
 import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
+
+const getWrapper = function(app, filmsList, filmsAccount, pageComponent, is_admin = false) {
+    return mount(AuthLayout, {
+            props: {
+                errors: null,
+                user: {
+                    is_admin
+                }
+            },
+            global: {
+                stubs: {
+                    AuthContentTabs: true
+                },
+                mocks: {
+                    $page: {
+                        component: pageComponent
+                    }
+                },
+                provide: { app, filmsList, filmsAccount }
+            }
+        });
+};
 
 describe("@/Layouts/AuthLayout.vue", () => {
     beforeEach(() => {
@@ -19,52 +42,37 @@ describe("@/Layouts/AuthLayout.vue", () => {
         const filmsList = useFilmsListStore();
         const filmsAccount = useFilmsAccountStore();
      
-        const wrapper = mount(AuthLayout, {
-            props: {
-                errors: null,
-                user: {
-                    is_admin: false
-                }
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Films'
-                    }
-                },
-                provide: { app, filmsList, filmsAccount }
-            }
-        });
+        const wrapper = getWrapper(app, filmsList, filmsAccount, 'Auth/Films');
+        
+        // Присутствует компонента AuthContentTabs
+        expect(wrapper.getComponent(AuthContentTabs).isVisible()).toBe(true);
 
         // Присутствует навигация
         const nav = wrapper.find('nav');
         expect(nav.exists()).toBe(true);
         
-        // В навигации 4 ссылки
+        // В навигации 3 ссылки (компонента AuthContentTabs отключена) 
         const li = nav.findAll('li');
-        expect(li.length).toBe(4);
+        expect(li.length).toBe(3);
         
         // Первая вкладка - неактивная ссылка
-        expect(li[0].find('a[href="/"]').exists()).toBe(true);
-        expect(li[0].find('.router-link-active').exists()).toBe(false);
+        const a0 = li[0].get('a');
+        expect(a0.attributes('href')).toBe('/');
+        expect(a0.classes('router-link-active')).toBe(false);
         // Содержит иконку HouseSvg
-        expect(li[0].find('a[href="/"]').findComponent(HouseSvg).exists()).toBe(true);
+        expect(a0.findComponent(HouseSvg).exists()).toBe(true);
 
-        // Вторая вкладка 'контент' активная
-        expect(li[1].find('.router-link-active').exists()).toBe(true);
-        expect(li[1].find('span').text()).toBe('контент');
-        // Ссылки выпадашки отсутствуют
-        expect(li[1].find('ul').exists()).toBe(false);
-
-        // Третья ссылка 'каталог' не активна с дефолтным url
-        expect(li[2].find('a[href="/account?page=1&number=20&title=&description="]').exists()).toBe(true);
-        expect(li[2].find('.router-link-active').exists()).toBe(false);
-        expect(li[2].find('a[href="/account?page=1&number=20&title=&description="]').text()).toBe('лк');
+        // Вторая ссылка 'каталог' не активна с дефолтным url
+        const a1 = li[1].get('a');
+        expect(a1.attributes('href')).toBe('/userfilms?page=1&number=20&title=&description=');
+        expect(a1.classes('router-link-active')).toBe(false);
+        expect(a1.text()).toBe('лк');
         
         // Четвёртая ссылка 'выход' не активна
-        expect(li[3].find('a[href="/logout"]').exists()).toBe(true);
-        expect(li[3].find('.router-link-active').exists()).toBe(false);
-        expect(li[3].find('a[href="/logout"]').text()).toBe('выход');
+        const a2 = li[2].get('a');
+        expect(a2.attributes('href')).toBe('/logout');
+        expect(a2.classes('router-link-active')).toBe(false);
+        expect(a2.text()).toBe('выход');
         
         // Присутствует пустая компонента ForbiddenModal
         forbiddenModalExists(wrapper);
@@ -78,118 +86,46 @@ describe("@/Layouts/AuthLayout.vue", () => {
         const filmsList = useFilmsListStore();
         const filmsAccount = useFilmsAccountStore();
      
-        const wrapper = mount(AuthLayout, {
-            props: {
-                errors: null,
-                user: {
-                    is_admin: true
-                }
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Account'
-                    }
-                },
-                provide: { app, filmsList, filmsAccount }
-            }
-        });
+        const wrapper = getWrapper(app, filmsList, filmsAccount, 'Auth/Account/UserFilms', true);
+        
+        // Присутствует компонента AuthContentTabs
+        expect(wrapper.getComponent(AuthContentTabs).isVisible()).toBe(true);
 
         // Присутствует навигация
         const nav = wrapper.find('nav');
         expect(nav.exists()).toBe(true);
         
-        // В навигации 5 ссылок
+        // В навигации 4 ссылки (компонента AuthContentTabs отключена)
         const li = nav.findAll('li');
-        expect(li.length).toBe(5);
+        expect(li.length).toBe(4);
         
         // Первая ссылка не активна
-        expect(li[0].find('a[href="/"]').exists()).toBe(true);
-        expect(li[0].find('.router-link-active').exists()).toBe(false);
+        const a0 = li[0].get('a');
+        expect(a0.attributes('href')).toBe('/');
+        expect(a0.classes('router-link-active')).toBe(false);
         // Содержит иконку HouseSvg
-        expect(li[0].find('a[href="/"]').findComponent(HouseSvg).exists()).toBe(true);
-        
-        // Вторая вкладка 'контент' не активная
-        expect(li[1].find('.router-link-active').exists()).toBe(false);
-        expect(li[1].find('span').text()).toBe('контент');
-        // Ссылки выпадашки отсутствуют
-        expect(li[1].find('ul').exists()).toBe(false);
+        expect(a0.findComponent(HouseSvg).exists()).toBe(true);
 
-        // Третья ссылка 'лк' активна с дефолтным url ($page.component === 'Auth/Account')
-        expect(li[2].find('a[href="/account?page=1&number=20&title=&description="]').exists()).toBe(true);
-        expect(li[2].find('.router-link-active').exists()).toBe(true);
-        expect(li[2].find('a[href="/account?page=1&number=20&title=&description="]').text()).toBe('лк');
+        // Вторая ссылка 'лк' активна с дефолтным url ($page.component === 'Auth/Account/UserFilms')
+        const a1 = li[1].get('a');
+        expect(a1.attributes('href')).toBe('/userfilms?page=1&number=20&title=&description=');
+        expect(a1.classes('router-link-active')).toBe(true);
+        expect(a1.text()).toBe('лк');
 
         // Третья ссылка 'администрирование' не активна
-        expect(li[3].find('a[href="/admin"]').exists()).toBe(true);
-        expect(li[3].find('.router-link-active').exists()).toBe(false);
-        expect(li[3].find('a[href="/admin"]').text()).toBe('администрирование');
+        const a2 = li[2].get('a');
+        expect(a2.attributes('href')).toBe('/admin');
+        expect(a2.classes('router-link-active')).toBe(false);
+        expect(a2.text()).toBe('администрирование');
         
-        // Пятая ссылка 'выход' не активна
-        expect(li[4].find('a[href="/logout"]').exists()).toBe(true);
-        expect(li[4].find('.router-link-active').exists()).toBe(false);
-        expect(li[4].find('a[href="/logout"]').text()).toBe('выход');
+        // Четвёртая ссылка 'выход' не активна
+        const a3 = li[3].get('a');
+        expect(a3.attributes('href')).toBe('/logout');
+        expect(a3.classes('router-link-active')).toBe(false);
+        expect(a3.text()).toBe('выход');
         
         // Присутствует пустая компонента ForbiddenModal
         forbiddenModalExists(wrapper);
-    });
-    
-    it("Проверка выпадашки", async () => {
-        const app = useAppStore();
-        
-        const filmsList = useFilmsListStore();
-        filmsList.page = 5;
-        filmsList.perPage = 100;
-        filmsList.title = 'abc';
-        filmsList.description = 'xy';
-        
-        const filmsAccount = useFilmsAccountStore();
-        
-        const wrapper = mount(AuthLayout, {
-            props: {
-                errors: null,
-                user: {
-                    is_admin: true
-                }
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Films'
-                    }
-                },
-                provide: { app, filmsList, filmsAccount }
-            }
-        });
-
-        const nav = wrapper.find('nav');
-        const liNav = nav.findAll('li');
-        
-        // Вкладка 'контент'
-        const span = liNav[1].find('span');
-        expect(span.text()).toBe('контент');
-        // Ссылки выпадашки отсутствуют
-        expect(liNav[1].find('ul').exists()).toBe(false);
-        
-        // После клика по выпадашке появляются ссылки
-        await span.trigger('click');
-        expect(liNav[1].find('ul').exists()).toBe(true);
-        const liUl = liNav[1].find('ul').findAll('li');
-        expect(liUl.length).toBe(3);
-        
-        // Первая вкладка - активная ссылка 'фильмы'
-        expect(liUl[0].find('a[href="/films?page=5&number=100&title=abc&description=xy"]').exists()).toBe(true);
-        expect(liUl[0].find('.tabs-link-active').exists()).toBe(true);
-        expect(liUl[0].find('a[href="/films?page=5&number=100&title=abc&description=xy"]').text()).toBe('фильмы');
-        
-        // Вторая вкладка - неактивная ссылка 'города'
-        expect(liUl[1].find('a[href="/cities"]').exists()).toBe(true);
-        expect(liUl[1].find('.tabs-link-active').exists()).toBe(false);
-        expect(liUl[1].find('a[href="/cities"]').text()).toBe('города');
-        
-        // Повторный клик убирает ссылки
-        await span.trigger('click');
-        expect(liNav[1].find('ul').exists()).toBe(false);
     });
     
     const forbiddenModalExists = function(wrapper) {

@@ -25,7 +25,7 @@ const filmsList = inject('filmsList');
         >
             <li class="tabs-li">
                 <Link
-                    class="block px-4 py-1"
+                    class="block px-4 py-1 small-caps"
                     :class="{ 'tabs-link-active': $page.component === 'Auth/Films' }"
                     :href="filmsList.getUrl('/films')"
                 >
@@ -34,20 +34,11 @@ const filmsList = inject('filmsList');
             </li>
             <li class="tabs-li">
                 <Link
-                    class="block px-4 py-1"
+                    class="block px-4 py-1 small-caps"
                     :class="{ 'tabs-link-active': $page.component === 'Auth/Cities' }"
                     href="/cities"
                 >
                     города
-                </Link>
-            </li>
-            <li class="tabs-li">
-                <Link
-                    class="block px-4 py-1"
-                    :class="{ 'tabs-link-active': $page.component === 'Auth/Weather' }"
-                    href="/weather"
-                >
-                    погода
                 </Link>
             </li>
         </ul>

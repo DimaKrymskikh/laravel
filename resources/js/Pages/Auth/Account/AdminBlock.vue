@@ -18,16 +18,18 @@ const hideAdminModal = function() {
 </script>
 
 <template>
-    <PrimaryButton
-        buttonText="Отказаться от администрирования"
-        :handler="showAdminModal"
-        v-if="user.is_admin"
-    />
-    <PrimaryButton
-        buttonText="Сделать себя админом"
-        :handler="showAdminModal"
-        v-else
-    />
+    <div class="ml-4">
+        <PrimaryButton
+            buttonText="Отказаться от администрирования"
+            :handler="showAdminModal"
+            v-if="user.is_admin"
+        />
+        <PrimaryButton
+            buttonText="Сделать себя админом"
+            :handler="showAdminModal"
+            v-else
+        />
+    </div>
         
     <AdminModal
         :hideAdminModal="hideAdminModal"

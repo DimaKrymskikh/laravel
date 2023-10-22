@@ -35,7 +35,7 @@ const handlerRemoveFilm = function(e) {
 
     filmsAccount.page = getPageAfterRemoveItem(films);
     
-    router.delete(`account/removefilm/${removeFilmId}`, {
+    router.delete(`userfilms/removefilm/${removeFilmId}`, {
         preserveScroll: true,
         data: {
             password: inputPassword.value,

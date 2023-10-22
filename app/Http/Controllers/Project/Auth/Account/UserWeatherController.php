@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\OpenWeather;
+namespace App\Http\Controllers\Project\Auth\Account;
 
 use App\Contracts\Support\Timezone as TimezoneInterface;
 use App\Http\Controllers\Controller;
@@ -11,11 +11,11 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class WeatherController extends Controller implements TimezoneInterface
+class UserWeatherController extends Controller implements TimezoneInterface
 {
     use Timezone;
     
-    public function index(Request $request): Response
+    public function create(Request $request): Response
     {
         $cities = City::with([
             'weatherFirst' => function (Builder $query) {
@@ -42,7 +42,7 @@ class WeatherController extends Controller implements TimezoneInterface
 
         $this->setTimezone($cities);
 
-        return Inertia::render('Auth/Weather', [
+        return Inertia::render('Auth/Account/UserWeather', [
             'cities' => $cities,
             'user' => $request->user()
         ]);
