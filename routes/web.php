@@ -90,9 +90,9 @@ Route::middleware('auth')->group(function () {
     Route::post('cities/addcity/{city_id}', [CityController::class, 'addCity']);
     
     Route::get('films', [FilmController::class, 'index']);
-    Route::post('films/addfilm/{film_id}', [FilmController::class, 'addFilm']);
     
     Route::get('userfilms', [UserFilmsController::class, 'create']);
+    Route::post('userfilms/addfilm/{film_id}', [UserFilmsController::class, 'addFilm']);
     Route::delete('userfilms/removefilm/{film_id}', [UserFilmsController::class, 'removeFilm'])->middleware('check.password');
     
     Route::get('userweather', [UserWeatherController::class, 'create']);

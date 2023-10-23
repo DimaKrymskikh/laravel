@@ -5,6 +5,7 @@ namespace Tests\Feature\Controllers\Project\Auth\Account;
 use App\Models\User;
 use App\Models\Dvd\Film;
 use App\Models\Person\UserFilm;
+use App\Notifications\Dvdrental\AddFilmNotification;
 use App\Notifications\Dvdrental\RemoveFilmNotification;
 use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Database\Eloquent\Factories\Sequence;
@@ -64,6 +65,59 @@ class UserFilmsTest extends TestCase
                                 ->etc()
                 )
             );
+    }
+    
+    public function test_film_add_in_user_list(): void
+    {
+        Notification::fake();
+        
+        // Получаем пользователя BaseTestLogin
+        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        
+        $response = $this->before($userBaseTestLogin)->post('userfilms/addfilm/123', [
+            'page' => 1,
+            'number' => 100
+        ]);
+        
+        // У BaseTestLogin теперь 4 фидьма (было 3 и 1 добавился)
+        $this->assertEquals(4, UserFilm::where('user_id', $userBaseTestLogin->id)->count());
+        
+        // Отправляется оповещение о добавлении фильма
+        Notification::assertSentTo(
+            [$userBaseTestLogin], AddFilmNotification::class
+        );
+        
+        $response
+            ->assertStatus(302)
+            ->assertRedirect('films?page=1&number=100');
+    }
+    
+    public function test_film_can_not_add_in_user_list_with_duplicate(): void
+    {
+        Notification::fake();
+        
+        // Получаем пользователя BaseTestLogin
+        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        
+        // Попытка добавить в список пользователя уже существующий там фильм
+        $response = $this->before($userBaseTestLogin)->post('userfilms/addfilm/7', [
+            'page' => 1,
+            'number' => 100
+        ]);
+        
+        // У BaseTestLogin по-прежнему 3 фильма
+        $this->assertEquals(3, UserFilm::where('user_id', $userBaseTestLogin->id)->count());
+
+        // Оповещение о добавлении фильма не отправляется
+        Notification::assertNotSentTo(
+            [$userBaseTestLogin], AddFilmNotification::class
+        );
+
+        $response->assertInvalid([
+                'message' => trans("user.film.message", [
+                    'film' => Film::find(7)->title
+                ])
+            ]);
     }
     
     public function test_film_remove_from_user_list(): void

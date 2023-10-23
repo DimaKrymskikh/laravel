@@ -46,7 +46,7 @@ const addFilm = function(tag) {
     
     filmId.value = td.getAttribute('data-film_id');
 
-    router.post(`films/addfilm/${filmId.value}`, {
+    router.post(`userfilms/addfilm/${filmId.value}`, {
             page: filmsList.page,
             number: filmsList.perPage,
             title: filmsList.title,
