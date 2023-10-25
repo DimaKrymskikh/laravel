@@ -6,7 +6,7 @@ import UserWeather from "@/Pages/Auth/Account/UserWeather.vue";
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 
 import {  cities_with_weather } from '@/__tests__/data/cities';
-import { AccountLayoutStub } from '@/__tests__/methods/stubs';
+import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -32,12 +32,7 @@ const getWrapper = function() {
             },
             global: {
                 stubs: {
-                    AccountLayout: AccountLayoutStub
-                },
-                mocks: {
-                    $page: {
-                        component: 'Auth/Account/UserWeather'
-                    }
+                    AccountLayout: AuthAccountLayoutStub
                 }
             }
         });

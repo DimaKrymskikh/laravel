@@ -6,7 +6,7 @@ import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
 import AdminContentTabs from '@/components/Tabs/AdminContentTabs.vue';
 
 defineProps({
-    errors: Object | null
+    errors: Object
 });
 
 const filmsAccount = inject('filmsAccount');

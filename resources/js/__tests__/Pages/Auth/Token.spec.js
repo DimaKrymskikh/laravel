@@ -4,9 +4,11 @@ import { router } from '@inertiajs/vue3';
 import '@/bootstrap';
 
 import { setActivePinia, createPinia } from 'pinia';
+import AuthLayout from '@/Layouts/AuthLayout.vue';
 import Token from '@/Pages/Auth/Token.vue';
-import { useAppStore } from '@/Stores/app';
-import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
+import { useFilmsAccountStore } from '@/Stores/films';
+
+import { AuthLayoutStub } from '@/__tests__/stubs/layout';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -17,33 +19,36 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
+const user = {
+            id: 77,
+            is_admin: false
+        };
+
 describe("@/Pages/Auth/Token.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
     });
     
     it("Отрисовка страницы с токеном", () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
         const filmsAccount = useFilmsAccountStore();
         
         const wrapper = mount(Token, {
             props: {
-                user: {
-                    id: 77,
-                    is_admin: false
-                },
+                user,
+                errors: {},
                 token: 'TestToken'
             },
             global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Token'
-                    }
+                stubs: {
+                    AuthLayout: AuthLayoutStub
                 },
-                provide: { app, filmsList, filmsAccount }
+                provide: { filmsAccount }
             }
         });
+        
+        const authLayout = wrapper.getComponent(AuthLayout);
+        expect(authLayout.props('user')).toStrictEqual(user);
+        expect(authLayout.props('errors')).toStrictEqual({});
         
         expect(wrapper.get('h1').text()).toBe('Токен');
         expect(wrapper.text()).toContain('Сохраните полученный токен:');

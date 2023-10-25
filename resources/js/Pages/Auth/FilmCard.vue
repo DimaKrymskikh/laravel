@@ -7,7 +7,7 @@ import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 const { film } = defineProps({
     film: Object,
     user: Object,
-    errors: Object | null
+    errors: Object
 });
 
 const titlePage = film.title;

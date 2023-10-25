@@ -9,7 +9,8 @@ import InputField from '@/components/Elements/InputField.vue';
 const props = defineProps({
     email: String,
     token: String,
-    status: String | null
+    status: String | null,
+    errors: Object
 });
 
 const app = inject('app');

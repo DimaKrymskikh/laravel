@@ -6,6 +6,10 @@ import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import FormButton from '@/Components/Elements/FormButton.vue';
 import InputField from '@/components/Elements/InputField.vue';
 
+defineProps({
+    errors: Object
+});
+
 const app = inject('app');
 
 const form = useForm({

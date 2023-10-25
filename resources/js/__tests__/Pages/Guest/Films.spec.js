@@ -3,14 +3,15 @@ import { router } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
 import Films from "@/Pages/Guest/Films.vue";
+import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
-import { useAppStore } from '@/Stores/app';
 import { useFilmsListStore } from '@/Stores/films';
 
 import { films_0, films_10 } from '@/__tests__/data/films';
+import { GuestLayoutStub } from '@/__tests__/stubs/layout';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -23,6 +24,21 @@ vi.mock('@inertiajs/vue3', async () => {
         Head: vi.fn()
     };
 });
+
+const getWrapper = function(filmsList, films) {
+    return mount(Films, {
+            props: {
+                errors: {},
+                films
+            },
+            global: {
+                stubs: {
+                    GuestLayout: GuestLayoutStub
+                },
+                provide: { filmsList }
+            }
+        });
+};
 
 // Проверка названия страницы
 const checkH1 = function(wrapper) {
@@ -56,23 +72,11 @@ describe("@/Pages/Guest/Films.vue", () => {
     });
     
     it("Отрисовка каталога фильмов", () => {
-        const app = useAppStore();
         const filmsList = useFilmsListStore();
         
-        const wrapper = mount(Films, {
-            props: {
-                errors: null,
-                films: films_10
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/Films'
-                    }
-                },
-                provide: { app, filmsList }
-            }
-        });
+        const wrapper = getWrapper(filmsList, films_10);
+        
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         // Проверяем, что текущая страница пагинации сохранена в filmsList
         expect(wrapper.vm.filmsList.page).toBe(films_10.current_page);
@@ -133,23 +137,11 @@ describe("@/Pages/Guest/Films.vue", () => {
     });
     
     it("Отрисовка каталога фильмов без фильмов", () => {
-        const app = useAppStore();
         const filmsList = useFilmsListStore();
         
-        const wrapper = mount(Films, {
-            props: {
-                errors: null,
-                films: films_0
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/Films'
-                    }
-                },
-                provide: { app, filmsList }
-            }
-        });
+        const wrapper = getWrapper(filmsList, films_0);
+        
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         // Проверяем, что текущая страница пагинации сохранена в filmsList
         expect(wrapper.vm.filmsList.page).toBe(films_0.current_page);
@@ -203,23 +195,11 @@ describe("@/Pages/Guest/Films.vue", () => {
     });
     
     it("Изменение числа фильмов", async () => {
-        const app = useAppStore();
         const filmsList = useFilmsListStore();
         
-        const wrapper = mount(Films, {
-            props: {
-                errors: null,
-                films: films_10
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/Catalog'
-                    }
-                },
-                provide: { app, filmsList }
-            }
-        });
+        const wrapper = getWrapper(filmsList, films_10);
+        
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         // Изменяется текущая страница с дефолтного 1 на films_10.current_page
         expect(wrapper.vm.filmsList.page).toBe(5);
@@ -262,23 +242,11 @@ describe("@/Pages/Guest/Films.vue", () => {
     });
     
     it("Задание фильтра для фильмов", async () => {
-        const app = useAppStore();
         const filmsList = useFilmsListStore();
         
-        const wrapper = mount(Films, {
-            props: {
-                errors: null,
-                films: films_10
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/Catalog'
-                    }
-                },
-                provide: { app, filmsList }
-            }
-        });
+        const wrapper = getWrapper(filmsList, films_10);
+        
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         // Изменяется текущая страница с дефолтного 1 на films_10.current_page
         expect(wrapper.vm.filmsList.page).toBe(5);

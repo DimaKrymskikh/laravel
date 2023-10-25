@@ -13,7 +13,7 @@ import Spinner from '@/components/Svg/Spinner.vue';
 const { films } = defineProps({
     films: Object,
     user: Object,
-    errors: Object | null
+    errors: Object
 });
 
 const app = inject('app');
@@ -53,8 +53,12 @@ const addFilm = function(tag) {
             description: filmsList.description
         }, {
             preserveScroll: true,
-            onBefore: () => app.isRequest = true,
-            onFinish: () => app.isRequest = false
+            onBefore: () => {
+                app.isRequest = true;
+            },
+            onFinish: () => {
+                app.isRequest = false;
+            }
         });
 };
 

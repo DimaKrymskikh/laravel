@@ -1,8 +1,8 @@
 import { mount } from "@vue/test-utils";
 
-import { setActivePinia, createPinia } from 'pinia';
 import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
 import Cities from "@/Pages/Admin/Cities.vue";
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import AddCityBlock from '@/Pages/Admin/Cities/AddCityBlock.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import AddCityModal from '@/Components/Modal/Request/Cities/AddCityModal.vue';
@@ -11,10 +11,9 @@ import UpdateCityModal from '@/Components/Modal/Request/Cities/UpdateCityModal.v
 import UpdateTimeZoneModal from '@/Components/Modal/Request/UpdateTimeZoneModal.vue';
 import PencilSvg from '@/Components/Svg/PencilSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
-import { useAppStore } from '@/Stores/app';
-import { useFilmsAccountStore } from '@/Stores/films';
 
 import { cities } from '@/__tests__/data/cities';
+import { AdminLayoutStub } from '@/__tests__/stubs/layout';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -25,19 +24,19 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(app, filmsAccount, cities = []) {
+const getWrapper = function(cities = []) {
     return mount(Cities, {
             props: {
                 errors: {},
                 cities
             },
             global: {
-                mocks: {
-                    $page: {
-                        component: 'Admin/Cities'
-                    }
-                },
-                provide: { app, filmsAccount }
+                stubs: {
+                    AdminLayout: AdminLayoutStub,
+                    RemoveCityModal: true,
+                    UpdateCityModal: true,
+                    UpdateTimeZoneModal: true
+                }
             }
         });
 };
@@ -59,15 +58,8 @@ const checkBreadCrumb = function(wrapper) {
 };
 
 describe("@/Pages/Admin/Cities.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-
     it("Отрисовка страницы 'Города' при наличии городов", async () => {
-        const app = useAppStore();
-        const filmsAccount = useFilmsAccountStore();
-        
-        const wrapper = getWrapper(app, filmsAccount, cities);
+        const wrapper = getWrapper(cities);
         
         // Проверяем заголовок
         checkH1(wrapper);
@@ -109,48 +101,10 @@ describe("@/Pages/Admin/Cities.vue", () => {
         expect(tr[1].text()).toContain('524901');
         expect(tr[2].text()).toContain('Омск');
         expect(tr[2].text()).toContain('1496153');
-        
-        // Находим элементы DOM, клик по которым открывает модальное окно для удаления города
-        const removeCity = tbody.findAll('.remove-city');
-        expect(removeCity.length).toBe(3);
-        for(let i = 0; i < removeCity.length; i++) {
-            expect(removeCity[i].getComponent(TrashSvg).exists()).toBe(true);
-        }
-        // Берём один элемент, который открывает модальное окно для удаления города
-        const trashSvg = removeCity[1].getComponent(TrashSvg);
-        // Модальное окно для удаления города отсутствует
-        expect(wrapper.findComponent(RemoveCityModal).exists()).toBe(false);
-        // Кликаем по иконке
-        await trashSvg.trigger('click');
-        const removeCityModal = wrapper.findComponent(RemoveCityModal);
-        // Модальное окно для удаления города появляется, и содержит нужную информацию
-        expect(removeCityModal.exists()).toBe(true);
-        expect(removeCityModal.text()).toContain('Москва');
-        expect(removeCityModal.text()).toContain('524901');
-        
-        // Находим элементы DOM, клик по которым открывает модальное окно для изменения города
-        const updateCity = tbody.findAll('.update-city');
-        expect(updateCity.length).toBe(3);
-        for(let i = 0; i < updateCity.length; i++) {
-            expect(updateCity[i].getComponent(PencilSvg).exists()).toBe(true);
-        }
-        // Берём один элемент, который открывает модальное окно для изменения города
-        const pencilSvg = updateCity[2].getComponent(PencilSvg);
-        // Модальное окно для изменения города отсутствует
-        expect(wrapper.findComponent(UpdateCityModal).exists()).toBe(false);
-        // Кликаем по иконке
-        await pencilSvg.trigger('click');
-        const updateCityModal = wrapper.findComponent(UpdateCityModal);
-        // Модальное окно для изменения города появляется, и содержит нужную информацию
-        expect(updateCityModal.exists()).toBe(true);
-        expect(updateCityModal.find('input').element.value).toBe('Омск');
     });
     
     it("Отрисовка страницы 'Города' без городов", () => {
-        const app = useAppStore();
-        const filmsAccount = useFilmsAccountStore();
-        
-        const wrapper = getWrapper(app, filmsAccount);
+        const wrapper = getWrapper();
         
         // Проверяем заголовок
         checkH1(wrapper);
@@ -179,13 +133,16 @@ describe("@/Pages/Admin/Cities.vue", () => {
         // Нет элементов DOM, клик по которым мог бы открыть модальное окно для изменения города
         const updateCity = wrapper.findAll('.update-city');
         expect(updateCity.length).toBe(0);
+        
+        // Модальное окно для изменения временного пояса отсутствует
+        expect(wrapper.findComponent(UpdateTimeZoneModal).exists()).toBe(false);
+        // Нет элементов DOM, клик по которым мог бы открыть модальное окно для изменения временного пояса
+        const updateTimezone = wrapper.findAll('.update-timezone');
+        expect(updateTimezone.length).toBe(0);
     });
     
-    it("Проверка модальных окон", async () => {
-       const app = useAppStore();
-        const filmsAccount = useFilmsAccountStore();
-        
-        const wrapper = getWrapper(app, filmsAccount, cities);
+    it("Проверка появления модальных окон", async () => {
+        const wrapper = getWrapper(cities);
         
         // Находим таблицу городов
         const table = wrapper.get('table');
@@ -206,13 +163,7 @@ describe("@/Pages/Admin/Cities.vue", () => {
         const trashSvg = activeTr.getComponent(TrashSvg);
         await trashSvg.trigger('click');
         // После клика появляется модальное окно
-        const removeCityModal = wrapper.getComponent(RemoveCityModal);
-        expect(removeCityModal.props('removeCity')).toBe(wrapper.vm.removeCity);
-        expect(removeCityModal.props('hideRemoveCityModal')).toBe(wrapper.vm.hideRemoveCityModal);
-        // Клик по кнопке 'Нет' закрывает модальное окно
-        const modalNo = removeCityModal.get('#modal-no');
-        await modalNo.trigger('click');
-        expect(wrapper.findComponent(RemoveCityModal).exists()).toBe(false);
+        expect(wrapper.findComponent(RemoveCityModal).exists()).toBe(true);
         
         // Проверяем модальное окно 'Изменение названия города'
         // В начальный момент модальное окно отсутствует
@@ -220,13 +171,7 @@ describe("@/Pages/Admin/Cities.vue", () => {
         const cityPencilSvg = activeTr.find('.update-city').getComponent(PencilSvg);
         await cityPencilSvg.trigger('click');
         // После клика появляется модальное окно
-        const updateCityModal = wrapper.getComponent(UpdateCityModal);
-        expect(updateCityModal.props('updateCity')).toBe(wrapper.vm.updateCity);
-        expect(updateCityModal.props('hideUpdateCityModal')).toBe(wrapper.vm.hideUpdateCityModal);
-        // Клик по кнопке 'Нет' закрывает модальное окно
-        const cityModalNo = updateCityModal.get('#modal-no');
-        await cityModalNo.trigger('click');
-        expect(wrapper.findComponent(UpdateCityModal).exists()).toBe(false);
+        expect(wrapper.findComponent(UpdateCityModal).exists()).toBe(true);
         
         // Проверяем модальное окно 'Изменение временного пояса'
         // В начальный момент модальное окно отсутствует
@@ -234,12 +179,30 @@ describe("@/Pages/Admin/Cities.vue", () => {
         const timezonePencilSvg = activeTr.find('.update-timezone').getComponent(PencilSvg);
         await timezonePencilSvg.trigger('click');
         // После клика появляется модальное окно
-        const updateTimeZoneModal = wrapper.getComponent(UpdateTimeZoneModal);
-        expect(updateTimeZoneModal.props('updateCity')).toBe(wrapper.vm.updateCity);
-        expect(updateTimeZoneModal.props('hideUpdateTimeZoneModal')).toBe(wrapper.vm.hideUpdateTimeZoneModal);
-        // Клик по кнопке 'Нет' закрывает модальное окно
-        const timezoneModalNo = updateTimeZoneModal.get('#modal-no');
-        await timezoneModalNo.trigger('click');
-        expect(wrapper.findComponent(UpdateTimeZoneModal).exists()).toBe(false);
+        expect(wrapper.findComponent(UpdateTimeZoneModal).exists()).toBe(true);
+    });
+    
+    it("Функция hideRemoveCityModal изменяет isShowRemoveCityModal с true на false", () => {
+        const wrapper = getWrapper();
+        
+        wrapper.vm.isShowRemoveCityModal = true;
+        wrapper.vm.hideRemoveCityModal();
+        expect(wrapper.vm.isShowRemoveCityModal).toBe(false);
+    });
+    
+    it("Функция hideUpdateCityModal изменяет isShowUpdateCityModal с true на false", () => {
+        const wrapper = getWrapper();
+        
+        wrapper.vm.isShowUpdateCityModal = true;
+        wrapper.vm.hideUpdateCityModal();
+        expect(wrapper.vm.isShowUpdateCityModal).toBe(false);
+    });
+    
+    it("Функция hideUpdateTimeZoneModal изменяет isShowUpdateTimeZoneModal с true на false", () => {
+        const wrapper = getWrapper();
+        
+        wrapper.vm.isShowUpdateTimeZoneModal = true;
+        wrapper.vm.hideUpdateTimeZoneModal();
+        expect(wrapper.vm.isShowUpdateTimeZoneModal).toBe(false);
     });
 });

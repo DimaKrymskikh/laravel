@@ -2,12 +2,13 @@ import { mount } from "@vue/test-utils";
 
 import { setActivePinia, createPinia } from 'pinia';
 import ForgotPassword from "@/Pages/Guest/ForgotPassword.vue";
+import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import { useAppStore } from '@/Stores/app';
-import { useFilmsListStore } from '@/Stores/films';
 
 import { checkFormButton } from '@/__tests__/methods/checkFormButton';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
+import { GuestLayoutStub } from '@/__tests__/stubs/layout';
 
 vi.mock('@inertiajs/vue3', async () => {
     const actual = await vi.importActual("@inertiajs/vue3");
@@ -17,18 +18,17 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(app, filmsList, status) {
+const getWrapper = function(app, status = null) {
     return mount(ForgotPassword, {
             props: {
+                errors: {},
                 status
             },
             global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/ForgotPassword'
-                    }
+                stubs: {
+                    GuestLayout: GuestLayoutStub
                 },
-                provide: { app, filmsList }
+                provide: { app }
             }
         });
 };
@@ -67,11 +67,12 @@ describe("@/Pages/Guest/ForgotPassword.vue", () => {
     
     it("Отрисовка формы для сброса пароля (isRequest: false)", async () => {
         const app = useAppStore();
-        const filmsList = useFilmsListStore();
         
-        const wrapper = getWrapper(app, filmsList);
+        const wrapper = getWrapper(app);
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
+        
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         // Начальное состояние формы
         expect(wrapper.vm.form.email).toBe(null);
@@ -98,11 +99,11 @@ describe("@/Pages/Guest/ForgotPassword.vue", () => {
         // Выполняется запрос
         app.isRequest = true;
         
-        const filmsList = useFilmsListStore();
-        
-        const wrapper = getWrapper(app, filmsList);
+        const wrapper = getWrapper(app);
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
+        
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         checkH1(wrapper);
         
@@ -123,9 +124,10 @@ describe("@/Pages/Guest/ForgotPassword.vue", () => {
     
     it("Отрисовка статуса", () => {
         const app = useAppStore();
-        const filmsList = useFilmsListStore();
         
-        const wrapper = getWrapper(app, filmsList, 'Некоторый статус');
+        const wrapper = getWrapper(app, 'Некоторый статус');
+        
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         expect(wrapper.find('#forgot-password-status').exists()).toBe(true);
     });

@@ -4,11 +4,13 @@ import '@/bootstrap';
 
 import { setActivePinia, createPinia } from 'pinia';
 import FilmCard from "@/Pages/Auth/FilmCard.vue";
+import AuthLayout from '@/Layouts/AuthLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import { useAppStore } from '@/Stores/app';
-import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
+import { useFilmsAccountStore } from '@/Stores/films';
 
 import { filmCard } from '@/__tests__/data/films';
+import { AuthLayoutStub } from '@/__tests__/stubs/layout';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -26,27 +28,30 @@ describe("@/Pages/Auth/FilmCard.vue", () => {
     
     it("Отрисовка карточки фильма", () => {
         const app = useAppStore();
-        const filmsList = useFilmsListStore();
         const filmsAccount = useFilmsAccountStore();
+        
+        const user = {
+                    id: 77,
+                    is_admin: false
+                };
         
         const wrapper = mount(FilmCard, {
             props: {
-                errors: null,
+                errors: {},
                 film: filmCard,
-                user: {
-                    id: 77,
-                    is_admin: false
-                }
+                user
             },
             global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/FilmCard'
-                    }
+                stubs: {
+                    AuthLayout: AuthLayoutStub
                 },
-                provide: { app, filmsList, filmsAccount }
+                provide: { app, filmsAccount }
             }
         });
+        
+        const authLayout = wrapper.findComponent(AuthLayout);
+        expect(authLayout.props('user')).toStrictEqual(user);
+        expect(authLayout.props('errors')).toStrictEqual({});
         
         // Отрисовывается заголовок страницы
         const h1 = wrapper.get('h1');

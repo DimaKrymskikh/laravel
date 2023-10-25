@@ -7,6 +7,7 @@ import FormButton from '@/Components/Elements/FormButton.vue';
 import InputField from '@/components/Elements/InputField.vue';
 
 defineProps({
+    errors: Object,
     status: String | null
 });
 

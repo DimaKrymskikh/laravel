@@ -5,7 +5,7 @@ import AuthLayout from '@/Layouts/AuthLayout.vue';
 
 defineProps({
     user: Object,
-    errors: Object | null,
+    errors: Object,
     token: String | null
 });
 

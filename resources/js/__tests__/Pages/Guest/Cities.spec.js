@@ -1,12 +1,11 @@
 import { mount } from "@vue/test-utils";
 
-import { setActivePinia, createPinia } from 'pinia';
 import Cities from "@/Pages/Guest/Cities.vue";
+import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import { useAppStore } from '@/Stores/app';
-import { useFilmsListStore } from '@/Stores/films';
 
 import { cities } from '@/__tests__/data/cities';
+import { GuestLayoutStub } from '@/__tests__/stubs/layout';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -16,6 +15,20 @@ vi.mock('@inertiajs/vue3', async () => {
         Head: vi.fn()
     };
 });
+
+const getWrapper = function(cities = []) {
+    return mount(Cities, {
+            props: {
+                cities,
+                errors: {}
+            },
+            global: {
+                stubs: {
+                    GuestLayout: GuestLayoutStub
+                }
+            }
+        });
+};
 
 // Проверка названия страницы
 const checkH1 = function(wrapper) {
@@ -40,28 +53,10 @@ const checkBreadCrumb = function(wrapper) {
 };
 
 describe("@/Pages/Guest/Cities.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Отрисовка таблицы городов (гостевой режим)", () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
+        const wrapper = getWrapper(cities);
         
-        const wrapper = mount(Cities, {
-            props: {
-                cities,
-                errors: null
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/Cities'
-                    }
-                },
-                provide: { app, filmsList }
-            }
-        });
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         checkH1(wrapper);
         
@@ -96,23 +91,9 @@ describe("@/Pages/Guest/Cities.vue", () => {
     });
     
     it("Отрисовка страницы без городов (гостевой режим)", () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
+        const wrapper = getWrapper();
         
-        const wrapper = mount(Cities, {
-            props: {
-                cities: [],
-                errors: null
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/Cities'
-                    }
-                },
-                provide: { app, filmsList }
-            }
-        });
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         checkH1(wrapper);
         

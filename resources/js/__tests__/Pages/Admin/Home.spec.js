@@ -1,35 +1,31 @@
 import { mount } from "@vue/test-utils";
 
-import { setActivePinia, createPinia } from 'pinia';
 import Home from "@/Pages/Admin/Home.vue";
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import { useFilmsAccountStore } from '@/Stores/films';
+
+import { AdminLayoutStub } from '@/__tests__/stubs/layout';
+
+// Делаем заглушку для Head
+vi.mock('@inertiajs/vue3', async () => {
+    const actual = await vi.importActual("@inertiajs/vue3");
+    return {
+        ...actual,
+        Head: vi.fn()
+    };
+});
 
 describe("@/Pages/Admin/Home.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Отрисовка страницы 'Страница админа'", () => {
-        const filmsAccount = useFilmsAccountStore();
-        
         const wrapper = mount(Home, {
             props: {
-                errors: null
+                errors: {}
             },
             global: {
                 stubs: {
-                    AdminLayout: false,
-                    BreadCrumb: false
-                },
-                mocks: {
-                    $page: {
-                        component: 'Admin/Home'
-                    }
-                },
-                provide: { filmsAccount }
-            },
-            shallow: true
+                    AdminLayout: AdminLayoutStub
+                }
+            }
         });
         
         const h1 = wrapper.get('h1');

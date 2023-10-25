@@ -5,7 +5,7 @@ import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 
 defineProps({
     user: Object,
-    errors: Object | null
+    errors: Object
 });
 
 const titlePage = 'Главная страница';

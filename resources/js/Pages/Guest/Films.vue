@@ -10,7 +10,7 @@ import Info from '@/Components/Pagination/Info.vue';
 
 const { films } = defineProps({
     films: Object,
-    errors: Object | null
+    errors: Object
 });
 
 const titlePage = 'Фильмы';

@@ -10,7 +10,7 @@ import Spinner from '@/components/Svg/Spinner.vue';
 const { films } = defineProps({
     cities: Object,
     user: Object,
-    errors: Object | null
+    errors: Object 
 });
 
 const app = inject('app');
@@ -37,8 +37,12 @@ const addCity = function(tag) {
 
     router.post(`/cities/addcity/${cityId.value}`, {}, {
             preserveScroll: true,
-            onBefore: () => app.isRequest = true,
-            onFinish: () => app.isRequest = false
+            onBefore: () => {
+                app.isRequest = true;
+            },
+            onFinish: () => {
+                app.isRequest = false;
+            }
         });
 };
 

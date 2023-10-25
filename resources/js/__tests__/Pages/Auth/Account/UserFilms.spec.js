@@ -14,7 +14,7 @@ import FilmRemoveModal from '@/Components/Modal/Request/FilmRemoveModal.vue';
 import { useFilmsAccountStore } from '@/Stores/films';
 
 import { films_10_user } from '@/__tests__/data/films';
-import { AccountLayoutStub } from '@/__tests__/methods/stubs';
+import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -43,13 +43,8 @@ const getWrapper = function(filmsAccount) {
             },
             global: {
                 stubs: {
-                    AccountLayout: AccountLayoutStub,
+                    AccountLayout: AuthAccountLayoutStub,
                     FilmRemoveModal: true
-                },
-                mocks: {
-                    $page: {
-                        component: 'Auth/Account/UserFilms'
-                    }
                 },
                 provide: { filmsAccount }
             }

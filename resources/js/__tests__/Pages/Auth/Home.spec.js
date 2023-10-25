@@ -1,12 +1,10 @@
 import { mount } from "@vue/test-utils";
 
-import '@/bootstrap';
-
-import { setActivePinia, createPinia } from 'pinia';
 import Home from "@/Pages/Auth/Home.vue";
+import AuthLayout from '@/Layouts/AuthLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import { useAppStore } from '@/Stores/app';
-import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
+
+import { AuthLayoutStub } from '@/__tests__/stubs/layout';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -17,44 +15,33 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
+const user = {
+            id: 77,
+            is_admin: false
+        };
+
 describe("@/Pages/Auth/Home.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Отрисовка домашней страницы (залогиненный пользователь)", () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
-        const filmsAccount = useFilmsAccountStore();
-        
         const wrapper = mount(Home, {
             props: {
-                user: {
-                    id: 77,
-                    is_admin: false
-                },
-                errors: null
+                user,
+                errors: {}
             },
             global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Home'
-                    }
-                },
-                provide: { app, filmsList, filmsAccount }
+                stubs: {
+                    AuthLayout: AuthLayoutStub
+                }
             }
         });
+        
+        const authLayout = wrapper.getComponent(AuthLayout);
+        expect(authLayout.props('user')).toStrictEqual(user);
+        expect(authLayout.props('errors')).toStrictEqual({});
         
         const h1 = wrapper.get('h1');
         expect(h1.text()).toBe('Главная страница');
         
-        const breadCrumb = wrapper.findComponent(BreadCrumb);
-        expect(breadCrumb.exists()).toBe(true);
-        
-        // Хлебные крошки состоят из одного элемента без ссылки
-        const li = breadCrumb.findAll('li');
-        expect(li.length).toBe(1);
-        expect(li[0].text()).toBe('Главная страница');
-        expect(li[0].find('a').exists()).toBe(false);
+        const breadCrumb = wrapper.getComponent(BreadCrumb);
+        expect(breadCrumb.props('linksList')).toBe(wrapper.vm.linksList);
     });
 });

@@ -1,10 +1,9 @@
 import { mount } from "@vue/test-utils";
 
-import { setActivePinia, createPinia } from 'pinia';
 import Home from "@/Pages/Guest/Home.vue";
+import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import { useAppStore } from '@/Stores/app';
-import { useFilmsListStore } from '@/Stores/films';
+import { GuestLayoutStub } from '@/__tests__/stubs/layout';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -16,27 +15,19 @@ vi.mock('@inertiajs/vue3', async () => {
 });
 
 describe("@/Pages/Guest/Home.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Отрисовка домашней страницы (гостевой режим)", () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
-        
         const wrapper = mount(Home, {
             props: {
-                errors: null
+                errors: {}
             },
             global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/Catalog'
-                    }
-                },
-                provide: { app, filmsList }
+                stubs: {
+                    GuestLayout: GuestLayoutStub
+                }
             }
         });
+        
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         const h1 = wrapper.get('h1');
         expect(h1.text()).toBe('Главная страница');

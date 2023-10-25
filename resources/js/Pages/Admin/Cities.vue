@@ -12,7 +12,7 @@ import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 
 defineProps({
     cities: Array | null,
-    errors: Object | null
+    errors: Object
 });
 
 const titlePage = 'Города';

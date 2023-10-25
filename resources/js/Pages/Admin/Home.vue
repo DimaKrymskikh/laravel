@@ -4,7 +4,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 
 defineProps({
-    errors: Object | null
+    errors: Object
 });
 
 const titlePage = 'Страница админа';

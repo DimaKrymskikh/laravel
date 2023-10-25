@@ -2,12 +2,13 @@ import { mount } from "@vue/test-utils";
 
 import { setActivePinia, createPinia } from 'pinia';
 import Register from "@/Pages/Guest/Register.vue";
+import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import { useAppStore } from '@/Stores/app';
-import { useFilmsListStore } from '@/Stores/films';
 
 import { checkFormButton } from '@/__tests__/methods/checkFormButton';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
+import { GuestLayoutStub } from '@/__tests__/stubs/layout';
 
 vi.mock('@inertiajs/vue3', async () => {
     const actual = await vi.importActual("@inertiajs/vue3");
@@ -17,15 +18,16 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(app, filmsList) {
+const getWrapper = function(app) {
     return mount(Register, {
+            props: {
+                errors: {}
+            },
             global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/Register'
-                    }
+                stubs: {
+                    GuestLayout: GuestLayoutStub
                 },
-                provide: { app, filmsList }
+                provide: { app }
             }
         });
 };
@@ -64,11 +66,12 @@ describe("@/Pages/Guest/Register.vue", () => {
     
     it("Отрисовка формы регистрации (isRequest: false)", () => {
         const app = useAppStore();
-        const filmsList = useFilmsListStore();
         
-        const wrapper = getWrapper(app, filmsList);
+        const wrapper = getWrapper(app);
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
+        
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         // Начальное состояние формы
         expect(wrapper.vm.form.login).toBe(null);
@@ -105,11 +108,11 @@ describe("@/Pages/Guest/Register.vue", () => {
         // Выполняется запрос
         app.isRequest = true;
         
-        const filmsList = useFilmsListStore();
-        
-        const wrapper = getWrapper(app, filmsList);
+        const wrapper = getWrapper(app);
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
+        
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         checkH1(wrapper);
         

@@ -6,7 +6,7 @@ import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 
 const { films } = defineProps({
     cities: Object,
-    errors: Object | null
+    errors: Object
 });
 
 const titlePage = 'Города';

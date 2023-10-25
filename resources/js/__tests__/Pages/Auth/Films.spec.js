@@ -1,20 +1,21 @@
-import { mount } from "@vue/test-utils";
+import { mount, flushPromises } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
-
-import '@/bootstrap';
 
 import { setActivePinia, createPinia } from 'pinia';
 import Films from "@/Pages/Auth/Films.vue";
+import AuthLayout from '@/Layouts/AuthLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 import CheckCircleSvg from '@/Components/Svg/CheckCircleSvg.vue';
 import PlusCircleSvg from '@/Components/Svg/PlusCircleSvg.vue';
+import Spinner from '@/components/Svg/Spinner.vue';
 import { useAppStore } from '@/Stores/app';
-import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
+import { useFilmsListStore } from '@/Stores/films';
 
 import { films_0, films_10_user } from '@/__tests__/data/films';
+import { AuthLayoutStub } from '@/__tests__/stubs/layout';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -29,6 +30,27 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
+const user = {
+            id: 77,
+            is_admin: false
+        };
+
+const getWrapper = function(app, filmsList, films) {
+    return mount(Films, {
+            props: {
+                errors: {},
+                films,
+                user
+            },
+            global: {
+                stubs: {
+                    AuthLayout: AuthLayoutStub
+                },
+                provide: { app, filmsList }
+            }
+        });
+};
+
 describe("@/Pages/Auth/Films.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
@@ -41,26 +63,12 @@ describe("@/Pages/Auth/Films.vue", () => {
     it("Отрисовка каталога фильмов (залогиненный пользователь)", () => {
         const app = useAppStore();
         const filmsList = useFilmsListStore();
-        const filmsAccount = useFilmsAccountStore();
         
-        const wrapper = mount(Films, {
-            props: {
-                errors: null,
-                films: films_10_user,
-                user: {
-                    id: 77,
-                    is_admin: false
-                }
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Films'
-                    }
-                },
-                provide: { app, filmsList, filmsAccount }
-            }
-        });
+        const wrapper = getWrapper(app, filmsList, films_10_user);
+        
+        const authLayout = wrapper.getComponent(AuthLayout);
+        expect(authLayout.props('user')).toStrictEqual(user);
+        expect(authLayout.props('errors')).toStrictEqual({});
         
         // Проверяем, что текущая страница пагинации сохранена в filmsList
         expect(wrapper.vm.filmsList.page).toBe(films_10_user.current_page);
@@ -74,16 +82,8 @@ describe("@/Pages/Auth/Films.vue", () => {
         expect(h1.text()).toBe('Каталог');
         
         // Отрисовываются хлебные крошки
-        const breadCrumb = wrapper.findComponent(BreadCrumb);
-        expect(breadCrumb.exists()).toBe(true);
-        
-        // Проверяем хлебные крошки
-        const li = breadCrumb.findAll('li');
-        expect(li.length).toBe(2);
-        expect(li[0].find('a[href="/"]').exists()).toBe(true);
-        expect(li[0].text()).toBe('Главная страница');
-        expect(li[1].find('a').exists()).toBe(false);
-        expect(li[1].text()).toBe('Каталог');
+        const breadCrumb = wrapper.getComponent(BreadCrumb);
+        expect(breadCrumb.props('linksList')).toBe(wrapper.vm.linksList);
         
         // Отрисовывается таблица фильмов
         const table = wrapper.get('table.container');
@@ -151,26 +151,12 @@ describe("@/Pages/Auth/Films.vue", () => {
     it("Отрисовка каталога фильмов без фильмов (залогиненный пользователь)", () => {
         const app = useAppStore();
         const filmsList = useFilmsListStore();
-        const filmsAccount = useFilmsAccountStore();
         
-        const wrapper = mount(Films, {
-            props: {
-                errors: null,
-                films: films_0,
-                user: {
-                    id: 77,
-                    is_admin: false
-                }
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Films'
-                    }
-                },
-                provide: { app, filmsList, filmsAccount }
-            }
-        });
+        const wrapper = getWrapper(app, filmsList, films_0);
+        
+        const authLayout = wrapper.getComponent(AuthLayout);
+        expect(authLayout.props('user')).toStrictEqual(user);
+        expect(authLayout.props('errors')).toStrictEqual({});
         
         // Проверяем, что текущая страница пагинации сохранена в filmsList
         expect(wrapper.vm.filmsList.page).toBe(films_0.current_page);
@@ -184,16 +170,8 @@ describe("@/Pages/Auth/Films.vue", () => {
         expect(h1.text()).toBe('Каталог');
         
         // Отрисовываются хлебные крошки
-        const breadCrumb = wrapper.findComponent(BreadCrumb);
-        expect(breadCrumb.exists()).toBe(true);
-        
-        // Проверяем хлебные крошки
-        const li = breadCrumb.findAll('li');
-        expect(li.length).toBe(2);
-        expect(li[0].find('a[href="/"]').exists()).toBe(true);
-        expect(li[0].text()).toBe('Главная страница');
-        expect(li[1].find('a').exists()).toBe(false);
-        expect(li[1].text()).toBe('Каталог');
+        const breadCrumb = wrapper.getComponent(BreadCrumb);
+        expect(breadCrumb.props('linksList')).toBe(wrapper.vm.linksList);
         
         // Отрисовывается таблица фильмов
         const table = wrapper.get('table.container');
@@ -240,26 +218,8 @@ describe("@/Pages/Auth/Films.vue", () => {
     it("Изменение числа фильмов (залогиненный пользователь)", async () => {
         const app = useAppStore();
         const filmsList = useFilmsListStore();
-        const filmsAccount = useFilmsAccountStore();
         
-        const wrapper = mount(Films, {
-            props: {
-                errors: null,
-                films: films_10_user,
-                user: {
-                    id: 77,
-                    is_admin: false
-                }
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Films'
-                    }
-                },
-                provide: { app, filmsList, filmsAccount }
-            }
-        });
+        const wrapper = getWrapper(app, filmsList, films_10_user);
         
         // Изменяется текущая страница с дефолтного 1 на films_10.current_page
         expect(wrapper.vm.filmsList.page).toBe(5);
@@ -300,26 +260,8 @@ describe("@/Pages/Auth/Films.vue", () => {
     it("Задание фильтра для фильмов (залогиненный пользователь)", async () => {
         const app = useAppStore();
         const filmsList = useFilmsListStore();
-        const filmsAccount = useFilmsAccountStore();
         
-        const wrapper = mount(Films, {
-            props: {
-                errors: null,
-                films: films_10_user,
-                user: {
-                    id: 77,
-                    is_admin: false
-                }
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Films'
-                    }
-                },
-                provide: { app, filmsList, filmsAccount }
-            }
-        });
+        const wrapper = getWrapper(app, filmsList, films_10_user);
         
         // Изменяется текущая страница с дефолтного 1 на films_10.current_page
         expect(wrapper.vm.filmsList.page).toBe(5);
@@ -364,26 +306,8 @@ describe("@/Pages/Auth/Films.vue", () => {
     it("Добавление фильма в коллекцию пользователя", async () => {
         const app = useAppStore();
         const filmsList = useFilmsListStore();
-        const filmsAccount = useFilmsAccountStore();
         
-        const wrapper = mount(Films, {
-            props: {
-                errors: null,
-                films: films_10_user,
-                user: {
-                    id: 77,
-                    is_admin: false
-                }
-            },
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Auth/Films'
-                    }
-                },
-                provide: { app, filmsList, filmsAccount }
-            }
-        });
+        const wrapper = getWrapper(app, filmsList, films_10_user);
         
         // Изменяется текущая страница с дефолтного 1 на films_10.current_page
         expect(wrapper.vm.filmsList.page).toBe(5);
@@ -419,5 +343,40 @@ describe("@/Pages/Auth/Films.vue", () => {
         expect(router.post).not.toHaveBeenCalled();
         await plusCircleSvg.trigger('click');
         expect(router.post).not.toHaveBeenCalled();
+    });
+    
+    it("Проверка появления спинера", async () => {
+        const app = useAppStore();
+        const filmsList = useFilmsListStore();
+        
+        const wrapper = getWrapper(app, filmsList, films_10_user);
+        
+        expect(wrapper.vm.app.isRequest).toBe(false);
+        
+        const tbody = wrapper.get('table').get('tbody');
+        const tbodyTr = tbody.findAll('tr');
+        expect(tbodyTr.length).toBe(10);
+        // Во всех строках таблицы спиннер отсутствует
+        expect(tbodyTr[0].findComponent(Spinner).exists()).toBe(false);
+        expect(tbodyTr[3].findComponent(Spinner).exists()).toBe(false);
+        expect(tbodyTr[4].findComponent(Spinner).exists()).toBe(false);
+        
+        // Attacks Hate
+        const td0 = tbodyTr[3].findAll('td');
+      
+        const spanPlusCircleSvg = td0[4].getComponent(PlusCircleSvg).get('span');
+        // Клик по spanPlusCircleSvg приводит к вызову функции addCity
+        wrapper.vm.addFilm(spanPlusCircleSvg.element);
+        // Правильно находиться id фильма
+        expect(wrapper.vm.filmId).toBe(String(films_10_user.data[3].id));
+        // В router.post должен измениться app.isRequest
+        wrapper.vm.app.isRequest = true;
+        
+        await flushPromises();
+        
+        // Спиннер появился только в одной строке
+        expect(tbodyTr[0].findComponent(Spinner).exists()).toBe(false);
+        expect(tbodyTr[3].findComponent(Spinner).exists()).toBe(true);
+        expect(tbodyTr[4].findComponent(Spinner).exists()).toBe(false);
     });
 });

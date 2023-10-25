@@ -2,12 +2,13 @@ import { mount } from "@vue/test-utils";
 
 import { setActivePinia, createPinia } from 'pinia';
 import ResetPassword from "@/Pages/Guest/ResetPassword.vue";
+import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import { useAppStore } from '@/Stores/app';
-import { useFilmsListStore } from '@/Stores/films';
 
 import { checkFormButton } from '@/__tests__/methods/checkFormButton';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
+import { GuestLayoutStub } from '@/__tests__/stubs/layout';
 
 vi.mock('@inertiajs/vue3', async () => {
     const actual = await vi.importActual("@inertiajs/vue3");
@@ -17,20 +18,19 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(app, filmsList, status = null) {
+const getWrapper = function(app, status = null) {
     return mount(ResetPassword, {
             props: {
                 email: 'test@example.com',
                 token: 'testtoken',
-                status
+                status,
+                errors: {}
             },
             global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/ResetPassword'
-                    }
+                stubs: {
+                    GuestLayout: GuestLayoutStub
                 },
-                provide: { app, filmsList }
+                provide: { app }
             }
         });
 };
@@ -69,11 +69,12 @@ describe("@/Pages/Guest/ResetPassword.vue", () => {
     
     it("Отрисовка формы сброса пароля (isRequest: false)", async () => {
         const app = useAppStore();
-        const filmsList = useFilmsListStore();
         
-        const wrapper = getWrapper(app, filmsList);
+        const wrapper = getWrapper(app);
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
+        
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         expect(wrapper.vm.form.token).toBe('testtoken');
         expect(wrapper.vm.form.email).toBe('test@example.com');
@@ -109,11 +110,11 @@ describe("@/Pages/Guest/ResetPassword.vue", () => {
         // Выполняется запрос
         app.isRequest = true;
         
-        const filmsList = useFilmsListStore();
-        
-        const wrapper = getWrapper(app, filmsList);
+        const wrapper = getWrapper(app);
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
+        
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         expect(wrapper.find('#reset-password-status').exists()).toBe(false);
         
@@ -140,11 +141,12 @@ describe("@/Pages/Guest/ResetPassword.vue", () => {
     
     it("Отрисовка статуса", () => {
         const app = useAppStore();
-        const filmsList = useFilmsListStore();
         
-        const wrapper = getWrapper(app, filmsList, 'Некоторый статус');
+        const wrapper = getWrapper(app, 'Некоторый статус');
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
+        
+        expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
         checkH1(wrapper);
         
