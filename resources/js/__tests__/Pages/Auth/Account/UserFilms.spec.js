@@ -125,6 +125,8 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         expect(td3[1].text()).toBe(films_10_user.data[3].title);
         expect(td3[2].text()).toBe(films_10_user.data[3].description);
         expect(td3[3].text()).toBe(films_10_user.data[3].language.name);
+        const a4 = td3[4].get('a');
+        expect(a4.attributes('href')).toBe(`/userfilms/${films_10_user.data[3].id}`);
         expect(td3[4].findComponent(EyeSvg).exists()).toBe(true);
         expect(td3[5].findComponent(TrashSvg).exists()).toBe(true);
         

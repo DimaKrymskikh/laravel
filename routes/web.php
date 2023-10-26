@@ -7,8 +7,6 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\TokenController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 
-use App\Http\Controllers\Dvdrental\FilmCardController;
-
 use App\Http\Controllers\Project\Admin\AdminController;
 use App\Http\Controllers\Project\Admin\HomeController as AdminHomeController;
 use App\Http\Controllers\Project\Admin\Content\CityController as AdminCityController;
@@ -80,9 +78,6 @@ Route::middleware('auth')->group(function () {
     
     Route::delete('register', [RegisteredUserController::class, 'remove'])->middleware('check.password');
     
-    Route::get('filmcard/{film_id}', [FilmCardController::class, 'create'])
-                ->name('filmcard');
-    
     Route::post('admin/create', [AdminController::class, 'create'])->middleware('check.password');
     
     Route::get('/', [HomeController::class, 'index']);
@@ -94,6 +89,7 @@ Route::middleware('auth')->group(function () {
     Route::get('userfilms', [UserFilmsController::class, 'create']);
     Route::post('userfilms/addfilm/{film_id}', [UserFilmsController::class, 'addFilm']);
     Route::delete('userfilms/removefilm/{film_id}', [UserFilmsController::class, 'removeFilm'])->middleware('check.password');
+    Route::get('userfilms/{film_id}', [UserFilmsController::class, 'show']);
     
     Route::get('userweather', [UserWeatherController::class, 'create']);
     

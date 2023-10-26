@@ -116,7 +116,7 @@ const putFilms = function(e) {
                         <td>{{ film.description }}</td>
                         <td>{{ film.language.name }}</td>
                         <td>
-                            <Link :href="`/filmcard/${film.id}`"><EyeSvg /></Link>
+                            <Link :href="`/userfilms/${film.id}`"><EyeSvg /></Link>
                         </td>
                         <td class="remove-film" :data-film_id="film.id" :data-film_title="film.title">
                             <TrashSvg />

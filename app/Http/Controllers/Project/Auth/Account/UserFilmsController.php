@@ -106,4 +106,12 @@ class UserFilmsController extends Controller
             'description' => $request->description
         ]));
     }
+    
+    public function show(int $film_id): Response
+    {
+        return Inertia::render('Auth/FilmCard', [
+            'film' => $this->getFilmCard($film_id),
+            'user' => Auth::getUser()
+        ]);
+    }
 }
