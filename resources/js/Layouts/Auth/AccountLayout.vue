@@ -2,10 +2,10 @@
 import { Link } from '@inertiajs/vue3';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import AccountRemoveBlock from '@/Pages/Auth/Account/AccountRemoveBlock.vue';
-import AdminBlock from '@/Pages/Auth/Account/AdminBlock.vue';
-import PersonalDataBlock from '@/Pages/Auth/Account/PersonalDataBlock.vue';
-import AuthAccountTabs from '@/components/Tabs/AuthAccountTabs.vue';
+import AccountRemoveBlock from '@/Components/Pages/Auth/Account/AccountRemoveBlock.vue';
+import AdminBlock from '@/Components/Pages/Auth/Account/AdminBlock.vue';
+import PersonalDataBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock.vue';
+import AuthAccountTabs from '@/Components/Tabs/AuthAccountTabs.vue';
 
 defineProps({
     user: Object | null,

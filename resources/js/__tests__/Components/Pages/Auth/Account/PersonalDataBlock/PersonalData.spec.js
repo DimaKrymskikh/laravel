@@ -1,9 +1,9 @@
 import { mount } from "@vue/test-utils";
 
 import { setActivePinia, createPinia } from 'pinia';
-import PersonalData from '@/Pages/Auth/Account/PersonalDataBlock/PersonalData.vue';
-import EmailBlock from '@/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue';
-import TokenBlock from '@/Pages/Auth/Account/PersonalDataBlock/PersonalData/TokenBlock.vue';
+import PersonalData from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData.vue';
+import EmailBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue';
+import TokenBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/TokenBlock.vue';
 import { useAppStore } from '@/Stores/app';
 
 describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData.vue", () => {

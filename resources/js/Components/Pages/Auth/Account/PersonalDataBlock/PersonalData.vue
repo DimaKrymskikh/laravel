@@ -1,6 +1,6 @@
 <script setup>
-import EmailBlock from '@/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue';
-import TokenBlock from '@/Pages/Auth/Account/PersonalDataBlock/PersonalData/TokenBlock.vue';
+import EmailBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue';
+import TokenBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/TokenBlock.vue';
     
 defineProps({
     user: Object | null

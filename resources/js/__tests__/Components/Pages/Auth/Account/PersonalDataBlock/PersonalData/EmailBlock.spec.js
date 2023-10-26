@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 
 import { setActivePinia, createPinia } from 'pinia';
-import EmailBlock from '@/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue';
+import EmailBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue';
 import CheckSvg from '@/Components/Svg/CheckSvg.vue';
 import { useAppStore } from '@/Stores/app';
 

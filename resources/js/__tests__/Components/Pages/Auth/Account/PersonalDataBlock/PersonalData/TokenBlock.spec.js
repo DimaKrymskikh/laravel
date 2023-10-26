@@ -2,7 +2,7 @@ import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
-import TokenBlock from '@/Pages/Auth/Account/PersonalDataBlock/PersonalData/TokenBlock.vue';
+import TokenBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/TokenBlock.vue';
 import { useAppStore } from '@/Stores/app';
 
 import { checkFormButton } from '@/__tests__/methods/checkFormButton';

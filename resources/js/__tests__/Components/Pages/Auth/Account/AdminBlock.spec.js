@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 
 import { setActivePinia, createPinia } from 'pinia';
-import AdminBlock from '@/Pages/Auth/Account/AdminBlock.vue';
+import AdminBlock from '@/Components/Pages/Auth/Account/AdminBlock.vue';
 import AdminModal from '@/Components/Modal/Request/AdminModal.vue';
 import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
 import { useAppStore } from '@/Stores/app';

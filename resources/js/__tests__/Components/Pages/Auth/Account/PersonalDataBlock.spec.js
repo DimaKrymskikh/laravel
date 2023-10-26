@@ -2,8 +2,8 @@ import { mount } from "@vue/test-utils";
 
 import { setActivePinia, createPinia } from 'pinia';
 import Bars3 from '@/Components/Svg/Bars3.vue';
-import PersonalDataBlock from '@/Pages/Auth/Account/PersonalDataBlock.vue';
-import PersonalData from '@/Pages/Auth/Account/PersonalDataBlock/PersonalData.vue';
+import PersonalDataBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock.vue';
+import PersonalData from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData.vue';
 import { useAppStore } from '@/Stores/app';
 
 describe("@/Pages/Auth/Account/PersonalDataBlock.vue", () => {

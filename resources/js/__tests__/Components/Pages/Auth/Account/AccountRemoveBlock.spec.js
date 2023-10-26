@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 
 import { setActivePinia, createPinia } from 'pinia';
-import AccountRemoveBlock from '@/Pages/Auth/Account/AccountRemoveBlock.vue';
+import AccountRemoveBlock from '@/Components/Pages/Auth/Account/AccountRemoveBlock.vue';
 import DangerButton from '@/Components/Buttons/Variants/DangerButton.vue';
 import AccountRemoveModal from '@/Components/Modal/Request/AccountRemoveModal.vue';
 import { useAppStore } from '@/Stores/app';
