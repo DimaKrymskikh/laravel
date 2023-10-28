@@ -116,10 +116,12 @@ const putFilms = function(e) {
                         <td>{{ film.description }}</td>
                         <td>{{ film.language.name }}</td>
                         <td>
-                            <Link :href="`/userfilms/${film.id}`"><EyeSvg /></Link>
+                            <Link :href="`/userfilms/${film.id}`">
+                                <EyeSvg title="Посмотреть карточку фильма"/>
+                            </Link>
                         </td>
                         <td class="remove-film" :data-film_id="film.id" :data-film_title="film.title">
-                            <TrashSvg />
+                            <TrashSvg title="Удалить фильм из своей коллекции"/>
                         </td>
                     </tr>
                 </tbody>

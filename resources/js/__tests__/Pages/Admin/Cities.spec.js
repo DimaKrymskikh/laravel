@@ -101,6 +101,16 @@ describe("@/Pages/Admin/Cities.vue", () => {
         expect(tr[1].text()).toContain('524901');
         expect(tr[2].text()).toContain('Омск');
         expect(tr[2].text()).toContain('1496153');
+        
+        const tds = tr[1].findAll('td');
+        expect(tds.length).toBe(7);
+        expect(tds[0].text()).toBe('2');
+        expect(tds[1].text()).toBe('Москва');
+        expect(tds[2].getComponent(PencilSvg).props('title')).toBe('Редактировать название фильма');
+        expect(tds[3].text()).toBe('Europe/Moscow');
+        expect(tds[4].getComponent(PencilSvg).props('title')).toBe('Редактировать временной пояс');
+        expect(tds[5].text()).toBe('524901');
+        expect(tds[6].getComponent(TrashSvg).props('title')).toBe('Удалить город');
     });
     
     it("Отрисовка страницы 'Города' без городов", () => {

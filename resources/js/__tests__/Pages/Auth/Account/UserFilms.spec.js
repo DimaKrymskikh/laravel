@@ -127,8 +127,8 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         expect(td3[3].text()).toBe(films_10_user.data[3].language.name);
         const a4 = td3[4].get('a');
         expect(a4.attributes('href')).toBe(`/userfilms/${films_10_user.data[3].id}`);
-        expect(td3[4].findComponent(EyeSvg).exists()).toBe(true);
-        expect(td3[5].findComponent(TrashSvg).exists()).toBe(true);
+        expect(a4.findComponent(EyeSvg).props('title')).toBe('Посмотреть карточку фильма');
+        expect(td3[5].findComponent(TrashSvg).props('title')).toBe('Удалить фильм из своей коллекции');
         
         // Отрисовываются кнопки пагинации
         const buttons = wrapper.findComponent(Buttons);
