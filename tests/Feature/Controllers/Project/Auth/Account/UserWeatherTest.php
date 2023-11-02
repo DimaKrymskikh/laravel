@@ -2,70 +2,21 @@
 
 namespace Tests\Feature\Controllers\Project\Auth\Account;
 
-use App\Models\Thesaurus\City;
-use App\Models\Thesaurus\Timezone;
-use App\Models\OpenWeather\Weather;
 use App\Models\User;
-use Carbon\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
-use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\User\UserCities;
 use Tests\TestCase;
 
 class UserWeatherTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, UserCities;
     
     public function test_auth_can_get_weather(): void
     {
-        $this->seed([
-            \Database\Seeders\Thesaurus\TimezoneSeeder::class,
-        ]);
+        $this->seedCitiesWithWeatherForAuthUser();
         
-        $tz = Timezone::where('name', 'Europe/Ulyanovsk')->first();
-        
-        $city = City::factory()
-                ->count(3)
-                ->state(new Sequence(
-                        [],
-                        [
-                            'id' => 2,
-                            'name' => 'TestCity2',
-                            'open_weather_id' => 2,
-                            'timezone_id' => $tz->id
-                        ],
-                        [
-                            'id' => 3,
-                            'name' => 'FirstCity',
-                            'open_weather_id' => 23
-                        ]
-                    ))
-                ->create();
-        
-        $time = Carbon::now();
-        
-        Weather::factory()
-                ->count(3)
-                ->state(new Sequence(
-                        [
-                            'city_id' => $city->get('id', 1),
-                            'main_temp' => 10.5,
-                            'created_at' => $time->toDateTimeString()
-                        ],
-                        [
-                            'city_id' => $city->get('id', 1),
-                            'main_temp' => -5.11,
-                            'created_at' => $time->add(1, 'minute')->toDateTimeString()
-                        ],
-                        [
-                            'city_id' => $city->get('id', 2),
-                            'main_temp' => 22.14,
-                            'created_at' => $time->toDateTimeString()
-                        ],
-                    ))
-                ->create();
-        
-        $user = User::factory()->create(['is_admin' => true]);
+        $user = User::where('login', 'AuthTestLogin')->first();
         $acting = $this->actingAs($user);
         $response = $acting->get('userweather');
 
@@ -75,31 +26,36 @@ class UserWeatherTest extends TestCase
                     $page->component('Auth/Account/UserWeather')
                         ->has('errors', 0)
                         ->has('cities', 3)
+                    // По алфавиту первым городом будет Москва
                         ->has('cities.0', fn (Assert $page) => 
-                            $page->where('name', 'FirstCity')
-                                ->where('weather_first', null)
-                                ->where('timezone', null)
+                            $page->where('name', 'Москва')
+                                ->has('weather_first', fn (Assert $page) =>
+                                // Показаны последние данные по Москве
+                                    $page->where('main_temp', '4')
+                                        ->etc()
+                                )
+                                ->has('timezone', fn (Assert $page) =>
+                                    $page->where('name', 'Europe/Moscow')
+                                    ->etc()
+                                )
                                 ->etc()
                         )
                         ->has('cities.1', fn (Assert $page) => 
-                            $page->where('name', 'TestCity')
+                            $page->where('name', 'Новосибирск')
                                 ->has('weather_first', fn (Assert $page) =>
-                                    $page->where('main_temp', '-5.11')
+                                    $page->where('main_temp', '0.5')
                                         ->etc()
                                 )
-                                ->where('timezone', null)
+                                ->has('timezone', fn (Assert $page) =>
+                                    $page->where('name', 'Asia/Novosibirsk')
+                                    ->etc()
+                                )
                                 ->etc()
                         )
                         ->has('cities.2', fn (Assert $page) => 
-                            $page->where('name', 'TestCity2')
-                                ->has('weather_first', fn (Assert $page) =>
-                                    $page->where('main_temp', '22.14')
-                                    ->etc()
-                                )
-                                ->has('timezone', fn (Assert $page) =>
-                                    $page->where('name', 'Europe/Ulyanovsk')
-                                    ->etc()
-                                )
+                            $page->where('name', 'Томск')
+                                ->where('weather_first', null)
+                                ->where('timezone', null)
                                 ->etc()
                         )
             );

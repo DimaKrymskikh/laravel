@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Thesaurus\City;
 use App\Support\Support\Timezone;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -37,6 +38,10 @@ class UserWeatherController extends Controller implements TimezoneInterface
             },
             'timezone:id,name'
         ])->select('id', 'name', 'open_weather_id', 'timezone_id')
+            ->join('person.users_cities', function(JoinClause $join) use ($request) {
+                $join->on('person.users_cities.city_id', 'thesaurus.cities.id')
+                    ->where('person.users_cities.user_id', $request->user()->id);
+            })
             ->orderBy('name')
             ->get();
 

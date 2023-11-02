@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Thesaurus\City;
 use App\Notifications\Auth\ResetPasswordNotification;
-
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\Notification;
@@ -67,5 +68,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendPasswordResetNotification($token): void
     {
         $this->notify(new ResetPasswordNotification($token, $this->email));
+    }
+    
+    public function cities(): BelongsToMany
+    {
+        return $this->belongsToMany(City::class, 'person.users_cities', 'user_id', 'city_id');
     }
 }
