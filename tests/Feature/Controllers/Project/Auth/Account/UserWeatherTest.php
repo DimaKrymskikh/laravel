@@ -2,21 +2,21 @@
 
 namespace Tests\Feature\Controllers\Project\Auth\Account;
 
-use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\Authentication;
 use Tests\Support\User\UserCities;
 use Tests\TestCase;
 
 class UserWeatherTest extends TestCase
 {
-    use RefreshDatabase, UserCities;
+    use RefreshDatabase, Authentication, UserCities;
     
     public function test_auth_can_get_weather(): void
     {
-        $this->seedCitiesWithWeatherForAuthUser();
+        $this->seedCitiesAndUsersWithWeather();
         
-        $user = User::where('login', 'AuthTestLogin')->first();
+        $user = $this->getAuthUser();
         $acting = $this->actingAs($user);
         $response = $acting->get('userweather');
 

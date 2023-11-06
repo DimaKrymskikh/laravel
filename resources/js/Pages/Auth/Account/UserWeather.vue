@@ -1,8 +1,11 @@
 <script setup>
+import { ref, reactive } from 'vue';
 import { Head, Link } from '@inertiajs/vue3'
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
+import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
+import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 
-const {cities} = defineProps({
+defineProps({
     cities: Array,
     user: Object,
     errors: Object | null
@@ -17,27 +20,47 @@ const linksList = [{
         }, {
             text: titlePage
         }];
+    
+const isShowRemoveCityFromListOfWeatherModal = ref(false);
+
+const removeCity = reactive({
+    id: 0,
+    name: ''
+});
+
+const hideRemoveCityFromListOfWeatherModal = function() {
+    isShowRemoveCityFromListOfWeatherModal.value = false;
+};
+    
+const handlerDataChange = function(e) {
+    if (e.target.closest('div') && e.target.closest('div').classList.contains('remove-city')) {
+        removeCity.id = e.target.closest('div').getAttribute('data-city_id');
+        removeCity.name = e.target.closest('div').getAttribute('data-city_name');
+        isShowRemoveCityFromListOfWeatherModal.value = true;
+    }
+};
 </script>
 
 <template>
     <Head :title="titlePage" />
     <AccountLayout :errors="errors" :user="user" :linksList="linksList">
-        <div class="mx-4 w-1/2 mb-4">
+        <div class="mx-4 w-1/2 mb-4"  @click="handlerDataChange">
             <div class="flex justify-between border-b">
-                <div class="w-1/4 pr-2">
+                <div class="w-3/12 pr-2">
                     <h3 class="text-orange-700">Город</h3>
                 </div>
-                <div class="w-3/4 pl-2">
+                <div class="w-8/12 pl-2">
                     <h3 class="text-orange-700">Последние данные о погоде</h3>
                 </div>
+                <div class="w-1/12"></div>
             </div>
             <template v-for="(city, index) in cities">
                 <div class="flex justify-between border-b">
-                    <div class="w-1/4 pr-2">
+                    <div class="w-3/12 pr-2">
                         <span class="font-sans mr-2">{{ index + 1 }}</span> 
                         <span>{{ city.name }}</span>
                     </div>
-                    <div class="w-3/4 pl-2">
+                    <div class="w-8/12 pl-2">
                         <template v-if="city.weather_first">
                             <div>
                                 <span class="font-semibold mr-2">Время и дата:</span> 
@@ -79,8 +102,19 @@ const linksList = [{
                             <span class="text-red-700">Для города ещё не получены данные о погоде</span>
                         </div>
                     </div>
+                    <div class="w-1/12">
+                        <div class="pt-4 remove-city" :data-city_id="city.id"  :data-city_name="city.name">
+                            <TrashSvg title="Удалить город из списка просмотра погоды"/>
+                        </div>
+                    </div>
                 </div>
             </template>
         </div>
+        
+        <RemoveCityFromListOfWeatherModal
+            :removeCity="removeCity"
+            :hideRemoveCityModal="hideRemoveCityFromListOfWeatherModal"
+            v-if="isShowRemoveCityFromListOfWeatherModal"
+        />
     </AccountLayout>
 </template>

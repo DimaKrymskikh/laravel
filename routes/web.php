@@ -81,8 +81,10 @@ Route::middleware('auth')->group(function () {
     Route::post('admin/create', [AdminController::class, 'create'])->middleware('check.password');
     
     Route::get('/', [HomeController::class, 'index']);
+    
     Route::get('cities', [CityController::class, 'index']);
     Route::post('cities/addcity/{city_id}', [CityController::class, 'addCity']);
+    Route::delete('cities/removecity/{city_id}', [CityController::class, 'removeCity'])->middleware('check.password');
     
     Route::get('films', [FilmController::class, 'index']);
     

@@ -14,6 +14,12 @@ use Inertia\Response;
 
 class CityController extends Controller
 {
+    /**
+     * Отрисовывает список городов с указанием принадлежности списку погоды пользователя
+     * 
+     * @param Request $request
+     * @return Response
+     */
     public function index(Request $request): Response
     {
         return Inertia::render('Auth/Cities', [
@@ -30,6 +36,13 @@ class CityController extends Controller
         ]);
     }
     
+    /**
+     * Добавляет город в список просмотра погоды пользователя
+     * 
+     * @param Request $request
+     * @param string $city_id
+     * @return RedirectResponse
+     */
     public function addCity(Request $request, string $city_id): RedirectResponse
     {
         // Новую пару записываем в таблицу 'person.users_cities'
@@ -39,5 +52,22 @@ class CityController extends Controller
         $userCity->save();
         
         return redirect('cities');
+    }
+    
+    /**
+     * Удаляет город из списка просмотра погоды пользователя
+     * 
+     * @param Request $request
+     * @param string $city_id
+     * @return RedirectResponse
+     */
+    public function removeCity(Request $request, string $city_id): RedirectResponse
+    {
+        $query = UserCity::where('user_id', '=', $request->user()->id)
+                ->where('city_id', '=', $city_id);
+        
+        $query->delete();
+        
+        return redirect('userweather');
     }
 }
