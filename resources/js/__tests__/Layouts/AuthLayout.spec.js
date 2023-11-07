@@ -1,7 +1,5 @@
 import { mount } from "@vue/test-utils";
 
-import '@/bootstrap';
-
 import { setActivePinia, createPinia } from 'pinia';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';

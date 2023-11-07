@@ -8,6 +8,7 @@ import Info from '@/Components/Pagination/Info.vue';
 import EyeSvg from '@/Components/Svg/EyeSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import FilmRemoveModal from '@/Components/Modal/Request/FilmRemoveModal.vue';
+import EchoUserFilm from '@/Components/Broadcast/EchoUserFilm.vue';
 
 const { films } = defineProps({
     films: Object | null,
@@ -136,5 +137,7 @@ const putFilms = function(e) {
             :hideFilmRemoveModal="hideFilmRemoveModal"
             v-if="isShowFilmRemoveModal"
         />
+    
+        <EchoUserFilm :user="user" />
     </AccountLayout>
 </template>
