@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\RemoveFilm;
+use App\Events\RemoveFilmFromUserList;
 use App\Models\User;
 use App\Notifications\Dvdrental\RemoveFilmNotification;
 
@@ -23,7 +23,7 @@ class SendEmailRemoveFilmNotification
     /**
      * Handle the event.
      */
-    public function handle(RemoveFilm $event): void
+    public function handle(RemoveFilmFromUserList $event): void
     {
         $this->user->notify(new RemoveFilmNotification($event->userFilm));
     }

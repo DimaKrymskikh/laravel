@@ -12,7 +12,7 @@ import Info from '@/Components/Pagination/Info.vue';
 import EyeSvg from '@/Components/Svg/EyeSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import FilmRemoveModal from '@/Components/Modal/Request/FilmRemoveModal.vue';
-import EchoUserFilm from '@/Components/Broadcast/EchoUserFilm.vue';
+import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 import { useFilmsAccountStore } from '@/Stores/films';
 
 import { films_10_user } from '@/__tests__/data/films';
@@ -136,8 +136,8 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         const buttons = wrapper.findComponent(Buttons);
         expect(buttons.exists()).toBe(true);
         
-        const echoUserFilm = wrapper.getComponent(EchoUserFilm);
-        expect(echoUserFilm.props('user')).toStrictEqual(user);
+        const echoAuth = wrapper.getComponent(EchoAuth);
+        expect(echoAuth.props('user')).toStrictEqual(user);
     });
     
     it("Показать модальное окно удаления фильма", async () => {

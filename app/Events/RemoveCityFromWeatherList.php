@@ -3,15 +3,15 @@
 namespace App\Events;
 
 use App\Models\ModelsFields;
-use App\Models\Person\UserFilm;
-
+use App\Models\Person\UserCity;
+use App\Models\Thesaurus\City;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class RemoveFilmFromUserList implements ShouldBroadcast
+class RemoveCityFromWeatherList implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels, ModelsFields;
     
@@ -20,11 +20,12 @@ class RemoveFilmFromUserList implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct(
-            public UserFilm $userFilm
+    public function __construct
+    (
+            public UserCity $userCity
     )
     {
-        $this->message = 'Вы удалили из своей коллекции фильм '.$this->getFilmTitle($userFilm->film_id);
+        $this->message = 'Вы удалили город '.$this->getModelField(City::class, 'name', $userCity->city_id).' из списока просмотра погоды';    
     }
 
     /**
@@ -35,7 +36,7 @@ class RemoveFilmFromUserList implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("auth.{$this->userFilm->user_id}"),
+            new PrivateChannel("auth.{$this->userCity->user_id}"),
         ];
     }
     

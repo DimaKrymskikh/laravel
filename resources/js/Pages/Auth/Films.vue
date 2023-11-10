@@ -9,7 +9,7 @@ import Info from '@/Components/Pagination/Info.vue';
 import CheckCircleSvg from '@/Components/Svg/CheckCircleSvg.vue';
 import PlusCircleSvg from '@/Components/Svg/PlusCircleSvg.vue';
 import Spinner from '@/Components/Svg/Spinner.vue';
-import EchoUserFilm from '@/Components/Broadcast/EchoUserFilm.vue';
+import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 
 const { films } = defineProps({
     films: Object,
@@ -147,6 +147,6 @@ const putFilms = function(e) {
         
         <Buttons :links="films.links" v-if="films.total > 0" />
     
-        <EchoUserFilm :user="user" />
+        <EchoAuth :user="user" />
     </AuthLayout>
 </template>

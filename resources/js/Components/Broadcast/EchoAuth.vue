@@ -12,11 +12,17 @@ const clearBroadcastMessage = function() {
     broadcastMessage.value = '';
 };
 
-Echo.private(`film.${user.id}`)
-    .listen('AddFilm', (e) => {
+Echo.private(`auth.${user.id}`)
+    .listen('AddFilmInUserList', (e) => {
         broadcastMessage.value = e.message;
     })
-    .listen('RemoveFilm', (e) => {
+    .listen('RemoveFilmFromUserList', (e) => {
+        broadcastMessage.value = e.message;
+    })
+    .listen('AddCityInWeatherList', (e) => {
+        broadcastMessage.value = e.message;
+    })
+    .listen('RemoveCityFromWeatherList', (e) => {
         broadcastMessage.value = e.message;
     });
 </script>

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Project\Auth\Account;
 
-use App\Events\AddFilm;
-use App\Events\RemoveFilm;
+use App\Events\AddFilmInUserList;
+use App\Events\RemoveFilmFromUserList;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Url;
 use App\Http\Extraction\Dvd\Films;
@@ -66,7 +66,7 @@ class UserFilmsController extends Controller
         
         // Если запись была успешной, пользователь получает оповещение
         if ($userFilm->save()) {
-            event(new AddFilm($userFilm));
+            event(new AddFilmInUserList($userFilm));
         }
         
         return redirect($this->getUrl('/films', [
@@ -96,7 +96,7 @@ class UserFilmsController extends Controller
         // Удаление фильма с film_id из коллекции пользователя.
         if ($query->delete()) {
             // При успешном удалении фильма пользователь получает оповещение
-            event(new RemoveFilm($userFilm));
+            event(new RemoveFilmFromUserList($userFilm));
         }
         
         return redirect($this->getUrl('userfilms', [

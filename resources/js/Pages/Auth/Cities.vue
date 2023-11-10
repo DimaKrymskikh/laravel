@@ -6,6 +6,7 @@ import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import CheckCircleSvg from '@/Components/Svg/CheckCircleSvg.vue';
 import PlusCircleSvg from '@/Components/Svg/PlusCircleSvg.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
+import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 
 const { films } = defineProps({
     cities: Object,
@@ -99,5 +100,6 @@ const handlerTableChange = function(e) {
             </div>
         </div>
         
+        <EchoAuth :user="user" />
     </AuthLayout>
 </template>

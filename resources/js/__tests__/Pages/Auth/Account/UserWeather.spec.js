@@ -1,3 +1,4 @@
+import '@/bootstrap';
 import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
@@ -6,6 +7,7 @@ import UserWeather from "@/Pages/Auth/Account/UserWeather.vue";
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
+import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 
 import {  cities_with_weather } from '@/__tests__/data/cities';
 import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
@@ -74,6 +76,9 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
         expect(flexes[3].text()).toContain('Для города ещё не получены данные о погоде');
         
         expect(wrapper.findComponent(RemoveCityFromListOfWeatherModal).exists()).toBe(false);
+        
+        const echoAuth = wrapper.getComponent(EchoAuth);
+        expect(echoAuth.props('user')).toStrictEqual(user);
     });
     
     it("Клик по TrashSvg показывает модальное окно для удаления фильма из просмотра погоды", async () => {

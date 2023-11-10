@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\AddFilm;
+use App\Events\AddFilmInUserList;
 use App\Models\User;
 use App\Notifications\Dvdrental\AddFilmNotification;
 
@@ -23,7 +23,7 @@ class SendEmailAddFilmNotification
     /**
      * Handle the event.
      */
-    public function handle(AddFilm $event): void
+    public function handle(AddFilmInUserList $event): void
     {
         $this->user->notify(new AddFilmNotification($event->userFilm));
     }

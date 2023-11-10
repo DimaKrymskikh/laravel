@@ -1,3 +1,4 @@
+import '@/bootstrap';
 import { mount, flushPromises } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
@@ -8,6 +9,7 @@ import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import CheckCircleSvg from '@/Components/Svg/CheckCircleSvg.vue';
 import PlusCircleSvg from '@/Components/Svg/PlusCircleSvg.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
+import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 import { useAppStore } from '@/Stores/app';
 
 import { cities_user } from '@/__tests__/data/cities';
@@ -107,6 +109,9 @@ describe("@/Pages/Auth/Cities.vue", () => {
         expect(tr[2].text()).toContain('не задан');
         expect(tr[2].findComponent(PlusCircleSvg).exists()).toBe(true);
         expect(tr[2].findComponent(CheckCircleSvg).exists()).toBe(false);
+        
+        const echoAuth = wrapper.getComponent(EchoAuth);
+        expect(echoAuth.props('user')).toStrictEqual(user);
     });
     
     it("Отрисовка страницы Cities для auth (без городов)", () => {

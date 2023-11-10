@@ -2,11 +2,14 @@
 
 namespace Tests\Feature\Controllers\Project\Auth\Content;
 
+use App\Events\AddCityInWeatherList;
+use App\Events\RemoveCityFromWeatherList;
 use App\Models\Person\UserCity;
 use App\Models\Thesaurus\City;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\Authentication;
 use Tests\Support\User\UserCities;
@@ -59,6 +62,8 @@ class CityTest extends TestCase
     
     public function test_auth_user_can_add_city(): void
     {
+        Event::fake();
+        
         $this->seedCitiesAndUsers();
         
         $user = $this->getAuthUser();
@@ -72,6 +77,8 @@ class CityTest extends TestCase
         // Стало 4 города
         $this->assertEquals(4, UserCity::where('user_id', $user->id)->count());
         
+        Event::assertDispatched(AddCityInWeatherList::class, 1);
+        
         $response
             ->assertStatus(302)
             ->assertRedirect('cities');
@@ -79,6 +86,8 @@ class CityTest extends TestCase
     
     public function test_auth_user_can_remove_city_if_correct_password(): void
     {
+        Event::fake();
+        
         $this->seedCitiesAndUsers();
         
         $user = $this->getAuthUser();
@@ -94,6 +103,8 @@ class CityTest extends TestCase
         // Стало 2 города
         $this->assertEquals(2, UserCity::where('user_id', $user->id)->count());
         
+        Event::assertDispatched(RemoveCityFromWeatherList::class, 1);
+        
         $response
             ->assertStatus(302)
             ->assertRedirect('userweather');
@@ -101,6 +112,8 @@ class CityTest extends TestCase
     
     public function test_auth_user_can_not_remove_city_if_uncorrect_password(): void
     {
+        Event::fake();
+        
         $this->seedCitiesAndUsers();
         
         $user = $this->getAuthUser();
@@ -115,6 +128,8 @@ class CityTest extends TestCase
         
         // Осталось 3 города
         $this->assertEquals(3, UserCity::where('user_id', $user->id)->count());
+        
+        Event::assertNotDispatched(RemoveCityFromWeatherList::class);
         
         $response->assertInvalid([
                 'password' => trans("user.password.wrong")

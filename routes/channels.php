@@ -15,6 +15,6 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('film.{id}', function (User $user, int $id) {
+Broadcast::channel('auth.{id}', function (User $user, int $id) {
     return $user->id === $id;
 });

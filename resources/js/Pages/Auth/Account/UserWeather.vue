@@ -4,6 +4,7 @@ import { Head, Link } from '@inertiajs/vue3'
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
+import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 
 defineProps({
     cities: Array,
@@ -116,5 +117,7 @@ const handlerDataChange = function(e) {
             :hideRemoveCityModal="hideRemoveCityFromListOfWeatherModal"
             v-if="isShowRemoveCityFromListOfWeatherModal"
         />
+        
+        <EchoAuth :user="user" />
     </AccountLayout>
 </template>

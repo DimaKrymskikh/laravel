@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Events\AddFilm;
-use App\Events\RemoveFilm;
+use App\Events\AddFilmInUserList;
+use App\Events\RemoveFilmFromUserList;
 use App\Listeners\SendEmailAddFilmNotification;
 use App\Listeners\SendEmailNewPasswordNotification;
 use App\Listeners\SendEmailRemoveFilmNotification;
@@ -27,10 +27,10 @@ class EventServiceProvider extends ServiceProvider
         PasswordReset::class => [
             SendEmailNewPasswordNotification::class,
         ],
-        AddFilm::class => [
+        AddFilmInUserList::class => [
             SendEmailAddFilmNotification::class
         ],
-        RemoveFilm::class => [
+        RemoveFilmFromUserList::class => [
             SendEmailRemoveFilmNotification::class
         ]
     ];

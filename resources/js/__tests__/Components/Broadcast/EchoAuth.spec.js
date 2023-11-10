@@ -1,7 +1,7 @@
 import '@/bootstrap';
 import { mount } from "@vue/test-utils";
 
-import EchoUserFilm from '@/Components/Broadcast/EchoUserFilm.vue';
+import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 import BroadcastBlock from '@/Components/Broadcast/BroadcastBlock.vue';
 
 const user = {
@@ -11,15 +11,15 @@ const user = {
 };
 
 const getWrapper = function() {
-    return mount(EchoUserFilm, {
+    return mount(EchoAuth, {
             props: {
                 user
             }
         });
 };
 
-describe("@/Components/Broadcast/EchoUserFilm.vue", () => {
-    it("Монтирование компоненты EchoUserFilm", () => {
+describe("@/Components/Broadcast/EchoAuth.vue", () => {
+    it("Монтирование компоненты EchoAuth", () => {
         const wrapper = getWrapper();
         
         // В BroadcastBlock передаётся пропс

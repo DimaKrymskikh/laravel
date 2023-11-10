@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Project\Auth\Content;
 
+use App\Events\AddCityInWeatherList;
+use App\Events\RemoveCityFromWeatherList;
 use App\Http\Controllers\Controller;
 use App\Models\Person\UserCity;
 use App\Models\Thesaurus\City;
@@ -49,7 +51,10 @@ class CityController extends Controller
         $userCity = new UserCity();
         $userCity->user_id = $request->user()->id;
         $userCity->city_id = $city_id;
-        $userCity->save();
+        
+        if($userCity->save()){
+            event(new AddCityInWeatherList($userCity));
+        }
         
         return redirect('cities');
     }
@@ -66,7 +71,11 @@ class CityController extends Controller
         $query = UserCity::where('user_id', '=', $request->user()->id)
                 ->where('city_id', '=', $city_id);
         
-        $query->delete();
+        $userCity = $query->first();
+        
+        if($query->delete()) {
+            event(new RemoveCityFromWeatherList($userCity));
+        }
         
         return redirect('userweather');
     }

@@ -12,7 +12,7 @@ import Info from '@/Components/Pagination/Info.vue';
 import CheckCircleSvg from '@/Components/Svg/CheckCircleSvg.vue';
 import PlusCircleSvg from '@/Components/Svg/PlusCircleSvg.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
-import EchoUserFilm from '@/Components/Broadcast/EchoUserFilm.vue';
+import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 import { useAppStore } from '@/Stores/app';
 import { useFilmsListStore } from '@/Stores/films';
 
@@ -149,8 +149,8 @@ describe("@/Pages/Auth/Films.vue", () => {
         const buttons = wrapper.findComponent(Buttons);
         expect(buttons.exists()).toBe(true);
         
-        const echoUserFilm = wrapper.getComponent(EchoUserFilm);
-        expect(echoUserFilm.props('user')).toStrictEqual(user);
+        const echoAuth = wrapper.getComponent(EchoAuth);
+        expect(echoAuth.props('user')).toStrictEqual(user);
     });
     
     it("Отрисовка каталога фильмов без фильмов (залогиненный пользователь)", () => {
