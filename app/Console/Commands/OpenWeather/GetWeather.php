@@ -17,7 +17,7 @@ class GetWeather extends Command
      *
      * @var string
      */
-    protected $signature = 'get:weather {city_id?}';
+    protected $signature = 'get:weather {open_weather_id?}';
 
     /**
      * The console command description.
@@ -35,10 +35,20 @@ class GetWeather extends Command
         $this->line("$this->description");
         $this->line('');
         
-        $city_id = $this->argument('city_id');
+        $open_weather_id = $this->argument('open_weather_id');
         
-        if($city_id) {
-            $cities = City::where('open_weather_id', $city_id)->get();
+        if($open_weather_id) {
+            if(!intval($open_weather_id)) {
+                $this->error("Параметр команды не является целым числом.");
+                $this->info("Выполнение команды прервано.");
+                return;
+            }
+            $cities = City::where('open_weather_id', $open_weather_id)->get();
+            if(!$cities->count()) {
+                $this->error("В таблице 'thesaurus.cities' нет городов с полем open_weather_id = $open_weather_id.");
+                $this->info("Выполнение команды прервано.");
+                return;
+            }
         } else {
             $cities = City::all();
         }
@@ -74,7 +84,7 @@ class GetWeather extends Command
                 $this->line("Сервер OpenWeather вернул ответ со статусом {$response->status()}: {$response->body()}");
             }
             
-            $this->line('');
+            $this->newLine();
         }
         
         $this->info('Команда выполнена.');

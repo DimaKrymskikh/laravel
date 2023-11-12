@@ -4,26 +4,30 @@ namespace Tests\Feature\Commands\OpenWeather;
 
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
-use Illuminate\Database\Eloquent\Factories\Sequence;
+use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Tests\Support\User\UserCities;
 use Tests\TestCase;
 
 class GetWeatherTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, UserCities;
     
     public function test_weather_can_be_get_for_one_city(): void
     {
         Http::preventStrayRequests();
         
-        $city = City::factory()->create();
+        // Выполняем посев городов
+        $this->seedCities();
+        // Берём один город, чтобы получить параметр команды
+        $city = City::where('id', CitySeeder::ID_NOVOSIBIRSK)->first();
         
         Http::fake([
             "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
         ]);
 
-        // Команда успешно выполняется
+        // Команда с параметром успешно выполняется
         $this
             ->artisan("get:weather $city->open_weather_id")
             ->assertExitCode(0);
@@ -41,40 +45,77 @@ class GetWeatherTest extends TestCase
         $this->assertEquals(100, $weather->clouds_all);
     }
     
-    public function test_weather_can_be_get_for_two_cities(): void
+    public function test_weather_can_not_get_with_invalid_integer(): void
     {
         Http::preventStrayRequests();
         
-        City::factory()->count(2)
-                ->state(new Sequence(
-                    [],
-                    [
-                        'id' => 2,
-                        'name' => 'NewCity',
-                        'open_weather_id' => 2
-                    ],
-                ))
-                ->create();
+        // Выполняем посев городов
+        $this->seedCities();
         
         Http::fake([
             "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
         ]);
 
-        // Команда успешно выполняется
+        // Запускаем команду с параметром 13
+        $this
+            ->artisan("get:weather 13")
+            ->expectsOutput("В таблице 'thesaurus.cities' нет городов с полем open_weather_id = 13.")
+            ->expectsOutput("Выполнение команды прервано.")
+            ->assertExitCode(0);
+        // Нет данных погоды
+        $this
+            ->assertEquals(0, Weather::all()->count());
+    }
+    
+    public function test_weather_can_not_get_if_parameter_be_not_integer(): void
+    {
+        Http::preventStrayRequests();
+        
+        // Выполняем посев городов
+        $this->seedCities();
+        
+        Http::fake([
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
+        ]);
+
+        // Запускаем команду с параметром a
+        $this
+            ->artisan("get:weather a")
+            ->expectsOutput("Параметр команды не является целым числом.")
+            ->expectsOutput("Выполнение команды прервано.")
+            ->assertExitCode(0);
+        // Нет данных погоды
+        $this
+            ->assertEquals(0, Weather::all()->count());
+    }
+    
+    public function test_weather_can_be_get_for_some_cities(): void
+    {
+        Http::preventStrayRequests();
+        
+        // Выполняем посев городов
+        $this->seedCities();
+        
+        Http::fake([
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
+        ]);
+
+        // Команда без параметра успешно выполняется
         $this
             ->artisan("get:weather")
             ->assertExitCode(0);
         
         // Проверяем сохранение погоды в базе
-        $this->assertEquals(2, Weather::all()->count());
+        // Для каждого города получена погода
+        $this->assertEquals(City::all()->count(), Weather::all()->count());
     }
     
     public function test_OpenWeather_send_429(): void
     {
         Http::preventStrayRequests();
         
-        // Создаём один город, чтобы в команде был массив для перебора в foreach
-        City::factory()->create();
+        // Выполняем посев городов
+        $this->seedCities();
         
         Http::fake([
             "api.openweathermap.org/data/2.5/weather?*" => Http::response('Превышен лимит', 429),
