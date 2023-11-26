@@ -112,6 +112,7 @@ describe("@/Pages/Auth/Cities.vue", () => {
         
         const echoAuth = wrapper.getComponent(EchoAuth);
         expect(echoAuth.props('user')).toStrictEqual(user);
+        expect(echoAuth.props('events')).toStrictEqual(['AddCityInWeatherList']);
     });
     
     it("Отрисовка страницы Cities для auth (без городов)", () => {

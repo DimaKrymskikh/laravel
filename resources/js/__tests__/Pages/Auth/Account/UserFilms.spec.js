@@ -138,6 +138,7 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         
         const echoAuth = wrapper.getComponent(EchoAuth);
         expect(echoAuth.props('user')).toStrictEqual(user);
+        expect(echoAuth.props('events')).toStrictEqual(['RemoveFilmFromUserList']);
     });
     
     it("Показать модальное окно удаления фильма", async () => {

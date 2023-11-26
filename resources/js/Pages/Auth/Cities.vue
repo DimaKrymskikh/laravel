@@ -26,6 +26,9 @@ const linksList = [{
             text: titlePage
         }];
 
+// События Broadcast передаются в массиве
+const pusherEvents = ['AddCityInWeatherList'];
+
 // id фильма, который добавляется в коллекцию пользователя
 const cityId = ref(null);
 
@@ -100,6 +103,6 @@ const handlerTableChange = function(e) {
             </div>
         </div>
         
-        <EchoAuth :user="user" />
+        <EchoAuth :user="user" :events="pusherEvents" />
     </AuthLayout>
 </template>

@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\Commands\OpenWeather;
 
+use App\Events\RefreshCityWeather;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Tests\Support\User\UserCities;
 use Tests\TestCase;
@@ -17,15 +19,16 @@ class GetWeatherTest extends TestCase
     public function test_weather_can_be_get_for_one_city(): void
     {
         Http::preventStrayRequests();
+        Http::fake([
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
+        ]);
+        
+        Event::fake();
         
         // Выполняем посев городов
         $this->seedCities();
         // Берём один город, чтобы получить параметр команды
-        $city = City::where('id', CitySeeder::ID_NOVOSIBIRSK)->first();
-        
-        Http::fake([
-            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
-        ]);
+        $city = City::where('id', CitySeeder::ID_MOSCOW)->first();
 
         // Команда с параметром успешно выполняется
         $this
@@ -43,6 +46,8 @@ class GetWeatherTest extends TestCase
         $this->assertEquals(2.5, $weather->wind_speed);
         $this->assertEquals(120, $weather->wind_deg);
         $this->assertEquals(100, $weather->clouds_all);
+        
+        Event::assertNotDispatched(RefreshCityWeather::class);
     }
     
     public function test_weather_can_not_get_with_invalid_integer(): void
@@ -126,6 +131,28 @@ class GetWeatherTest extends TestCase
             ->artisan("get:weather")
             ->expectsOutput("Сервер OpenWeather вернул ответ со статусом 429: Превышен лимит")
             ->assertExitCode(0);
+    }
+    
+    public function test_RefreshCityWeather_event_is_running_if_command_be_called_in_http(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
+        ]);
+        
+        Event::fake();
+        
+        // Выполняем посев городов
+        $this->seedCities();
+        // Берём один город, чтобы получить параметр команды
+        $city = City::where('id', CitySeeder::ID_NOVOSIBIRSK)->first();
+
+        // Команда с параметром успешно выполняется
+        $this
+            ->artisan("get:weather $city->open_weather_id --http --user_id=1")
+            ->assertExitCode(0);
+        // Событие RefreshCityWeather выполняется
+        Event::assertDispatched(RefreshCityWeather::class, 1);
     }
     
     private function getResponseInstance(): array

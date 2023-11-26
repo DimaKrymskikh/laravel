@@ -35,6 +35,9 @@ const linksList = [{
             text: 'Каталог'
         }];
 
+// События Broadcast передаются в массиве
+const pusherEvents = ['AddFilmInUserList'];
+
 /**
  * Добавляет фильм в коллекцию пользователя
  * @param {Element} tag
@@ -147,6 +150,6 @@ const putFilms = function(e) {
         
         <Buttons :links="films.links" v-if="films.total > 0" />
     
-        <EchoAuth :user="user" />
+        <EchoAuth :user="user" :events="pusherEvents" />
     </AuthLayout>
 </template>

@@ -151,6 +151,7 @@ describe("@/Pages/Auth/Films.vue", () => {
         
         const echoAuth = wrapper.getComponent(EchoAuth);
         expect(echoAuth.props('user')).toStrictEqual(user);
+        expect(echoAuth.props('events')).toStrictEqual(['AddFilmInUserList']);
     });
     
     it("Отрисовка каталога фильмов без фильмов (залогиненный пользователь)", () => {

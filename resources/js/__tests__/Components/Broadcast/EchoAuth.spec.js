@@ -13,7 +13,8 @@ const user = {
 const getWrapper = function() {
     return mount(EchoAuth, {
             props: {
-                user
+                user,
+                events: ['PusherEvents']
             }
         });
 };

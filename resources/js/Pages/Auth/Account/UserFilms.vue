@@ -26,6 +26,9 @@ const linksList = [{
             text: titlePage
         }];
 
+// События Broadcast передаются в массиве
+const pusherEvents = ['RemoveFilmFromUserList'];
+
 const filmsAccount = inject('filmsAccount');
 filmsAccount.page = films.current_page;
 
@@ -138,6 +141,6 @@ const putFilms = function(e) {
             v-if="isShowFilmRemoveModal"
         />
     
-        <EchoAuth :user="user" />
+        <EchoAuth :user="user" :events="pusherEvents" />
     </AccountLayout>
 </template>

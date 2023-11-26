@@ -93,7 +93,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('userfilms/removefilm/{film_id}', [UserFilmsController::class, 'removeFilm'])->middleware('check.password');
     Route::get('userfilms/{film_id}', [UserFilmsController::class, 'show']);
     
-    Route::get('userweather', [UserWeatherController::class, 'create']);
+    Route::get('userweather', [UserWeatherController::class, 'index']);
+    Route::post('userweather/refresh/{city_id}', [UserWeatherController::class, 'refresh']);
     
     Route::get('token', [TokenController::class, 'index']);
     Route::post('token', [TokenController::class, 'create']);

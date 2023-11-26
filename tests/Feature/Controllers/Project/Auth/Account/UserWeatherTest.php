@@ -2,8 +2,13 @@
 
 namespace Tests\Feature\Controllers\Project\Auth\Account;
 
+use App\Events\RefreshCityWeather;
+use App\Models\Thesaurus\City;
+use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Tests\Support\Authentication;
 use Tests\Support\User\UserCities;
 use Tests\TestCase;
@@ -59,5 +64,52 @@ class UserWeatherTest extends TestCase
                                 ->etc()
                         )
             );
+    }
+    
+    public function test_city_weather_can_be_refresh(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
+        ]);
+        
+        Event::fake();
+        
+        $this->seedCitiesAndUsersWithWeather();
+        $city = City::where('id', CitySeeder::ID_NOVOSIBIRSK)->first();
+        
+        $user = $this->getAuthUser();
+        $acting = $this->actingAs($user);
+        $response = $acting->post("userweather/refresh/$city->id");
+        
+        Event::assertDispatched(RefreshCityWeather::class, 1);
+        
+        $response
+            ->assertOk();
+    }
+    
+    private function getResponseInstance(): array
+    {
+        return [
+            'weather' => [
+                (object) [
+                    'description' => 'Хорошая погода'
+                ]
+            ],
+            'main' => (object) [
+                'temp' => 11.7,
+                'feels_like' => 12,
+                'pressure' => 1000,
+                'humidity' => 77,
+            ],
+            'visibility' => 500,
+            'wind' => (object) [
+                'speed' => 2.5,
+                'deg' => 120
+            ],
+            'clouds' => (object) [
+                'all' => 100
+            ]
+        ];
     }
 }

@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Project\Auth\Account;
 
 use App\Contracts\Support\Timezone as TimezoneInterface;
 use App\Http\Controllers\Controller;
+use App\Models\ModelsFields;
 use App\Models\Thesaurus\City;
 use App\Support\Support\Timezone;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\Request;
@@ -14,9 +16,9 @@ use Inertia\Response;
 
 class UserWeatherController extends Controller implements TimezoneInterface
 {
-    use Timezone;
+    use Timezone, ModelsFields;
     
-    public function create(Request $request): Response
+    public function index(Request $request): Response
     {
         $cities = City::with([
             'weatherFirst' => function (Builder $query) {
@@ -50,6 +52,24 @@ class UserWeatherController extends Controller implements TimezoneInterface
         return Inertia::render('Auth/Account/UserWeather', [
             'cities' => $cities,
             'user' => $request->user()
+        ]);
+    }
+    
+    /**
+     * Обновляет данные о погоде в городе с $city_id
+     * 
+     * @param Request $request
+     * @param string $city_id
+     * @return void
+     */
+    public function refresh(Request $request, string $city_id): void
+    {
+        $openWeatherId = $this->getModelField(City::class, 'open_weather_id', $city_id);
+        
+        Artisan::queue('get:weather', [
+            'open_weather_id' => $openWeatherId,
+            '--http' => true,
+            '--user_id' => $request->user()->id,
         ]);
     }
 }

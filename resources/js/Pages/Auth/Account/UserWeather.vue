@@ -1,16 +1,20 @@
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, inject, onUpdated } from 'vue';
 import { Head, Link } from '@inertiajs/vue3'
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
+import Spinner from '@/Components/Svg/Spinner.vue';
+import ArrowPathSvg from '@/Components/Svg/ArrowPathSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 
-defineProps({
+const props = defineProps({
     cities: Array,
     user: Object,
     errors: Object | null
 });
+
+const app = inject('app');
 
 const titlePage = 'ЛК: погода';
 
@@ -21,6 +25,14 @@ const linksList = [{
         }, {
             text: titlePage
         }];
+
+// События Broadcast передаются в массиве
+const pusherEvents = ['RemoveCityFromWeatherList', 'RefreshCityWeather'];
+    
+let cities = reactive(props.cities);
+onUpdated(() => {
+    cities = props.cities;
+});
     
 const isShowRemoveCityFromListOfWeatherModal = ref(false);
 
@@ -29,16 +41,33 @@ const removeCity = reactive({
     name: ''
 });
 
+const refreshCityId = ref(0);
+
 const hideRemoveCityFromListOfWeatherModal = function() {
     isShowRemoveCityFromListOfWeatherModal.value = false;
 };
     
 const handlerDataChange = function(e) {
+    // Открывается модальное окно для удаления города из списка просмотра погоды
     if (e.target.closest('div') && e.target.closest('div').classList.contains('remove-city')) {
         removeCity.id = e.target.closest('div').getAttribute('data-city_id');
         removeCity.name = e.target.closest('div').getAttribute('data-city_name');
         isShowRemoveCityFromListOfWeatherModal.value = true;
     }
+    // Выполняется запрос на сервер для обновления данных о погоде в городе с refreshCityId
+    if (e.target.closest('div') && e.target.closest('div').classList.contains('refresh-city')) {
+        refreshCityId.value = e.target.closest('div').getAttribute('data-city_id');
+        app.request(`/userweather/refresh/${refreshCityId.value}`, 'POST');
+    }
+};
+
+// Обновляет данные о погоде в городе
+const refreshCityWeather = function(weather, cityId) {
+    cities.forEach((city) => {
+        if(city.id === cityId) {
+            city.weather_first = weather;
+        }
+    });
 };
 </script>
 
@@ -103,8 +132,12 @@ const handlerDataChange = function(e) {
                             <span class="text-red-700">Для города ещё не получены данные о погоде</span>
                         </div>
                     </div>
-                    <div class="w-1/12">
-                        <div class="pt-4 remove-city" :data-city_id="city.id"  :data-city_name="city.name">
+                    <div class="w-1/12 flex flex-col justify-start">
+                        <div class="pt-4 flex justify-center refresh-city" :data-city_id="city.id">
+                            <Spinner styleSpinner="h-4 text-orange-200 fill-orange-700" class="flex justify-center" v-if="app.isRequest && refreshCityId == city.id" />
+                            <ArrowPathSvg title="Получить последние данные погоды в городе" v-else/>
+                        </div>
+                        <div class="pt-4 flex justify-center remove-city" :data-city_id="city.id"  :data-city_name="city.name">
                             <TrashSvg title="Удалить город из списка просмотра погоды"/>
                         </div>
                     </div>
@@ -118,6 +151,6 @@ const handlerDataChange = function(e) {
             v-if="isShowRemoveCityFromListOfWeatherModal"
         />
         
-        <EchoAuth :user="user" />
+        <EchoAuth :user="user" :action="refreshCityWeather" :events="pusherEvents" />
     </AccountLayout>
 </template>

@@ -6,8 +6,10 @@ import { setActivePinia, createPinia } from 'pinia';
 import UserWeather from "@/Pages/Auth/Account/UserWeather.vue";
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
+import ArrowPathSvg from '@/Components/Svg/ArrowPathSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
+import { useAppStore } from '@/Stores/app';
 
 import {  cities_with_weather } from '@/__tests__/data/cities';
 import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
@@ -27,7 +29,7 @@ const user = {
             login: 'TestLogin'
         };
 
-const getWrapper = function() {
+const getWrapper = function(app) {
     return mount(UserWeather, {
             props: {
                 errors: null,
@@ -38,7 +40,8 @@ const getWrapper = function() {
                 stubs: {
                     AccountLayout: AuthAccountLayoutStub,
                     RemoveCityFromListOfWeatherModal: true
-                }
+                },
+                provide: { app }
             }
         });
 };
@@ -49,7 +52,9 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
     });
     
     it("Отрисовка UserWeather", () => {
-        const wrapper = getWrapper();
+        const app = useAppStore();
+        
+        const wrapper = getWrapper(app);
         
         const accountLayout = wrapper.getComponent(AccountLayout);
         expect(accountLayout.props('user')).toStrictEqual(user);
@@ -79,10 +84,14 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
         
         const echoAuth = wrapper.getComponent(EchoAuth);
         expect(echoAuth.props('user')).toStrictEqual(user);
+        expect(echoAuth.props('action')).toStrictEqual(wrapper.vm.refreshCityWeather);
+        expect(echoAuth.props('events')).toStrictEqual(['RemoveCityFromWeatherList', 'RefreshCityWeather']);
     });
     
     it("Клик по TrashSvg показывает модальное окно для удаления фильма из просмотра погоды", async () => {
-        const wrapper = getWrapper();
+        const app = useAppStore();
+        
+        const wrapper = getWrapper(app);
         
         const flexes = wrapper.findAll('div.flex.justify-between.border-b');
         expect(flexes.length).toBe(4);
@@ -97,10 +106,24 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
     });
     
     it("Функция hideRemoveCityFromListOfWeatherModal изменяет isShowRemoveCityFromListOfWeatherModal с true на false", () => {
-        const wrapper = getWrapper();
+        const app = useAppStore();
+        
+        const wrapper = getWrapper(app);
         
         wrapper.vm.isShowRemoveCityFromListOfWeatherModal = true;
         wrapper.vm.hideRemoveCityFromListOfWeatherModal();
         expect(wrapper.vm.isShowRemoveCityFromListOfWeatherModal).toBe(false);
+    });
+    
+    it("Клик по ArrowPathSvg отправляет запрос на сервер", async () => {
+        const app = useAppStore();
+        
+        const wrapper = getWrapper(app);
+        
+        const flexes = wrapper.findAll('div.flex.justify-between.border-b');
+        expect(flexes.length).toBe(4);
+        
+        const arrowPathSvg = flexes[2].getComponent(ArrowPathSvg);
+        expect(arrowPathSvg.props('title')).toBe('Получить последние данные погоды в городе');
     });
 });
