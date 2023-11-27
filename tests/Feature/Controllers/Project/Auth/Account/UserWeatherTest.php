@@ -10,12 +10,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Tests\Support\Authentication;
+use Tests\Support\Data\OpenWeather\OpenWeatherResponse;
 use Tests\Support\User\UserCities;
 use Tests\TestCase;
 
 class UserWeatherTest extends TestCase
 {
-    use RefreshDatabase, Authentication, UserCities;
+    use RefreshDatabase, Authentication, UserCities, OpenWeatherResponse;
     
     public function test_auth_can_get_weather(): void
     {
@@ -70,7 +71,7 @@ class UserWeatherTest extends TestCase
     {
         Http::preventStrayRequests();
         Http::fake([
-            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
         ]);
         
         Event::fake();
@@ -86,30 +87,5 @@ class UserWeatherTest extends TestCase
         
         $response
             ->assertOk();
-    }
-    
-    private function getResponseInstance(): array
-    {
-        return [
-            'weather' => [
-                (object) [
-                    'description' => 'Хорошая погода'
-                ]
-            ],
-            'main' => (object) [
-                'temp' => 11.7,
-                'feels_like' => 12,
-                'pressure' => 1000,
-                'humidity' => 77,
-            ],
-            'visibility' => 500,
-            'wind' => (object) [
-                'speed' => 2.5,
-                'deg' => 120
-            ],
-            'clouds' => (object) [
-                'all' => 100
-            ]
-        ];
     }
 }

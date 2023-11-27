@@ -9,18 +9,19 @@ use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
+use Tests\Support\Data\OpenWeather\OpenWeatherResponse;
 use Tests\Support\User\UserCities;
 use Tests\TestCase;
 
 class GetWeatherTest extends TestCase
 {
-    use RefreshDatabase, UserCities;
+    use RefreshDatabase, UserCities, OpenWeatherResponse;
     
     public function test_weather_can_be_get_for_one_city(): void
     {
         Http::preventStrayRequests();
         Http::fake([
-            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
         ]);
         
         Event::fake();
@@ -58,7 +59,7 @@ class GetWeatherTest extends TestCase
         $this->seedCities();
         
         Http::fake([
-            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
         ]);
 
         // Запускаем команду с параметром 13
@@ -80,7 +81,7 @@ class GetWeatherTest extends TestCase
         $this->seedCities();
         
         Http::fake([
-            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
         ]);
 
         // Запускаем команду с параметром a
@@ -102,7 +103,7 @@ class GetWeatherTest extends TestCase
         $this->seedCities();
         
         Http::fake([
-            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
         ]);
 
         // Команда без параметра успешно выполняется
@@ -137,7 +138,7 @@ class GetWeatherTest extends TestCase
     {
         Http::preventStrayRequests();
         Http::fake([
-            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getResponseInstance(), 200),
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
         ]);
         
         Event::fake();
@@ -153,30 +154,5 @@ class GetWeatherTest extends TestCase
             ->assertExitCode(0);
         // Событие RefreshCityWeather выполняется
         Event::assertDispatched(RefreshCityWeather::class, 1);
-    }
-    
-    private function getResponseInstance(): array
-    {
-        return [
-            'weather' => [
-                (object) [
-                    'description' => 'Хорошая погода'
-                ]
-            ],
-            'main' => (object) [
-                'temp' => 11.7,
-                'feels_like' => 12,
-                'pressure' => 1000,
-                'humidity' => 77,
-            ],
-            'visibility' => 500,
-            'wind' => (object) [
-                'speed' => 2.5,
-                'deg' => 120
-            ],
-            'clouds' => (object) [
-                'all' => 100
-            ]
-        ];
     }
 }
