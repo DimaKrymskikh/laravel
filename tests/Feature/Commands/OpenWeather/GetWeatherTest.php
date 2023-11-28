@@ -10,12 +10,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Tests\Support\Data\OpenWeather\OpenWeatherResponse;
-use Tests\Support\User\UserCities;
+use Tests\Support\Seeders;
 use Tests\TestCase;
 
 class GetWeatherTest extends TestCase
 {
-    use RefreshDatabase, UserCities, OpenWeatherResponse;
+    use RefreshDatabase, OpenWeatherResponse, Seeders;
     
     public function test_weather_can_be_get_for_one_city(): void
     {

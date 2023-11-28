@@ -24,12 +24,4 @@ trait UserCities
             \Database\Seeders\Tests\Person\UserCitySeeder::class,
         ]);
     }
-    
-    private function seedCities(): void
-    {
-        $this->seed([
-            \Database\Seeders\Tests\Thesaurus\TimezoneSeeder::class,
-            \Database\Seeders\Tests\Thesaurus\CitySeeder::class,
-        ]);
-    }
 }
