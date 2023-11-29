@@ -5,6 +5,7 @@ namespace App\Http\Extraction\Dvd;
 use App\Models\Dvd\Film;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\Request;
 
@@ -16,7 +17,7 @@ trait Films
      * @param Request $request
      * @return object
      */
-    public function getCommonFilmsList(Request $request): object
+    private function getCommonFilmsList(Request $request): LengthAwarePaginator
     {
         $perPage = $this->getPerPage($request);
         
@@ -41,7 +42,7 @@ trait Films
      * @param Request $request
      * @return object
      */
-    public function getFilmsListWithAvailable(Request $request): object
+    private function getFilmsListWithAvailable(Request $request): LengthAwarePaginator
     {
         $perPage = $this->getPerPage($request);
         
@@ -71,7 +72,7 @@ trait Films
      * @param Request $request
      * @return object
      */
-    public function getUserFilmsList(Request $request): object
+    private function getUserFilmsList(Request $request): LengthAwarePaginator
     {
         $perPage = $this->getPerPage($request);
         
@@ -100,7 +101,7 @@ trait Films
      * @param int $film_id
      * @return object
      */
-    public function getFilmCard(int $film_id): object
+    private function getFilmCard(int $film_id): Film
     {
         return Film::with([
                 'language:id,name',
