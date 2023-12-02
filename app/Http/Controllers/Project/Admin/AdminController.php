@@ -25,7 +25,7 @@ class AdminController extends Controller
         User::where('id', $request->user()->id)
             ->update(['is_admin' => true]);
         
-        return redirect($this->getUrl('/account', [
+        return redirect($this->getUrl('/userfilms', [
             'page' => $request->page,
             'number' => $request->number,
             'title' => $request->title,
@@ -44,7 +44,7 @@ class AdminController extends Controller
         User::where('id', $request->user()->id)
             ->update(['is_admin' => false]);
         
-        return redirect($this->getUrl('/account', [
+        return redirect($this->getUrl('/userfilms', [
             'page' => $request->page,
             'number' => $request->number,
             'title' => $request->title,
