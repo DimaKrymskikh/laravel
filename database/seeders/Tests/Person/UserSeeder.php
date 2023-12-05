@@ -12,8 +12,9 @@ class UserSeeder extends Seeder implements SequencesInterface
 {
     use WithoutModelEvents, Sequences;
     
-    const ID_AUTH_TEST_LOGIN = 1;
-    const ID_TEST_LOGIN = 2;
+    const ID_ADMIN_TEST_LOGIN = 1;
+    const ID_AUTH_TEST_LOGIN = 2;
+    const ID_TEST_LOGIN = 3;
     
     /**
      * Run the database seeds.
@@ -39,11 +40,18 @@ class UserSeeder extends Seeder implements SequencesInterface
     {
         return [
             (object) [
+                'id' => self::ID_ADMIN_TEST_LOGIN,
+                'login' => 'AdminTestLogin',
+                'password' => '$2y$10$/s60l1kRf7j3kQ/qp6TS1.IsFaZ6Lnn4rn3GnI8W1vo89TCqVvug.', // AdminTestPassword1
+                'email' => 'admintestlogin@example.com',
+                'is_admin' => true,
+            ],
+            (object) [
                 'id' => self::ID_AUTH_TEST_LOGIN,
                 'login' => 'AuthTestLogin',
-                'password' => '$2y$10$x/PwYKbYT4fzOlqyXXCtNOzLMDTJ.seMbl/mW1jElkWFB9QllWnd2', // BaseTestPassword0
+                'password' => '$2y$10$Sna8cIKAgkNDOMXvfj5xYeFDY/e9lHieUseILF/N03QdLvqvw.xlC', // AuthTestPassword2
                 'email' => 'authtestlogin@example.com',
-                'is_admin' => true,
+                'is_admin' => false,
             ],
             (object) [
                 'id' => self::ID_TEST_LOGIN,

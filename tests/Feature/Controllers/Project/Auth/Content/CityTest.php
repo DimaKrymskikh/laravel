@@ -21,7 +21,8 @@ class CityTest extends TestCase
     
     public function test_cities_page_displayed_for_auth_without_cities(): void
     {
-        $acting = $this->actingAs($this->getUserBaseTestLogin());
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AuthTestLogin'));
         $response = $acting->get('cities');
 
         $response
@@ -47,7 +48,8 @@ class CityTest extends TestCase
                 ))
                 ->create();
         
-        $acting = $this->actingAs($this->getUserBaseTestLogin());
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AuthTestLogin'));
         $response = $acting->get('cities');
 
         $response
@@ -66,7 +68,7 @@ class CityTest extends TestCase
         
         $this->seedCitiesAndUsers();
         
-        $user = $this->getAuthUser();
+        $user = $this->getUser('AuthTestLogin');
         
         // В начальный момент в списке пользователя 3 города
         $this->assertEquals(3, UserCity::where('user_id', $user->id)->count());
@@ -90,14 +92,14 @@ class CityTest extends TestCase
         
         $this->seedCitiesAndUsers();
         
-        $user = $this->getAuthUser();
+        $user = $this->getUser('AuthTestLogin');
         
         // В начальный момент в списке пользователя 3 города
         $this->assertEquals(3, UserCity::where('user_id', $user->id)->count());
         
         $acting = $this->actingAs($user);
         $response = $acting->delete('cities/removecity/' . CitySeeder::ID_TOMSK, [
-            'password' => 'BaseTestPassword0'
+            'password' => 'AuthTestPassword2'
         ]);
         
         // Стало 2 города
@@ -116,7 +118,7 @@ class CityTest extends TestCase
         
         $this->seedCitiesAndUsers();
         
-        $user = $this->getAuthUser();
+        $user = $this->getUser('AuthTestLogin');
         
         // В начальный момент в списке пользователя 3 города
         $this->assertEquals(3, UserCity::where('user_id', $user->id)->count());

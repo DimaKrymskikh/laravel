@@ -25,12 +25,17 @@ describe("@/components/Tabs/AdminContentTabs.vue", () => {
         await span.trigger('click');
         const ul = wrapper.get('ul');
         const lis = ul.findAll('li');
-        expect(lis.length).toBe(1);
+        expect(lis.length).toBe(2);
         
         const a0 = lis[0].get('a');
         expect(a0.attributes('href')).toBe('/admin/cities');
         expect(a0.classes('tabs-link-active')).toBe(true);
         expect(a0.text()).toBe('города');
+        
+        const a1 = lis[1].get('a');
+        expect(a1.attributes('href')).toBe('/admin/languages');
+        expect(a1.classes('tabs-link-active')).toBe(false);
+        expect(a1.text()).toBe('языки');
         
         // Повторный клик по кнопке 'контент' скрывает список
         await span.trigger('click');

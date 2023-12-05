@@ -987,6 +987,14 @@ ALTER TABLE ONLY thesaurus.failed_jobs
 
 
 --
+-- Name: languages languages_name_key; Type: CONSTRAINT; Schema: thesaurus; Owner: -
+--
+
+ALTER TABLE ONLY thesaurus.languages
+    ADD CONSTRAINT languages_name_key UNIQUE (name);
+
+
+--
 -- Name: languages languages_pkey; Type: CONSTRAINT; Schema: thesaurus; Owner: -
 --
 
@@ -1181,6 +1189,7 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 1	2023_09_09_175426_create_thesaurus_timezone_table	1
 2	2023_09_12_163234_add-column_timezone_id_in_thesaurus_timesones_table	2
 3	2023_09_17_211442_create_person_users_cities_table	3
+4	2023_12_01_201456_update_thesaurus_languages_table	4
 \.
 
 
@@ -1188,7 +1197,7 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 -- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.migrations_id_seq', 3, true);
+SELECT pg_catalog.setval('public.migrations_id_seq', 4, true);
 
 
 --

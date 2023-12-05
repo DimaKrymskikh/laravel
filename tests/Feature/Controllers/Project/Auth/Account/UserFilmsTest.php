@@ -7,6 +7,7 @@ use App\Models\Dvd\Film;
 use App\Models\Person\UserFilm;
 use App\Notifications\Dvdrental\AddFilmNotification;
 use App\Notifications\Dvdrental\RemoveFilmNotification;
+use Database\Seeders\Tests\Person\UserSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,10 +21,10 @@ class UserFilmsTest extends TestCase
     
     public function test_user_films_displayed_for_auth(): void
     {
-        // Получаем пользователя BaseTestLogin
-        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        $this->seedUsers();
+        $userAuthTestLogin = $this->getUser('AuthTestLogin');
         
-        $response = $this->before($userBaseTestLogin)->get('userfilms');
+        $response = $this->before($userAuthTestLogin)->get('userfilms');
 
         $response
             ->assertOk()
@@ -49,10 +50,10 @@ class UserFilmsTest extends TestCase
     
     public function test_user_films_displayed_for_auth_with_filter(): void
     {
-        // Получаем пользователя BaseTestLogin
-        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        $this->seedUsers();
+        $userAuthTestLogin = $this->getUser('AuthTestLogin');
         
-        $response = $this->before($userBaseTestLogin)->get('userfilms?page=1&number=10&title=center&description=drama');
+        $response = $this->before($userAuthTestLogin)->get('userfilms?page=1&number=10&title=center&description=drama');
 
         $response
             ->assertOk()
@@ -71,20 +72,20 @@ class UserFilmsTest extends TestCase
     {
         Notification::fake();
         
-        // Получаем пользователя BaseTestLogin
-        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        $this->seedUsers();
+        $userAuthTestLogin = $this->getUser('AuthTestLogin');
         
-        $response = $this->before($userBaseTestLogin)->post('userfilms/addfilm/123', [
+        $response = $this->before($userAuthTestLogin)->post('userfilms/addfilm/123', [
             'page' => 1,
             'number' => 100
         ]);
         
         // У BaseTestLogin теперь 4 фидьма (было 3 и 1 добавился)
-        $this->assertEquals(4, UserFilm::where('user_id', $userBaseTestLogin->id)->count());
+        $this->assertEquals(4, UserFilm::where('user_id', $userAuthTestLogin->id)->count());
         
         // Отправляется оповещение о добавлении фильма
         Notification::assertSentTo(
-            [$userBaseTestLogin], AddFilmNotification::class
+            [$userAuthTestLogin], AddFilmNotification::class
         );
         
         $response
@@ -96,21 +97,21 @@ class UserFilmsTest extends TestCase
     {
         Notification::fake();
         
-        // Получаем пользователя BaseTestLogin
-        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        $this->seedUsers();
+        $userAuthTestLogin = $this->getUser('AuthTestLogin');
         
         // Попытка добавить в список пользователя уже существующий там фильм
-        $response = $this->before($userBaseTestLogin)->post('userfilms/addfilm/7', [
+        $response = $this->before($userAuthTestLogin)->post('userfilms/addfilm/7', [
             'page' => 1,
             'number' => 100
         ]);
         
         // У BaseTestLogin по-прежнему 3 фильма
-        $this->assertEquals(3, UserFilm::where('user_id', $userBaseTestLogin->id)->count());
+        $this->assertEquals(3, UserFilm::where('user_id', $userAuthTestLogin->id)->count());
 
         // Оповещение о добавлении фильма не отправляется
         Notification::assertNotSentTo(
-            [$userBaseTestLogin], AddFilmNotification::class
+            [$userAuthTestLogin], AddFilmNotification::class
         );
 
         $response->assertInvalid([
@@ -124,21 +125,21 @@ class UserFilmsTest extends TestCase
     {
         Notification::fake();
         
-        // Получаем пользователя BaseTestLogin
-        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        $this->seedUsers();
+        $userAuthTestLogin = $this->getUser('AuthTestLogin');
         
-        $response = $this->before($userBaseTestLogin)->delete('userfilms/removefilm/7', [
-            'password' => 'BaseTestPassword0',
+        $response = $this->before($userAuthTestLogin)->delete('userfilms/removefilm/7', [
+            'password' => 'AuthTestPassword2',
             'page' => 1,
             'number' => 100
         ]);
         
         // У BaseTestLogin теперь 2 фильма (было 3 и 1 удалился)
-        $this->assertEquals(2, UserFilm::where('user_id', $userBaseTestLogin->id)->count());
+        $this->assertEquals(2, UserFilm::where('user_id', $userAuthTestLogin->id)->count());
 
         // Отправляется оповещение об удалении фильма
         Notification::assertSentTo(
-            [$userBaseTestLogin], RemoveFilmNotification::class
+            [$userAuthTestLogin], RemoveFilmNotification::class
         );
 
         $response
@@ -150,21 +151,21 @@ class UserFilmsTest extends TestCase
     {
         Notification::fake();
         
-        // Получаем пользователя BaseTestLogin
-        $userBaseTestLogin = $this->getUserBaseTestLogin();
+        $this->seedUsers();
+        $userAuthTestLogin = $this->getUser('AuthTestLogin');
         
-        $response = $this->before($userBaseTestLogin)->delete('userfilms/removefilm/7', [
+        $response = $this->before($userAuthTestLogin)->delete('userfilms/removefilm/7', [
             'password' => 'wrongPassword7',
             'page' => 1,
             'number' => 100
         ]);
         
         // У BaseTestLogin по-прежнему 3 фильма
-        $this->assertEquals(3, UserFilm::where('user_id', $userBaseTestLogin->id)->count());
+        $this->assertEquals(3, UserFilm::where('user_id', $userAuthTestLogin->id)->count());
 
         // Оповещение об удалении фильма не отправляется
         Notification::assertNotSentTo(
-            [$userBaseTestLogin], RemoveFilmNotification::class
+            [$userAuthTestLogin], RemoveFilmNotification::class
         );
 
         $response->assertInvalid([
@@ -174,8 +175,6 @@ class UserFilmsTest extends TestCase
     
     private function before(User $user): static
     {
-        $userTestLogin = User::factory()->create();
-        
         $this->seed([
             \Database\Seeders\Thesaurus\LanguageSeeder::class,
             \Database\Seeders\Dvd\FilmSeeder::class,
@@ -198,7 +197,7 @@ class UserFilmsTest extends TestCase
                         'user_id' => $user->id,
                         'film_id' => $films->get('id', 21),
                     ], [
-                        'user_id' => $userTestLogin->id,
+                        'user_id' => UserSeeder::ID_TEST_LOGIN,
                         'film_id' => $films->get('id', 7),
                     ]
                 ))

@@ -31,6 +31,15 @@ const toggleContent = function() {
                     города
                 </Link>
             </li>
+            <li class="tabs-li">
+                <Link
+                    class="block px-4 py-1"
+                    :class="{ 'tabs-link-active': $page.component === 'Admin/Languages' }"
+                    href="/admin/languages"
+                >
+                    языки
+                </Link>
+            </li>
         </ul>
     </li>
 </template>

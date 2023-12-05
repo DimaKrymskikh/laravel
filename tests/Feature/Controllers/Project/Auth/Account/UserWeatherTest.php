@@ -22,7 +22,7 @@ class UserWeatherTest extends TestCase
     {
         $this->seedCitiesAndUsersWithWeather();
         
-        $user = $this->getAuthUser();
+        $user = $this->getUser('AuthTestLogin');
         $acting = $this->actingAs($user);
         $response = $acting->get('userweather');
 
@@ -79,7 +79,7 @@ class UserWeatherTest extends TestCase
         $this->seedCitiesAndUsersWithWeather();
         $city = City::where('id', CitySeeder::ID_NOVOSIBIRSK)->first();
         
-        $user = $this->getAuthUser();
+        $user = $this->getUser('AuthTestLogin');
         $acting = $this->actingAs($user);
         $response = $acting->post("userweather/refresh/$city->id");
         

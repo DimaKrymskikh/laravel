@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Project\Admin\AdminController;
 use App\Http\Controllers\Project\Admin\HomeController as AdminHomeController;
 use App\Http\Controllers\Project\Admin\Content\CityController as AdminCityController;
+use App\Http\Controllers\Project\Admin\Content\LanguageController;
 use App\Http\Controllers\Project\Admin\TimezoneController;
 
 use App\Http\Controllers\Project\Auth\Account\UserFilmsController;
@@ -111,6 +112,10 @@ Route::middleware(['auth', 'all.action'])->group(function () {
     Route::put('admin/cities/{city_id}/timezone/{timezone_id}', [AdminCityController::class, 'setTimezone']);
     
     Route::get('admin/timezone', [TimezoneController::class, 'index']);
+    
+    Route::resource('admin/languages', LanguageController::class)->only([
+        'index', 'store', 'update', 'destroy'
+    ]);
 });
 
 

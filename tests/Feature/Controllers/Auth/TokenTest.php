@@ -14,7 +14,8 @@ class TokenTest extends TestCase
     
     public function test_user_redirects_after_ctrl_F5(): void
     {
-        $acting = $this->actingAs($this->getUserBaseTestLogin());
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AuthTestLogin'));
         $response = $acting->get('token');
 
         $response
@@ -24,7 +25,8 @@ class TokenTest extends TestCase
     
     public function test_token_can_be_gotten_for_auth(): void
     {
-        $acting = $this->actingAs($this->getUserBaseTestLogin());
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AuthTestLogin'));
         $response = $acting->post('token');
 
         $response

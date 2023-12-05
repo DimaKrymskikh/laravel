@@ -2,7 +2,6 @@ import { mount } from "@vue/test-utils";
 
 import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
 import Cities from "@/Pages/Admin/Cities.vue";
-import AdminLayout from '@/Layouts/AdminLayout.vue';
 import AddCityBlock from '@/Pages/Admin/Cities/AddCityBlock.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import AddCityModal from '@/Components/Modal/Request/Cities/AddCityModal.vue';

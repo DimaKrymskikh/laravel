@@ -7,25 +7,16 @@ use Illuminate\Validation\ValidationException;
 
 trait Authentication
 {
-    public function getUserBaseTestLogin(): User
-    {
-        $this->seed([
-            \Database\Seeders\Person\BaseTestUserSeeder::class,
-        ]);
-        
-        return User::where('login', 'BaseTestLogin')->first();
-    }
-    
     /**
-     * Возвращает аутентифицированного пользователя.
+     * Возвращает пользователя.
      * Если пользователи не посеяны, бросается исключение.
      * 
      * @return User
      * @throws type
      */
-    public function getAuthUser(): User
+    private function getUser(string $login): User
     {
-        $user = User::where('login', 'AuthTestLogin')->first();
+        $user = User::where('login', $login)->first();
         
         if(!$user) {
             throw ValidationException::withMessages([
@@ -34,5 +25,12 @@ trait Authentication
         }
         
         return $user;
+    }
+    
+    private function seedUsers(): void
+    {
+        $this->seed([
+            \Database\Seeders\Tests\Person\UserSeeder::class,
+        ]);
     }
 }

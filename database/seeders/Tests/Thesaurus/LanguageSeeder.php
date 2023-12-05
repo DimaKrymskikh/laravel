@@ -13,6 +13,7 @@ class LanguageSeeder extends Seeder implements SequencesInterface
     use WithoutModelEvents, Sequences;
     
     const ID_ENGLISH = 1;
+    const ID_RUSSIAN = 2;
     
     /**
      * Run the database seeds.
@@ -36,7 +37,11 @@ class LanguageSeeder extends Seeder implements SequencesInterface
         return [
             (object) [
                 'id' => self::ID_ENGLISH,
-                'name' => 'English',
+                'name' => 'Английский',
+            ],
+            (object) [
+                'id' => self::ID_RUSSIAN,
+                'name' => 'Русский',
             ],
         ];
     }
