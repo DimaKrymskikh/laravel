@@ -3,7 +3,7 @@ import { setActivePinia, createPinia } from 'pinia';
 
 import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
 import AddCityModal from '@/Components/Modal/Request/Cities/AddCityModal.vue';
-import AddCityBlock from '@/Pages/Admin/Cities/AddCityBlock.vue';
+import AddCityBlock from '@/Components/Pages/Admin/Cities/AddCityBlock.vue';
 import { useAppStore } from '@/Stores/app';
 
 describe("@/Pages/Admin/Cities/AddCityBlock.vue", () => {

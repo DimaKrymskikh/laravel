@@ -2,7 +2,7 @@
 import { ref, reactive } from 'vue';
 import { Head } from '@inertiajs/vue3'
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import AddCityBlock from '@/Pages/Admin/Cities/AddCityBlock.vue';
+import AddCityBlock from '@/Components/Pages/Admin/Cities/AddCityBlock.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import RemoveCityModal from '@/Components/Modal/Request/Cities/RemoveCityModal.vue';
 import UpdateCityModal from '@/Components/Modal/Request/Cities/UpdateCityModal.vue';
