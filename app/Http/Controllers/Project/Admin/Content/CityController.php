@@ -13,6 +13,11 @@ use Inertia\Response;
 
 class CityController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('check.password')->only('destroy');
+    }
+    
     /**
      * Display a listing of the resource.
      */

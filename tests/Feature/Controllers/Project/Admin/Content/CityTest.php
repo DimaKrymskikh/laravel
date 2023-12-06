@@ -3,21 +3,22 @@
 namespace Tests\Feature\Controllers\Project\Admin\Content;
 
 use App\Models\Thesaurus\City;
-use App\Models\Thesaurus\Timezone;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Factories\Sequence;
+use Database\Seeders\Tests\Thesaurus\CitySeeder;
+use Database\Seeders\Tests\Thesaurus\TimezoneSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Support\Authentication;
+use Tests\Support\Seeders;
 use Tests\TestCase;
 
 class CityTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, Authentication, Seeders;
     
     public function test_cities_page_displayed_for_admin_without_cities(): void
     {
-        $user = User::factory()->create(['is_admin' => true]);
-        $acting = $this->actingAs($user);
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AdminTestLogin'));
         $response = $acting->get('admin/cities');
 
         $response
@@ -32,35 +33,26 @@ class CityTest extends TestCase
     
     public function test_cities_page_displayed_for_admin_with_cities(): void
     {
-        City::factory()->count(2)
-                ->state(new Sequence(
-                    [],
-                    [
-                        'id' => 2,
-                        'name' => 'TwoCity',
-                        'open_weather_id' => 2
-                    ],
-                ))
-                ->create();
-        
-        $user = User::factory()->create(['is_admin' => true]);
-        $acting = $this->actingAs($user);
+        $this->seedCities();
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AdminTestLogin'));
         $response = $acting->get('admin/cities');
 
         $response
             ->assertOk()
             ->assertInertia(fn (Assert $page) => 
                     $page->component('Admin/Cities')
-                        ->has('cities', 2)
+                        ->has('cities', City::all()->count())
                         ->has('errors', 0)
                         ->etc()
                 );
     }
     
-    public function test_cities_page_not_displayed_for_auth(): void
+    public function test_cities_page_not_displayed_for_auth_not_admin(): void
     {
-        $user = User::factory()->create();
-        $acting = $this->actingAs($user);
+        $this->seedCities();
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AuthTestLogin'));
         $response = $acting->get('admin/cities');
 
         $response
@@ -69,18 +61,18 @@ class CityTest extends TestCase
     
     public function test_admin_can_add_city(): void
     {
-        // В таблице 'thesaurus.cities' нет фильмов
-        $this->assertEquals(0, City::all()->count());
+        $this->seedCities();
+        $nCities = City::all()->count();
         
-        $user = User::factory()->create(['is_admin' => true]);
-        $acting = $this->actingAs($user);
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AdminTestLogin'));
         $response = $acting->post('admin/cities', [
             'name' => 'ТестСити',
             'open_weather_id' => '777'
         ]);
 
         // Добавлен один фильм в таблицу 'thesaurus.cities'
-        $this->assertEquals(1, City::all()->count());
+        $this->assertEquals($nCities + 1, City::all()->count());
 
         $response
             ->assertStatus(302)
@@ -89,15 +81,17 @@ class CityTest extends TestCase
     
     public function test_admin_can_update_city(): void
     {
-        $city = City::factory()->create();
+        $this->seedCities();
+        $nCities = City::all()->count();
         
-        $user = User::factory()->create(['is_admin' => true]);
-        $acting = $this->actingAs($user);
-        $response = $acting->put("admin/cities/$city->id", [
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AdminTestLogin'));
+        $response = $acting->put("admin/cities/".CitySeeder::ID_MOSCOW, [
             'name' => 'НовыйСити',
         ]);
 
-        $this->assertEquals('НовыйСити', City::find($city->id)->name);
+        $this->assertEquals($nCities, City::all()->count());
+        $this->assertEquals('НовыйСити', City::find(CitySeeder::ID_MOSCOW)->name);
 
         $response
             ->assertStatus(302)
@@ -106,36 +100,51 @@ class CityTest extends TestCase
     
     public function test_admin_can_delete_city(): void
     {
-        $city = City::factory()->create();
-        // В таблице 'thesaurus.cities' находится 1 город
-        $this->assertEquals(1, City::all()->count());
+        $this->seedCities();
+        $nCities = City::all()->count();
         
-        $user = User::factory()->create(['is_admin' => true]);
-        $acting = $this->actingAs($user);
-        $response = $acting->delete("admin/cities/$city->id", [
-            'password' => 'TestPassword7',
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AdminTestLogin'));
+        $response = $acting->delete("admin/cities/".CitySeeder::ID_MOSCOW, [
+            'password' => 'AdminTestPassword1',
         ]);
 
-        // В таблице 'thesaurus.cities' городов не осталось
-        $this->assertEquals(0, City::all()->count());
+        // Число городов в таблице 'thesaurus.cities' уменьшилось на 1
+        $this->assertEquals($nCities - 1, City::all()->count());
 
         $response
             ->assertStatus(302)
             ->assertRedirect('admin/cities');
     }
     
+    public function test_admin_can_not_delete_city_if_the_password_is_incorrect(): void
+    {
+        $this->seedCities();
+        $nCities = City::all()->count();
+        
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AdminTestLogin'));
+        $response = $acting->delete("admin/cities/".CitySeeder::ID_MOSCOW, [
+            'password' => 'IncorrectPassword13',
+        ]);
+
+        // Число городов в таблице 'thesaurus.cities' не изменилось
+        $this->assertEquals($nCities, City::all()->count());
+
+        $response
+            ->assertInvalid([
+                'password' => trans("user.password.wrong")
+            ]);
+    }
+    
     public function test_admin_can_set_timezone_for_city(): void
     {
-        $city = City::factory()->create();
-        $tz = Timezone::factory()->create();
+        $this->seedCities();
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AdminTestLogin'));
+        $response = $acting->put("admin/cities/".CitySeeder::ID_OMSK."/timezone/".TimezoneSeeder::ID_ASIA_NOVOSIBIRSK);
         
-        $user = User::factory()->create(['is_admin' => true]);
-        $acting = $this->actingAs($user);
-        $response = $acting->put("admin/cities/$city->id/timezone/$tz->id");
-        
-        $this->assertDatabaseHas('thesaurus.cities', [
-            'timezone_id' => $tz->id,
-        ]);
+        $this->assertEquals(TimezoneSeeder::ID_ASIA_NOVOSIBIRSK, City::find(CitySeeder::ID_OMSK)->timezone_id);
 
         $response
             ->assertStatus(302)
@@ -144,17 +153,12 @@ class CityTest extends TestCase
     
     public function test_admin_can_unset_timezone_for_city(): void
     {
-        $tz = Timezone::factory()->create();
-        $city = City::factory()->create(['timezone_id' => $tz->id]);
+        $this->seedCities();
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AdminTestLogin'));
+        $response = $acting->put("admin/cities/".CitySeeder::ID_MOSCOW."/timezone/0");
         
-        $user = User::factory()->create(['is_admin' => true]);
-        $acting = $this->actingAs($user);
-        $response = $acting->put("admin/cities/$city->id/timezone/0");
-        
-        $this->assertDatabaseCount('thesaurus.cities', 1);
-        $this->assertDatabaseHas('thesaurus.cities', [
-            'timezone_id' => null,
-        ]);
+        $this->assertEquals(null, City::find(CitySeeder::ID_MOSCOW)->timezone_id);
 
         $response
             ->assertStatus(302)

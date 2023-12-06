@@ -106,9 +106,8 @@ Route::middleware(['auth', 'all.action'])->group(function () {
     Route::post('admin/destroy', [AdminController::class, 'destroy'])->middleware('check.password');
     
     Route::resource('admin/cities', AdminCityController::class)->only([
-        'index', 'store', 'update'
+        'index', 'store', 'update', 'destroy'
     ]);
-    Route::delete('admin/cities/{id}', [AdminCityController::class, 'destroy'])->middleware('check.password');
     Route::put('admin/cities/{city_id}/timezone/{timezone_id}', [AdminCityController::class, 'setTimezone']);
     
     Route::get('admin/timezone', [TimezoneController::class, 'index']);
