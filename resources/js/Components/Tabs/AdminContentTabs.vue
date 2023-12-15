@@ -7,6 +7,7 @@ const toggleContent = function() {
     isShowContent.value = !isShowContent.value;
 };
 
+const actorsList = inject('actorsList');
 </script>
 
 <template>
@@ -38,6 +39,15 @@ const toggleContent = function() {
                     href="/admin/languages"
                 >
                     языки
+                </Link>
+            </li>
+            <li class="tabs-li">
+                <Link
+                    class="block px-4 py-1"
+                    :class="{ 'tabs-link-active': $page.component === 'Admin/Actors' }"
+                    :href="actorsList.getUrl()"
+                >
+                    актёры
                 </Link>
             </li>
         </ul>

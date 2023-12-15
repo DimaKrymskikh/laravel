@@ -199,7 +199,7 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         // Запрос не отправлен
         expect(router.get).not.toHaveBeenCalled();
         
-        // При загрузке страницы изменяется filmsAccount.page (films_10_user.page == 5)
+        // При загрузке страницы изменяется filmsAccount.page (films_10_user.current_page == 5)
         expect(wrapper.vm.filmsAccount.page).toBe(5);
         // Остальные свойства дефолтные
         expect(wrapper.vm.filmsAccount.perPage).toBe(20);

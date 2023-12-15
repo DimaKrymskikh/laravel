@@ -2,8 +2,8 @@
 
 namespace App\Http\Extraction\Dvd;
 
+use App\Http\Extraction\Pagination;
 use App\Models\Dvd\Film;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Query\JoinClause;
@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 
 trait Films
 {
+    use Pagination;
+    
     /**
      * Общий список фильмов
      * 
@@ -19,9 +21,7 @@ trait Films
      */
     private function getCommonFilmsList(Request $request): LengthAwarePaginator
     {
-        $perPage = $this->getPerPage($request);
-        
-        return Film::with('language:id,name')
+        $query = Film::with('language:id,name')
                 ->select('id', 'title', 'description', 'language_id')
                 ->when($request->title, function (Builder $query, string $title) {
                     $query->where('title', 'ILIKE', "%$title%");
@@ -29,11 +29,9 @@ trait Films
                 ->when($request->description, function (Builder $query, string $description) {
                     $query->where('description', 'ILIKE', "%$description%");
                 })
-                ->orderBy('title')->paginate($perPage)->appends([
-                    'number' => $perPage,
-                    'title' => $request->title,
-                    'description' => $request->description
-                ]);
+                ->orderBy('title');
+                
+        return $this->setPagination($query, $request);
     }
     
     /**
@@ -44,9 +42,7 @@ trait Films
      */
     private function getFilmsListWithAvailable(Request $request): LengthAwarePaginator
     {
-        $perPage = $this->getPerPage($request);
-        
-        return Film::with('language:id,name')
+        $query = Film::with('language:id,name')
                     ->leftJoin('person.users_films', function(JoinClause $join) use ($request) {
                         $join->on('person.users_films.film_id', '=', 'dvd.films.id')
                             ->where('person.users_films.user_id', $request->user()->id);
@@ -59,11 +55,9 @@ trait Films
                 ->when($request->description, function (Builder $query, string $description) {
                     $query->where('description', 'ILIKE', "%$description%");
                 })
-                ->orderBy('title')->paginate($perPage)->appends([
-                    'number' => $perPage,
-                    'title' => $request->title,
-                    'description' => $request->description
-                ]);
+                ->orderBy('title');
+                
+        return $this->setPagination($query, $request);
     }
     
     /**
@@ -74,9 +68,7 @@ trait Films
      */
     private function getUserFilmsList(Request $request): LengthAwarePaginator
     {
-        $perPage = $this->getPerPage($request);
-        
-        return Film::with('language:id,name')
+        $query = Film::with('language:id,name')
                 ->join('person.users_films', function(JoinClause $join) use ($request) {
                     $join->on('person.users_films.film_id', '=', 'dvd.films.id')
                         ->where('person.users_films.user_id', '=', $request->user()->id);
@@ -88,11 +80,9 @@ trait Films
                 ->when($request->description, function (Builder $query, string $description) {
                     $query->where('description', 'ILIKE', "%$description%");
                 })
-                ->orderBy('title')->paginate($perPage)->appends([
-                    'number' => $perPage,
-                    'title' => $request->title,
-                    'description' => $request->description
-                ]);
+                ->orderBy('title');
+                
+        return $this->setPagination($query, $request);
     }
     
     /**
@@ -112,14 +102,14 @@ trait Films
             ->first();
     }
     
-    /**
-     * Возвращает число фильмов на странице
-     * 
-     * @param Request $request
-     * @return int
-     */
-    private function getPerPage(Request $request): int
+    private function setPagination(Builder $query, Request $request): LengthAwarePaginator
     {
-        return $request->number ?? RouteServiceProvider::PAGINATE_DEFAULT_PER_PAGE;
+        $perPage = $this->getNumberPerPage($request);
+        
+        return $query->paginate($perPage)->appends([
+                    'number' => $perPage,
+                    'title' => $request->title,
+                    'description' => $request->description
+                ]);
     }
 }

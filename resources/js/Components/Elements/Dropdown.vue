@@ -1,29 +1,33 @@
 <script setup>
 import { ref } from 'vue';
 
-const { changeNumber } = defineProps({
+const props = defineProps({
     buttonName: String,         /* Текст кнопки */
     itemsNumberOnPage: Number,  /* Выбранное число в списке */
-    changeNumber: Function      /* Изменяет число элементов на странице */
+    changeNumber: Function,      /* Изменяет число элементов на странице */
+    options: Array || null
 });
 
 // Массив значений для выпадающего списка
-const options = [10, 20, 50, 100]; 
+const options = !!props.options ? props.options : [10, 20, 50, 100]; 
 // Нужно ли показывать выпадающий список. При монтировании компоненты список скрыт
 const isShowList = ref(false);
 
 // Показывает/Скрывает выпадающий список
 const toggleShowList = function() {
-    isShowList.value = !isShowList.value
-}
+    isShowList.value = !isShowList.value;
+};
 
 // Изменяет число элементов на странице
 const handlerSelect = function(e) {
     if (e.target.classList.contains('select')) {
         return;
     }
-    toggleShowList();
-    changeNumber(parseInt(e.target.getAttribute('data-number'), 10));
+    
+    if(e.target.tagName.toLowerCase() === 'li') {
+        toggleShowList();
+        props.changeNumber(parseInt(e.target.getAttribute('data-number'), 10));
+    }
 }
 </script>
 
