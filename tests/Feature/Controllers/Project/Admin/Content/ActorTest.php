@@ -4,6 +4,7 @@ namespace Tests\Feature\Controllers\Project\Admin\Content;
 
 use App\Models\Dvd\Actor;
 use Database\Seeders\Tests\Dvd\ActorSeeder;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\Authentication;
@@ -61,6 +62,30 @@ class ActorTest extends TestCase
         $response = $acting->get('admin/actors');
 
         $response->assertStatus(403);
+    }
+    
+    public function test_actors_list_can_be_filtered(): void
+    {
+        $this->seedActors();
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AdminTestLogin'));
+        $response = $acting->get('admin/actors?name=er');
+
+        $response
+                ->assertStatus(200)
+                ->assertInertia(fn (Assert $page) => 
+                    $page->component('Admin/Actors')
+                        ->has('actors', fn (Assert $page) => 
+                            $page->has('data', Actor::where(function (Builder $query) {
+                                        $query->selectRaw("concat(first_name, ' ', last_name)")
+                                            ->from('dvd.actors as a')
+                                            ->whereColumn('a.id', 'dvd.actors.id');
+                                    }, 'ILIKE', "%er%")->count())
+                                ->etc()
+                        )
+                        ->has('errors', 0)
+                        ->etc()
+                );
     }
     
     public function test_admin_can_add_actor(): void
