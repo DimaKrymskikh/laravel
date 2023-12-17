@@ -100,7 +100,7 @@ class UserFilmsController extends Controller
         }
         
         return redirect($this->getUrl('userfilms', [
-            'page' => $request->page,
+            'page' => $this->getCurrentPageAfterRemovingItems($request, UserFilm::where('user_id', '=', Auth::id())->count()),
             'number' => $request->number,
             'title' => $request->title,
             'description' => $request->description

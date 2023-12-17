@@ -3,7 +3,6 @@ import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
-import { getPageAfterRemoveItem } from '@/Tools/Paginate';
 
 const { films, removeFilmId, hideFilmRemoveModal } = defineProps({
     films: Object,
@@ -32,8 +31,6 @@ const handlerRemoveFilm = function(e) {
     if(e.currentTarget.classList.contains('disabled')) {
         return;
     }
-
-    filmsAccount.page = getPageAfterRemoveItem(films);
     
     router.delete(`userfilms/removefilm/${removeFilmId}`, {
         preserveScroll: true,
@@ -48,8 +45,9 @@ const handlerRemoveFilm = function(e) {
             app.isRequest = true;
             errorsPassword.value = '';
         },
-        onSuccess: () => {
+        onSuccess: response => {
             hideFilmRemoveModal();
+            filmsAccount.page = response.props.films.current_page;
         },
         onError: errors => {
             errorsPassword.value = errors.password;
