@@ -10,6 +10,6 @@ class TimezoneController extends Controller
 {
     public function index(Request $request): string
     {
-        return (string) Timezone::select('id', 'name')->where('name', 'ilike', "%$request->name%")->get();
+        return (string) Timezone::select('id', 'name')->where('name', 'ilike', "%$request->name%")->orderBy('name')->get();
     }
 }

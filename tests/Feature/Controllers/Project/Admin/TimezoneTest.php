@@ -2,23 +2,24 @@
 
 namespace Tests\Feature\Controllers\Project\Admin;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
+use Tests\Support\Authentication;
+use Tests\Support\Seeders;
 use Tests\TestCase;
 
 class TimezoneTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, Authentication, Seeders;
     
     public function test_admin_can_get_timezone_list(): void
     {
         $this->seed([
             \Database\Seeders\Thesaurus\TimezoneSeeder::class,
         ]);
+        $this->seedUsers();
         
-        $user = User::factory()->create(['is_admin' => true]);
-        $acting = $this->actingAs($user);
+        $acting = $this->actingAs($this->getUser('AdminTestLogin'));
         $response = $acting->getJson("admin/timezone?name=nov");
 
         $response
