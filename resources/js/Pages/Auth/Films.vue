@@ -44,12 +44,17 @@ const pusherEvents = ['AddFilmInUserList'];
  * @returns {undefined}
  */
 const addFilm = function(tag) {
+    // Если на странице выполняется запрос, выходим из функции
+    if(app.isRequest) {
+        return;
+    }
+    
     const td = tag.closest('td');
     // Защита от повторного клика
     td.classList.remove('add-film');
     
     filmId.value = td.getAttribute('data-film_id');
-
+    
     router.post(`userfilms/addfilm/${filmId.value}`, {
             page: filmsList.page,
             number: filmsList.perPage,
