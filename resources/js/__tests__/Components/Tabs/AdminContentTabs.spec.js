@@ -3,6 +3,7 @@ import { setActivePinia, createPinia } from 'pinia';
 
 import AdminContentTabs from '@/components/Tabs/AdminContentTabs.vue';
 import { useActorsListStore } from '@/Stores/actors';
+import { useFilmsAdminStore } from '@/Stores/films';
 
 describe("@/components/Tabs/AdminContentTabs.vue", () => {
     beforeEach(() => {
@@ -11,6 +12,7 @@ describe("@/components/Tabs/AdminContentTabs.vue", () => {
     
     it("Монтирование AdminContentTabs", async () => {
         const actorsList = useActorsListStore();
+        const filmsAdmin = useFilmsAdminStore();
         
         const wrapper = mount(AdminContentTabs, {
             global: {
@@ -19,7 +21,7 @@ describe("@/components/Tabs/AdminContentTabs.vue", () => {
                         component: 'Admin/Cities'
                     }
                 },
-                provide: { actorsList }
+                provide: { actorsList, filmsAdmin }
             }
         });
         
@@ -34,7 +36,7 @@ describe("@/components/Tabs/AdminContentTabs.vue", () => {
         await span.trigger('click');
         const ul = wrapper.get('ul');
         const lis = ul.findAll('li');
-        expect(lis.length).toBe(3);
+        expect(lis.length).toBe(4);
         
         const a0 = lis[0].get('a');
         expect(a0.attributes('href')).toBe('/admin/cities');
@@ -50,6 +52,11 @@ describe("@/components/Tabs/AdminContentTabs.vue", () => {
         expect(a2.attributes('href')).toBe(actorsList.getUrl());
         expect(a2.classes('tabs-link-active')).toBe(false);
         expect(a2.text()).toBe('актёры');
+        
+        const a3 = lis[3].get('a');
+        expect(a3.attributes('href')).toBe(filmsAdmin.getUrl('/admin/films'));
+        expect(a3.classes('tabs-link-active')).toBe(false);
+        expect(a3.text()).toBe('фильмы');
         
         // Повторный клик по кнопке 'контент' скрывает список
         await span.trigger('click');

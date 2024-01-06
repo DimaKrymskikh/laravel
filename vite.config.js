@@ -20,6 +20,7 @@ export default defineConfig({
     test: {
         // Не нужен import { ... } from "vitest"
         globals: true,
-        environment: "happy-dom"
+        environment: "happy-dom",
+        clearMocks: true
     }
 });

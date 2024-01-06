@@ -2,13 +2,16 @@
 
 namespace App\Http\Extraction;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 trait Pagination
 {
     private const DEFAULT_CURRENT_PAGE = 1;
     private const DEFAULT_PER_PAGE = 20;
-    
+    private const DEFAULT_SERIAL_NUMBER = 1;
+
     /**
      * Возвращает число страниц по общему числу элементов и числу элементов на странице
      * 
@@ -60,5 +63,30 @@ trait Pagination
         }
         
         return $requestPage;
+    }
+
+    /**
+     * Задаёт пагинацию в запросе $query
+     * 
+     * @param Builder $query
+     * @param Request $request
+     * @param array $options - поля в запросе $request, которые используются в ссылках пагинации
+     * @return LengthAwarePaginator
+     */
+    private function setPagination(Builder $query, Request $request, array $options = []): LengthAwarePaginator
+    {
+        $perPage = $this->getNumberPerPage($request);
+        
+        $arr = [];
+        foreach ($options as $value) {
+            $arr[$value] = $request->$value;
+        }
+     
+        return $query->paginate($perPage)->appends(
+                array_merge([
+                    'number' => $perPage,
+                    'page' => $this->getCurrentPageBySerialNumber($request),
+                ], $arr)
+            );
     }
 }

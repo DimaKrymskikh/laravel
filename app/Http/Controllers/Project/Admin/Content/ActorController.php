@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Project\Admin\Content;
 
-use App\Models\Dvd\Actor;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Url;
 use App\Http\Extraction\Dvd\Actors;
 use App\Http\Requests\Dvd\ActorRequest;
+use App\Models\Dvd\Actor;
+use App\Models\Dvd\FilmActor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,7 +24,10 @@ class ActorController extends Controller
     }
     
     /**
-     * Display a listing of the resource.
+     * В админской части отрисовывает таблицу актёров
+     * 
+     * @param Request $request
+     * @return Response
      */
     public function index(Request $request): Response
     {
@@ -32,7 +37,10 @@ class ActorController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * В таблицу 'dvd.actors' добавляется новый актёр
+     * 
+     * @param ActorRequest $request
+     * @return RedirectResponse
      */
     public function store(ActorRequest $request): RedirectResponse
     {
@@ -42,15 +50,22 @@ class ActorController extends Controller
         $actor->last_name = $request->last_name;
         $actor->save();
         
+        // Нужно сбросить фильтр поиска, чтобы новый актёр гарантированно попал в список актёров
+        $request->name = '';
+        
         return redirect($this->getUrl('admin/actors', [
-            'page' => $this->getCurrentPageBySerialNumber($request, $this->getSerialNumberOfTheActorInTheList($actor->id)),
+            'page' => $this->getCurrentPageBySerialNumber($request, $this->getSerialNumberOfTheActorInTheList($request, $actor->id)),
             'number' => $request->number,
             'name' => $request->name,
         ]));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Изменяет полное имя актёра с id = $id
+     * 
+     * @param ActorRequest $request
+     * @param string $id
+     * @return RedirectResponse
      */
     public function update(ActorRequest $request, string $id): RedirectResponse
     {
@@ -67,11 +82,18 @@ class ActorController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Удаляет актёра с id = $id из таблицы 'dvd.actors'
+     * 
+     * @param Request $request
+     * @param string $id
+     * @return RedirectResponse
      */
     public function destroy(Request $request, string $id): RedirectResponse
     {
-        Actor::find($id)->delete();
+        DB::transaction(function () use ($id) {
+            FilmActor::where('actor_id', $id)->delete();
+            Actor::find($id)->delete();
+        });
         
         return redirect($this->getUrl('admin/actors', [
             'page' => $this->getCurrentPageAfterRemovingItems($request, Actor::all()->count()),

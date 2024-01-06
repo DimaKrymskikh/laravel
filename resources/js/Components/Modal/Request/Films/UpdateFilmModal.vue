@@ -1,0 +1,83 @@
+<script setup lang="ts">
+import { inject, ref } from 'vue';
+import { router } from '@inertiajs/vue3';
+import InputField from '@/components/Elements/InputField.vue';
+import BaseModal from '@/components/Modal/Request/BaseModal.vue';
+
+const props = defineProps({
+    field: String,
+    updateFilm: Object,
+    hideUpdateFilmModal: Function
+});
+
+const app = inject('app');
+const filmsAdmin = inject('filmsAdmin');
+
+const fieldValue = ref(props.updateFilm.fieldValue);
+const errorsField = ref('');
+
+const handlerAddFilm = function(e) {
+    // Защита от повторного запроса
+    if(e.currentTarget.classList.contains('disabled')) {
+        return;
+    }
+    
+    router.put(filmsAdmin.getUrl(`/admin/films/${props.updateFilm.id}`), {
+            field: props.field,
+            [props.field]: fieldValue.value
+        }, {
+        onBefore: () => {
+            app.isRequest = true;
+            errorsField.value = '';
+        },
+        onSuccess: () => {
+            props.hideUpdateFilmModal();
+        },
+        onError: errors => {
+            errorsField.value = errors[props.field];
+        },
+        onFinish: () => {
+            app.isRequest = false;
+        }
+    });
+};
+
+let headerTitle = '';
+let titleText = '';
+
+switch(props.field) {
+    case 'title': 
+        headerTitle = `Изменение названия фильма ${props.updateFilm.title}`;
+        titleText = 'Название фильма:';
+        break;
+    case 'description': 
+        headerTitle = `Изменение описания фильма ${props.updateFilm.title}`;
+        titleText = 'Описание фильма:';
+        break;
+    case 'release_year': 
+        headerTitle = `Изменение года выхода фильма ${props.updateFilm.title}`;
+        titleText = 'Год выхода фильма:';
+        break;
+}
+
+</script>
+
+<template>
+    <BaseModal
+        :headerTitle="headerTitle"
+        :hideModal="hideUpdateFilmModal"
+        :handlerSubmit="handlerAddFilm"
+    >
+        <template v-slot:body>
+            <div class="mb-3">
+                <InputField
+                    :titleText="titleText"
+                    type="text"
+                    :errorsMessage="errorsField"
+                    :isInputAutofocus="true"
+                    v-model="fieldValue"
+                />
+            </div>
+        </template>
+    </BaseModal>
+</template>

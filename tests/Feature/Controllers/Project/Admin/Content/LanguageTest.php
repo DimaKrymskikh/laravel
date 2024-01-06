@@ -5,6 +5,7 @@ namespace Tests\Feature\Controllers\Project\Admin\Content;
 use App\Models\Thesaurus\Language;
 use Database\Seeders\Tests\Thesaurus\LanguageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\Authentication;
 use Tests\Support\Seeders;
@@ -213,5 +214,22 @@ class LanguageTest extends TestCase
             ->assertInvalid([
                 'password' => trans("user.password.wrong")
             ]);
+    }
+    
+    public function test_admin_can_get_language_list_in_json_format(): void
+    {
+        $this->seedLanguages();
+        $name = 'ру';
+        $nLanguages = Language::where('name', 'ILIKE', "%$name%")->get()->count();
+        
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AdminTestLogin'));
+        $response = $acting->getJson("admin/languages/getJson?name=$name");
+
+        $response
+            ->assertStatus(200)
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has($nLanguages)
+            );
     }
 }

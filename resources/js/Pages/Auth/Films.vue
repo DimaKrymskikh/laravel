@@ -138,7 +138,7 @@ const putFilms = function(e) {
                     <td>{{ films.from + index }}</td>
                     <td>{{ film.title }}</td>
                     <td>{{ film.description }}</td>
-                    <td>{{ film.language.name }}</td>
+                    <td>{{ film.language ? film.language.name : '' }}</td>
                     <td
                         :class="film.isAvailable ? null : 'add-film'"
                         :data-film_id="film.isAvailable ? null : film.id"

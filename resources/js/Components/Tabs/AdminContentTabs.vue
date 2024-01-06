@@ -8,6 +8,7 @@ const toggleContent = function() {
 };
 
 const actorsList = inject('actorsList');
+const filmsAdmin = inject('filmsAdmin');
 </script>
 
 <template>
@@ -48,6 +49,15 @@ const actorsList = inject('actorsList');
                     :href="actorsList.getUrl()"
                 >
                     актёры
+                </Link>
+            </li>
+            <li class="tabs-li">
+                <Link
+                    class="block px-4 py-1"
+                    :class="{ 'tabs-link-active': $page.component === 'Admin/Films' }"
+                    :href="filmsAdmin.getUrl('/admin/films')"
+                >
+                    фильмы
                 </Link>
             </li>
         </ul>

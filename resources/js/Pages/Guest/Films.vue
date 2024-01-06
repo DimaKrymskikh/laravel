@@ -80,7 +80,7 @@ const putFilms = function(e) {
                     <td>{{ films.from + index }}</td>
                     <td>{{ film.title }}</td>
                     <td>{{ film.description }}</td>
-                    <td>{{ film.language.name }}</td>
+                    <td>{{ film.language ? film.language.name : '' }}</td>
                 </tr>
             </tbody>
         </table>

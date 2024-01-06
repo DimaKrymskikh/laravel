@@ -63,8 +63,8 @@ function getFilms10(isLogin) {
                 id: 48,
                 title: "Backlash Undefeated",
                 description	: "A Stunning Character Study of a Mad Scientist And a Mad Cow who must Kill a Car in A Monastery",
-                language_id: 1,
-                language: { id: 1, name: "English" }
+                language_id: null,
+                language: null
             }, {
                 id: 49,
                 title: "Badman Dawn",

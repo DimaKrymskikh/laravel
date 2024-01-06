@@ -11,6 +11,8 @@ use App\Http\Controllers\Project\Admin\AdminController;
 use App\Http\Controllers\Project\Admin\HomeController as AdminHomeController;
 use App\Http\Controllers\Project\Admin\Content\ActorController;
 use App\Http\Controllers\Project\Admin\Content\CityController as AdminCityController;
+use App\Http\Controllers\Project\Admin\Content\FilmActorController;
+use App\Http\Controllers\Project\Admin\Content\FilmController as AdminFilmController;
 use App\Http\Controllers\Project\Admin\Content\LanguageController;
 use App\Http\Controllers\Project\Admin\TimezoneController;
 
@@ -116,9 +118,19 @@ Route::middleware(['auth', 'all.action'])->group(function () {
     Route::resource('admin/languages', LanguageController::class)->only([
         'index', 'store', 'update', 'destroy'
     ]);
+    Route::get('admin/languages/getJson', [LanguageController::class, 'getJson']);
     
     Route::resource('admin/actors', ActorController::class)->only([
         'index', 'store', 'update', 'destroy'
+    ]);
+    
+    Route::resource('admin/films', AdminFilmController::class)->only([
+        'index', 'store', 'update', 'destroy'
+    ]);
+    Route::get('admin/films/getActorsList/{film_id}', [AdminFilmController::class, 'getActorsList']);
+    
+    Route::resource('admin/films/actors', FilmActorController::class)->only([
+        'index', 'store', 'destroy'
     ]);
 });
 

@@ -5,7 +5,7 @@ namespace App\Http\Extraction\Dvd;
 use App\Http\Extraction\Pagination;
 use App\Models\Dvd\Actor;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -14,44 +14,38 @@ trait Actors
 {
     use Pagination;
     
-    /**
-     * Возвращает общий список актёров с сортировкой по имени и фамилии с пагинацией
-     * 
-     * @param Request $request
-     * @return LengthAwarePaginator
-     */
-    private function getCommonActorsList(Request $request): LengthAwarePaginator
+    private function setActorsPagination(Builder $query, Request $request): LengthAwarePaginator
     {
-        $query =  Actor::select('id', 'first_name', 'last_name')
-                ->when($request->name, function (Builder $query, string $name) {
-                    $query->where(function (QueryBuilder $subquery) {
-                        $subquery->selectRaw("concat(first_name, ' ', last_name)")
-                            ->from('dvd.actors as a')
-                            ->whereColumn('a.id', 'dvd.actors.id');
-                    }, 'ILIKE', "%$name%");
-                })
-                ->orderBy('first_name')
-                ->orderBy('last_name');
-                
-        return $this->setPagination($query, $request);
+        return $this->setPagination($query, $request, ['name']);
+    }
+
+    private function queryCommonActorsList(Request $request): Builder
+    {
+        return Actor::select(
+                'id',
+                'first_name',
+                'last_name',
+                DB::raw('row_number() OVER(ORDER BY first_name, last_name) AS n')
+            )
+            ->when($request->name, function (Builder $query, string $name) {
+                $query->whereRaw("concat(first_name, ' ', last_name) ILIKE ?", ["%$name%"]);
+            })
+            ->orderBy('first_name')
+            ->orderBy('last_name');
     }
 
     /**
-     * Задаёт пагинацию в запросе $query
+     * Возвращает общий список актёров с сортировкой по имени и фамилии с пагинацией или без
      * 
-     * @param Builder $query
      * @param Request $request
-     * @param int|null $serialNumber - номер актёра в списке/таблице актёров
-     * @return LengthAwarePaginator
+     * @param bool $isPagination = true - с пагинацией
+     * @return LengthAwarePaginator|Actor
      */
-    private function setPagination(Builder $query, Request $request, ?int $serialNumber = null): LengthAwarePaginator
+    private function getCommonActorsList(Request $request, bool $isPagination = true): LengthAwarePaginator | Collection
     {
-        $perPage = $this->getNumberPerPage($request);
-        
-        return $query->paginate($perPage)->appends([
-                    'number' => $perPage,
-                    'page' => $this->getCurrentPageBySerialNumber($request, $serialNumber),
-                ]);
+        $query =  $this->queryCommonActorsList($request);
+                
+        return $isPagination ? $this->setActorsPagination($query, $request) : $query->get();
     }
     
     /**
@@ -60,21 +54,10 @@ trait Actors
      * @param int $actorId - id актёра
      * @return int
      */
-    private function getSerialNumberOfTheActorInTheList(int $actorId): int
+    private function getSerialNumberOfTheActorInTheList(Request $request, int $actorId): int
     {
-        return DB::selectOne(<<<SQL
-                WITH _ AS (
-                    SELECT 
-                        id,
-                        row_number() OVER(ORDER BY first_name, last_name) AS n
-                    FROM dvd.actors
-                )
-                SELECT
-                    n
-                FROM _
-                WHERE id = :actorId
-            SQL, [
-                'actorId' => $actorId
-            ])->n;
+        $actor = $this->queryCommonActorsList($request)->get()->find($actorId);
+        
+        return $actor ? $actor->n : self::DEFAULT_SERIAL_NUMBER;
     }
 }

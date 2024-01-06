@@ -6,7 +6,7 @@ import { createPinia } from 'pinia';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { useAppStore } from '@/Stores/app';
 import { useActorsListStore } from '@/Stores/actors';
-import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
+import { useFilmsListStore, useFilmsAccountStore, useFilmsAdminStore } from '@/Stores/films';
 
 const app = createInertiaApp({
     resolve: name => {
@@ -21,6 +21,7 @@ const app = createInertiaApp({
             .provide('actorsList', useActorsListStore())
             .provide('filmsList', useFilmsListStore())
             .provide('filmsAccount', useFilmsAccountStore())
+            .provide('filmsAdmin', useFilmsAdminStore())
             .mount(el);
     },
 });

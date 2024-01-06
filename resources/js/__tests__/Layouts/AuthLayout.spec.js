@@ -62,7 +62,7 @@ describe("@/Layouts/AuthLayout.vue", () => {
 
         // Вторая ссылка 'каталог' не активна с дефолтным url
         const a1 = li[1].get('a');
-        expect(a1.attributes('href')).toBe('/userfilms?page=1&number=20&title=&description=');
+        expect(a1.attributes('href')).toBe(filmsAccount.getUrl('/userfilms'));
         expect(a1.classes('router-link-active')).toBe(false);
         expect(a1.text()).toBe('лк');
         
@@ -106,7 +106,7 @@ describe("@/Layouts/AuthLayout.vue", () => {
 
         // Вторая ссылка 'лк' активна с дефолтным url ($page.component === 'Auth/Account/UserFilms')
         const a1 = li[1].get('a');
-        expect(a1.attributes('href')).toBe('/userfilms?page=1&number=20&title=&description=');
+        expect(a1.attributes('href')).toBe(filmsAccount.getUrl('/userfilms'));
         expect(a1.classes('router-link-active')).toBe(true);
         expect(a1.text()).toBe('лк');
 

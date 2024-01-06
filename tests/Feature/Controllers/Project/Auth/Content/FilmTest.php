@@ -22,7 +22,7 @@ class FilmTest extends TestCase
             \Database\Seeders\Dvd\FilmSeeder::class,
         ]);
         
-        $response = $acting->get('films?number=10&title=ar&description=ep&page=2');
+        $response = $acting->get('films?number=10&title_filter=ar&description_filter=ep&page=2');
 
         $response
             ->assertOk()

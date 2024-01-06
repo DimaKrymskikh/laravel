@@ -53,7 +53,7 @@ class UserFilmsTest extends TestCase
         $this->seedUsers();
         $userAuthTestLogin = $this->getUser('AuthTestLogin');
         
-        $response = $this->before($userAuthTestLogin)->get('userfilms?page=1&number=10&title=center&description=drama');
+        $response = $this->before($userAuthTestLogin)->get('userfilms?page=1&number=10&title_filter=center&description_filter=drama');
 
         $response
             ->assertOk()

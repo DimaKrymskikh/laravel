@@ -2,7 +2,6 @@ import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 import { setActivePinia, createPinia } from 'pinia';
 
-import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
 import Actors from "@/Pages/Admin/Actors.vue";
 import AddActorBlock from '@/Components/Pages/Admin/Actors/AddActorBlock.vue';
 import RemoveActorModal from '@/Components/Modal/Request/Actors/RemoveActorModal.vue';
@@ -46,7 +45,7 @@ const getWrapper = function(actors, actorsList) {
         });
 };
 
-const recordWhenTheActorTableIsEmpty = 'Ещё ни один актёр не добавлен';
+const recordWhenTheActorTableIsEmpty = 'Ни один актёр не найден, или ещё ни один актёр не добавлен.';
     
 const checkH1 = function(wrapper) {
     const h1 = wrapper.get('h1');
@@ -152,9 +151,16 @@ describe("@/Pages/Admin/Actors.vue", () => {
         
         checkElements(wrapper);
         
-        // Таблица актёров отсутствует
-        const table = wrapper.find('table');
-        expect(table.exists()).toBe(false);
+        // Таблица пустая
+        const table = wrapper.get('table');
+        // Нет подписи таблицы
+        expect(table.find('caption').exists()).toBe(false);
+        // Присутствует заголовок таблицы
+        expect(table.find('thead').exists()).toBe(true);
+        // В теле таблицы нет ни одной строки
+        const tbody = table.get('tbody');
+        const trs = tbody.findAll('tr');
+        expect(trs.length).toBe(0);
         // На странице присутствует запись
         expect(wrapper.text()).toContain(recordWhenTheActorTableIsEmpty);
         

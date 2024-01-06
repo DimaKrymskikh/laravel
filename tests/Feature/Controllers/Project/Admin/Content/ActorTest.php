@@ -105,7 +105,7 @@ class ActorTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/actors?page=1');
+            ->assertRedirect('admin/actors?page=1&name=');
     }
     
     public function test_admin_can_not_add_if_the_first_name_or_the_last_name_starts_with_a_small_letter(): void
@@ -223,7 +223,7 @@ class ActorTest extends TestCase
     
     public function test_admin_can_delete_actor(): void
     {
-        $this->seedActors();
+        $this->seedFilmsAndActors();
         $nActors = Actor::all()->count();
         
         $this->seedUsers();
@@ -242,7 +242,7 @@ class ActorTest extends TestCase
     
     public function test_admin_can_not_delete_actor_if_the_password_is_incorrect(): void
     {
-        $this->seedActors();
+        $this->seedFilmsAndActors();
         $nActors = Actor::all()->count();
         
         $this->seedUsers();

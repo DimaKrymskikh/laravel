@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Project\Admin\Content;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Thesaurus\LanguageRequest;
 use App\Models\Thesaurus\Language;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -15,8 +17,11 @@ class LanguageController extends Controller
     {
         $this->middleware('check.password')->only('destroy');
     }
+    
     /**
-     * Display a listing of the resource.
+     * В админской части отрисовывает таблицу языков
+     * 
+     * @return Response
      */
     public function index(): Response
     {
@@ -28,7 +33,10 @@ class LanguageController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * В таблицу 'thesaurus.languages' добавляется новый язык
+     * 
+     * @param LanguageRequest $request
+     * @return RedirectResponse
      */
     public function store(LanguageRequest $request): RedirectResponse
     {
@@ -41,7 +49,11 @@ class LanguageController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Изменяет название языка
+     * 
+     * @param LanguageRequest $request
+     * @param string $id
+     * @return RedirectResponse
      */
     public function update(LanguageRequest $request, string $id): RedirectResponse
     {
@@ -53,12 +65,31 @@ class LanguageController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Удаляет язык из таблицы 'thesaurus.languages'
+     * 
+     * @param string $id
+     * @return RedirectResponse
      */
     public function destroy(string $id): RedirectResponse
     {
         Language::find($id)->delete();
         
         return redirect('admin/languages');
+    }
+    
+    /**
+     * Возвращает список языков в формате json
+     * 
+     * @param Request $request
+     * @return string
+     */
+    public function getJson(Request $request): string
+    {
+        return (string) Language::select('id', 'name')
+                            ->when($request->name, function (Builder $query, string $name) {
+                                $query->where('name', 'ILIKE', "%$name%");
+                            })
+                            ->orderBy('name')
+                            ->get();
     }
 }

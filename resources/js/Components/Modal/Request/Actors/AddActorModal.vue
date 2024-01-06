@@ -33,6 +33,8 @@ const handlerAddActor = function(e) {
         },
         onSuccess: () => {
             hideAddActorModal();
+            // При добавлении актёра сбрасываем фильтр поиска
+            actorsList.name = '';
         },
         onError: errors => {
             errorsFirstName.value = errors.first_name;

@@ -105,7 +105,7 @@ const handlerTableChange = function(e) {
         </div>
         
         <div class="w-1/4">
-            <table class="w-full" @click="handlerTableChange" v-if="actors.data.length">
+            <table class="w-full" @click="handlerTableChange">
                 <caption v-if="actors.total > 0">
                     Показано {{ actors.per_page }} актёров с {{ actors.from }} по {{ actors.to }} из {{ actors.total }}
                 </caption>
@@ -140,8 +140,8 @@ const handlerTableChange = function(e) {
                     </tr>
                 </tbody>
             </table>
-            <div v-else>
-                Ещё ни один актёр не добавлен
+            <div  v-if="!actors.total">
+                Ни один актёр не найден, или ещё ни один актёр не добавлен.
             </div>
 
             <Buttons :links="actors.links" v-if="actors.total > 0" />
