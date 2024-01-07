@@ -82,9 +82,6 @@ describe("@/Pages/Admin/Films.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
     });
-    afterEach(async () => {
-        await router.get.mockClear();
-    });
     
     it("Отрисовка страницы 'Фильмы' при наличии фильмов", () => {
         const filmsAdmin = useFilmsAdminStore();

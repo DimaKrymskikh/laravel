@@ -67,9 +67,6 @@ describe("@/Pages/Guest/Films.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
     });
-    afterEach(async () => {
-        await router.get.mockClear();
-    });
     
     it("Отрисовка каталога фильмов", () => {
         const filmsList = useFilmsListStore();

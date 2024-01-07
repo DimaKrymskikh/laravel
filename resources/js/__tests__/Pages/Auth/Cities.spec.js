@@ -52,9 +52,6 @@ describe("@/Pages/Auth/Cities.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
     });
-    afterEach(async () => {
-        await router.post.mockClear();
-    });
     
     it("Отрисовка страницы Cities для auth", () => {
         const app = useAppStore();

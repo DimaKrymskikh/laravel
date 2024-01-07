@@ -57,10 +57,6 @@ describe("@/Pages/Auth/Films.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
     });
-    afterEach(async () => {
-        await router.get.mockClear();
-        await router.post.mockClear();
-    });
     
     it("Отрисовка каталога фильмов (залогиненный пользователь)", () => {
         const app = useAppStore();

@@ -77,9 +77,6 @@ describe("@/Pages/Admin/Actors.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
     });
-    afterEach(async () => {
-        await router.get.mockClear();
-    });
     
     it("Отрисовка страницы 'Актёры' при наличии актёров", () => {
         const actorsList = useActorsListStore();

@@ -72,9 +72,6 @@ describe("@/Components/Modal/Request/UpdateTimeZoneModal.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
     });
-    afterEach(async () => {
-        await router.put.mockClear();
-    });
     
     it("Монтирование компоненты UpdateTimeZoneModal (isRequest: false)", async () => {
         const app = useAppStore();

@@ -57,9 +57,6 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
     });
-    afterEach(async () => {
-        await router.get.mockClear();
-    });
     
     it("Отрисовка UserFilms", () => {
         const filmsAccount = useFilmsAccountStore();

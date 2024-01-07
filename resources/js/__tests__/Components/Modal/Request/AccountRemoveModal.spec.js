@@ -39,9 +39,6 @@ describe("@/Components/Modal/Request/AccountRemoveModal.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
     });
-    afterEach(async () => {
-        await router.delete.mockClear();
-    });
     
     it("Монтирование компоненты AccountRemoveModal (isRequest: false)", async () => {
         const app = useAppStore();
