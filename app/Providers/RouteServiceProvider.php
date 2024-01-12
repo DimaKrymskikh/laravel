@@ -19,7 +19,17 @@ class RouteServiceProvider extends ServiceProvider
      */
     public const HOME = '/';
     
-    public const PAGINATE_DEFAULT_PER_PAGE = 20;
+    public const URL_ADMIN_ACTORS = 'admin/actors';
+    public const URL_ADMIN_CITIES = 'admin/cities';
+    public const URL_ADMIN_FILMS = 'admin/films';
+    public const URL_ADMIN_LANGUAGES = 'admin/languages';
+    public const URL_ADMIN_TIMEZONE = 'admin/timezone';
+    
+    public const URL_AUTH_FILMS = 'films';
+    public const URL_AUTH_USERFILMS = 'userfilms';
+    
+    public const URL_GUEST_CITIES = 'guest/cities';
+    public const URL_GUEST_FILMS = 'guest/films';
 
     /**
      * Define your route model bindings, pattern filters, and other route configuration.

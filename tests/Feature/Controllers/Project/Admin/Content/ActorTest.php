@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controllers\Project\Admin\Content;
 
 use App\Models\Dvd\Actor;
+use App\Providers\RouteServiceProvider;
 use Database\Seeders\Tests\Dvd\ActorSeeder;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,7 +20,7 @@ class ActorTest extends TestCase
     {
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->get('admin/actors');
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_ACTORS);
 
         $response
                 ->assertStatus(200)
@@ -39,7 +40,7 @@ class ActorTest extends TestCase
         $this->seedActors();
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->get('admin/actors');
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_ACTORS);
 
         $response
                 ->assertStatus(200)
@@ -59,7 +60,7 @@ class ActorTest extends TestCase
         $this->seedActors();
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AuthTestLogin'));
-        $response = $acting->get('admin/actors');
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_ACTORS);
 
         $response->assertStatus(403);
     }
@@ -69,7 +70,7 @@ class ActorTest extends TestCase
         $this->seedActors();
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->get('admin/actors?name=er');
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_ACTORS.'?name=er');
 
         $response
                 ->assertStatus(200)
@@ -95,7 +96,7 @@ class ActorTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/actors', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_ACTORS, [
             'first_name' => 'Андрей',
             'last_name' => 'Миронов',
         ]);
@@ -105,7 +106,7 @@ class ActorTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/actors?page=1&name=');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_ACTORS.'?page=1&number=20&name=');
     }
     
     public function test_admin_can_not_add_if_the_first_name_or_the_last_name_starts_with_a_small_letter(): void
@@ -115,7 +116,7 @@ class ActorTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/actors', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_ACTORS, [
             'first_name' => 'андрей',
             'last_name' => 'миронов',
         ]);
@@ -137,7 +138,7 @@ class ActorTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/actors', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_ACTORS, [
             'first_name' => '',
             'last_name' => 'Миронов',
         ]);
@@ -158,7 +159,7 @@ class ActorTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/actors', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_ACTORS, [
             'first_name' => 'Андрей',
             'last_name' => 77,
         ]);
@@ -179,7 +180,7 @@ class ActorTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->put('admin/actors/'.ActorSeeder::ID_JENNIFER_DAVIS, [
+        $response = $acting->put(RouteServiceProvider::URL_ADMIN_ACTORS.'/'.ActorSeeder::ID_JENNIFER_DAVIS, [
             'first_name' => 'Андрей',
             'last_name' => 'Миронов',
         ]);
@@ -193,7 +194,7 @@ class ActorTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/actors');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_ACTORS.'?page=1&number=20');
     }
     
     public function test_admin_can_not_update_actorif_the_first_name_or_the_last_name_starts_with_a_small_letter(): void
@@ -203,7 +204,7 @@ class ActorTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->put('admin/actors/'.ActorSeeder::ID_JENNIFER_DAVIS, [
+        $response = $acting->put(RouteServiceProvider::URL_ADMIN_ACTORS.'/'.ActorSeeder::ID_JENNIFER_DAVIS, [
             'first_name' => 'Андрей',
             'last_name' => 'миронов',
         ]);
@@ -228,7 +229,7 @@ class ActorTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->delete('admin/actors/'.ActorSeeder::ID_JENNIFER_DAVIS, [
+        $response = $acting->delete(RouteServiceProvider::URL_ADMIN_ACTORS.'/'.ActorSeeder::ID_JENNIFER_DAVIS, [
             'password' => 'AdminTestPassword1',
         ]);
 
@@ -237,7 +238,7 @@ class ActorTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/actors?page=1');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_ACTORS.'?page=1&number=20');
     }
     
     public function test_admin_can_not_delete_actor_if_the_password_is_incorrect(): void
@@ -247,7 +248,7 @@ class ActorTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->delete('admin/actors/'.ActorSeeder::ID_JENNIFER_DAVIS, [
+        $response = $acting->delete(RouteServiceProvider::URL_ADMIN_ACTORS.'/'.ActorSeeder::ID_JENNIFER_DAVIS, [
             'password' => 'IncorrectPassword13',
         ]);
 

@@ -26,6 +26,8 @@ use App\Http\Controllers\Project\Guest\Content\CityController as GuestCityContro
 use App\Http\Controllers\Project\Guest\Content\FilmController as GuestFilmController;
 use App\Http\Controllers\Project\Guest\HomeController as GuestHomeController;
 
+use App\Providers\RouteServiceProvider;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -61,8 +63,8 @@ Route::middleware('guest')->group(function () {
                 ->name('password.store');
     
     Route::get('guest', [GuestHomeController::class, 'index']);
-    Route::get('guest/cities', [GuestCityController::class, 'index']);
-    Route::get('guest/films', [GuestFilmController::class, 'index']);
+    Route::get(RouteServiceProvider::URL_GUEST_CITIES, [GuestCityController::class, 'index']);
+    Route::get(RouteServiceProvider::URL_GUEST_FILMS, [GuestFilmController::class, 'index']);
 });
 
 Route::middleware('auth')->group(function () {
@@ -90,12 +92,12 @@ Route::middleware('auth')->group(function () {
     Route::post('cities/addcity/{city_id}', [CityController::class, 'addCity']);
     Route::delete('cities/removecity/{city_id}', [CityController::class, 'removeCity'])->middleware('check.password');
     
-    Route::get('films', [FilmController::class, 'index']);
+    Route::get(RouteServiceProvider::URL_AUTH_FILMS, [FilmController::class, 'index']);
     
-    Route::get('userfilms', [UserFilmsController::class, 'create']);
-    Route::post('userfilms/addfilm/{film_id}', [UserFilmsController::class, 'addFilm']);
-    Route::delete('userfilms/removefilm/{film_id}', [UserFilmsController::class, 'removeFilm'])->middleware('check.password');
-    Route::get('userfilms/{film_id}', [UserFilmsController::class, 'show']);
+    Route::get(RouteServiceProvider::URL_AUTH_USERFILMS, [UserFilmsController::class, 'create']);
+    Route::post(RouteServiceProvider::URL_AUTH_USERFILMS.'/addfilm/{film_id}', [UserFilmsController::class, 'addFilm']);
+    Route::delete(RouteServiceProvider::URL_AUTH_USERFILMS.'/removefilm/{film_id}', [UserFilmsController::class, 'removeFilm'])->middleware('check.password');
+    Route::get(RouteServiceProvider::URL_AUTH_USERFILMS.'/{film_id}', [UserFilmsController::class, 'show']);
     
     Route::get('userweather', [UserWeatherController::class, 'index']);
     Route::post('userweather/refresh/{city_id}', [UserWeatherController::class, 'refresh']);
@@ -108,28 +110,28 @@ Route::middleware(['auth', 'all.action'])->group(function () {
     Route::get('admin', [AdminHomeController::class, 'index']);
     Route::post('admin/destroy', [AdminController::class, 'destroy'])->middleware('check.password');
     
-    Route::resource('admin/cities', AdminCityController::class)->only([
+    Route::resource(RouteServiceProvider::URL_ADMIN_CITIES, AdminCityController::class)->only([
         'index', 'store', 'update', 'destroy'
     ]);
-    Route::put('admin/cities/{city_id}/timezone/{timezone_id}', [AdminCityController::class, 'setTimezone']);
+    Route::put(RouteServiceProvider::URL_ADMIN_CITIES.'/{city_id}/timezone/{timezone_id}', [AdminCityController::class, 'setTimezone']);
     
-    Route::get('admin/timezone', [TimezoneController::class, 'index']);
+    Route::get(RouteServiceProvider::URL_ADMIN_TIMEZONE, [TimezoneController::class, 'index']);
     
-    Route::resource('admin/languages', LanguageController::class)->only([
+    Route::resource(RouteServiceProvider::URL_ADMIN_LANGUAGES, LanguageController::class)->only([
         'index', 'store', 'update', 'destroy'
     ]);
-    Route::get('admin/languages/getJson', [LanguageController::class, 'getJson']);
+    Route::get(RouteServiceProvider::URL_ADMIN_LANGUAGES.'/getJson', [LanguageController::class, 'getJson']);
     
-    Route::resource('admin/actors', ActorController::class)->only([
+    Route::resource(RouteServiceProvider::URL_ADMIN_ACTORS, ActorController::class)->only([
         'index', 'store', 'update', 'destroy'
     ]);
     
-    Route::resource('admin/films', AdminFilmController::class)->only([
+    Route::resource(RouteServiceProvider::URL_ADMIN_FILMS, AdminFilmController::class)->only([
         'index', 'store', 'update', 'destroy'
     ]);
-    Route::get('admin/films/getActorsList/{film_id}', [AdminFilmController::class, 'getActorsList']);
+    Route::get(RouteServiceProvider::URL_ADMIN_FILMS.'/getActorsList/{film_id}', [AdminFilmController::class, 'getActorsList']);
     
-    Route::resource('admin/films/actors', FilmActorController::class)->only([
+    Route::resource(RouteServiceProvider::URL_ADMIN_FILMS.'/actors', FilmActorController::class)->only([
         'index', 'store', 'destroy'
     ]);
 });

@@ -3,16 +3,21 @@
 namespace App\Http\Controllers\Project\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Url;
 use App\Models\User;
+use App\Providers\RouteServiceProvider;
+use App\Repositories\Dvd\FilmRepository;
+use App\Support\Pagination\Url;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class AdminController extends Controller
 {
-    use Url;
+    private Url $url;
+
+    public function __construct()
+    {
+        $this->url = new Url(FilmRepository::ADDITIONAL_PARAMS_IN_URL);
+    }
     
     /**
      * Аутентифицированный пользователь становится админом
@@ -25,12 +30,7 @@ class AdminController extends Controller
         User::where('id', $request->user()->id)
             ->update(['is_admin' => true]);
         
-        return redirect($this->getUrl('/userfilms', [
-            'page' => $request->page,
-            'number' => $request->number,
-            'title' => $request->title,
-            'description' => $request->description
-        ]));
+        return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_AUTH_USERFILMS, $request));
     }
     
     /**
@@ -44,11 +44,6 @@ class AdminController extends Controller
         User::where('id', $request->user()->id)
             ->update(['is_admin' => false]);
         
-        return redirect($this->getUrl('/userfilms', [
-            'page' => $request->page,
-            'number' => $request->number,
-            'title' => $request->title,
-            'description' => $request->description
-        ]));
+        return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_AUTH_USERFILMS, $request));
     }
 }

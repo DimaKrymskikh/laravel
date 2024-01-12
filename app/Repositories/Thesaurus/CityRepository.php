@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Extraction\Thesaurus;
+namespace App\Repositories\Thesaurus;
 
 use App\Models\Thesaurus\City;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\Request;
 
-trait Cities
+class CityRepository
 {
-    private function getWeatherForCitiesOfAuth(Request $request): Collection
+    public function getWeatherForCitiesOfAuth(Request $request): Collection
     {
         return City::with([
             'weatherFirst' => function (Builder $query) {

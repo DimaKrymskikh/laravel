@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controllers\Project\Admin\Content;
 
 use App\Models\Thesaurus\City;
+use App\Providers\RouteServiceProvider;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Database\Seeders\Tests\Thesaurus\TimezoneSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,7 +20,7 @@ class CityTest extends TestCase
     {
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->get('admin/cities');
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_CITIES);
 
         $response
             ->assertOk()
@@ -36,7 +37,7 @@ class CityTest extends TestCase
         $this->seedCities();
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->get('admin/cities');
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_CITIES);
 
         $response
             ->assertOk()
@@ -53,7 +54,7 @@ class CityTest extends TestCase
         $this->seedCities();
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AuthTestLogin'));
-        $response = $acting->get('admin/cities');
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_CITIES);
 
         $response
             ->assertStatus(403);
@@ -66,7 +67,7 @@ class CityTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/cities', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_CITIES, [
             'name' => 'ТестСити',
             'open_weather_id' => '777'
         ]);
@@ -76,7 +77,7 @@ class CityTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/cities');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_CITIES);
     }
     
     public function test_admin_can_update_city(): void
@@ -86,7 +87,7 @@ class CityTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->put("admin/cities/".CitySeeder::ID_MOSCOW, [
+        $response = $acting->put(RouteServiceProvider::URL_ADMIN_CITIES.'/'.CitySeeder::ID_MOSCOW, [
             'name' => 'НовыйСити',
         ]);
 
@@ -95,7 +96,7 @@ class CityTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/cities');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_CITIES);
     }
     
     public function test_admin_can_delete_city(): void
@@ -105,7 +106,7 @@ class CityTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->delete("admin/cities/".CitySeeder::ID_MOSCOW, [
+        $response = $acting->delete(RouteServiceProvider::URL_ADMIN_CITIES.'/'.CitySeeder::ID_MOSCOW, [
             'password' => 'AdminTestPassword1',
         ]);
 
@@ -114,7 +115,7 @@ class CityTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/cities');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_CITIES);
     }
     
     public function test_admin_can_not_delete_city_if_the_password_is_incorrect(): void
@@ -124,7 +125,7 @@ class CityTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->delete("admin/cities/".CitySeeder::ID_MOSCOW, [
+        $response = $acting->delete(RouteServiceProvider::URL_ADMIN_CITIES.'/'.CitySeeder::ID_MOSCOW, [
             'password' => 'IncorrectPassword13',
         ]);
 
@@ -142,13 +143,13 @@ class CityTest extends TestCase
         $this->seedCities();
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->put("admin/cities/".CitySeeder::ID_OMSK."/timezone/".TimezoneSeeder::ID_ASIA_NOVOSIBIRSK);
+        $response = $acting->put(RouteServiceProvider::URL_ADMIN_CITIES.'/'.CitySeeder::ID_OMSK.'/timezone/'.TimezoneSeeder::ID_ASIA_NOVOSIBIRSK);
         
         $this->assertEquals(TimezoneSeeder::ID_ASIA_NOVOSIBIRSK, City::find(CitySeeder::ID_OMSK)->timezone_id);
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/cities');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_CITIES);
     }
     
     public function test_admin_can_unset_timezone_for_city(): void
@@ -156,12 +157,12 @@ class CityTest extends TestCase
         $this->seedCities();
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->put("admin/cities/".CitySeeder::ID_MOSCOW."/timezone/0");
+        $response = $acting->put(RouteServiceProvider::URL_ADMIN_CITIES.'/'.CitySeeder::ID_MOSCOW.'/timezone/0');
         
         $this->assertEquals(null, City::find(CitySeeder::ID_MOSCOW)->timezone_id);
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/cities');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_CITIES);
     }
 }

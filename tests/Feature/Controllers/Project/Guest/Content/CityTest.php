@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controllers\Project\Guest\Content;
 
 use App\Models\Thesaurus\City;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -14,7 +15,7 @@ class CityTest extends TestCase
     
     public function test_cities_page_displayed_for_guest_without_cities(): void
     {
-        $response = $this->get('guest/cities');
+        $response = $this->get(RouteServiceProvider::URL_GUEST_CITIES);
 
         $response
             ->assertOk()
@@ -39,7 +40,7 @@ class CityTest extends TestCase
                 ))
                 ->create();
         
-        $response = $this->get('guest/cities');
+        $response = $this->get(RouteServiceProvider::URL_GUEST_CITIES);
 
         $response
             ->assertOk()

@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Project\Admin\Content;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Url;
-use App\Http\Extraction\Dvd\Films;
 use App\Http\Requests\Dvd\FilmRequest;
 use App\Models\Dvd\Film;
 use App\Models\Dvd\FilmActor;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use App\Providers\RouteServiceProvider;
+use App\Repositories\Dvd\FilmRepository;
+use App\Support\Pagination\Url;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,11 +17,14 @@ use Inertia\Response;
 
 class FilmController extends Controller
 {
-    use Films, Url;
-    
-    public function __construct()
+    private Url $url;
+
+    public function __construct(
+        private FilmRepository $films,
+    )
     {
         $this->middleware('check.password')->only('destroy');
+        $this->url = new Url(FilmRepository::ADDITIONAL_PARAMS_IN_URL);
     }
     
     /**
@@ -33,7 +36,7 @@ class FilmController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('Admin/Films', [
-                'films' => $this->getCommonFilmsListWithActors($request)
+                'films' => $this->films->getCommonFilmsListWithActors($request)
             ]);
     }
 
@@ -56,76 +59,52 @@ class FilmController extends Controller
         $request->description_filter = '';
         $request->release_year_filter = '';
         
-        return redirect($this->getUrl('admin/films', [
-            'page' => $this->getCurrentPageBySerialNumber($request, $this->getSerialNumberOfTheFilmInTheList($request, $film->id)),
-            'number' => $request->number,
-            'title_filter' => $request->title_filter,
-            'description_filter' => $request->description_filter,
-        ]));
+        return redirect($this->url->getUrlByItem(RouteServiceProvider::URL_ADMIN_FILMS, $request, $this->films, $film->id));
     }
 
     /**
-     * Изменяет данные фильма с id = $id
+     * Изменяет данные фильма с id = $film_id
      * 
      * @param FilmRequest $request
-     * @param string $id
+     * @param int $film_id
      * @return RedirectResponse
      */
-    public function update(FilmRequest $request, string $id): RedirectResponse
+    public function update(FilmRequest $request, int $film_id): RedirectResponse
     {
         $field = $request->field;
         
-        $film = Film::find($id);
+        $film = Film::find($film_id);
         $film->$field = $request->$field;
         $film->save();
         
-        return redirect($this->getUrl('admin/films', [
-            'page' => $this->getCurrentPageBySerialNumber($request, $this->getSerialNumberOfTheFilmInTheList($request, $film->id)),
-            'number' => $request->number,
-            'title_filter' => $request->title_filter,
-            'description_filter' => $request->description_filter,
-        ]));
+        return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_ADMIN_FILMS, $request));
     }
 
     /**
-     * Удаляет фильм с id = $id из таблицы 'dvd.films'
+     * Удаляет фильм с id = $film_id из таблицы 'dvd.films'
      * 
      * @param Request $request
-     * @param string $id
+     * @param int $film_id
      * @return RedirectResponse
      */
-    public function destroy(Request $request, string $id): RedirectResponse
+    public function destroy(Request $request, int $film_id): RedirectResponse
     {
-        DB::transaction(function () use ($id) {
-            FilmActor::where('film_id', $id)->delete();
-            Film::find($id)->delete();
+        DB::transaction(function () use ($film_id) {
+            FilmActor::where('film_id', $film_id)->delete();
+            Film::find($film_id)->delete();
         });
         
-        return redirect($this->getUrl('admin/films', [
-            'page' => $this->getCurrentPageAfterRemovingItems($request, $this->getCommonFilmsList($request, false)->count()),
-            'number' => $request->number,
-            'title_filter' => $request->title_filter,
-            'description_filter' => $request->description_filter,
-        ]));
+        return redirect($this->url->getUrlAfterRemovingItem(RouteServiceProvider::URL_ADMIN_FILMS, $request, $this->films));
     }
     
     /**
      * Возвращает список актёров фильма в формате json
      * 
-     * @param string $film_id
+     * @param int $film_id
      * @return string
      */
-    public function getActorsList(string $film_id): string
+    public function getActorsList(int $film_id): string
     {
-        return (string) Film::where('id', $film_id)
-                            ->with([
-                                'actors' => function (Builder $query) {
-                                    $query->select('id', 'first_name', 'last_name')
-                                        ->orderBy('first_name')
-                                        ->orderBy('last_name');
-                                }
-                            ])
-                            ->select('id')
-                            ->first();
+        return (string) $this->films->getActorsList($film_id);
     }
 }

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controllers\Project\Guest\Content;
 
 use App\Models\Dvd\Film;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\Seeders;
@@ -16,7 +17,7 @@ class FilmTest extends TestCase
     {
         $this->seedFilms();
         
-        $response = $this->get('guest/films?page=2&number=10&title=&description=');
+        $response = $this->get(RouteServiceProvider::URL_GUEST_FILMS.'?page=2&number=10&title=&description=');
 
         $response
             ->assertOk()
@@ -41,15 +42,15 @@ class FilmTest extends TestCase
     {
         $this->seedFilms();
         
-        $responseTitle = $this->get('guest/films?page=1&number=10&title=no&description=');
+        $responseTitle = $this->get(RouteServiceProvider::URL_GUEST_FILMS.'?page=1&number=10&title=no&description=');
         $responseTitle->assertOk();
         $this->assertEquals(2, Film::where('title', 'ilike', '%no%')->count());
         
-        $responseDescription = $this->get('guest/films?page=1&number=10&title=&description=stud');
+        $responseDescription = $this->get(RouteServiceProvider::URL_GUEST_FILMS.'?page=1&number=10&title=&description=stud');
         $responseDescription->assertOk();
         $this->assertEquals(4, Film::where('description', 'ilike', '%stud%')->count());
         
-        $responseTitleDescription = $this->get('guest/films?page=1&number=10&title=&description=stud');
+        $responseTitleDescription = $this->get(RouteServiceProvider::URL_GUEST_FILMS.'?page=1&number=10&title=&description=stud');
         $responseTitleDescription->assertOk();
         $this->assertEquals(1, Film::where('title', 'ilike', '%no%')->where('description', 'ilike', '%stud%')->count());
     }

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Support\Url;
 
 trait Url
 {
     /**
-     * Формирует url с настройками пагинации и параметров запроса
+     * Формирует url для get-запроса
      * 
      * @param string $url - базовый url
      * @param array $data

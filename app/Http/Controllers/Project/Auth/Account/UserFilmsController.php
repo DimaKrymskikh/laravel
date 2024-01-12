@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Project\Auth\Account;
 use App\Events\AddFilmInUserList;
 use App\Events\RemoveFilmFromUserList;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Url;
-use App\Http\Extraction\Dvd\Films;
 use App\Models\Dvd\Film;
 use App\Models\Person\UserFilm;
+use App\Providers\RouteServiceProvider;
+use App\Repositories\Dvd\FilmRepository;
+use App\Support\Pagination\Url;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -18,7 +19,14 @@ use Inertia\Response;
 
 class UserFilmsController extends Controller
 {
-    use Films, Url;
+    private Url $url;
+
+    public function __construct(
+        private FilmRepository $films,
+    )
+    {
+        $this->url = new Url(FilmRepository::ADDITIONAL_PARAMS_IN_URL);
+    }
     
     /**
      * Отрисовывает страницу аккаунта
@@ -29,7 +37,7 @@ class UserFilmsController extends Controller
     public function create(Request $request): Response
     {
         return Inertia::render('Auth/Account/UserFilms', [
-            'films' => $this->getUserFilmsList($request),
+            'films' => $this->films->getUserFilmsList($request),
             'user' => $request->user()
         ]);
     }
@@ -42,7 +50,7 @@ class UserFilmsController extends Controller
      * @return RedirectResponse
      * @throws type
      */
-    public function addFilm(Request $request, string $film_id): RedirectResponse
+    public function addFilm(Request $request, int $film_id): RedirectResponse
     {
         // Проверка наличия в таблице 'person.users_films' пары первичных ключей (user_id, film_id)
         if (
@@ -69,12 +77,7 @@ class UserFilmsController extends Controller
             event(new AddFilmInUserList($userFilm));
         }
         
-        return redirect($this->getUrl('/films', [
-            'page' => $request->page,
-            'number' => $request->number,
-            'title' => $request->title,
-            'description' => $request->description
-        ]));
+        return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_AUTH_FILMS, $request));
     }
     
     /**
@@ -85,7 +88,7 @@ class UserFilmsController extends Controller
      * @return RedirectResponse
      * @throws type
      */
-    public function removeFilm(Request $request, string $film_id): RedirectResponse
+    public function removeFilm(Request $request, int $film_id): RedirectResponse
     {
         $query = UserFilm::where('user_id', '=', Auth::id())
                 ->where('film_id', '=', $film_id);
@@ -99,18 +102,13 @@ class UserFilmsController extends Controller
             event(new RemoveFilmFromUserList($userFilm));
         }
         
-        return redirect($this->getUrl('userfilms', [
-            'page' => $this->getCurrentPageAfterRemovingItems($request, UserFilm::where('user_id', '=', Auth::id())->count()),
-            'number' => $request->number,
-            'title' => $request->title,
-            'description' => $request->description
-        ]));
+        return redirect($this->url->getUrlAfterRemovingItem(RouteServiceProvider::URL_AUTH_USERFILMS, $request, $this->films));
     }
     
     public function show(int $film_id): Response
     {
         return Inertia::render('Auth/FilmCard', [
-            'film' => $this->getFilmCard($film_id),
+            'film' => $this->films->getFilmCard($film_id),
             'user' => Auth::getUser()
         ]);
     }

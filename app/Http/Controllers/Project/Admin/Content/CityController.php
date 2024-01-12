@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Project\Admin\Content;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OpenWeather\CityRequest;
 use App\Models\Thesaurus\City;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -42,7 +43,7 @@ class CityController extends Controller
         $city->open_weather_id = $request->open_weather_id;
         $city->save();
         
-        return redirect('admin/cities');
+        return redirect(RouteServiceProvider::URL_ADMIN_CITIES);
     }
 
     /**
@@ -61,7 +62,7 @@ class CityController extends Controller
         $city->name = $request->name;
         $city->save();
         
-        return redirect('admin/cities');
+        return redirect(RouteServiceProvider::URL_ADMIN_CITIES);
     }
 
     /**
@@ -71,7 +72,7 @@ class CityController extends Controller
     {
         City::find($id)->delete();
         
-        return redirect('admin/cities');
+        return redirect(RouteServiceProvider::URL_ADMIN_CITIES);
     }
     
     public function setTimezone(int $city_id, int $timezone_id): RedirectResponse
@@ -81,6 +82,6 @@ class CityController extends Controller
         $city->timezone_id = $timezone_id ?: null;
         $city->save();
         
-        return redirect('admin/cities');
+        return redirect(RouteServiceProvider::URL_ADMIN_CITIES);
     }
 }

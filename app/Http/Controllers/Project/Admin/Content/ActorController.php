@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Project\Admin\Content;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Url;
-use App\Http\Extraction\Dvd\Actors;
 use App\Http\Requests\Dvd\ActorRequest;
 use App\Models\Dvd\Actor;
 use App\Models\Dvd\FilmActor;
+use App\Providers\RouteServiceProvider;
+use App\Repositories\Dvd\ActorRepository;
+use App\Support\Pagination\Url;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,11 +17,14 @@ use Inertia\Response;
 
 class ActorController extends Controller
 {
-    use Actors, Url;
+    private Url $url;
     
-    public function __construct()
+    public function __construct(
+        private ActorRepository $actors,
+    )
     {
         $this->middleware('check.password')->only('destroy');
+        $this->url = new Url(ActorRepository::ADDITIONAL_PARAMS_IN_URL);
     }
     
     /**
@@ -32,7 +36,7 @@ class ActorController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('Admin/Actors', [
-            'actors' => $this->getCommonActorsList($request)
+            'actors' => $this->actors->getCommonActorsList($request)
         ]);
     }
 
@@ -53,52 +57,40 @@ class ActorController extends Controller
         // Нужно сбросить фильтр поиска, чтобы новый актёр гарантированно попал в список актёров
         $request->name = '';
         
-        return redirect($this->getUrl('admin/actors', [
-            'page' => $this->getCurrentPageBySerialNumber($request, $this->getSerialNumberOfTheActorInTheList($request, $actor->id)),
-            'number' => $request->number,
-            'name' => $request->name,
-        ]));
+        return redirect($this->url->getUrlByItem(RouteServiceProvider::URL_ADMIN_ACTORS, $request, $this->actors, $actor->id));
     }
 
     /**
-     * Изменяет полное имя актёра с id = $id
+     * Изменяет полное имя актёра с id = $actor_id
      * 
      * @param ActorRequest $request
-     * @param string $id
+     * @param int $actor_id
      * @return RedirectResponse
      */
-    public function update(ActorRequest $request, string $id): RedirectResponse
+    public function update(ActorRequest $request, int $actor_id): RedirectResponse
     {
-        $actor = Actor::find($id);
+        $actor = Actor::find($actor_id);
         $actor->first_name = $request->first_name;
         $actor->last_name = $request->last_name;
         $actor->save();
         
-        return redirect($this->getUrl('admin/actors', [
-            'page' => $request->page,
-            'number' => $request->number,
-            'name' => $request->name,
-        ]));
+        return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_ADMIN_ACTORS, $request));
     }
 
     /**
-     * Удаляет актёра с id = $id из таблицы 'dvd.actors'
+     * Удаляет актёра с id = $actor_id из таблицы 'dvd.actors'
      * 
      * @param Request $request
-     * @param string $id
+     * @param int $actor_id
      * @return RedirectResponse
      */
-    public function destroy(Request $request, string $id): RedirectResponse
+    public function destroy(Request $request, int $actor_id): RedirectResponse
     {
-        DB::transaction(function () use ($id) {
-            FilmActor::where('actor_id', $id)->delete();
-            Actor::find($id)->delete();
+        DB::transaction(function () use ($actor_id) {
+            FilmActor::where('actor_id', $actor_id)->delete();
+            Actor::find($actor_id)->delete();
         });
         
-        return redirect($this->getUrl('admin/actors', [
-            'page' => $this->getCurrentPageAfterRemovingItems($request, Actor::all()->count()),
-            'number' => $request->number,
-            'name' => $request->name,
-        ]));
+        return redirect($this->url->getUrlAfterRemovingItem(RouteServiceProvider::URL_ADMIN_ACTORS, $request, $this->actors));
     }
 }

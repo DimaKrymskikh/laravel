@@ -3,11 +3,11 @@
 namespace Tests\Feature\Controllers\Project\Admin\Content;
 
 use App\Models\Dvd\Film;
+use App\Providers\RouteServiceProvider;
 use Database\Seeders\Tests\Dvd\ActorSeeder;
 use Database\Seeders\Tests\Dvd\FilmSeeder;
 use Database\Seeders\Tests\Thesaurus\LanguageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Collection;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\Authentication;
@@ -22,7 +22,7 @@ class FilmTest extends TestCase
     {
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->get('admin/films');
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_FILMS);
 
         $response
                 ->assertStatus(200)
@@ -42,7 +42,7 @@ class FilmTest extends TestCase
         $this->seedFilmsAndActors();
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->get('admin/films');
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_FILMS);
 
         $response
                 ->assertStatus(200)
@@ -62,7 +62,7 @@ class FilmTest extends TestCase
         $this->seedFilmsAndActors();
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AuthTestLogin'));
-        $response = $acting->get('admin/films');
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_FILMS);
 
         $response->assertStatus(403);
     }
@@ -74,7 +74,7 @@ class FilmTest extends TestCase
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
         $title = 'Ap';
         $description = 'Oo';
-        $response = $acting->get("admin/films?title_filter=$title&description_filter=$description");
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_FILMS."?title_filter=$title&description_filter=$description");
 
         $response
                 ->assertStatus(200)
@@ -99,7 +99,7 @@ class FilmTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/films', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_FILMS, [
             'title' => 'Название фильма',
             'description' => 'Описание фильма',
             'release_year' => '2020',
@@ -111,7 +111,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/films?page=1&title_filter=&description_filter=');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
     }
     
     public function test_admin_can_add_film_with_nullable_data(): void
@@ -121,7 +121,7 @@ class FilmTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/films', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_FILMS, [
             'title' => 'Название фильма',
             'description' => '',
             'release_year' => null,
@@ -133,7 +133,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/films?page=1&title_filter=&description_filter=');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
     }
     
     public function test_admin_can_not_add_if_the_release_year_is_not_an_integer(): void
@@ -143,7 +143,7 @@ class FilmTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/films', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_FILMS, [
             'title' => 'Название фильма',
             'description' => 'Описание фильма',
             'release_year' => 'aa',
@@ -169,7 +169,7 @@ class FilmTest extends TestCase
         
         $newTitle = 'Новое название фильма';
         $filmId = FilmSeeder::ID_ADAPTATION_HOLES;
-        $response = $acting->put("admin/films/$filmId", [
+        $response = $acting->put(RouteServiceProvider::URL_ADMIN_FILMS."/$filmId", [
             'field' => 'title',
             'title' => $newTitle,
         ]);
@@ -181,7 +181,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/films?page=1');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20');
     }
     
     public function test_admin_can_not_update_film_title_if_the_title_is_empty(): void
@@ -193,7 +193,7 @@ class FilmTest extends TestCase
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
         
         $filmId = FilmSeeder::ID_ADAPTATION_HOLES;
-        $response = $acting->put("admin/films/$filmId", [
+        $response = $acting->put(RouteServiceProvider::URL_ADMIN_FILMS."/$filmId", [
             'field' => 'title',
             'title' => '',
         ]);
@@ -219,7 +219,7 @@ class FilmTest extends TestCase
         
         $newDescription = 'Новое описание фильма';
         $filmId = FilmSeeder::ID_ADAPTATION_HOLES;
-        $response = $acting->put("admin/films/$filmId", [
+        $response = $acting->put(RouteServiceProvider::URL_ADMIN_FILMS."/$filmId", [
             'field' => 'description',
             'description' => $newDescription,
         ]);
@@ -230,7 +230,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/films?page=1');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20');
     }
     
     public function test_admin_can_update_film_language(): void
@@ -243,7 +243,7 @@ class FilmTest extends TestCase
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
         
         $newLanguageId = LanguageSeeder::ID_RUSSIAN;
-        $response = $acting->put("admin/films/$filmId", [
+        $response = $acting->put(RouteServiceProvider::URL_ADMIN_FILMS."/$filmId", [
             'field' => 'language_id',
             'language_id' => $newLanguageId,
         ]);
@@ -252,7 +252,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/films?page=1');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20');
     }
     
     public function test_admin_can_reset_to_null_the_film_language(): void
@@ -263,7 +263,7 @@ class FilmTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->put("admin/films/$filmId", [
+        $response = $acting->put(RouteServiceProvider::URL_ADMIN_FILMS."/$filmId", [
             'field' => 'language_id',
             'language_id' => null,
         ]);
@@ -272,7 +272,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/films?page=1');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20');
     }
     
     public function test_admin_can_update_film_release_year(): void
@@ -285,7 +285,7 @@ class FilmTest extends TestCase
         
         $newReleaseYear = '2023';
         $filmId = FilmSeeder::ID_ADAPTATION_HOLES;
-        $response = $acting->put("admin/films/$filmId", [
+        $response = $acting->put(RouteServiceProvider::URL_ADMIN_FILMS."/$filmId", [
             'field' => 'release_year',
             'release_year' => $newReleaseYear,
         ]);
@@ -296,7 +296,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/films?page=1');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20');
     }
     
     public function test_admin_can_not_update_film_release_year_if_the_release_year_is_not_an_integer(): void
@@ -309,7 +309,7 @@ class FilmTest extends TestCase
         
         $newReleaseYear = 'xxx';
         $filmId = FilmSeeder::ID_ADAPTATION_HOLES;
-        $response = $acting->put("admin/films/$filmId", [
+        $response = $acting->put(RouteServiceProvider::URL_ADMIN_FILMS."/$filmId", [
             'field' => 'release_year',
             'release_year' => $newReleaseYear,
         ]);
@@ -332,7 +332,7 @@ class FilmTest extends TestCase
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
         $filmId = FilmSeeder::ID_ADAPTATION_HOLES;
-        $response = $acting->delete("admin/films/$filmId", [
+        $response = $acting->delete(RouteServiceProvider::URL_ADMIN_FILMS."/$filmId", [
             'password' => 'AdminTestPassword1',
         ]);
 
@@ -341,7 +341,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/films?page=1');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20');
     }
     
     public function test_admin_can_not_delete_film_if_the_password_is_incorrect(): void
@@ -352,7 +352,7 @@ class FilmTest extends TestCase
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
         $filmId = FilmSeeder::ID_ADAPTATION_HOLES;
-        $response = $acting->delete("admin/films/$filmId", [
+        $response = $acting->delete(RouteServiceProvider::URL_ADMIN_FILMS."/$filmId", [
             'password' => 'IncorrectPassword13',
         ]);
 
@@ -372,7 +372,7 @@ class FilmTest extends TestCase
         
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
         $filmId = FilmSeeder::ID_ADAPTATION_HOLES;
-        $response = $acting->getJson("admin/films/getActorsList/$filmId");
+        $response = $acting->getJson(RouteServiceProvider::URL_ADMIN_FILMS."/getActorsList/$filmId");
 
         $response
             ->assertStatus(200)

@@ -7,6 +7,7 @@ use App\Models\Dvd\Film;
 use App\Models\Person\UserFilm;
 use App\Notifications\Dvdrental\AddFilmNotification;
 use App\Notifications\Dvdrental\RemoveFilmNotification;
+use App\Providers\RouteServiceProvider;
 use Database\Seeders\Tests\Person\UserSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Database\Eloquent\Factories\Sequence;
@@ -24,7 +25,7 @@ class UserFilmsTest extends TestCase
         $this->seedUsers();
         $userAuthTestLogin = $this->getUser('AuthTestLogin');
         
-        $response = $this->before($userAuthTestLogin)->get('userfilms');
+        $response = $this->before($userAuthTestLogin)->get(RouteServiceProvider::URL_AUTH_USERFILMS);
 
         $response
             ->assertOk()
@@ -41,7 +42,7 @@ class UserFilmsTest extends TestCase
     
     public function test_user_films_can_not_displayed_for_guest(): void
     {
-        $response = $this->get('userfilms');
+        $response = $this->get(RouteServiceProvider::URL_AUTH_USERFILMS);
 
         $response
             ->assertStatus(302)
@@ -53,7 +54,7 @@ class UserFilmsTest extends TestCase
         $this->seedUsers();
         $userAuthTestLogin = $this->getUser('AuthTestLogin');
         
-        $response = $this->before($userAuthTestLogin)->get('userfilms?page=1&number=10&title_filter=center&description_filter=drama');
+        $response = $this->before($userAuthTestLogin)->get(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=10&title_filter=center&description_filter=drama');
 
         $response
             ->assertOk()
@@ -75,7 +76,7 @@ class UserFilmsTest extends TestCase
         $this->seedUsers();
         $userAuthTestLogin = $this->getUser('AuthTestLogin');
         
-        $response = $this->before($userAuthTestLogin)->post('userfilms/addfilm/123', [
+        $response = $this->before($userAuthTestLogin)->post(RouteServiceProvider::URL_AUTH_USERFILMS.'/addfilm/123', [
             'page' => 1,
             'number' => 100
         ]);
@@ -90,7 +91,7 @@ class UserFilmsTest extends TestCase
         
         $response
             ->assertStatus(302)
-            ->assertRedirect('films?page=1&number=100');
+            ->assertRedirect(RouteServiceProvider::URL_AUTH_FILMS.'?page=1&number=100');
     }
     
     public function test_film_can_not_add_in_user_list_with_duplicate(): void
@@ -101,7 +102,7 @@ class UserFilmsTest extends TestCase
         $userAuthTestLogin = $this->getUser('AuthTestLogin');
         
         // Попытка добавить в список пользователя уже существующий там фильм
-        $response = $this->before($userAuthTestLogin)->post('userfilms/addfilm/7', [
+        $response = $this->before($userAuthTestLogin)->post(RouteServiceProvider::URL_AUTH_USERFILMS.'/addfilm/7', [
             'page' => 1,
             'number' => 100
         ]);
@@ -128,7 +129,7 @@ class UserFilmsTest extends TestCase
         $this->seedUsers();
         $userAuthTestLogin = $this->getUser('AuthTestLogin');
         
-        $response = $this->before($userAuthTestLogin)->delete('userfilms/removefilm/7', [
+        $response = $this->before($userAuthTestLogin)->delete(RouteServiceProvider::URL_AUTH_USERFILMS.'/removefilm/7', [
             'password' => 'AuthTestPassword2',
             'page' => 1,
             'number' => 100
@@ -144,7 +145,7 @@ class UserFilmsTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('userfilms?page=1&number=100');
+            ->assertRedirect(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=100');
     }
     
     public function test_film_can_not_remove_from_user_list_with_wrong_password(): void
@@ -154,7 +155,7 @@ class UserFilmsTest extends TestCase
         $this->seedUsers();
         $userAuthTestLogin = $this->getUser('AuthTestLogin');
         
-        $response = $this->before($userAuthTestLogin)->delete('userfilms/removefilm/7', [
+        $response = $this->before($userAuthTestLogin)->delete(RouteServiceProvider::URL_AUTH_USERFILMS.'/removefilm/7', [
             'password' => 'wrongPassword7',
             'page' => 1,
             'number' => 100
@@ -219,7 +220,7 @@ class UserFilmsTest extends TestCase
             \Database\Seeders\Dvd\FilmActorSeeder::class,
         ]);
         
-        $response = $acting->get('userfilms/150');
+        $response = $acting->get(RouteServiceProvider::URL_AUTH_USERFILMS.'/150');
 
         $response
             ->assertOk()
@@ -236,7 +237,7 @@ class UserFilmsTest extends TestCase
     
     public function test_filmcard_can_not_displayed_for_guest(): void
     {
-        $response = $this->get('userfilms/150');
+        $response = $this->get(RouteServiceProvider::URL_AUTH_USERFILMS.'/150');
 
         $response
             ->assertStatus(302)

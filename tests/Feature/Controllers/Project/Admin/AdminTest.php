@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controllers\Project\Admin;
 
 use App\Models\User;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -24,7 +25,7 @@ class AdminTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('/userfilms');
+            ->assertRedirect(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=20');
     }
 
     public function test_admin_can_revoke_admin_rights(): void
@@ -41,6 +42,6 @@ class AdminTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('/userfilms');
+            ->assertRedirect(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=20');
     }
 }

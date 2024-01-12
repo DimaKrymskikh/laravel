@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Project\Admin\Content;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Thesaurus\LanguageRequest;
 use App\Models\Thesaurus\Language;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,7 +46,7 @@ class LanguageController extends Controller
         $language->name = $request->name;
         $language->save();
         
-        return redirect('admin/languages');
+        return redirect(RouteServiceProvider::URL_ADMIN_LANGUAGES);
     }
 
     /**
@@ -61,7 +62,7 @@ class LanguageController extends Controller
         $language->name = $request->name;
         $language->save();
         
-        return redirect('admin/languages');
+        return redirect(RouteServiceProvider::URL_ADMIN_LANGUAGES);
     }
 
     /**
@@ -74,7 +75,7 @@ class LanguageController extends Controller
     {
         Language::find($id)->delete();
         
-        return redirect('admin/languages');
+        return redirect(RouteServiceProvider::URL_ADMIN_LANGUAGES);
     }
     
     /**

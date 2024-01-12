@@ -5,6 +5,7 @@ namespace Tests\Feature\Controllers\Project\Admin\Content;
 use App\Models\Dvd\Actor;
 use App\Models\Dvd\Film;
 use App\Models\Dvd\FilmActor;
+use App\Providers\RouteServiceProvider;
 use Database\Seeders\Tests\Dvd\ActorSeeder;
 use Database\Seeders\Tests\Dvd\FilmSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -23,7 +24,7 @@ class FilmActorTest extends TestCase
         $this->seedUsers();
         
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->getJson("admin/films/actors?name=nn&film_id=".FilmSeeder::ID_JAPANESE_RUN);
+        $response = $acting->getJson(RouteServiceProvider::URL_ADMIN_FILMS."/actors?name=nn&film_id=".FilmSeeder::ID_JAPANESE_RUN);
 
         // Фильтру name=nn отвечают два актёра ActorSeeder::ID_JENNIFER_DAVIS и ActorSeeder::ID_JOHNNY_LOLLOBRIGIDA
         // У фильма FilmSeeder::ID_JAPANESE_RUN два актёра ActorSeeder::ID_JOHNNY_LOLLOBRIGIDA и ActorSeeder::ID_NICK_WAHLBERG
@@ -48,7 +49,7 @@ class FilmActorTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/films/actors', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_FILMS.'/actors', [
             'film_id' => FilmSeeder::ID_ADAPTATION_HOLES,
             'actor_id' => ActorSeeder::ID_PENELOPE_GUINESS,
         ]);
@@ -57,7 +58,7 @@ class FilmActorTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/films');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20');
     }
     
     public function test_admin_can_not_add_the_actor_in_the_film_if_the_couple_exists(): void
@@ -69,7 +70,7 @@ class FilmActorTest extends TestCase
         $film = Film::find(FilmSeeder::ID_JAPANESE_RUN);
         $actor = Actor::find(ActorSeeder::ID_NICK_WAHLBERG);
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/films/actors', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_FILMS.'/actors', [
             'film_id' => $film->id,
             'actor_id' => $actor->id,
         ]);
@@ -92,7 +93,7 @@ class FilmActorTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->delete('admin/films/actors/'.ActorSeeder::ID_PENELOPE_GUINESS, [
+        $response = $acting->delete(RouteServiceProvider::URL_ADMIN_FILMS.'/actors/'.ActorSeeder::ID_PENELOPE_GUINESS, [
             'password' => 'AdminTestPassword1',
             'film_id' => FilmSeeder::ID_BOOGIE_AMELIE,
         ]);
@@ -102,7 +103,7 @@ class FilmActorTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/films');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20');
     }
     
     public function test_admin_can_not_delete_the_actor_from_the_film_if_the_password_is_incorrect(): void
@@ -112,7 +113,7 @@ class FilmActorTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->delete('admin/films/actors/'.ActorSeeder::ID_PENELOPE_GUINESS, [
+        $response = $acting->delete(RouteServiceProvider::URL_ADMIN_FILMS.'/actors/'.ActorSeeder::ID_PENELOPE_GUINESS, [
             'password' => 'IncorrectPassword13',
             'film_id' => FilmSeeder::ID_BOOGIE_AMELIE,
         ]);

@@ -3,7 +3,7 @@
 namespace App\Console\Commands\OpenWeather;
 
 use App\Events\RefreshCityWeather;
-use App\Http\Controllers\Url;
+use App\Support\Url\Url;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
 use Carbon\Carbon;

@@ -3,22 +3,27 @@
 namespace App\Http\Controllers\Project\Admin\Content;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Url;
-use App\Http\Extraction\Dvd\Actors;
 use App\Models\Dvd\Actor;
 use App\Models\Dvd\Film;
 use App\Models\Dvd\FilmActor;
+use App\Providers\RouteServiceProvider;
+use App\Repositories\Dvd\ActorRepository;
+use App\Repositories\Dvd\FilmRepository;
+use App\Support\Pagination\Url;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class FilmActorController extends Controller
 {
-    use Actors, Url;
-    
-    public function __construct()
+    private Url $url;
+
+    public function __construct(
+        private ActorRepository $actors,
+    )
     {
         $this->middleware('check.password')->only('destroy');
+        $this->url = new Url(FilmRepository::ADDITIONAL_PARAMS_IN_URL);
     }
     
     /**
@@ -29,7 +34,7 @@ class FilmActorController extends Controller
      */
     public function index(Request $request): string
     {
-        $actors = $this->getCommonActorsList($request, false);
+        $actors = $this->actors->getCommonActorsList($request, false);
         $filmActors = FilmActor::where('film_id', $request->film_id)->get();
         
         return (string) $actors->except($filmActors->modelKeys());
@@ -64,12 +69,7 @@ class FilmActorController extends Controller
         $filmActor->actor_id = $request->actor_id;
         $filmActor->save();
         
-        return redirect($this->getUrl('admin/films', [
-            'page' => $request->page,
-            'number' => $request->number,
-            'title_filter' => $request->title_filter,
-            'description_filter' => $request->description_filter,
-        ]));
+        return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_ADMIN_FILMS, $request));
     }
 
     /**
@@ -85,11 +85,6 @@ class FilmActorController extends Controller
                 ->where('film_id', $request->film_id)
                 ->delete();
         
-        return redirect($this->getUrl('admin/films', [
-            'page' => $request->page,
-            'number' => $request->number,
-            'title_filter' => $request->title_filter,
-            'description_filter' => $request->description_filter,
-        ]));
+        return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_ADMIN_FILMS, $request));
     }
 }

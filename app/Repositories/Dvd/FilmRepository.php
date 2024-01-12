@@ -1,23 +1,30 @@
 <?php
 
-namespace App\Http\Extraction\Dvd;
+namespace App\Repositories\Dvd;
 
-use App\Http\Extraction\Pagination;
+use App\Contracts\Repositories\ListItem;
 use App\Models\Dvd\Film;
+use App\Support\Pagination\Paginator;
+use App\Support\Pagination\RequestGuard;
+use Illuminate\Contracts\Database\Eloquent\Builder as ContractsBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
-trait Films
+class FilmRepository implements ListItem
 {
-    use Pagination;
+    use Paginator;
     
-    private function setFilmsPagination(Builder $query, Request $request): LengthAwarePaginator
+    public const ADDITIONAL_PARAMS_IN_URL = ['title_filter', 'description_filter', 'release_year_filter'];
+    
+    private RequestGuard $guard;
+    
+    public function __construct()
     {
-        return $this->setPagination($query, $request, ['title_filter', 'description_filter']);
+        $this->guard = new RequestGuard(self::ADDITIONAL_PARAMS_IN_URL);
     }
     
     private function queryCommonFilmsList(Request $request): Builder
@@ -49,11 +56,11 @@ trait Films
      * @param Request $request
      * @return object
      */
-    private function getCommonFilmsList(Request $request, bool $isPagination = true): LengthAwarePaginator | Collection
+    public function getCommonFilmsList(Request $request, bool $isPagination = true): LengthAwarePaginator | Collection
     {
         $query = $this->queryCommonFilmsList($request);
                 
-        return $isPagination ? $this->setFilmsPagination($query, $request) : $query->get();
+        return $isPagination ? $this->setPagination($query, $request, $this->guard) : $query->get();
     }
     
     /**
@@ -62,7 +69,7 @@ trait Films
      * @param Request $request
      * @return object
      */
-    private function getCommonFilmsListWithActors(Request $request): LengthAwarePaginator
+    public function getCommonFilmsListWithActors(Request $request): LengthAwarePaginator
     {
         $query = Film::with('language:id,name')
                 ->leftJoin('dvd.films_actors', 'dvd.films_actors.film_id', '=', 'dvd.films.id')
@@ -91,7 +98,7 @@ trait Films
                 ->groupBy('dvd.films.id')
                 ->orderBy('title');
                 
-        return $this->setFilmsPagination($query, $request);
+        return $this->setPagination($query, $request, $this->guard);
     }
     
     /**
@@ -100,7 +107,7 @@ trait Films
      * @param Request $request
      * @return object
      */
-    private function getFilmsListWithAvailable(Request $request): LengthAwarePaginator
+    public function getFilmsListWithAvailable(Request $request): LengthAwarePaginator
     {
         $query = Film::with('language:id,name')
                     ->leftJoin('person.users_films', function(JoinClause $join) use ($request) {
@@ -120,7 +127,7 @@ trait Films
                 })
                 ->orderBy('title');
                 
-        return $this->setFilmsPagination($query, $request);
+        return $this->setPagination($query, $request, $this->guard);
     }
     
     /**
@@ -129,7 +136,7 @@ trait Films
      * @param Request $request
      * @return object
      */
-    private function getUserFilmsList(Request $request): LengthAwarePaginator
+    public function getUserFilmsList(Request $request): LengthAwarePaginator
     {
         $query = Film::with('language:id,name')
                 ->join('person.users_films', function(JoinClause $join) use ($request) {
@@ -148,7 +155,7 @@ trait Films
                 })
                 ->orderBy('title');
                 
-        return $this->setFilmsPagination($query, $request);
+        return $this->setPagination($query, $request, $this->guard);
     }
     
     /**
@@ -157,7 +164,7 @@ trait Films
      * @param int $film_id
      * @return object
      */
-    private function getFilmCard(int $film_id): Film
+    public function getFilmCard(int $film_id): Film
     {
         return Film::with([
                 'language:id,name',
@@ -168,10 +175,48 @@ trait Films
             ->first();
     }
     
-    private function getSerialNumberOfTheFilmInTheList(Request $request, int $filmId): int
+    /**
+     * Возвращает список актёров фильма с id = $film_id
+     * 
+     * @param int $film_id
+     * @return Film
+     */
+    public function getActorsList(int $film_id): Film
+    {
+        return Film::where('id', $film_id)
+                            ->with([
+                                'actors' => function (ContractsBuilder $query) {
+                                    $query->select('id', 'first_name', 'last_name')
+                                        ->orderBy('first_name')
+                                        ->orderBy('last_name');
+                                }
+                            ])
+                            ->select('id')
+                            ->first();
+    }
+    
+    /**
+     * Возвращает номер фильма в списке фильмов с фильтрами и с сортировкой по названию
+     * 
+     * @param Request $request
+     * @param int $filmId
+     * @return int
+     */
+    public function getSerialNumberOfItemInList(Request $request, int $filmId): int
     {
         $film = $this->queryCommonFilmsList($request)->get()->find($filmId);
         
-        return $film ? $film->n : self::DEFAULT_SERIAL_NUMBER;
+        return $film ? $film->n : RequestGuard::DEFAULT_SERIAL_NUMBER;
+    }
+    
+    /**
+     * Возвращает общее число фильмов в списке фильмов с фильтрами и с сортировкой по названию
+     * 
+     * @param Request $request
+     * @return int
+     */
+    public function getNumberOfItemsInList(Request $request): int
+    {
+        return $this->queryCommonFilmsList($request)->get()->count();
     }
 }

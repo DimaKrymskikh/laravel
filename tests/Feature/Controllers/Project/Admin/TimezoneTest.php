@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Controllers\Project\Admin;
 
+use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\Support\Authentication;
@@ -20,7 +21,7 @@ class TimezoneTest extends TestCase
         $this->seedUsers();
         
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->getJson("admin/timezone?name=nov");
+        $response = $acting->getJson(RouteServiceProvider::URL_ADMIN_TIMEZONE."?name=nov");
 
         $response
             ->assertStatus(200)

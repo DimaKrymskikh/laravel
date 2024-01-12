@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Project\Auth\Account;
 
 use App\Contracts\Support\Timezone as TimezoneInterface;
 use App\Http\Controllers\Controller;
-use App\Http\Extraction\Thesaurus\Cities;
 use App\Models\ModelsFields;
 use App\Models\Thesaurus\City;
+use App\Repositories\Thesaurus\CityRepository;
 use App\Support\Support\Timezone;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Http\Request;
@@ -15,11 +15,16 @@ use Inertia\Response;
 
 class UserWeatherController extends Controller implements TimezoneInterface
 {
-    use Timezone, ModelsFields, Cities;
+    use Timezone, ModelsFields;
+    
+    public function __construct(
+        private CityRepository $cities,
+    )
+    {}
     
     public function index(Request $request): Response
     {
-        $cities = $this->getWeatherForCitiesOfAuth($request);
+        $cities = $this->cities->getWeatherForCitiesOfAuth($request);
         $this->setTimezone($cities);
 
         return Inertia::render('Auth/Account/UserWeather', [

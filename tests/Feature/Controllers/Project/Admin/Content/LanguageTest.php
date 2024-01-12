@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controllers\Project\Admin\Content;
 
 use App\Models\Thesaurus\Language;
+use App\Providers\RouteServiceProvider;
 use Database\Seeders\Tests\Thesaurus\LanguageSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -19,7 +20,7 @@ class LanguageTest extends TestCase
     {
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->get('admin/languages');
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_LANGUAGES);
 
         $response
                 ->assertStatus(200)
@@ -36,7 +37,7 @@ class LanguageTest extends TestCase
         $this->seedLanguages();
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->get('admin/languages');
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_LANGUAGES);
 
         $response
                 ->assertStatus(200)
@@ -52,7 +53,7 @@ class LanguageTest extends TestCase
     {
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AuthTestLogin'));
-        $response = $acting->get('admin/languages');
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_LANGUAGES);
 
         $response->assertStatus(403);
     }
@@ -64,7 +65,7 @@ class LanguageTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/languages', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_LANGUAGES, [
             'name' => 'Немецкий',
         ]);
 
@@ -73,7 +74,7 @@ class LanguageTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/languages');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_LANGUAGES);
     }
     
     public function test_admin_can_not_add_language_if_the_name_starts_with_a_small_letter(): void
@@ -83,7 +84,7 @@ class LanguageTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/languages', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_LANGUAGES, [
             'name' => 'немецкий',
         ]);
 
@@ -103,7 +104,7 @@ class LanguageTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/languages', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_LANGUAGES, [
             'name' => 'Русский',
         ]);
 
@@ -123,7 +124,7 @@ class LanguageTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/languages', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_LANGUAGES, [
             'name' => '',
         ]);
 
@@ -143,7 +144,7 @@ class LanguageTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->post('admin/languages', [
+        $response = $acting->post(RouteServiceProvider::URL_ADMIN_LANGUAGES, [
             'name' => 77,
         ]);
 
@@ -163,7 +164,7 @@ class LanguageTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->put('admin/languages/'.LanguageSeeder::ID_ENGLISH, [
+        $response = $acting->put(RouteServiceProvider::URL_ADMIN_LANGUAGES.'/'.LanguageSeeder::ID_ENGLISH, [
             'name' => 'Китайский',
         ]);
 
@@ -174,7 +175,7 @@ class LanguageTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/languages');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_LANGUAGES);
     }
     
     public function test_admin_can_delete_language(): void
@@ -184,7 +185,7 @@ class LanguageTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->delete('admin/languages/'.LanguageSeeder::ID_ENGLISH, [
+        $response = $acting->delete(RouteServiceProvider::URL_ADMIN_LANGUAGES.'/'.LanguageSeeder::ID_ENGLISH, [
             'password' => 'AdminTestPassword1',
         ]);
 
@@ -193,7 +194,7 @@ class LanguageTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect('admin/languages');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_LANGUAGES);
     }
     
     public function test_admin_can_not_delete_language_if_the_password_is_incorrect(): void
@@ -203,7 +204,7 @@ class LanguageTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->delete('admin/languages/'.LanguageSeeder::ID_ENGLISH, [
+        $response = $acting->delete(RouteServiceProvider::URL_ADMIN_LANGUAGES.'/'.LanguageSeeder::ID_ENGLISH, [
             'password' => 'IncorrectPassword13',
         ]);
 
@@ -224,7 +225,7 @@ class LanguageTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->getJson("admin/languages/getJson?name=$name");
+        $response = $acting->getJson(RouteServiceProvider::URL_ADMIN_LANGUAGES."/getJson?name=$name");
 
         $response
             ->assertStatus(200)
