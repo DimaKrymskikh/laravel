@@ -31,10 +31,12 @@ const handlerAddFilm = function(e) {
             errorsTitle.value = '';
             errorsDescription.value = '';
         },
-        onSuccess: () => {
+        onSuccess: (res) => {
             props.hideAddFilmModal();
             // При добавлении фильма сбрасываем фильтр поиска
             filmsAdmin.resetSearchFilter();
+            // Запоминаем активную страницу пагинации
+            filmsAdmin.page = res.props.films.current_page;
         },
         onError: errors => {
             errorsTitle.value = errors.title;

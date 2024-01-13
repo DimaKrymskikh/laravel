@@ -3,6 +3,7 @@ import { router } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
 import UpdateFilmActorsModal from '@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue';
+import Spinner from '@/components/Svg/Spinner.vue';
 import { useAppStore } from '@/Stores/app';
 import { useFilmsAdminStore } from '@/Stores/films';
 
@@ -154,7 +155,7 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
         expect(wrapper.text()).toContain('Ничего не найдено');
     });
     
-    it("Повторный запрос на сервер для добавления актёра в фильм не отправляется", async () => {
+    it("Во время запроса отсутствует список актёров", async () => {
         const app = useAppStore();
         // Компонента монтируется с условием, что запрос на сервер отправлен
         app.isRequest = true;
@@ -162,23 +163,19 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
 
         app.request = vi.fn()
             .mockImplementationOnce(() => json_free_actors)
-            .mockImplementationOnce(() => json_film_actors_0);
+            .mockImplementationOnce(() => json_film_actors);
 
         const wrapper = getWrapper(app, filmsAdmin);
         await flushPromises();
         
         const inputFields = checkInputField.findNumberOfInputFieldOnPage(wrapper, 1);
         
+        // Отсутствуют списки актёров
         const uls = wrapper.findAll('ul');
-        expect(uls.length).toBe(1);
-        
-        const actorsUl = uls[0];
-        const actorsLis = actorsUl.findAll('li');
-        expect(actorsLis.length).toBe(7);
-        // Отправляется запрос на сервер, добавляющий актёра в фильм
-        expect(router.post).not.toHaveBeenCalled();
-        await actorsLis[3].trigger('click');
-        expect(router.post).not.toHaveBeenCalled();
+        expect(uls.length).toBe(0);
+        // Спиннеры отображаются
+        const spinner = wrapper.findAllComponents(Spinner)
+        expect(spinner.length).toBe(3);
     });
     
     it("Заполнение поля поиска актёров input отправляет запрос на сервер (проверка watch)", async () => {

@@ -3,6 +3,7 @@ import { inject, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
+import Spinner from '@/components/Svg/Spinner.vue';
 
 const props = defineProps({
     updateFilm: Object,
@@ -63,29 +64,30 @@ watch(actorName, handlerActorName);
     >
         <template v-slot:body>
             <h3 class="text-orange-900">Существующие актёры</h3>
-                <div
-                    v-if="!filmActors || (filmActors && !filmActors.actors.length)"
-                    class="overflow-x-hidden overflow-y-auto h-24"
-                >
-                    Актёры не добавлены
+                <div class="relative overflow-x-hidden overflow-y-auto h-24">
+                    <Spinner class="absolute top-2 left-1/2 z-10" styleSpinner="h-6 fill-gray-700 text-gray-200" v-if="app.isRequest"/>
+                    <template v-else>
+                        <div v-if="!filmActors || (filmActors && !filmActors.actors.length)">
+                            Актёры не добавлены
+                        </div>
+                        <ul 
+                            @click="showRemoveActorFromFilmModal"
+                            v-if="filmActors && filmActors.actors.length"
+                        >
+                            <li
+                                class="text-center mx-16 mb-2 p-1 border rounded-md"
+                                :class="app.isRequest ? 'disabled' : 'text-neutral-700 border-orange-300 hover:text-neutral-900 hover:border-orange-500 cursor-pointer'"
+                                :data-id="actor.id"
+                                :data-first_name="actor.first_name"
+                                :data-last_name="actor.last_name"
+                                v-for="actor in filmActors.actors"
+                                title="Клик удалит актёра"
+                            >
+                                {{ actor.first_name + ' ' + actor.last_name }}
+                            </li>
+                        </ul>
+                    </template>
                 </div>
-                <ul 
-                    class="overflow-x-hidden overflow-y-auto h-24"
-                    @click="showRemoveActorFromFilmModal"
-                    v-if="filmActors && filmActors.actors.length"
-                >
-                    <li
-                        class="text-center mx-16 mb-2 p-1 border rounded-md"
-                        :class="app.isRequest ? 'disabled' : 'text-neutral-700 border-orange-300 hover:text-neutral-900 hover:border-orange-500 cursor-pointer'"
-                        :data-id="actor.id"
-                        :data-first_name="actor.first_name"
-                        :data-last_name="actor.last_name"
-                        v-for="actor in filmActors.actors"
-                        title="Клик удалит актёра"
-                    >
-                        {{ actor.first_name + ' ' + actor.last_name }}
-                    </li>
-                </ul>
             <h3 class="text-orange-900">Добавить нового актёра</h3>
             <div class="mb-3">
                 <InputField
@@ -94,24 +96,28 @@ watch(actorName, handlerActorName);
                     :isInputAutofocus="true"
                     v-model="actorName"
                 />
-                <div v-if="!actors || (actors && !actors.length)">
-                    Ничего не найдено
+                <div class="relative overflow-x-hidden overflow-y-auto h-24">
+                    <Spinner class="absolute top-2 left-1/2 z-10" styleSpinner="h-6 fill-gray-700 text-gray-200" v-if="app.isRequest"/>
+                    <template v-else>
+                        <div v-if="!actors || (actors && !actors.length)">
+                            Ничего не найдено
+                        </div>
+                        <ul 
+                            @click="handlerAddActorInFilm"
+                            v-if="actors && actors.length"
+                        >
+                            <li
+                                class="text-center mx-16 mb-2 p-1 border rounded-md"
+                                :class="app.isRequest ? 'disabled' : 'text-neutral-700 border-orange-300 hover:text-neutral-900 hover:border-orange-500 cursor-pointer'"
+                                :data-id="actor.id"
+                                v-for="actor in actors"
+                                title="Клик добавит актёра"
+                            >
+                                {{ actor.first_name + ' ' + actor.last_name }}
+                            </li>
+                        </ul>
+                    </template>
                 </div>
-                <ul 
-                    class="overflow-x-hidden overflow-y-auto h-48"
-                    @click="handlerAddActorInFilm"
-                    v-if="actors && actors.length"
-                >
-                    <li
-                        class="text-center mx-16 mb-2 p-1 border rounded-md"
-                        :class="app.isRequest ? 'disabled' : 'text-neutral-700 border-orange-300 hover:text-neutral-900 hover:border-orange-500 cursor-pointer'"
-                        :data-id="actor.id"
-                        v-for="actor in actors"
-                        title="Клик добавит актёра"
-                    >
-                        {{ actor.first_name + ' ' + actor.last_name }}
-                    </li>
-                </ul>
             </div>
         </template>
     </BaseModal>
