@@ -2,30 +2,30 @@
 
 namespace Tests\Feature\Controllers\Project\Auth\Account;
 
-use App\Models\User;
 use App\Models\Dvd\Film;
 use App\Models\Person\UserFilm;
 use App\Notifications\Dvdrental\AddFilmNotification;
 use App\Notifications\Dvdrental\RemoveFilmNotification;
 use App\Providers\RouteServiceProvider;
+use Database\Seeders\Tests\Dvd\FilmSeeder;
 use Database\Seeders\Tests\Person\UserSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
-use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\Support\Authentication;
+use Tests\Support\User\Seeders;
 use Tests\TestCase;
 
 class UserFilmsTest extends TestCase
 {
-    use RefreshDatabase, Authentication;
+    use RefreshDatabase, Authentication, Seeders;
     
     public function test_user_films_displayed_for_auth(): void
     {
-        $this->seedUsers();
-        $userAuthTestLogin = $this->getUser('AuthTestLogin');
+        $this->seedUserFilms();
+        $acting = $this->actingAs($this->getUser('AuthTestLogin'));
         
-        $response = $this->before($userAuthTestLogin)->get(RouteServiceProvider::URL_AUTH_USERFILMS);
+        $response = $acting->get(RouteServiceProvider::URL_AUTH_USERFILMS);
 
         $response
             ->assertOk()
@@ -51,10 +51,10 @@ class UserFilmsTest extends TestCase
     
     public function test_user_films_displayed_for_auth_with_filter(): void
     {
-        $this->seedUsers();
-        $userAuthTestLogin = $this->getUser('AuthTestLogin');
+        $this->seedUserFilms();
+        $acting = $this->actingAs($this->getUser('AuthTestLogin'));
         
-        $response = $this->before($userAuthTestLogin)->get(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=10&title_filter=center&description_filter=drama');
+        $response = $acting->get(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=10&title_filter=boiled&description_filter=story&release_year_filter=2006');
 
         $response
             ->assertOk()
@@ -73,20 +73,21 @@ class UserFilmsTest extends TestCase
     {
         Notification::fake();
         
-        $this->seedUsers();
-        $userAuthTestLogin = $this->getUser('AuthTestLogin');
+        $this->seedUserFilms();
+        $user = $this->getUser('AuthTestLogin');
+        $acting = $this->actingAs($user);
         
-        $response = $this->before($userAuthTestLogin)->post(RouteServiceProvider::URL_AUTH_USERFILMS.'/addfilm/123', [
+        $response = $acting->post(RouteServiceProvider::URL_AUTH_USERFILMS.'/addfilm/'.FilmSeeder::ID_RIVER_OUTLAW, [
             'page' => 1,
             'number' => 100
         ]);
         
         // У BaseTestLogin теперь 4 фидьма (было 3 и 1 добавился)
-        $this->assertEquals(4, UserFilm::where('user_id', $userAuthTestLogin->id)->count());
+        $this->assertEquals(4, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
         
         // Отправляется оповещение о добавлении фильма
         Notification::assertSentTo(
-            [$userAuthTestLogin], AddFilmNotification::class
+            [$user], AddFilmNotification::class
         );
         
         $response
@@ -98,26 +99,27 @@ class UserFilmsTest extends TestCase
     {
         Notification::fake();
         
-        $this->seedUsers();
-        $userAuthTestLogin = $this->getUser('AuthTestLogin');
+        $this->seedUserFilms();
+        $user = $this->getUser('AuthTestLogin');
+        $acting = $this->actingAs($user);
         
         // Попытка добавить в список пользователя уже существующий там фильм
-        $response = $this->before($userAuthTestLogin)->post(RouteServiceProvider::URL_AUTH_USERFILMS.'/addfilm/7', [
+        $response = $acting->post(RouteServiceProvider::URL_AUTH_USERFILMS.'/addfilm/'.FilmSeeder::ID_BOILED_DARES, [
             'page' => 1,
             'number' => 100
         ]);
         
-        // У BaseTestLogin по-прежнему 3 фильма
-        $this->assertEquals(3, UserFilm::where('user_id', $userAuthTestLogin->id)->count());
+        // У AuthTestLogin по-прежнему 3 фильма
+        $this->assertEquals(3, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
 
         // Оповещение о добавлении фильма не отправляется
         Notification::assertNotSentTo(
-            [$userAuthTestLogin], AddFilmNotification::class
+            [$user], AddFilmNotification::class
         );
 
         $response->assertInvalid([
                 'message' => trans("user.film.message", [
-                    'film' => Film::find(7)->title
+                    'film' => Film::find(FilmSeeder::ID_BOILED_DARES)->title
                 ])
             ]);
     }
@@ -126,21 +128,22 @@ class UserFilmsTest extends TestCase
     {
         Notification::fake();
         
-        $this->seedUsers();
-        $userAuthTestLogin = $this->getUser('AuthTestLogin');
+        $this->seedUserFilms();
+        $user = $this->getUser('AuthTestLogin');
+        $acting = $this->actingAs($user);
         
-        $response = $this->before($userAuthTestLogin)->delete(RouteServiceProvider::URL_AUTH_USERFILMS.'/removefilm/7', [
+        $response = $acting->delete(RouteServiceProvider::URL_AUTH_USERFILMS.'/removefilm/'.FilmSeeder::ID_BOILED_DARES, [
             'password' => 'AuthTestPassword2',
             'page' => 1,
             'number' => 100
         ]);
         
-        // У BaseTestLogin теперь 2 фильма (было 3 и 1 удалился)
-        $this->assertEquals(2, UserFilm::where('user_id', $userAuthTestLogin->id)->count());
+        // У AuthTestLogin теперь 2 фильма (было 3 и 1 удалился)
+        $this->assertEquals(2, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
 
         // Отправляется оповещение об удалении фильма
         Notification::assertSentTo(
-            [$userAuthTestLogin], RemoveFilmNotification::class
+            [$user], RemoveFilmNotification::class
         );
 
         $response
@@ -152,21 +155,22 @@ class UserFilmsTest extends TestCase
     {
         Notification::fake();
         
-        $this->seedUsers();
-        $userAuthTestLogin = $this->getUser('AuthTestLogin');
+        $this->seedUserFilms();
+        $user = $this->getUser('AuthTestLogin');
+        $acting = $this->actingAs($user);
         
-        $response = $this->before($userAuthTestLogin)->delete(RouteServiceProvider::URL_AUTH_USERFILMS.'/removefilm/7', [
+        $response = $acting->delete(RouteServiceProvider::URL_AUTH_USERFILMS.'/removefilm/'.FilmSeeder::ID_BOILED_DARES, [
             'password' => 'wrongPassword7',
             'page' => 1,
             'number' => 100
         ]);
         
-        // У BaseTestLogin по-прежнему 3 фильма
-        $this->assertEquals(3, UserFilm::where('user_id', $userAuthTestLogin->id)->count());
+        // У AuthTestLogin по-прежнему 3 фильма
+        $this->assertEquals(3, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
 
         // Оповещение об удалении фильма не отправляется
         Notification::assertNotSentTo(
-            [$userAuthTestLogin], RemoveFilmNotification::class
+            [$user], RemoveFilmNotification::class
         );
 
         $response->assertInvalid([
@@ -174,53 +178,13 @@ class UserFilmsTest extends TestCase
             ]);
     }
     
-    private function before(User $user): static
-    {
-        $this->seed([
-            \Database\Seeders\Thesaurus\LanguageSeeder::class,
-            \Database\Seeders\Dvd\FilmSeeder::class,
-        ]);
-        
-        $films = Film::whereIn('id', [7, 15, 21])->get();
-
-        // Создаём 4 записи в person.users_films
-        // 3 для BaseTestLogin ($user)
-        // 1 для TestLogin
-        UserFilm::factory()->count(4)
-                ->state(new Sequence(
-                    [
-                        'user_id' => $user->id,
-                        'film_id' => $films->get('id', 7),
-                    ], [
-                        'user_id' => $user->id,
-                        'film_id' => $films->get('id', 15),
-                    ], [
-                        'user_id' => $user->id,
-                        'film_id' => $films->get('id', 21),
-                    ], [
-                        'user_id' => UserSeeder::ID_TEST_LOGIN,
-                        'film_id' => $films->get('id', 7),
-                    ]
-                ))
-                ->create();
-    
-        // Логинится пользователь BaseTestLogin
-        return $this->actingAs($user);
-    }
-    
     public function test_filmcard_is_displayed_for_auth(): void
     {
-        $user = User::factory()->create();
+        $this->seedUserFilmsWithActors();
+        $user = $this->getUser('AuthTestLogin');
         $acting = $this->actingAs($user);
         
-        $this->seed([
-            \Database\Seeders\Thesaurus\LanguageSeeder::class,
-            \Database\Seeders\Dvd\ActorSeeder::class,
-            \Database\Seeders\Dvd\FilmSeeder::class,
-            \Database\Seeders\Dvd\FilmActorSeeder::class,
-        ]);
-        
-        $response = $acting->get(RouteServiceProvider::URL_AUTH_USERFILMS.'/150');
+        $response = $acting->get(RouteServiceProvider::URL_AUTH_USERFILMS.'/'.FilmSeeder::ID_BOILED_DARES);
 
         $response
             ->assertOk()
@@ -228,8 +192,8 @@ class UserFilmsTest extends TestCase
                     $page->component('Auth/FilmCard')
                         ->has('errors', 0)
                         ->has('film', fn (Assert $page) => 
-                            $page->where('id', 150)
-                                ->has('actors', 5)
+                            $page->where('id', FilmSeeder::ID_BOILED_DARES)
+                                ->has('actors', 2)
                                 ->etc()
                 )
             );
@@ -237,7 +201,7 @@ class UserFilmsTest extends TestCase
     
     public function test_filmcard_can_not_displayed_for_guest(): void
     {
-        $response = $this->get(RouteServiceProvider::URL_AUTH_USERFILMS.'/150');
+        $response = $this->get(RouteServiceProvider::URL_AUTH_USERFILMS.'/'.FilmSeeder::ID_BOILED_DARES);
 
         $response
             ->assertStatus(302)
