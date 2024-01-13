@@ -21,7 +21,7 @@ const filmActors = ref(null);
 const actors = ref(null);
 
 const handlerActorName = async function() {
-    actors.value = await app.request(`/admin/films/actors?name=${actorName.value}`, 'GET');
+    actors.value = await app.request(`/admin/films/actors?name=${actorName.value}&film_id=${props.updateFilm.id}`, 'GET');
 };
 handlerActorName();
 
