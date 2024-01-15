@@ -31,10 +31,12 @@ const handlerAddActor = function(e) {
             errorsFirstName.value = '';
             errorsLastName.value = '';
         },
-        onSuccess: () => {
+        onSuccess: (res) => {
             hideAddActorModal();
             // При добавлении актёра сбрасываем фильтр поиска
             actorsList.name = '';
+            // Запоминаем активную страницу пагинации
+            actorsList.page = res.props.actors.current_page;
         },
         onError: errors => {
             errorsFirstName.value = errors.first_name;
