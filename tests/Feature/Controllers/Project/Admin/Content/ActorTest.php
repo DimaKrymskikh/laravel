@@ -197,7 +197,7 @@ class ActorTest extends TestCase
             ->assertRedirect(RouteServiceProvider::URL_ADMIN_ACTORS.'?page=1&number=20');
     }
     
-    public function test_admin_can_not_update_actorif_the_first_name_or_the_last_name_starts_with_a_small_letter(): void
+    public function test_admin_can_not_update_actor_if_the_first_name_or_the_last_name_starts_with_a_small_letter(): void
     {
         $this->seedActors();
         $nActors = Actor::all()->count();

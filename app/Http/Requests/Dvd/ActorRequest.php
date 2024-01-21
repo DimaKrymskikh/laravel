@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Dvd;
 
+use App\DataTransferObjects\Database\Dvd\ActorDto;
 use App\Rules\CapitalFirstLetter;
+use App\ValueObjects\PersonName;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ActorRequest extends FormRequest
@@ -36,5 +38,13 @@ class ActorRequest extends FormRequest
             'last_name.required' => trans("attr.actor.last_name.required"),
             'last_name.string' => trans("attr.actor.last_name.string"),
         ];
+    }
+    
+    public function getActorDto(): ActorDto
+    {
+        return new ActorDto(
+                PersonName::create($this->get('first_name'), 'first_name', 'attr.actor.first_name.capital_first_letter'),
+                PersonName::create($this->get('last_name'), 'last_name', 'attr.actor.last_name.capital_first_letter'),
+            );
     }
 }
