@@ -65,7 +65,7 @@ class GetWeather extends Command
                 'units' => 'metric',
                 'lang' => 'ru',
                 'id' => $city->open_weather_id,
-                'appid' => env('OPENWEATHER_KEY')
+                'appid' => config('api.openweather_key')
             ]));
             
             if($response->status() === 200) {
