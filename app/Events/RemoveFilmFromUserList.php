@@ -2,9 +2,8 @@
 
 namespace App\Events;
 
-use App\Models\ModelsFields;
+use App\Models\Dvd\Film;
 use App\Models\Person\UserFilm;
-
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -13,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class RemoveFilmFromUserList implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels, ModelsFields;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
     
     public string $message;
 
@@ -24,7 +23,8 @@ class RemoveFilmFromUserList implements ShouldBroadcast
             public UserFilm $userFilm
     )
     {
-        $this->message = 'Вы удалили из своей коллекции фильм '.$this->getFilmTitle($userFilm->film_id);
+        $titleFilm = Film::find($userFilm->film_id)->title;
+        $this->message = "Вы удалили из своей коллекции фильм $titleFilm";
     }
 
     /**

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Project\Auth\Account;
 
 use App\Contracts\Support\Timezone as TimezoneInterface;
 use App\Http\Controllers\Controller;
-use App\Models\ModelsFields;
 use App\Models\Thesaurus\City;
 use App\Repositories\Thesaurus\CityRepository;
 use App\Support\Support\Timezone;
@@ -15,7 +14,7 @@ use Inertia\Response;
 
 class UserWeatherController extends Controller implements TimezoneInterface
 {
-    use Timezone, ModelsFields;
+    use Timezone;
     
     public function __construct(
         private CityRepository $cities,
@@ -37,12 +36,12 @@ class UserWeatherController extends Controller implements TimezoneInterface
      * Обновляет данные о погоде в городе с $city_id
      * 
      * @param Request $request
-     * @param string $city_id
+     * @param int $city_id
      * @return void
      */
-    public function refresh(Request $request, string $city_id): void
+    public function refresh(Request $request, int $city_id): void
     {
-        $openWeatherId = $this->getModelField(City::class, 'open_weather_id', $city_id);
+        $openWeatherId = City::find($city_id)->open_weather_id;
         
         Artisan::queue('get:weather', [
             'open_weather_id' => $openWeatherId,

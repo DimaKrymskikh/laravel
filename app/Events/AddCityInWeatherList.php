@@ -2,7 +2,6 @@
 
 namespace App\Events;
 
-use App\Models\ModelsFields;
 use App\Models\Person\UserCity;
 use App\Models\Thesaurus\City;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -13,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class AddCityInWeatherList implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels, ModelsFields;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
     
     public string $message;
 
@@ -25,7 +24,8 @@ class AddCityInWeatherList implements ShouldBroadcast
             public UserCity $userCity
     )
     {
-        $this->message = 'Вы добавили город '.$this->getModelField(City::class, 'name', $userCity->city_id).' в список просмотра погоды';    
+        $nameCity = City::find($userCity->city_id)->name;
+        $this->message = "Вы добавили город $nameCity в список просмотра погоды";    
     }
 
     /**
