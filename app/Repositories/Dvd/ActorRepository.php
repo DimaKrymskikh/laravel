@@ -33,9 +33,7 @@ class ActorRepository implements ListItem
                 'last_name',
                 DB::raw('row_number() OVER(ORDER BY first_name, last_name) AS n')
             )
-            ->when($request->name, function (Builder $query, string $name) {
-                $query->whereRaw("concat(first_name, ' ', last_name) ILIKE ?", ["%$name%"]);
-            })
+            ->filter($request)
             ->orderBy('first_name')
             ->orderBy('last_name');
     }

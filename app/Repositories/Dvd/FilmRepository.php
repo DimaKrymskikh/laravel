@@ -38,15 +38,7 @@ class FilmRepository implements ListItem
                     'release_year',
                     DB::raw('row_number() OVER(ORDER BY title) AS n')
                 )
-                ->when($request->title_filter, function (Builder $query, string $title) {
-                    $query->where('title', 'ILIKE', "%$title%");
-                })
-                ->when($request->description_filter, function (Builder $query, string $description) {
-                    $query->where('description', 'ILIKE', "%$description%");
-                })
-                ->when($request->release_year_filter, function (Builder $query, string $release_year) {
-                    $query->where('release_year', 'ILIKE', "%$release_year%");
-                })
+                ->filter($request)
                 ->orderBy('title');
     }
 
@@ -86,15 +78,7 @@ class FilmRepository implements ListItem
                                 ), 'Актёры не добавлены') AS "actorsList"
                             SQL)
                     )
-                ->when($request->title_filter, function (Builder $query, string $title) {
-                    $query->where('title', 'ILIKE', "%$title%");
-                })
-                ->when($request->description_filter, function (Builder $query, string $description) {
-                    $query->where('description', 'ILIKE', "%$description%");
-                })
-                ->when($request->release_year_filter, function (Builder $query, string $release_year) {
-                    $query->where('release_year', 'ILIKE', "%$release_year%");
-                })
+                ->filter($request)
                 ->groupBy('dvd.films.id')
                 ->orderBy('title');
                 
@@ -116,15 +100,7 @@ class FilmRepository implements ListItem
                     })
                 ->select('id', 'title', 'description', 'language_id')
                 ->selectRaw('coalesce (person.users_films.user_id::bool, false) AS "isAvailable"')
-                ->when($request->title_filter, function (Builder $query, string $title) {
-                    $query->where('title', 'ILIKE', "%$title%");
-                })
-                ->when($request->description_filter, function (Builder $query, string $description) {
-                    $query->where('description', 'ILIKE', "%$description%");
-                })
-                ->when($request->release_year_filter, function (Builder $query, string $release_year) {
-                    $query->where('release_year', 'ILIKE', "%$release_year%");
-                })
+                ->filter($request)
                 ->orderBy('title');
                 
         return $this->setPagination($query, $request, $this->guard);
@@ -144,15 +120,7 @@ class FilmRepository implements ListItem
                         ->where('person.users_films.user_id', '=', $request->user()->id);
                 })
                 ->select('id', 'title', 'description', 'language_id')
-                ->when($request->title_filter, function (Builder $query, string $title) {
-                    $query->where('title', 'ILIKE', "%$title%");
-                })
-                ->when($request->description_filter, function (Builder $query, string $description) {
-                    $query->where('description', 'ILIKE', "%$description%");
-                })
-                ->when($request->release_year_filter, function (Builder $query, string $release_year) {
-                    $query->where('release_year', 'ILIKE', "%$release_year%");
-                })
+                ->filter($request)
                 ->orderBy('title');
                 
         return $this->setPagination($query, $request, $this->guard);
