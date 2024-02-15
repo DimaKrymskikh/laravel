@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Project\Auth\Account;
 
+use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
 use App\Contracts\Support\Timezone as TimezoneInterface;
+use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
+use App\Events\RefreshCityWeather;
 use App\Http\Controllers\Controller;
 use App\Models\Thesaurus\City;
 use App\Repositories\Thesaurus\CityRepository;
+use App\Services\Database\OpenWeather\WeatherService;
 use App\Support\Support\Timezone;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -37,16 +40,28 @@ class UserWeatherController extends Controller implements TimezoneInterface
      * 
      * @param Request $request
      * @param int $city_id
+     * @param WeatherService $weatherService
+     * @param GetWeatherFromOpenWeatherCommandHandler $commandHandler
      * @return void
      */
-    public function refresh(Request $request, int $city_id): void
+    public function refresh(Request $request, int $city_id, WeatherService $weatherService, GetWeatherFromOpenWeatherCommandHandler $commandHandler): void
     {
         $openWeatherId = City::find($city_id)->open_weather_id;
         
-        Artisan::queue('get:weather', [
-            'open_weather_id' => $openWeatherId,
-            '--http' => true,
-            '--user_id' => $request->user()->id,
-        ]);
+        $response = $commandHandler->handle($openWeatherId);
+        
+        if($response->status() !== 200) {
+            return;
+        }
+        
+        $data = $response->object();
+
+        $dto = new WeatherDto(
+                $city_id, $data->weather[0]->description, $data->main->temp, $data->main->feels_like, $data->main->pressure,
+                $data->main->humidity, $data->visibility, $data->wind->speed, $data->wind->deg, $data->clouds->all
+        );
+
+        $weatherService->create($dto);
+        event(new RefreshCityWeather($city_id, $request->user()->id));
     }
 }

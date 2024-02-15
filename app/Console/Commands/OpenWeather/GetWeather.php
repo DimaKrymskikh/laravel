@@ -2,25 +2,21 @@
 
 namespace App\Console\Commands\OpenWeather;
 
-use App\Events\RefreshCityWeather;
-use App\Support\Url\Url;
-use App\Models\OpenWeather\Weather;
+use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
+use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Models\Thesaurus\City;
-use Carbon\Carbon;
+use App\Services\Database\OpenWeather\WeatherService;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\Http;
 
 class GetWeather extends Command
 {
-    use Url;
-    
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'get:weather {open_weather_id?} {--http} {--user_id=}';
+    protected $signature = 'get:weather {open_weather_id?}';
 
     /**
      * The console command description.
@@ -30,17 +26,19 @@ class GetWeather extends Command
     protected $description = 'Получение погоды с сервиса OpenWeather';
 
     /**
-     * Execute the console command.
+     * Выполняет консольную команду.
+     * 
+     * @param WeatherService $weatherService
+     * @param GetWeatherFromOpenWeatherCommandHandler $request
+     * @return void
      */
-    public function handle(): void
+    public function handle(WeatherService $weatherService, GetWeatherFromOpenWeatherCommandHandler $request): void
     {
         $this->info('Старт.');
         $this->line("$this->description");
         $this->line('');
         
         $open_weather_id = $this->argument('open_weather_id');
-        $isHttp = $this->option('http');
-        $userId = $this->option('user_id');
         
         if($open_weather_id) {
             if(!intval($open_weather_id)) {
@@ -61,15 +59,10 @@ class GetWeather extends Command
         foreach($cities as $city) {
             $this->line("$city->name [$city->open_weather_id]: отправляем запрос на сервер OpenWeather");
 
-            $response = Http::get($this->getUrl("http://api.openweathermap.org/data/2.5/weather", [
-                'units' => 'metric',
-                'lang' => 'ru',
-                'id' => $city->open_weather_id,
-                'appid' => config('api.openweather_key')
-            ]));
+            $response = $request->handle($city->open_weather_id);
             
             if($response->status() === 200) {
-                $this->responseStatusOk($response, $city, $isHttp, $userId);
+                $this->responseStatusOk($response, $city, $weatherService);
             } else {
                 $this->line("Сервер OpenWeather вернул ответ со статусом {$response->status()}: {$response->body()}");
             }
@@ -80,30 +73,24 @@ class GetWeather extends Command
         $this->info('Команда выполнена.');
     }
     
-    private function responseStatusOk(Response $response, City $city, bool $isHttp, ?int $userId): void
+    /**
+     * Сохраняет данные о погоде в таблице open_weather.weather
+     * 
+     * @param Response $response
+     * @param City $city
+     * @param WeatherService $weatherService
+     * @return void
+     */
+    private function responseStatusOk(Response $response, City $city, WeatherService $weatherService): void
     {
         $data = $response->object();
-
-        $weather = new Weather();
-        $weather->city_id = $city->id;
-        $weather->weather_description = $data->weather[0]->description;
-        $weather->main_temp = $data->main->temp;
-        $weather->main_feels_like = $data->main->feels_like;
-        $weather->main_pressure = $data->main->pressure;
-        $weather->main_humidity = $data->main->humidity;
-        $weather->visibility = $data->visibility;
-        $weather->wind_speed = $data->wind->speed;
-        $weather->wind_deg = $data->wind->deg;
-        $weather->clouds_all = $data->clouds->all;
-        // Задаём время здесь, чтобы не делать запрос в RefreshCityWeather
-        // Время нужно задавать с часовым поясом 'UTC'
-        $weather->created_at = Carbon::now('UTC');
-
-        if($weather->save()) {
-            $this->line("$city->name [$city->open_weather_id]: погода сохранена в базе");
-            if($isHttp && $userId) {
-                event(new RefreshCityWeather($weather, $city->id, $userId));
-            }
-        }
+        
+        $dto = new WeatherDto(
+                $city->id, $data->weather[0]->description, $data->main->temp, $data->main->feels_like, $data->main->pressure,
+                $data->main->humidity, $data->visibility, $data->wind->speed, $data->wind->deg, $data->clouds->all
+        );
+        
+        $weatherService->create($dto);
+        $this->line("$city->name [$city->open_weather_id]: погода сохранена в базе");
     }
 }

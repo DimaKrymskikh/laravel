@@ -3,7 +3,7 @@
 namespace App\Console\Commands\Dvd\Actor;
 
 use App\DataTransferObjects\Database\Dvd\ActorDto;
-use App\Services\Database\Dvd\ActorServices;
+use App\Services\Database\Dvd\ActorService;
 use App\ValueObjects\PersonName;
 use Illuminate\Console\Command;
 use Illuminate\Validation\ValidationException;
@@ -42,10 +42,10 @@ class CreateActor extends Command
                     PersonName::create($lastName, 'last_name', 'attr.actor.last_name.capital_first_letter'),
                 );
             
-            (new ActorServices())->create($actorDto);
-            
-            $this->line("В таблицу dvd.actors добавлен актёр $firstName $lastName.");
+            $actor = (new ActorService())->create($actorDto);
+            $this->line("В таблицу dvd.actors добавлен актёр $actor->first_name $actor->last_name.");
             $this->info('Команда выполнена.');
+            
         } catch(ValidationException $ex) {
             $this->error($ex->getMessage());
         }

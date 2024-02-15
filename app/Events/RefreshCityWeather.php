@@ -2,10 +2,8 @@
 
 namespace App\Events;
 
-use App\Contracts\Support\Timezone as TimezoneInterface;
-use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
-use Carbon\Carbon;
+use App\Repositories\OpenWeather\WeatherRepository;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -16,19 +14,16 @@ class RefreshCityWeather implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     
-    public string $tzName;
+    private City $city;
+    private int $userId;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(
-            public Weather $weather,
-            public int $cityId,
-            public int $userId
-    )
+    public function __construct(int $cityId, int $userId)
     {
-        $city = City::find($cityId);
-        $this->tzName = $city->timezone_id ? $city->timezone->name : TimezoneInterface::DEFAULT_TIMEZONE_NAME;
+        $this->city = City::find($cityId);
+        $this->userId = $userId;
     }
 
     /**
@@ -45,13 +40,9 @@ class RefreshCityWeather implements ShouldBroadcast
     
     public function broadcastWith(): array
     {
-        // Устанавливаем временной пояс города
-        // (!!! В конструкторе изменение временного пояса работает неправильно, почему-то)
-        $this->weather->created_at = Carbon::parse($this->weather->created_at)->setTimezone($this->tzName);
-        
         return [
-            'weather' => $this->weather,
-            'cityId' => $this->cityId,
+            'weather' => (new WeatherRepository())->getLatestWeatherForOneCity($this->city),
+            'cityId' => $this->city->id,
         ];
     }
 }

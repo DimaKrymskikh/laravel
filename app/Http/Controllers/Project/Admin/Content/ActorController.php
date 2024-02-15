@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Dvd\ActorRequest;
 use App\Providers\RouteServiceProvider;
 use App\Repositories\Dvd\ActorRepository;
-use App\Services\Database\Dvd\ActorServices;
+use App\Services\Database\Dvd\ActorService;
 use App\Support\Pagination\Url;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -42,14 +42,14 @@ class ActorController extends Controller
      * В таблицу 'dvd.actors' добавляется новый актёр
      * 
      * @param ActorRequest $request
-     * @param ActorServices $actorServices
+     * @param ActorService $actorService
      * @return RedirectResponse
      */
-    public function store(ActorRequest $request, ActorServices $actorServices): RedirectResponse
+    public function store(ActorRequest $request, ActorService $actorService): RedirectResponse
     {
         // Создаём новую запись в таблице 'thesaurus.languages'
         // (Валидация уже выполнена в ActorRequest)
-        $actor = $actorServices->create($request->getActorDto());
+        $actor = $actorService->create($request->getActorDto());
         
         // Нужно сбросить фильтр поиска, чтобы новый актёр гарантированно попал в список актёров
         $request->name = '';
@@ -61,13 +61,13 @@ class ActorController extends Controller
      * Изменяет полное имя актёра с id = $actor_id
      * 
      * @param ActorRequest $request
-     * @param ActorServices $actorServices
+     * @param ActorService $actorService
      * @param int $actor_id
      * @return RedirectResponse
      */
-    public function update(ActorRequest $request, ActorServices $actorServices, int $actor_id): RedirectResponse
+    public function update(ActorRequest $request, ActorService $actorService, int $actor_id): RedirectResponse
     {
-        $actorServices->update($request->getActorDto(), $actor_id);
+        $actorService->update($request->getActorDto(), $actor_id);
         
         return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_ADMIN_ACTORS, $request));
     }
@@ -76,13 +76,13 @@ class ActorController extends Controller
      * Удаляет актёра с id = $actor_id из таблицы 'dvd.actors'
      * 
      * @param Request $request
-     * @param ActorServices $actorServices
+     * @param ActorService $actorService
      * @param int $actor_id
      * @return RedirectResponse
      */
-    public function destroy(Request $request, ActorServices $actorServices, int $actor_id): RedirectResponse
+    public function destroy(Request $request, ActorService $actorService, int $actor_id): RedirectResponse
     {
-        $actorServices->delete($actor_id);
+        $actorService->delete($actor_id);
         
         return redirect($this->url->getUrlAfterRemovingItem(RouteServiceProvider::URL_ADMIN_ACTORS, $request, $this->actors));
     }

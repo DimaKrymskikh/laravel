@@ -133,26 +133,4 @@ class GetWeatherTest extends TestCase
             ->expectsOutput("Сервер OpenWeather вернул ответ со статусом 429: Превышен лимит")
             ->assertExitCode(0);
     }
-    
-    public function test_RefreshCityWeather_event_is_running_if_command_be_called_in_http(): void
-    {
-        Http::preventStrayRequests();
-        Http::fake([
-            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
-        ]);
-        
-        Event::fake();
-        
-        // Выполняем посев городов
-        $this->seedCities();
-        // Берём один город, чтобы получить параметр команды
-        $city = City::where('id', CitySeeder::ID_NOVOSIBIRSK)->first();
-
-        // Команда с параметром успешно выполняется
-        $this
-            ->artisan("get:weather $city->open_weather_id --http --user_id=1")
-            ->assertExitCode(0);
-        // Событие RefreshCityWeather выполняется
-        Event::assertDispatched(RefreshCityWeather::class, 1);
-    }
 }

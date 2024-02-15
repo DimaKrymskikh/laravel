@@ -7,7 +7,7 @@ use App\Models\Dvd\Actor;
 use App\Models\Dvd\FilmActor;
 use Illuminate\Support\Facades\DB;
 
-class ActorServices
+class ActorService
 {
     public function create(ActorDto $dto): Actor
     {

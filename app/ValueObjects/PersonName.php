@@ -11,7 +11,7 @@ readonly final class PersonName
     private function __construct(?string $name, string $validatableAttribute, string $translationStringKey)
     {
         if (!$name || mb_convert_case($name, MB_CASE_TITLE_SIMPLE) !== $name) {
-            throw throw ValidationException::withMessages([
+            throw ValidationException::withMessages([
                 $validatableAttribute => trans($translationStringKey)
             ]);
         }
