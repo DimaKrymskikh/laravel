@@ -9,6 +9,7 @@ import { useActorsListStore } from '@/Stores/actors';
 import { useFilmsListStore, useFilmsAccountStore, useFilmsAdminStore } from '@/Stores/films';
 
 const app = createInertiaApp({
+    progress: false,
     resolve: name => {
         const pages = import.meta.glob('./Pages/**/*.vue', { eager: true });
         return pages[`./Pages/${name}.vue`];

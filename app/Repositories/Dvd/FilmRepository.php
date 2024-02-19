@@ -46,7 +46,8 @@ class FilmRepository implements ListItem
      * Общий список фильмов
      * 
      * @param Request $request
-     * @return object
+     * @param bool $isPagination
+     * @return LengthAwarePaginator|Collection
      */
     public function getCommonFilmsList(Request $request, bool $isPagination = true): LengthAwarePaginator | Collection
     {
@@ -59,7 +60,7 @@ class FilmRepository implements ListItem
      * Общий список фильмов с актёрами
      * 
      * @param Request $request
-     * @return object
+     * @return LengthAwarePaginator
      */
     public function getCommonFilmsListWithActors(Request $request): LengthAwarePaginator
     {
@@ -81,7 +82,7 @@ class FilmRepository implements ListItem
                 ->filter($request)
                 ->groupBy('dvd.films.id')
                 ->orderBy('title');
-                
+        
         return $this->setPagination($query, $request, $this->guard);
     }
     
@@ -89,7 +90,7 @@ class FilmRepository implements ListItem
      * Возвращает список фильмов с пометкой, принадлежит фильм коллекции пользователя или нет
      * 
      * @param Request $request
-     * @return object
+     * @return LengthAwarePaginator
      */
     public function getFilmsListWithAvailable(Request $request): LengthAwarePaginator
     {
@@ -110,7 +111,7 @@ class FilmRepository implements ListItem
      * Возвращает список фильмов из коллекции пользователя
      * 
      * @param Request $request
-     * @return object
+     * @return LengthAwarePaginator
      */
     public function getUserFilmsList(Request $request): LengthAwarePaginator
     {
@@ -130,7 +131,7 @@ class FilmRepository implements ListItem
      * Возвращает карточку фильма по id фильма
      * 
      * @param int $film_id
-     * @return object
+     * @return Film
      */
     public function getFilmCard(int $film_id): Film
     {

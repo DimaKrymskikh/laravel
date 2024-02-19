@@ -1,8 +1,9 @@
 <script setup>
-import { inject, ref } from 'vue';
+import { inject, ref, onMounted, onUnmounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
+import GlobalModal from '@/components/Modal/GlobalModal.vue';
 import AdminContentTabs from '@/components/Tabs/AdminContentTabs.vue';
 
 defineProps({
@@ -10,6 +11,17 @@ defineProps({
 });
 
 const filmsAccount = inject('filmsAccount');
+const app = inject('app');
+
+onMounted(() => {
+    document.addEventListener('inertia:start', app.handlerStart);
+    document.addEventListener('inertia:finish', app.handlerFinish);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('inertia:start', app.handlerStart);
+    document.removeEventListener('inertia:finish', app.handlerFinish);
+});    
 </script>
 
 <template>
@@ -37,4 +49,5 @@ const filmsAccount = inject('filmsAccount');
     </main>
     
     <ForbiddenModal />
+    <GlobalModal v-if="app.isGlobalRequest && !app.isRequest" />
 </template>
