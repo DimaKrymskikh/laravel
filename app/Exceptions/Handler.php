@@ -7,6 +7,8 @@ use Throwable;
 
 class Handler extends ExceptionHandler
 {
+    protected $withoutDuplicates = true;
+    
     /**
      * A list of exception types with their corresponding custom log levels.
      *

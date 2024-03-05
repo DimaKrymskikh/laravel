@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Commands\OpenWeather;
 
+use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
 use App\Events\RefreshCityWeather;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
@@ -132,5 +133,77 @@ class GetWeatherTest extends TestCase
             ->artisan("get:weather")
             ->expectsOutput("Сервер OpenWeather вернул ответ со статусом 429: Превышен лимит")
             ->assertExitCode(0);
+    }
+    
+    public function test_weather_not_saved_if_too_early_to_submit_request_for_city(): void
+    {
+        Http::preventStrayRequests();
+        
+        // Выполняем посев городов
+        $this->seedCities();
+        // Берём один город, чтобы получить параметр команды
+        $city = City::where('id', CitySeeder::ID_MOSCOW)->first();
+        
+        // Нет записей в таблице open_weather.weather
+        $this->assertEquals(0, Weather::all()->count());
+        
+        Http::fake([
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
+        ]);
+        
+        // При первом вызове команды запрос отправляется и погода сохраняется в базе
+        $this
+            ->artisan("get:weather $city->open_weather_id")
+            ->doesntExpectOutput(trans('openweather.too_early_to_submit_request_for_this_city'))
+            ->doesntExpectOutput('Выполнение команды прервано.')
+            ->assertExitCode(0);
+        // В таблице open_weather.weather появилась одна запись
+        $this->assertEquals(1, Weather::all()->count());
+        
+        // При втором вызове команды запрос не отправляется (прошло меньше 10 минут)
+        $this
+            ->artisan("get:weather $city->open_weather_id")
+            ->expectsOutput(trans('openweather.too_early_to_submit_request_for_this_city'))
+            ->expectsOutput('Выполнение команды прервано.')
+            ->assertExitCode(0);
+        // Число записей в таблице open_weather.weather не изменилось
+        $this->assertEquals(1, Weather::all()->count());
+    }
+    
+    public function test_weather_not_saved_if_request_limit_exceeded_for_one_minute(): void
+    {
+        Http::preventStrayRequests();
+        
+        Http::fake([
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
+        ]);
+        
+        // Нет записей в таблице open_weather.weather
+        $this->assertEquals(0, Weather::all()->count());
+
+        // Пока не превышен лимит запросов в минуту, происходит новое выполнение команды
+        for ($i = 1; $i <= GetWeatherFromOpenWeatherCommandHandler::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE; $i++) {
+            // Создаем новый город
+            $city = City::factory(['open_weather_id' => $i])->create();
+            // Выполняется команда
+            $this
+                ->artisan("get:weather $city->open_weather_id")
+                ->doesntExpectOutput(trans('openweather.request_limit_exceeded_for_one_minute'))
+                ->doesntExpectOutput('Выполнение команды прервано.')
+                ->assertExitCode(0);
+            // В таблицу open_weather.weather добавляется новая запись
+            $this->assertEquals($i, Weather::all()->count());
+        }
+
+        // Создаем новый город
+        $city = City::factory(['open_weather_id' => GetWeatherFromOpenWeatherCommandHandler::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE + 1])->create();
+        // Выполняется команда
+        $this
+            ->artisan("get:weather $city->open_weather_id")
+            ->expectsOutput(trans('openweather.request_limit_exceeded_for_one_minute'))
+            ->expectsOutput('Выполнение команды прервано.')
+            ->assertExitCode(0);
+        // Число записей в таблице open_weather.weather не изменилось
+        $this->assertEquals(GetWeatherFromOpenWeatherCommandHandler::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE, Weather::all()->count());
     }
 }

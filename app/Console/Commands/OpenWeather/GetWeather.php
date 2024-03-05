@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands\OpenWeather;
 
+use App\Exceptions\OpenWeatherException;
 use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
 use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Models\Thesaurus\City;
+use App\Repositories\OpenWeather\WeatherRepository;
 use App\Services\Database\OpenWeather\WeatherService;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\Response;
@@ -59,7 +61,14 @@ class GetWeather extends Command
         foreach($cities as $city) {
             $this->line("$city->name [$city->open_weather_id]: отправляем запрос на сервер OpenWeather");
 
-            $response = $request->handle($city->open_weather_id);
+            try {
+                $response = $request->handle($city, new WeatherRepository());
+            } catch(OpenWeatherException $ex) {
+                report($ex);
+                $this->error($ex->getMessage());
+                $this->info("Выполнение команды прервано.");
+                return;
+            }
             
             if($response->status() === 200) {
                 $this->responseStatusOk($response, $city, $weatherService);

@@ -8,6 +8,7 @@ use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Events\RefreshCityWeather;
 use App\Http\Controllers\Controller;
 use App\Models\Thesaurus\City;
+use App\Repositories\OpenWeather\WeatherRepository;
 use App\Repositories\Thesaurus\CityRepository;
 use App\Services\Database\OpenWeather\WeatherService;
 use App\Support\Support\Timezone;
@@ -46,9 +47,9 @@ class UserWeatherController extends Controller implements TimezoneInterface
      */
     public function refresh(Request $request, int $city_id, WeatherService $weatherService, GetWeatherFromOpenWeatherCommandHandler $commandHandler): void
     {
-        $openWeatherId = City::find($city_id)->open_weather_id;
+        $city = City::find($city_id);
         
-        $response = $commandHandler->handle($openWeatherId);
+        $response = $commandHandler->handle($city, new WeatherRepository());
         
         if($response->status() !== 200) {
             return;

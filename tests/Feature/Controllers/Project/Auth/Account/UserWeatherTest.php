@@ -3,6 +3,7 @@
 namespace Tests\Feature\Controllers\Project\Auth\Account;
 
 use App\Events\RefreshCityWeather;
+use App\Exceptions\OpenWeatherException;
 use App\Models\Thesaurus\City;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -76,7 +77,8 @@ class UserWeatherTest extends TestCase
         
         Event::fake();
         
-        $this->seedCitiesAndUsersWithWeather();
+        // Посев без погоды
+        $this->seedCitiesAndUsers();
         $city = City::where('id', CitySeeder::ID_NOVOSIBIRSK)->first();
         
         $user = $this->getUser('AuthTestLogin');
@@ -84,6 +86,33 @@ class UserWeatherTest extends TestCase
         $response = $acting->post("userweather/refresh/$city->id");
         
         Event::assertDispatched(RefreshCityWeather::class, 1);
+        
+        $response
+            ->assertOk();
+    }
+    
+    public function test_city_weather_can_not_be_refresh_if_too_early_to_submit_request_for_city(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
+        ]);
+        
+        Event::fake();
+        
+        $this->expectException(OpenWeatherException::class);
+        $this->expectExceptionMessage(trans('openweather.too_early_to_submit_request_for_this_city'));
+        
+        // Посев городов с погодой
+        $this->seedCitiesAndUsersWithWeather();
+        $city = City::where('id', CitySeeder::ID_NOVOSIBIRSK)->first();
+        
+        $user = $this->getUser('AuthTestLogin');
+        $acting = $this->actingAs($user);
+        $response = $acting->withoutExceptionHandling()->post("userweather/refresh/$city->id");
+        
+        // Событие Broadcasting не отправляется
+        Event::assertNotDispatched(RefreshCityWeather::class);
         
         $response
             ->assertOk();

@@ -33,13 +33,15 @@ export const useAppStore = defineStore("app", () => {
             errorMessage.value = e.message;
             isShowForbiddenModal.value = true;
         } finally {
+            // При исключениях, например, OpenWeatherException laravel возвращает ответ с кодом 200
+            errorRequest(result);
             isRequest.value = false;
             return result;
         }
     }
     
     function errorRequest(err) {
-        if(err.message) {
+        if(err && err.message) {
             errorMessage.value = err.message;
             isShowForbiddenModal.value = true;
         }

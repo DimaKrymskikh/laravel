@@ -2,10 +2,12 @@
 
 namespace App\Repositories\OpenWeather;
 
+use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
 use App\Contracts\Support\Timezone as TimezoneInterface;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class WeatherRepository
 {
@@ -39,5 +41,23 @@ class WeatherRepository
         $weather->created_at = Carbon::parse($weather->created_at)->setTimezone($tzName);
         
         return $weather;
+    }
+    
+    public function getNumberOfWeatherLinesForLastMinute(): int
+    {
+        return Weather::selectRaw('count(*) AS n')
+                ->whereRaw("created_at > now() - interval '1 minute'")
+                ->first()->n;
+    }
+    
+    public function isTooEarlyToSubmitRequestForThisCity(City $city): bool
+    {
+        $period = GetWeatherFromOpenWeatherCommandHandler::OPEN_WEATHER_CITY_UPDATE_PERIOD;
+        
+        return DB::scalar("SELECT EXISTS (
+            SELECT FROM open_weather.weather w 
+            WHERE city_id = $city->id
+                AND created_at > now() - interval '$period minute'
+        )"); 
     }
 }
