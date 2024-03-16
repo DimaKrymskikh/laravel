@@ -8,6 +8,7 @@ use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Models\Thesaurus\City;
 use App\Repositories\OpenWeather\WeatherRepository;
 use App\Services\Database\OpenWeather\WeatherService;
+use App\ValueObjects\ResponseObjects\OpenWeatherObject;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\Response;
 
@@ -92,12 +93,7 @@ class GetWeather extends Command
      */
     private function responseStatusOk(Response $response, City $city, WeatherService $weatherService): void
     {
-        $data = $response->object();
-        
-        $dto = new WeatherDto(
-                $city->id, $data->weather[0]->description, $data->main->temp, $data->main->feels_like, $data->main->pressure,
-                $data->main->humidity, $data->visibility, $data->wind->speed, $data->wind->deg, $data->clouds->all
-        );
+        $dto = new WeatherDto($city->id, OpenWeatherObject::create($response->object()));
         
         $weatherService->create($dto);
         $this->line("$city->name [$city->open_weather_id]: погода сохранена в базе");

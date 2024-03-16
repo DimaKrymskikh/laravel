@@ -12,6 +12,7 @@ use App\Repositories\OpenWeather\WeatherRepository;
 use App\Repositories\Thesaurus\CityRepository;
 use App\Services\Database\OpenWeather\WeatherService;
 use App\Support\Support\Timezone;
+use App\ValueObjects\ResponseObjects\OpenWeatherObject;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -55,12 +56,7 @@ class UserWeatherController extends Controller implements TimezoneInterface
             return;
         }
         
-        $data = $response->object();
-
-        $dto = new WeatherDto(
-                $city_id, $data->weather[0]->description, $data->main->temp, $data->main->feels_like, $data->main->pressure,
-                $data->main->humidity, $data->visibility, $data->wind->speed, $data->wind->deg, $data->clouds->all
-        );
+        $dto = new WeatherDto($city_id, OpenWeatherObject::create($response->object()));
 
         $weatherService->create($dto);
         event(new RefreshCityWeather($city_id, $request->user()->id));

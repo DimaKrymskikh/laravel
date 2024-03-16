@@ -20,9 +20,11 @@ class GetWeatherTest extends TestCase
     
     public function test_weather_can_be_get_for_one_city(): void
     {
+        $weatherData = $this->getWeatherForOneCity();
+                
         Http::preventStrayRequests();
         Http::fake([
-            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($weatherData, 200),
         ]);
         
         Event::fake();
@@ -39,15 +41,15 @@ class GetWeatherTest extends TestCase
         
         // Проверяем сохранение погоды в базе
         $weather = Weather::where('city_id', $city->id)->first();
-        $this->assertEquals('Хорошая погода', $weather->weather_description);
-        $this->assertEquals(11.7, $weather->main_temp);
-        $this->assertEquals(12, $weather->main_feels_like);
-        $this->assertEquals(1000, $weather->main_pressure);
-        $this->assertEquals(77, $weather->main_humidity);
-        $this->assertEquals(500, $weather->visibility);
-        $this->assertEquals(2.5, $weather->wind_speed);
-        $this->assertEquals(120, $weather->wind_deg);
-        $this->assertEquals(100, $weather->clouds_all);
+        $this->assertEquals($weatherData['weather'][0]->description, $weather->weather_description);
+        $this->assertEquals($weatherData['main']->temp, $weather->main_temp);
+        $this->assertEquals(null, $weather->main_feels_like);
+        $this->assertEquals($weatherData['main']->pressure, $weather->main_pressure);
+        $this->assertEquals($weatherData['main']->humidity, $weather->main_humidity);
+        $this->assertEquals($weatherData['visibility'], $weather->visibility);
+        $this->assertEquals($weatherData['wind']->speed, $weather->wind_speed);
+        $this->assertEquals($weatherData['wind']->deg, $weather->wind_deg);
+        $this->assertEquals($weatherData['clouds']->all, $weather->clouds_all);
         
         Event::assertNotDispatched(RefreshCityWeather::class);
     }

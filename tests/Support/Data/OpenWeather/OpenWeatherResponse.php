@@ -6,6 +6,7 @@ trait OpenWeatherResponse
 {
     private function getWeatherForOneCity(): array
     {
+        // Отсутствует $arr['main']->feels_like
         return [
             'weather' => [
                 (object) [
@@ -14,7 +15,6 @@ trait OpenWeatherResponse
             ],
             'main' => (object) [
                 'temp' => 11.7,
-                'feels_like' => 12,
                 'pressure' => 1000,
                 'humidity' => 77,
             ],
