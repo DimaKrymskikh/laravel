@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Project\Auth\Account;
 
 use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
-use App\Contracts\Support\Timezone as TimezoneInterface;
 use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Events\RefreshCityWeather;
 use App\Http\Controllers\Controller;
@@ -11,28 +10,28 @@ use App\Models\Thesaurus\City;
 use App\Repositories\OpenWeather\WeatherRepository;
 use App\Repositories\Thesaurus\CityRepository;
 use App\Services\Database\OpenWeather\WeatherService;
-use App\Support\Support\Timezone;
 use App\ValueObjects\ResponseObjects\OpenWeatherObject;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class UserWeatherController extends Controller implements TimezoneInterface
+class UserWeatherController extends Controller
 {
-    use Timezone;
-    
     public function __construct(
         private CityRepository $cities,
     )
     {}
     
+    /**
+     * В аккаунте пользователя отрисовывает список городов с погодой.
+     * 
+     * @param Request $request
+     * @return Response
+     */
     public function index(Request $request): Response
     {
-        $cities = $this->cities->getWeatherForCitiesOfAuth($request);
-        $this->setTimezone($cities);
-
         return Inertia::render('Auth/Account/UserWeather', [
-            'cities' => $cities,
+            'cities' => $this->cities->getWeatherForCitiesOfAuth($request),
             'user' => $request->user()
         ]);
     }
@@ -58,7 +57,7 @@ class UserWeatherController extends Controller implements TimezoneInterface
         
         $dto = new WeatherDto($city_id, OpenWeatherObject::create($response->object()));
 
-        $weatherService->create($dto);
+        $weatherService->updateOrCreate($dto);
         event(new RefreshCityWeather($city_id, $request->user()->id));
     }
 }

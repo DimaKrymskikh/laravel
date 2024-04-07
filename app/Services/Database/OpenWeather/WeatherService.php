@@ -4,27 +4,28 @@ namespace App\Services\Database\OpenWeather;
 
 use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Models\OpenWeather\Weather;
+use Carbon\Carbon;
 
 final class WeatherService
 {
-    public function create(WeatherDto $dto): Weather
+    public function updateOrCreate(WeatherDto $dto): Weather
     {
         $data = $dto->openWeatherObject->data;
-        
-        $weather = new Weather();
-        $weather->city_id = $dto->cityId;
-        $weather->weather_description = $data->weatherDescription;
-        $weather->main_temp = $data->mainTemp;
-        $weather->main_feels_like = $data->mainFeelsLike;
-        $weather->main_pressure = $data->mainPressure;
-        $weather->main_humidity = $data->mainHumidity;
-        $weather->visibility = $data->visibility;
-        $weather->wind_speed = $data->windSpeed;
-        $weather->wind_deg = $data->windDeg;
-        $weather->clouds_all = $data->cloudsAll;
-        
-        $weather->save();
-        
-        return $weather;
+         
+        return Weather::updateOrCreate([
+                'city_id' => $dto->cityId,
+            ], [
+                'weather_description' => $data->weatherDescription,
+                'main_temp' => $data->mainTemp,
+                'main_feels_like' => $data->mainFeelsLike,
+                'main_pressure' => $data->mainPressure,
+                'main_humidity' => $data->mainHumidity,
+                'visibility' => $data->visibility,
+                'wind_speed' => $data->windSpeed,
+                'wind_deg' => $data->windDeg,
+                'clouds_all' => $data->cloudsAll,
+                // Время нужно задавать с часовым поясом 'UTC'
+                'created_at' => Carbon::now('UTC'),
+            ]);
     }
 }

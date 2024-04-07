@@ -2,11 +2,12 @@
 
 namespace Database\Seeders\Tests\OpenWeather;
 
-use Carbon\Carbon;
+use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
+use App\Services\Database\OpenWeather\WeatherService;
+use App\ValueObjects\ResponseObjects\OpenWeatherObject;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class WeatherSeeder extends Seeder
 {
@@ -15,53 +16,67 @@ class WeatherSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): void
+    public function run(WeatherService $weatherService): void
     {
-        $tableName = 'open_weather.weather';
-        
         foreach ($this->getWeather() as $weather) {
-            DB::table($tableName)->insert([
-                'city_id' => $weather->city_id,
-                'main_temp' => $weather->main_temp,
-                'created_at' => $weather->created_at,
-            ]);
+            $dto = new WeatherDto($weather->city_id, OpenWeatherObject::create($weather->data));
+            $weatherService->updateOrCreate($dto);
         }
     }
     
+    /**
+     * Данные погоды заданы в формате сервиса OpenWeather
+     * 
+     * @return array
+     */
     private function getWeather(): array
     {
-        $time = Carbon::now();
-        
         return [
+            // Присутствуют все NULL-поля
             (object) [
                 'city_id' => CitySeeder::ID_NOVOSIBIRSK,
-                'main_temp' => 22.91,
-                'created_at' => $time->toDateTimeString(),
-            ],
-            (object) [
-                'city_id' => CitySeeder::ID_NOVOSIBIRSK,
-                'main_temp' => 11,
-                'created_at' => $time->add(1, 'minute')->toDateTimeString(),
-            ],
-            (object) [
-                'city_id' => CitySeeder::ID_NOVOSIBIRSK,
-                'main_temp' => 0.5,
-                'created_at' => $time->add(2, 'minute')->toDateTimeString(),
+                'data' => (object) [
+                    'weather' => [
+                        (object) [
+                            'description' => 'Ясно',
+                        ]
+                    ],
+                    'main' => (object) [
+                        'temp' => 22.91,
+                        'feels_like' => 20,
+                        'pressure' => 1020,
+                        'humidity' => 85,
+                    ],
+                    'visibility' => 8000,
+                    'wind' => (object) [
+                        'speed' => 5,25,
+                        'deg' => 210,
+                    ],
+                    'clouds' => (object) [
+                        'all' => 0,
+                    ]
+                ],
             ],
             (object) [
                 'city_id' => CitySeeder::ID_MOSCOW,
-                'main_temp' => -3,
-                'created_at' => $time->toDateTimeString(),
-            ],
-            (object) [
-                'city_id' => CitySeeder::ID_MOSCOW,
-                'main_temp' => 4,
-                'created_at' => $time->add(1, 'minute')->toDateTimeString(),
+                'data' => (object) [
+                    'main' => (object) [
+                        'temp' => -3,
+                    ]
+                ]
             ],
             (object) [
                 'city_id' => CitySeeder::ID_BARNAUL,
-                'main_temp' => 2,
-                'created_at' => $time->toDateTimeString(),
+                'data' => (object) [
+                    'main' => (object) [
+                        'temp' => 2,
+                    ]
+                ]
+            ],
+            // Отсутствуют все NULL-поля
+            (object) [
+                'city_id' => CitySeeder::ID_OMSK,
+                'data' => (object) []
             ],
         ];
     }

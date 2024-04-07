@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class City extends Model
@@ -27,17 +26,7 @@ class City extends Model
         return CityFactory::new();
     }
     
-    public function weather(): HasMany
-    {
-        return $this->hasMany(Weather::class);
-    }
-    
-    /**
-     * Используется для получения последних данных о погоде
-     * 
-     * @return HasOne
-     */
-    public function weatherFirst(): HasOne
+    public function weather(): HasOne
     {
         return $this->hasOne(Weather::class);
     }

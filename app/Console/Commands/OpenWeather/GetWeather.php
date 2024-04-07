@@ -95,7 +95,7 @@ class GetWeather extends Command
     {
         $dto = new WeatherDto($city->id, OpenWeatherObject::create($response->object()));
         
-        $weatherService->create($dto);
+        $weatherService->updateOrCreate($dto);
         $this->line("$city->name [$city->open_weather_id]: погода сохранена в базе");
     }
 }

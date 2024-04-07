@@ -24,6 +24,13 @@ CREATE SCHEMA dvd;
 
 
 --
+-- Name: logs; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA logs;
+
+
+--
 -- Name: open_weather; Type: SCHEMA; Schema: -; Owner: -
 --
 
@@ -42,6 +49,46 @@ CREATE SCHEMA person;
 --
 
 CREATE SCHEMA thesaurus;
+
+
+--
+-- Name: open_weather__weather__on_insert_or_update(); Type: FUNCTION; Schema: logs; Owner: -
+--
+
+CREATE FUNCTION logs.open_weather__weather__on_insert_or_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+        BEGIN
+            INSERT INTO logs.open_weather__weather (
+                city_id,
+                weather_description,
+                main_temp,
+                main_feels_like,
+                main_pressure,
+                main_humidity,
+                visibility,
+                wind_speed,
+                wind_deg,
+                clouds_all,
+                created_at
+            )
+            VALUES (
+                NEW.city_id,
+                NEW.weather_description,
+                NEW.main_temp,
+                NEW.main_feels_like,
+                NEW.main_pressure,
+                NEW.main_humidity,
+                NEW.visibility,
+                NEW.wind_speed,
+                NEW.wind_deg,
+                NEW.clouds_all,
+                NEW.created_at
+            );
+        
+            RETURN NULL;
+        END;
+    $$;
 
 
 --
@@ -242,6 +289,122 @@ CREATE SEQUENCE dvd.films_id_seq
 --
 
 ALTER SEQUENCE dvd.films_id_seq OWNED BY dvd.films.id;
+
+
+--
+-- Name: open_weather__weather; Type: TABLE; Schema: logs; Owner: -
+--
+
+CREATE TABLE logs.open_weather__weather (
+    id bigint NOT NULL,
+    city_id integer NOT NULL,
+    weather_description text,
+    main_temp double precision,
+    main_feels_like double precision,
+    main_pressure integer,
+    main_humidity integer,
+    visibility integer,
+    wind_speed double precision,
+    wind_deg integer,
+    clouds_all integer,
+    created_at timestamp with time zone NOT NULL
+);
+
+
+--
+-- Name: TABLE open_weather__weather; Type: COMMENT; Schema: logs; Owner: -
+--
+
+COMMENT ON TABLE logs.open_weather__weather IS 'Таблица данных о погоде с сервиса OpenWeather. История изменения данных в таблице open_weather.weather';
+
+
+--
+-- Name: COLUMN open_weather__weather.weather_description; Type: COMMENT; Schema: logs; Owner: -
+--
+
+COMMENT ON COLUMN logs.open_weather__weather.weather_description IS 'Описание погодных условий';
+
+
+--
+-- Name: COLUMN open_weather__weather.main_temp; Type: COMMENT; Schema: logs; Owner: -
+--
+
+COMMENT ON COLUMN logs.open_weather__weather.main_temp IS 'Температура, C';
+
+
+--
+-- Name: COLUMN open_weather__weather.main_feels_like; Type: COMMENT; Schema: logs; Owner: -
+--
+
+COMMENT ON COLUMN logs.open_weather__weather.main_feels_like IS 'Этот температурный параметр определяет человеческое восприятие погоды, C';
+
+
+--
+-- Name: COLUMN open_weather__weather.main_pressure; Type: COMMENT; Schema: logs; Owner: -
+--
+
+COMMENT ON COLUMN logs.open_weather__weather.main_pressure IS 'Атмосферное давление, hPa';
+
+
+--
+-- Name: COLUMN open_weather__weather.main_humidity; Type: COMMENT; Schema: logs; Owner: -
+--
+
+COMMENT ON COLUMN logs.open_weather__weather.main_humidity IS 'Влажность, %';
+
+
+--
+-- Name: COLUMN open_weather__weather.visibility; Type: COMMENT; Schema: logs; Owner: -
+--
+
+COMMENT ON COLUMN logs.open_weather__weather.visibility IS 'Видимость, m';
+
+
+--
+-- Name: COLUMN open_weather__weather.wind_speed; Type: COMMENT; Schema: logs; Owner: -
+--
+
+COMMENT ON COLUMN logs.open_weather__weather.wind_speed IS 'Скорость ветра, m/s';
+
+
+--
+-- Name: COLUMN open_weather__weather.wind_deg; Type: COMMENT; Schema: logs; Owner: -
+--
+
+COMMENT ON COLUMN logs.open_weather__weather.wind_deg IS 'Направление ветра, градусы (метеорологические)';
+
+
+--
+-- Name: COLUMN open_weather__weather.clouds_all; Type: COMMENT; Schema: logs; Owner: -
+--
+
+COMMENT ON COLUMN logs.open_weather__weather.clouds_all IS 'Облачность, %';
+
+
+--
+-- Name: COLUMN open_weather__weather.created_at; Type: COMMENT; Schema: logs; Owner: -
+--
+
+COMMENT ON COLUMN logs.open_weather__weather.created_at IS 'Время создания записи';
+
+
+--
+-- Name: open_weather__weather_id_seq; Type: SEQUENCE; Schema: logs; Owner: -
+--
+
+CREATE SEQUENCE logs.open_weather__weather_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: open_weather__weather_id_seq; Type: SEQUENCE OWNED BY; Schema: logs; Owner: -
+--
+
+ALTER SEQUENCE logs.open_weather__weather_id_seq OWNED BY logs.open_weather__weather.id;
 
 
 --
@@ -803,6 +966,13 @@ ALTER TABLE ONLY dvd.films ALTER COLUMN id SET DEFAULT nextval('dvd.films_id_seq
 
 
 --
+-- Name: open_weather__weather id; Type: DEFAULT; Schema: logs; Owner: -
+--
+
+ALTER TABLE ONLY logs.open_weather__weather ALTER COLUMN id SET DEFAULT nextval('logs.open_weather__weather_id_seq'::regclass);
+
+
+--
 -- Name: weather id; Type: DEFAULT; Schema: open_weather; Owner: -
 --
 
@@ -880,6 +1050,22 @@ ALTER TABLE ONLY dvd.films_actors
 
 ALTER TABLE ONLY dvd.films
     ADD CONSTRAINT films_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: open_weather__weather open_weather__weather_pkey; Type: CONSTRAINT; Schema: logs; Owner: -
+--
+
+ALTER TABLE ONLY logs.open_weather__weather
+    ADD CONSTRAINT open_weather__weather_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: weather weather_city_id_key; Type: CONSTRAINT; Schema: open_weather; Owner: -
+--
+
+ALTER TABLE ONLY open_weather.weather
+    ADD CONSTRAINT weather_city_id_key UNIQUE (city_id);
 
 
 --
@@ -1067,6 +1253,13 @@ CREATE TRIGGER last_updated BEFORE UPDATE ON dvd.films FOR EACH ROW EXECUTE FUNC
 
 
 --
+-- Name: weather logs_last_insert_or_update; Type: TRIGGER; Schema: open_weather; Owner: -
+--
+
+CREATE TRIGGER logs_last_insert_or_update AFTER INSERT OR UPDATE ON open_weather.weather FOR EACH ROW EXECUTE FUNCTION logs.open_weather__weather__on_insert_or_update();
+
+
+--
 -- Name: users last_updated; Type: TRIGGER; Schema: person; Owner: -
 --
 
@@ -1109,6 +1302,14 @@ ALTER TABLE ONLY dvd.films_actors
 
 ALTER TABLE ONLY dvd.films
     ADD CONSTRAINT films_language_id_fkey FOREIGN KEY (language_id) REFERENCES thesaurus.languages(id);
+
+
+--
+-- Name: open_weather__weather open_weather__weather_city_id_fkey; Type: FK CONSTRAINT; Schema: logs; Owner: -
+--
+
+ALTER TABLE ONLY logs.open_weather__weather
+    ADD CONSTRAINT open_weather__weather_city_id_fkey FOREIGN KEY (city_id) REFERENCES thesaurus.cities(id) ON DELETE CASCADE;
 
 
 --
@@ -1190,6 +1391,11 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 2	2023_09_12_163234_add-column_timezone_id_in_thesaurus_timesones_table	2
 3	2023_09_17_211442_create_person_users_cities_table	3
 4	2023_12_01_201456_update_thesaurus_languages_table	4
+22	2024_03_25_161551_create_logs	5
+23	2024_03_25_165056_create_logs_open_weather__weather_table	5
+24	2024_03_26_105021_create_logs_trigger_function	6
+25	2024_03_26_111438_create_logs_trigger_on_table	6
+26	2024_03_30_141820_update_open_weather_weather_table	7
 \.
 
 
@@ -1197,7 +1403,7 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 -- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.migrations_id_seq', 4, true);
+SELECT pg_catalog.setval('public.migrations_id_seq', 26, true);
 
 
 --

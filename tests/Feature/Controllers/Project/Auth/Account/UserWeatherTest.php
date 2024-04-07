@@ -36,9 +36,8 @@ class UserWeatherTest extends TestCase
                     // По алфавиту первым городом будет Москва
                         ->has('cities.0', fn (Assert $page) => 
                             $page->where('name', 'Москва')
-                                ->has('weather_first', fn (Assert $page) =>
-                                // Показаны последние данные по Москве
-                                    $page->where('main_temp', '4')
+                                ->has('weather', fn (Assert $page) =>
+                                    $page->where('main_temp', '-3')
                                         ->etc()
                                 )
                                 ->has('timezone', fn (Assert $page) =>
@@ -49,8 +48,8 @@ class UserWeatherTest extends TestCase
                         )
                         ->has('cities.1', fn (Assert $page) => 
                             $page->where('name', 'Новосибирск')
-                                ->has('weather_first', fn (Assert $page) =>
-                                    $page->where('main_temp', '0.5')
+                                ->has('weather', fn (Assert $page) =>
+                                    $page->where('main_temp', '22.91')
                                         ->etc()
                                 )
                                 ->has('timezone', fn (Assert $page) =>
@@ -61,7 +60,7 @@ class UserWeatherTest extends TestCase
                         )
                         ->has('cities.2', fn (Assert $page) => 
                             $page->where('name', 'Томск')
-                                ->where('weather_first', null)
+                                ->where('weather', null)
                                 ->where('timezone', null)
                                 ->etc()
                         )

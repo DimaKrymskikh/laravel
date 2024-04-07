@@ -40,7 +40,7 @@ export const cities_with_weather = [
         name: "Барнаул",
         open_weather_id: 1510853,
         timezone_id: null,
-        weather_first: {
+        weather: {
             city_id: 8,
             weather_description: "ясно",
             main_temp: "5.4",
@@ -59,7 +59,7 @@ export const cities_with_weather = [
         name: "Владивосток",
         open_weather_id: 2013348,
         timezone_id: 286,
-        weather_first: {
+        weather: {
             city_id: 9,
             weather_description: "небольшая облачность",
             main_temp: "12.01",
@@ -81,7 +81,7 @@ export const cities_with_weather = [
         name: "Томск",
         open_weather_id: 1489425,
         timezone_id: 281,
-        weather_first: null,
+        weather: null,
         timezone: {
             id: 281,
             name: "Asia/Tomsk"

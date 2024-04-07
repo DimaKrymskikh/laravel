@@ -46,11 +46,11 @@ class WeatherStatisticsByCity extends Command
         $this->line("$this->description");
         $this->line('');
         
-        $cities = City::leftJoin('open_weather.weather', 'open_weather.weather.city_id', '=', 'thesaurus.cities.id')
+        $cities = City::leftJoin('logs.open_weather__weather', 'logs.open_weather__weather.city_id', '=', 'thesaurus.cities.id')
                     ->select(
                             'thesaurus.cities.name',
                             'thesaurus.cities.open_weather_id',
-                            DB::raw('count(open_weather.weather.city_id) as n')
+                            DB::raw('count(logs.open_weather__weather.city_id) as n')
                     )
                     ->groupBy('thesaurus.cities.id')
                     ->orderBy('thesaurus.cities.name')
@@ -63,13 +63,13 @@ class WeatherStatisticsByCity extends Command
     
     private function getStatisticsForCity(int $city_id): void
     {
-        $city = City::leftJoin('open_weather.weather', 'open_weather.weather.city_id', '=', 'thesaurus.cities.id')
+        $city = City::leftJoin('logs.open_weather__weather', 'logs.open_weather__weather.city_id', '=', 'thesaurus.cities.id')
                 ->select(
                         'thesaurus.cities.name',
                         'thesaurus.cities.open_weather_id',
-                        DB::raw('count(open_weather.weather.city_id) AS n'),
-                        DB::raw("coalesce(MIN(open_weather.weather.main_temp)::text, 'отсутствует') AS min_temp"),
-                        DB::raw("coalesce(MAX(open_weather.weather.main_temp)::text, 'отсутствует') AS max_temp"),
+                        DB::raw('count(logs.open_weather__weather.city_id) AS n'),
+                        DB::raw("coalesce(MIN(logs.open_weather__weather.main_temp)::text, 'отсутствует') AS min_temp"),
+                        DB::raw("coalesce(MAX(logs.open_weather__weather.main_temp)::text, 'отсутствует') AS max_temp"),
                 )
                 ->where('thesaurus.cities.open_weather_id', $city_id)
                 ->groupBy('thesaurus.cities.id')

@@ -48,15 +48,35 @@ class CopyWeather extends Command
             Storage::disk('database')->append($file, Str::repeat(' ', 12) . "(object) [");
             Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'id' => $weather->id,");
             Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'city_id' => $weather->city_id,");
-            Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'weather_description' => '$weather->weather_description',");
-            Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'main_temp' => $weather->main_temp,");
-            Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'main_feels_like' => $weather->main_feels_like,");
-            Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'main_pressure' => $weather->main_pressure,");
-            Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'main_humidity' => $weather->main_humidity,");
-            Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'visibility' => $weather->visibility,");
-            Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'wind_speed' => $weather->wind_speed,");
-            Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'wind_deg' => $weather->wind_deg,");
-            Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'clouds_all' => $weather->clouds_all,");
+            // Данные NULL-полей пишем с условием
+            // Используется isset, потому что могут быть значения 0
+            if(isset($weather->weather_description)) {
+                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'weather_description' => '$weather->weather_description',");
+            }
+            if(isset($weather->main_temp)) {
+                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'main_temp' => $weather->main_temp,");
+            }
+            if(isset($weather->main_feels_like)) {
+                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'main_feels_like' => $weather->main_feels_like,");
+            }
+            if(isset($weather->main_pressure)) {
+                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'main_pressure' => $weather->main_pressure,");
+            }
+            if(isset($weather->main_humidity)) {
+                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'main_humidity' => $weather->main_humidity,");
+            }
+            if(isset($weather->visibility)) {
+                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'visibility' => $weather->visibility,");
+            }
+            if(isset($weather->wind_speed)) {
+                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'wind_speed' => $weather->wind_speed,");
+            }
+            if(isset($weather->wind_deg)) {
+                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'wind_deg' => $weather->wind_deg,");
+            }
+            if(isset($weather->clouds_all)) {
+                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'clouds_all' => $weather->clouds_all,");
+            }
             Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'created_at' => '$weather->created_at',");
             Storage::disk('database')->append($file, Str::repeat(' ', 12) . "],");
         }

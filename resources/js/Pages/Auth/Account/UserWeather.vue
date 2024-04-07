@@ -65,7 +65,7 @@ const handlerDataChange = function(e) {
 const refreshCityWeather = function(weather, cityId) {
     cities.forEach((city) => {
         if(city.id === cityId) {
-            city.weather_first = weather;
+            city.weather = weather;
         }
     });
 };
@@ -91,44 +91,44 @@ const refreshCityWeather = function(weather, cityId) {
                         <span>{{ city.name }}</span>
                     </div>
                     <div class="w-8/12 pl-2">
-                        <template v-if="city.weather_first">
+                        <template v-if="city.weather">
                             <div>
                                 <span class="font-semibold mr-2">Время и дата:</span> 
-                                <span class="font-sans">{{ city.weather_first.created_at }}</span>
+                                <span class="font-sans">{{ city.weather.created_at }}</span>
                                 <span v-if="!city.timezone_id" class="text-red-700"> (часовой пояс не указан) </span>
                             </div>
-                            <div>{{ city.weather_first.weather_description }}</div>
+                            <div>{{ city.weather.weather_description }}</div>
                             <div>
                                 <span class="font-semibold mr-2">Температура:</span>
-                                <span class="font-sans">{{ city.weather_first.main_temp }}</span> C&deg;,
+                                <span class="font-sans">{{ city.weather.main_temp }}</span> C&deg;,
                                 ощущается как 
-                                <span class="font-sans">{{ city.weather_first.main_feels_like }}</span> C&deg;
+                                <span class="font-sans">{{ city.weather.main_feels_like }}</span> C&deg;
                             </div>
                             <div>
                                 <span class="font-semibold mr-2">Атмосферное давление:</span>
-                                <span class="font-sans">{{ city.weather_first.main_pressure }}</span> hPa
+                                <span class="font-sans">{{ city.weather.main_pressure }}</span> hPa
                             </div>
                             <div>
                                 <span class="font-semibold mr-2">Влажность:</span>
-                                <span class="font-sans">{{ city.weather_first.main_humidity }}</span> %
+                                <span class="font-sans">{{ city.weather.main_humidity }}</span> %
                             </div>
                             <div>
                                 <span class="font-semibold mr-2">Видимость:</span>
-                                <span class="font-sans">{{ city.weather_first.visibility }}</span> метров
+                                <span class="font-sans">{{ city.weather.visibility }}</span> метров
                             </div>
                             <div>
                                 <span class="font-semibold mr-2">Ветер:</span>
                                 скорость ветра
-                                <span class="font-sans">{{ city.weather_first.wind_speed }}</span> м/c,
+                                <span class="font-sans">{{ city.weather.wind_speed }}</span> м/c,
                                 направление ветра
-                                <span class="font-sans">{{ city.weather_first.wind_deg }}</span>&deg;
+                                <span class="font-sans">{{ city.weather.wind_deg }}</span>&deg;
                             </div>
                             <div>
                                 <span class="font-semibold mr-2">Облачность:</span>
-                                <span class="font-sans">{{ city.weather_first.clouds_all }}</span> %
+                                <span class="font-sans">{{ city.weather.clouds_all }}</span> %
                             </div>
                         </template>
-                        <div  v-if="!city.weather_first">
+                        <div  v-if="!city.weather">
                             <span class="text-red-700">Для города ещё не получены данные о погоде</span>
                         </div>
                     </div>

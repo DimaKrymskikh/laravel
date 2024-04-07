@@ -21,6 +21,9 @@ class Weather extends Model
         'created_at' => 'immutable_datetime:H:i:s d.m.Y',
     ];
     
+    // Для всех полей таблицы разрешено массовое назначение
+    protected $guarded = [];
+    
     protected static function newFactory(): Factory
     {
         return WeatherFactory::new();

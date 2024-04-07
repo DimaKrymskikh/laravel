@@ -4,6 +4,7 @@ namespace Tests\Feature\Commands\OpenWeather;
 
 use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
 use App\Events\RefreshCityWeather;
+use App\Models\Logs\OpenWeatherWeather;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
@@ -72,8 +73,8 @@ class GetWeatherTest extends TestCase
             ->expectsOutput("Выполнение команды прервано.")
             ->assertExitCode(0);
         // Нет данных погоды
-        $this
-            ->assertEquals(0, Weather::all()->count());
+        $this->assertEquals(0, Weather::all()->count());
+        $this->assertEquals(0, OpenWeatherWeather::all()->count());
     }
     
     public function test_weather_can_not_get_if_parameter_be_not_integer(): void
@@ -94,8 +95,8 @@ class GetWeatherTest extends TestCase
             ->expectsOutput("Выполнение команды прервано.")
             ->assertExitCode(0);
         // Нет данных погоды
-        $this
-            ->assertEquals(0, Weather::all()->count());
+        $this->assertEquals(0, Weather::all()->count());
+        $this->assertEquals(0, OpenWeatherWeather::all()->count());
     }
     
     public function test_weather_can_be_get_for_some_cities(): void
@@ -104,6 +105,7 @@ class GetWeatherTest extends TestCase
         
         // Выполняем посев городов
         $this->seedCities();
+        $nCities = City::all()->count();
         
         Http::fake([
             "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
@@ -116,7 +118,8 @@ class GetWeatherTest extends TestCase
         
         // Проверяем сохранение погоды в базе
         // Для каждого города получена погода
-        $this->assertEquals(City::all()->count(), Weather::all()->count());
+        $this->assertEquals($nCities, Weather::all()->count());
+        $this->assertEquals($nCities, OpenWeatherWeather::all()->count());
     }
     
     public function test_OpenWeather_send_429(): void
@@ -146,8 +149,8 @@ class GetWeatherTest extends TestCase
         // Берём один город, чтобы получить параметр команды
         $city = City::where('id', CitySeeder::ID_MOSCOW)->first();
         
-        // Нет записей в таблице open_weather.weather
-        $this->assertEquals(0, Weather::all()->count());
+        // Нет записей в таблице logs.open_weather__weather
+        $this->assertEquals(0, OpenWeatherWeather::all()->count());
         
         Http::fake([
             "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
@@ -160,7 +163,7 @@ class GetWeatherTest extends TestCase
             ->doesntExpectOutput('Выполнение команды прервано.')
             ->assertExitCode(0);
         // В таблице open_weather.weather появилась одна запись
-        $this->assertEquals(1, Weather::all()->count());
+        $this->assertEquals(1, OpenWeatherWeather::all()->count());
         
         // При втором вызове команды запрос не отправляется (прошло меньше 10 минут)
         $this
@@ -169,7 +172,7 @@ class GetWeatherTest extends TestCase
             ->expectsOutput('Выполнение команды прервано.')
             ->assertExitCode(0);
         // Число записей в таблице open_weather.weather не изменилось
-        $this->assertEquals(1, Weather::all()->count());
+        $this->assertEquals(1, OpenWeatherWeather::all()->count());
     }
     
     public function test_weather_not_saved_if_request_limit_exceeded_for_one_minute(): void
@@ -180,8 +183,8 @@ class GetWeatherTest extends TestCase
             "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 200),
         ]);
         
-        // Нет записей в таблице open_weather.weather
-        $this->assertEquals(0, Weather::all()->count());
+        // Нет записей в таблице logs.open_weather__weather
+        $this->assertEquals(0, OpenWeatherWeather::all()->count());
 
         // Пока не превышен лимит запросов в минуту, происходит новое выполнение команды
         for ($i = 1; $i <= GetWeatherFromOpenWeatherCommandHandler::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE; $i++) {
@@ -194,7 +197,7 @@ class GetWeatherTest extends TestCase
                 ->doesntExpectOutput('Выполнение команды прервано.')
                 ->assertExitCode(0);
             // В таблицу open_weather.weather добавляется новая запись
-            $this->assertEquals($i, Weather::all()->count());
+            $this->assertEquals($i, OpenWeatherWeather::all()->count());
         }
 
         // Создаем новый город
@@ -206,6 +209,6 @@ class GetWeatherTest extends TestCase
             ->expectsOutput('Выполнение команды прервано.')
             ->assertExitCode(0);
         // Число записей в таблице open_weather.weather не изменилось
-        $this->assertEquals(GetWeatherFromOpenWeatherCommandHandler::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE, Weather::all()->count());
+        $this->assertEquals(GetWeatherFromOpenWeatherCommandHandler::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE, OpenWeatherWeather::all()->count());
     }
 }
