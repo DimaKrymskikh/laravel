@@ -63,4 +63,25 @@ class WeatherStatisticsByCityTest extends TestCase
             ->expectsOutput("{$cities[4]->name} [{$cities[4]->open_weather_id}] содержит 0 записей")
             ->assertExitCode(0);
     }
+    
+    public function test_statistics_can_not_get_with_invalid_integer(): void
+    {
+        // Выполняем посев городов
+        $this->seedCities();
+
+        // Запускаем команду с параметром 13
+        $this
+            ->artisan("statistics:weather 13")
+            ->expectsOutput(trans('city.openWeatherId.exist', ['openWeatherId' => 13]))
+            ->assertExitCode(0);
+    }
+    
+    public function test_statistics_can_not_get_if_parameter_be_not_integer(): void
+    {
+        // Запускаем команду с параметром x
+        $this
+            ->artisan("statistics:weather x")
+            ->expectsOutput(trans('commands.parameter.int'))
+            ->assertExitCode(0);
+    }
 }

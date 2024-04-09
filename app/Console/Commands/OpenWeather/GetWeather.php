@@ -8,9 +8,12 @@ use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Models\Thesaurus\City;
 use App\Repositories\OpenWeather\WeatherRepository;
 use App\Services\Database\OpenWeather\WeatherService;
+use App\Services\Database\Thesaurus\CityService;
+use App\ValueObjects\IntValue;
 use App\ValueObjects\ResponseObjects\OpenWeatherObject;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\Response;
+use Illuminate\Validation\ValidationException;
 
 class GetWeather extends Command
 {
@@ -35,7 +38,7 @@ class GetWeather extends Command
      * @param GetWeatherFromOpenWeatherCommandHandler $request
      * @return void
      */
-    public function handle(WeatherService $weatherService, GetWeatherFromOpenWeatherCommandHandler $request): void
+    public function handle(WeatherService $weatherService, CityService $cityService, GetWeatherFromOpenWeatherCommandHandler $request): void
     {
         $this->info('Старт.');
         $this->line("$this->description");
@@ -44,17 +47,15 @@ class GetWeather extends Command
         $open_weather_id = $this->argument('open_weather_id');
         
         if($open_weather_id) {
-            if(!intval($open_weather_id)) {
-                $this->error("Параметр команды не является целым числом.");
-                $this->info("Выполнение команды прервано.");
+            try {
+                $openWeatherId = IntValue::create($open_weather_id, 'message', 'commands.parameter.int');
+                $city = $cityService->findCityByOpenWeatherId($openWeatherId->value);
+            } catch(ValidationException $ex) {
+                $this->error($ex->getMessage());
                 return;
             }
-            $cities = City::where('open_weather_id', $open_weather_id)->get();
-            if(!$cities->count()) {
-                $this->error("В таблице 'thesaurus.cities' нет городов с полем open_weather_id = $open_weather_id.");
-                $this->info("Выполнение команды прервано.");
-                return;
-            }
+            
+            $cities = collect([$city]);
         } else {
             $cities = City::all();
         }

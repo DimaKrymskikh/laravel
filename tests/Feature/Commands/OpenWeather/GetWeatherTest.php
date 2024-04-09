@@ -69,8 +69,7 @@ class GetWeatherTest extends TestCase
         // Запускаем команду с параметром 13
         $this
             ->artisan("get:weather 13")
-            ->expectsOutput("В таблице 'thesaurus.cities' нет городов с полем open_weather_id = 13.")
-            ->expectsOutput("Выполнение команды прервано.")
+            ->expectsOutput(trans('city.openWeatherId.exist', ['openWeatherId' => 13]))
             ->assertExitCode(0);
         // Нет данных погоды
         $this->assertEquals(0, Weather::all()->count());
@@ -91,8 +90,7 @@ class GetWeatherTest extends TestCase
         // Запускаем команду с параметром a
         $this
             ->artisan("get:weather a")
-            ->expectsOutput("Параметр команды не является целым числом.")
-            ->expectsOutput("Выполнение команды прервано.")
+            ->expectsOutput(trans('commands.parameter.int'))
             ->assertExitCode(0);
         // Нет данных погоды
         $this->assertEquals(0, Weather::all()->count());

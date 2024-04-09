@@ -5,6 +5,7 @@ namespace App\Services\Database\Thesaurus;
 use App\Models\Thesaurus\City;
 use App\Services\CarbonService;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Validation\ValidationException;
 
 class CityService
 {
@@ -37,5 +38,20 @@ class CityService
             // Если для города не задан временной пояс, берём дефолтный
             $tzName = $city->timezone_id ? $city->timezone->name : CarbonService::DEFAULT_TIMEZONE_NAME;
             $city->weather->created_at = CarbonService::setNewTimezone($city->weather->created_at, $tzName);
+    }
+    
+    /**
+     * Находит и возвращает город по полю thesaurus.cities.open_weather_id
+     * 
+     * @param type $openWeatherId
+     * @return City
+     */
+    public function findCityByOpenWeatherId($openWeatherId): City
+    {
+        $city = City::where('open_weather_id', $openWeatherId)->first();
+        
+        return $city ?? throw ValidationException::withMessages([
+                'message' => trans('city.openWeatherId.exist', ['openWeatherId' => $openWeatherId])
+            ]);
     }
 }
