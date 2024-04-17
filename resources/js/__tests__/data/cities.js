@@ -88,3 +88,8 @@ export const cities_with_weather = [
         }
     }
 ];
+
+export const city = {
+    id: 4,
+    name: "Москва"
+};

@@ -3,15 +3,19 @@
 namespace App\Repositories\OpenWeather;
 
 use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
-use App\Contracts\Support\Timezone as TimezoneInterface;
 use App\Models\Logs\OpenWeatherWeather;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
-use App\Services\CarbonService;
+use App\Services\Database\Thesaurus\TimezoneService;
 use Illuminate\Support\Facades\DB;
 
 class WeatherRepository
 {
+    public function __construct(
+        private TimezoneService $timezoneService,
+    )
+    {}
+    
     /**
      * Возвращает последние данные о погоде для города $city.
      * Данные берутся из таблицы open_weather.weather.
@@ -37,9 +41,7 @@ class WeatherRepository
                 ->where('city_id', $city->id)
                 ->first();
         
-        // Время получения данных о погоде преобразуем в фактическое время в городе $city
-        $tzName = $city->timezone_id ? $city->timezone->name : TimezoneInterface::DEFAULT_TIMEZONE_NAME;
-        $weather->created_at = CarbonService::setNewTimezone($weather->created_at, $tzName);
+        $this->timezoneService->setCityTimezoneForWeatherData($city, $weather);
         
         return $weather;
     }

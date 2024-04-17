@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\TokenController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Project\Auth\Account\UserFilmsController;
+use App\Http\Controllers\Project\Auth\Account\UserLogsWeatherController;
 use App\Http\Controllers\Project\Auth\Account\UserWeatherController;
 use App\Http\Controllers\Project\Auth\HomeController;
 use App\Http\Controllers\Project\Auth\Content\CityController;
@@ -47,6 +48,8 @@ Route::middleware('auth')->group(function () {
     
     Route::get('userweather', [UserWeatherController::class, 'index']);
     Route::post('userweather/refresh/{city_id}', [UserWeatherController::class, 'refresh']);
+    
+    Route::get('userlogsweather/{city_id}', [UserLogsWeatherController::class, 'index']);
     
     Route::get('token', [TokenController::class, 'index']);
     Route::post('token', [TokenController::class, 'create']);

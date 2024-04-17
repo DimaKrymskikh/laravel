@@ -4,13 +4,20 @@ namespace App\Services\Database\Thesaurus;
 
 use App\Models\Thesaurus\City;
 use App\Services\CarbonService;
+use App\Services\Database\Thesaurus\TimezoneService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 
 class CityService
 {
+    public function __construct(
+        private TimezoneService $timezoneService,
+    )
+    {}
+    
     /**
-     * Для каждого города коллекции устанавливает у данных погоды временной пояс города
+     * Для каждого города коллекции устанавливает у данных погоды временной пояс города.
+     * Коллекция $cities должна быть получена жадной загрузкой, чтобы не было запросов в цикле.
      * 
      * @param Collection $cities
      * @return void
@@ -35,8 +42,7 @@ class CityService
      */
     public function setCityTimezoneForWeatherData(City $city): void
     {
-            // Если для города не задан временной пояс, берём дефолтный
-            $tzName = $city->timezone_id ? $city->timezone->name : CarbonService::DEFAULT_TIMEZONE_NAME;
+            $tzName = $this->timezoneService->getTimezoneByCity($city);
             $city->weather->created_at = CarbonService::setNewTimezone($city->weather->created_at, $tzName);
     }
     

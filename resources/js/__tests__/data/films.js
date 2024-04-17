@@ -1,3 +1,5 @@
+import { getPagination, getEmptyPagination } from '@/__tests__/data/paginations';
+
 /**
  * Создаёт ответ сервера, содержащий 10 фильмов с пагинацией
  * 
@@ -5,18 +7,7 @@
  * @returns {getFilms10.films}
  */
 function getFilms10(isLogin) {
-    const films = {
-        current_page: 5,
-        per_page: 10,
-        from: 41,
-        to: 50,
-        total: 1000,
-        path: "http://localhost/catalog",
-        first_page_url: "http://localhost/catalog?number=10&page=1",
-        prev_page_url: "http://localhost/catalog?number=10&page=4",
-        next_page_url: "http://localhost/catalog?number=10&page=6",
-        last_page_url: "http://localhost/catalog?number=10&page=100",
-        data: [
+    const data = [
             {
                 id: 41,
                 title: "Arsenic Independence",
@@ -78,78 +69,16 @@ function getFilms10(isLogin) {
                 language_id: 1,
                 language: { id: 1, name: "English" }
             }
-        ],
-        links: [
-            {
-                url: "http://localhost/catalog?number=10&page=4",
-                label: "&laquo; Previous",
-                active: false
-            }, {
-                url: "http://localhost/catalog?number=10&page=1",
-                label: "1",
-                active: false
-            }, {
-                url: "http://localhost/catalog?number=10&page=2",
-                label: "2",
-                active: false
-            }, {
-                url: "http://localhost/catalog?number=10&page=3",
-                label: "3",
-                active: false
-            }, {
-                url: "http://localhost/catalog?number=10&page=4",
-                label: "4",
-                active: false
-            }, {
-                url: "http://localhost/catalog?number=10&page=5",
-                label: "5",
-                active: true
-            }, {
-                url: "http://localhost/catalog?number=10&page=6",
-                label: "6",
-                active: false
-            }, {
-                url: "http://localhost/catalog?number=10&page=7",
-                label: "7",
-                active: false
-            }, {
-                url: "http://localhost/catalog?number=10&page=8",
-                label: "8",
-                active: false
-            }, {
-                url: "http://localhost/catalog?number=10&page=9",
-                label: "9",
-                active: false
-            }, {
-                url: "http://localhost/catalog?number=10&page=10",
-                label: "10",
-                active: false
-            }, {
-                url: null,
-                label: "...",
-                active: false
-            }, {
-                url: "http://localhost/catalog?number=10&page=99",
-                label: "99",
-                active: false
-            }, {
-                url: "http://localhost/catalog?number=10&page=100",
-                label: "100",
-                active: false
-            }, {
-                url: "http://localhost/catalog?number=10&page=6",
-                label: "Next &raquo;",
-                active: false
-            }
-        ]
-    };
+        ];
     
+    const films = getPagination(data, "http://localhost/catalog", 5, 10, 1000);
+
     if(isLogin) {
         films.data.forEach(function(item, index) {
             item.isAvailable = [2, 4].includes(index) ? true : false;
         });
     }
-    
+  
     return films;
 }
 
@@ -157,32 +86,7 @@ export const films_10 = getFilms10(false);
 
 export const films_10_user = getFilms10(true);
 
-export const films_0 = {
-    current_page: 1,
-    per_page: 10,
-    from: null,
-    to: null,
-    total: 0,
-    path: "http://localhost/catalog",
-    first_page_url: "http://localhost/catalog?number=10&description=qqqq&page=1",
-    last_page_url: "http://localhost/catalog?number=10&description=qqqq&page=1",
-    data: [],
-    links: [
-        {
-            url: null,
-            label: "&laquo; Previous",
-            active: false
-        }, {
-            url: "http://localhost/catalog?number=10&description=qqqq&page=1",
-            label: "1",
-            active: true
-        }, {
-            url: null,
-            label: "Next &raquo;",
-            active: false
-        }
-    ]
-};
+export const films_0 = getEmptyPagination("http://localhost/catalog", 10);
 
 export const filmCard = {
     id: 986,

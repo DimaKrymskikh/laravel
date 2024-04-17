@@ -38,7 +38,7 @@ class GetWeather extends Command
      * @param GetWeatherFromOpenWeatherCommandHandler $request
      * @return void
      */
-    public function handle(WeatherService $weatherService, CityService $cityService, GetWeatherFromOpenWeatherCommandHandler $request): void
+    public function handle(WeatherRepository $weatherRepository, WeatherService $weatherService, CityService $cityService, GetWeatherFromOpenWeatherCommandHandler $request): void
     {
         $this->info('Старт.');
         $this->line("$this->description");
@@ -64,7 +64,7 @@ class GetWeather extends Command
             $this->line("$city->name [$city->open_weather_id]: отправляем запрос на сервер OpenWeather");
 
             try {
-                $response = $request->handle($city, new WeatherRepository());
+                $response = $request->handle($city, $weatherRepository);
             } catch(OpenWeatherException $ex) {
                 report($ex);
                 $this->error($ex->getMessage());

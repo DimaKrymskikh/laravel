@@ -4,6 +4,7 @@ namespace App\Events;
 
 use App\Models\Thesaurus\City;
 use App\Repositories\OpenWeather\WeatherRepository;
+use App\Services\Database\Thesaurus\TimezoneService;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -16,14 +17,16 @@ class RefreshCityWeather implements ShouldBroadcast
     
     private City $city;
     private int $userId;
+    private TimezoneService $timezoneService;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(int $cityId, int $userId)
+    public function __construct(int $cityId, int $userId, TimezoneService $timezoneService)
     {
         $this->city = City::find($cityId);
         $this->userId = $userId;
+        $this->timezoneService = $timezoneService;
     }
 
     /**
@@ -41,7 +44,7 @@ class RefreshCityWeather implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'weather' => (new WeatherRepository())->getLatestWeatherForOneCity($this->city),
+            'weather' => (new WeatherRepository($this->timezoneService))->getLatestWeatherForOneCity($this->city),
             'cityId' => $this->city->id,
         ];
     }

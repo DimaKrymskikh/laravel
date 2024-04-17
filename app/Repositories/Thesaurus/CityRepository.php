@@ -10,12 +10,10 @@ use Illuminate\Http\Request;
 
 class CityRepository
 {
-    private CityService $cityService;
-    
-    public function __construct()
-    {
-        $this->cityService = new CityService();
-    }
+    public function __construct(
+        private CityService $cityService,
+    )
+    {}
     
     /**
      * Возвращает список городов с текущей погодой для залогиненного пользователя.
