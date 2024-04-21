@@ -3,8 +3,6 @@
 namespace App\Notifications\Dvdrental;
 
 use App\Models\Dvd\Film;
-use App\Models\Person\UserFilm;
-
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -19,9 +17,9 @@ class AddFilmNotification extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct(UserFilm $userFilm)
+    public function __construct(int $film_id)
     {
-        $this->title = Film::find($userFilm->film_id)->title;
+        $this->title = Film::find($film_id)->title;
     }
 
     /**

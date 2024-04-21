@@ -53,7 +53,7 @@ class CityController extends Controller
         $userCity->city_id = $city_id;
         
         if($userCity->save()){
-            event(new AddCityInWeatherList($userCity));
+            event(new AddCityInWeatherList($request->user()->id, $city_id));
         }
         
         return redirect('cities');
@@ -71,10 +71,8 @@ class CityController extends Controller
         $query = UserCity::where('user_id', '=', $request->user()->id)
                 ->where('city_id', '=', $city_id);
         
-        $userCity = $query->first();
-        
         if($query->delete()) {
-            event(new RemoveCityFromWeatherList($userCity));
+            event(new RemoveCityFromWeatherList($request->user()->id, $city_id));
         }
         
         return redirect('userweather');

@@ -25,6 +25,6 @@ class SendEmailAddFilmNotification
      */
     public function handle(AddFilmInUserList $event): void
     {
-        $this->user->notify(new AddFilmNotification($event->userFilm));
+        $this->user->notify(new AddFilmNotification($event->film_id));
     }
 }

@@ -25,6 +25,6 @@ class SendEmailRemoveFilmNotification
      */
     public function handle(RemoveFilmFromUserList $event): void
     {
-        $this->user->notify(new RemoveFilmNotification($event->userFilm));
+        $this->user->notify(new RemoveFilmNotification($event->film_id));
     }
 }

@@ -74,7 +74,7 @@ class UserFilmsController extends Controller
         
         // Если запись была успешной, пользователь получает оповещение
         if ($userFilm->save()) {
-            event(new AddFilmInUserList($userFilm));
+            event(new AddFilmInUserList(Auth::id(), $film_id));
         }
         
         return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_AUTH_FILMS, $request));
@@ -93,13 +93,10 @@ class UserFilmsController extends Controller
         $query = UserFilm::where('user_id', '=', Auth::id())
                 ->where('film_id', '=', $film_id);
         
-        // Получаем данные строки, которую хотим удалить.
-        $userFilm = $query->first();
-        
         // Удаление фильма с film_id из коллекции пользователя.
         if ($query->delete()) {
             // При успешном удалении фильма пользователь получает оповещение
-            event(new RemoveFilmFromUserList($userFilm));
+            event(new RemoveFilmFromUserList(Auth::id(), $film_id));
         }
         
         return redirect($this->url->getUrlAfterRemovingItem(RouteServiceProvider::URL_AUTH_USERFILMS, $request, $this->films));

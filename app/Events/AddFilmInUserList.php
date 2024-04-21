@@ -3,7 +3,6 @@
 namespace App\Events;
 
 use App\Models\Dvd\Film;
-use App\Models\Person\UserFilm;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -13,19 +12,15 @@ use Illuminate\Queue\SerializesModels;
 class AddFilmInUserList implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    
-    public string $message;
 
     /**
      * Create a new event instance.
      */
     public function __construct(
-            public UserFilm $userFilm
+            private int $user_id,
+            readonly public int $film_id,
     )
-    {
-        $titleFilm = Film::find($userFilm->film_id)->title;
-        $this->message = "Вы добавили в свою коллекцию фильм $titleFilm";
-    }
+    {}
 
     /**
      * Get the channels the event should broadcast on.
@@ -35,12 +30,14 @@ class AddFilmInUserList implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("auth.{$this->userFilm->user_id}"),
+            new PrivateChannel("auth.{$this->user_id}"),
         ];
     }
     
     public function broadcastWith(): array
     {
-        return ['message' => $this->message];
+        $filmTitle = Film::find($this->film_id)->title;
+        
+        return ['message' => trans('event_messages.add_film_in_user_list', ['filmTitle' => $filmTitle])];
     }
 }

@@ -82,7 +82,7 @@ class UserFilmsTest extends TestCase
             'number' => 100
         ]);
         
-        // У BaseTestLogin теперь 4 фидьма (было 3 и 1 добавился)
+        // У BaseTestLogin теперь 4 фильма (было 3 и 1 добавился)
         $this->assertEquals(4, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
         
         // Отправляется оповещение о добавлении фильма

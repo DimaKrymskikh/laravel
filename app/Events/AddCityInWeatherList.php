@@ -13,20 +13,16 @@ use Illuminate\Queue\SerializesModels;
 class AddCityInWeatherList implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    
-    public string $message;
 
     /**
      * Create a new event instance.
      */
     public function __construct
     (
-            public UserCity $userCity
+            private int $user_id,
+            private int $city_id,
     )
-    {
-        $nameCity = City::find($userCity->city_id)->name;
-        $this->message = "Вы добавили город $nameCity в список просмотра погоды";    
-    }
+    {}
 
     /**
      * Get the channels the event should broadcast on.
@@ -36,12 +32,14 @@ class AddCityInWeatherList implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("auth.{$this->userCity->user_id}"),
+            new PrivateChannel("auth.{$this->user_id}"),
         ];
     }
     
     public function broadcastWith(): array
     {
-        return ['message' => $this->message];
+        $cityName = City::find($this->city_id)->name;
+        
+        return ['message' => trans('event_messages.add_city_in_weather_list', ['cityName' => $cityName])];
     }
 }
