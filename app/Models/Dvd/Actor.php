@@ -12,6 +12,8 @@ class Actor extends Model
     
     protected $table = 'dvd.actors';
     
+    public $timestamps = false;
+    
     public function scopeFilter(Builder $query, Request $request): Builder
     {
         return $query

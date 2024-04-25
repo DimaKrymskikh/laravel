@@ -17,6 +17,8 @@ class Film extends Model
     
     protected $table = 'dvd.films';
     
+    public $timestamps = false;
+    
     public function language(): HasOne
     {
         return $this->hasOne(Language::class, 'id', 'language_id');

@@ -2,7 +2,6 @@
 
 namespace App\Events;
 
-use App\Models\Person\UserCity;
 use App\Models\Thesaurus\City;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
