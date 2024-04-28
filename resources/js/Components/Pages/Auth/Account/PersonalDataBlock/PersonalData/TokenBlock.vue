@@ -26,7 +26,7 @@ const handlerGettingToken = function() {
     <div class="text-sm text-justify mb-2">
         Получите токен для взаимодействия с приложением через API.
     </div>
-    <div>
+    <div class="mb-4">
         <div class="text-center">
             <form @submit.prevent="handlerGettingToken">
                 <FormButton class="w-56" text="Получить токен" />

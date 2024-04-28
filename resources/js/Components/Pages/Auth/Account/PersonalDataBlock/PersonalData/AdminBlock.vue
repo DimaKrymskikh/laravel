@@ -18,7 +18,14 @@ const hideAdminModal = function() {
 </script>
 
 <template>
-    <div class="ml-4">
+    <div class="text-orange-900">
+        Управление правами:
+    </div>
+    <div class="text-sm text-justify mb-2">
+        <span v-if="user.is_admin">Нажмите кнопку "Отказаться от администрирования", чтобы не быть админом.</span>
+        <span v-else>Нажмите кнопку "Сделать себя админом", чтобы получить права админа.</span>
+    </div>
+    <div class="text-center mb-4">
         <PrimaryButton
             buttonText="Отказаться от администрирования"
             :handler="showAdminModal"

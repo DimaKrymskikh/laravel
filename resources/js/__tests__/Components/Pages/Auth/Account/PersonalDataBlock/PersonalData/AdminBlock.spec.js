@@ -1,13 +1,31 @@
 import { mount } from "@vue/test-utils";
 
 import { setActivePinia, createPinia } from 'pinia';
-import AdminBlock from '@/Components/Pages/Auth/Account/AdminBlock.vue';
+import AdminBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/AdminBlock.vue';
 import AdminModal from '@/Components/Modal/Request/AdminModal.vue';
 import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
 import { useAppStore } from '@/Stores/app';
 import { useFilmsAccountStore } from '@/Stores/films';
 
-describe("@/Pages/Auth/Account/AdminBlock.vue", () => {
+import { userAuth, userAdmin } from '@/__tests__/data/users';
+import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
+
+const getWrapper = function(user, app, filmsAccount) {
+        return mount(AdminBlock, {
+            props: { user },
+            global: {
+                stubs: {
+                    AccountLayout: AuthAccountLayoutStub
+                },
+                provide: { app, filmsAccount }
+            }
+        });
+    };
+    
+const textForAuth = 'Нажмите кнопку "Сделать себя админом", чтобы получить права админа.';
+const textForAdmin = 'Нажмите кнопку "Отказаться от администрирования", чтобы не быть админом.';
+
+describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/AdminBlock.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
     });
@@ -16,18 +34,10 @@ describe("@/Pages/Auth/Account/AdminBlock.vue", () => {
         const app = useAppStore();
         const filmsAccount = useFilmsAccountStore();
         
-        const wrapper = mount(AdminBlock, {
-            props: {
-                user: {
-                    id: 77,
-                    is_admin: false,
-                    login: 'TestLogin'
-                }
-            },
-            global: {
-                provide: { app, filmsAccount }
-            }
-        });
+        const wrapper = getWrapper(userAuth, app, filmsAccount);
+        
+        expect(wrapper.text()).toContain(textForAuth);
+        expect(wrapper.text()).not.toContain(textForAdmin);
         
         const primaryButton = wrapper.getComponent(PrimaryButton);
         expect(primaryButton.props('buttonText')).toBe('Сделать себя админом');
@@ -49,18 +59,10 @@ describe("@/Pages/Auth/Account/AdminBlock.vue", () => {
         const app = useAppStore();
         const filmsAccount = useFilmsAccountStore();
         
-        const wrapper = mount(AdminBlock, {
-            props: {
-                user: {
-                    id: 77,
-                    is_admin: true,
-                    login: 'TestLogin'
-                }
-            },
-            global: {
-                provide: { app, filmsAccount }
-            }
-        });
+        const wrapper = getWrapper(userAdmin, app, filmsAccount);
+        
+        expect(wrapper.text()).not.toContain(textForAuth);
+        expect(wrapper.text()).toContain(textForAdmin);
         
         const primaryButton = wrapper.getComponent(PrimaryButton);
         expect(primaryButton.props('buttonText')).toBe('Отказаться от администрирования');

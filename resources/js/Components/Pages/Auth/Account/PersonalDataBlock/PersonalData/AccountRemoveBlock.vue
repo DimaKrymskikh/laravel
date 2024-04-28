@@ -15,7 +15,13 @@ const hideAccountRemoveModal = function() {
 </script>
 
 <template>
-    <div class="ml-4">
+    <div class="text-orange-900">
+        Удаление аккаунта:
+    </div>
+    <div class="text-sm text-justify mb-2">
+        Нажмите на кнопку "Удалить аккаунт", если хотите отказатся от аккаунта.
+    </div>
+    <div class="text-center mb-4">
         <DangerButton
             buttonText="Удалить аккаунт"
             :handler="showAccountRemoveModal"

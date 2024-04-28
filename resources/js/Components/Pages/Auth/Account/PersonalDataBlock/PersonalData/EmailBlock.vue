@@ -28,11 +28,11 @@ const handlerVerifyEmail = function() {
      <div class="text-orange-900">
         Эл. почта:
     </div>
-    <div class="flex justify-between mb-2">
+    <div class="flex justify-between" :class="user.email_verified_at ? 'mb-4' : 'mb-2'">
         <span>{{ user.email }}</span>
         <CheckSvg v-if="user.email_verified_at" />
     </div>
-    <div v-if="!user.email_verified_at">
+    <div class="mb-4" v-if="!user.email_verified_at">
         <div class="text-sm text-justify text-red-700">
             Ваша эл. почта не подтверждена.
             В почтовом ящике должно быть письмо со ссылкой для подтверждения.

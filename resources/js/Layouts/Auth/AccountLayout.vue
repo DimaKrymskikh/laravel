@@ -2,8 +2,6 @@
 import { Link } from '@inertiajs/vue3';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import AccountRemoveBlock from '@/Components/Pages/Auth/Account/AccountRemoveBlock.vue';
-import AdminBlock from '@/Components/Pages/Auth/Account/AdminBlock.vue';
 import PersonalDataBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock.vue';
 import AuthAccountTabs from '@/Components/Tabs/AuthAccountTabs.vue';
 
@@ -26,10 +24,6 @@ defineProps({
                     <PersonalDataBlock :user="user" />
                     <h1>Добрый день, {{ user.login }}</h1>
 
-                    <div class="flex justify-end pb-4">
-                        <AdminBlock :user="user" />
-                        <AccountRemoveBlock />
-                    </div>
                     <slot />
                 </div>
             </div>
