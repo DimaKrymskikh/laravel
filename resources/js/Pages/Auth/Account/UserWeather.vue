@@ -16,6 +16,10 @@ const props = defineProps({
 });
 
 const app = inject('app');
+const weatherPageAuth = inject('weatherPageAuth');
+// Сбрасываем активную страницу пагинации для страницы погоды, 
+// чтобы при смене города попасть на существующую страницу
+weatherPageAuth.page = 1;
 
 const titlePage = 'ЛК: погода';
 
@@ -90,7 +94,7 @@ const refreshCityWeather = function(weather, cityId) {
                     <div class="w-3/12 pr-2">
                         <span class="font-sans mr-2">{{ index + 1 }}</span> 
                         <span>{{ city.name }}</span>
-                        <Link :href="`/userlogsweather/${city.id}`">
+                        <Link :href="weatherPageAuth.getUrl(`/userlogsweather/${city.id}`)">
                             <EyeSvg title="Посмотреть историю погоды в городе"/>
                         </Link>
                     </div>

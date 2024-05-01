@@ -1,11 +1,13 @@
 import '@/bootstrap';
 import { mount } from "@vue/test-utils";
+import { router } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
 import UserLogsWeather from "@/Pages/Auth/Account/UserLogsWeather.vue";
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import { useAppStore } from '@/Stores/app';
+import { useWeatherPageAuthStore } from '@/Stores/weather';
 
 import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
 import { city } from '@/__tests__/data/cities';
@@ -17,11 +19,14 @@ vi.mock('@inertiajs/vue3', async () => {
     const actual = await vi.importActual("@inertiajs/vue3");
     return {
         ...actual,
+        router: {
+            get: vi.fn()
+        },
         Head: vi.fn()
     };
 });
 
-const getWrapper = function(app) {
+const getWrapper = function(app, weatherPageAuth) {
     return mount(UserLogsWeather, {
             props: {
                 errors: {},
@@ -33,7 +38,7 @@ const getWrapper = function(app) {
                 stubs: {
                     AccountLayout: AuthAccountLayoutStub
                 },
-                provide: { app }
+                provide: { app, weatherPageAuth }
             }
         });
 };
@@ -45,8 +50,9 @@ describe("@/Pages/Auth/Account/UserLogsWeather.vue", () => {
     
     it("Отрисовка UserLogsWeather", () => {
         const app = useAppStore();
+        const weatherPageAuth = useWeatherPageAuthStore();
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper(app, weatherPageAuth);
         
         const accountLayout = wrapper.getComponent(AccountLayout);
         expect(accountLayout.props('user')).toStrictEqual(userAuth);
@@ -92,5 +98,21 @@ describe("@/Pages/Auth/Account/UserLogsWeather.vue", () => {
         expect(tds[6].text()).toBe(weather3.data[1].visibility + ' метров');
         expect(tds[7].text()).toBe('скорость ветра ' + weather3.data[1].wind_speed + ' м/c  направление ветра ' + weather3.data[1].wind_deg + '\u00B0');
         expect(tds[8].text()).toBe(weather3.data[1].clouds_all + '%');
+    });
+    
+    it("Функция changeNumberOfWeatherOnPage отправляет запрос на изменение числа записей погоды на странице", () => {
+        const app = useAppStore();
+        const weatherPageAuth = useWeatherPageAuthStore();
+        
+        const wrapper = getWrapper(app, weatherPageAuth);
+        
+        // Запрос не отправлен
+        expect(router.get).not.toHaveBeenCalled();
+        
+        wrapper.vm.changeNumberOfWeatherOnPage(50);
+        // Функция changeNumberOfFilmsOnPage отправила запрос с нужными параметрами
+        expect(wrapper.vm.weatherPageAuth.page).toBe(1);
+        expect(wrapper.vm.weatherPageAuth.perPage).toBe(50);
+        expect(router.get).toHaveBeenCalledWith(wrapper.vm.weatherPageAuth.getUrl(`/userlogsweather/${city.id}`));
     });
 });

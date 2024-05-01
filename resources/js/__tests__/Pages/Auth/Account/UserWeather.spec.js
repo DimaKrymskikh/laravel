@@ -10,6 +10,7 @@ import ArrowPathSvg from '@/Components/Svg/ArrowPathSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 import { useAppStore } from '@/Stores/app';
+import { useWeatherPageAuthStore } from '@/Stores/weather';
 
 import {  cities_with_weather } from '@/__tests__/data/cities';
 import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
@@ -29,7 +30,7 @@ const user = {
             login: 'TestLogin'
         };
 
-const getWrapper = function(app) {
+const getWrapper = function(app, weatherPageAuth) {
     return mount(UserWeather, {
             props: {
                 errors: null,
@@ -41,7 +42,7 @@ const getWrapper = function(app) {
                     AccountLayout: AuthAccountLayoutStub,
                     RemoveCityFromListOfWeatherModal: true
                 },
-                provide: { app }
+                provide: { app, weatherPageAuth }
             }
         });
 };
@@ -53,8 +54,9 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
     
     it("Отрисовка UserWeather", () => {
         const app = useAppStore();
+        const weatherPageAuth = useWeatherPageAuthStore();
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper(app, weatherPageAuth);
         
         const accountLayout = wrapper.getComponent(AccountLayout);
         expect(accountLayout.props('user')).toStrictEqual(user);
@@ -90,8 +92,9 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
     
     it("Клик по TrashSvg показывает модальное окно для удаления фильма из просмотра погоды", async () => {
         const app = useAppStore();
+        const weatherPageAuth = useWeatherPageAuthStore();
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper(app, weatherPageAuth);
         
         const flexes = wrapper.findAll('div.flex.justify-between.border-b');
         expect(flexes.length).toBe(4);
@@ -107,8 +110,9 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
     
     it("Функция hideRemoveCityFromListOfWeatherModal изменяет isShowRemoveCityFromListOfWeatherModal с true на false", () => {
         const app = useAppStore();
+        const weatherPageAuth = useWeatherPageAuthStore();
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper(app, weatherPageAuth);
         
         wrapper.vm.isShowRemoveCityFromListOfWeatherModal = true;
         wrapper.vm.hideRemoveCityFromListOfWeatherModal();
@@ -117,8 +121,9 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
     
     it("Клик по ArrowPathSvg отправляет запрос на сервер", async () => {
         const app = useAppStore();
+        const weatherPageAuth = useWeatherPageAuthStore();
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper(app, weatherPageAuth);
         
         const flexes = wrapper.findAll('div.flex.justify-between.border-b');
         expect(flexes.length).toBe(4);

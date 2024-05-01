@@ -1,7 +1,8 @@
 <script setup>
 import { ref, reactive, inject, onUpdated } from 'vue';
-import { Head, Link } from '@inertiajs/vue3'
+import { Head, Link, router } from '@inertiajs/vue3'
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
+import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
 import Spinner from '@/Components/Svg/Spinner.vue';
@@ -17,6 +18,7 @@ const props = defineProps({
 });
 
 const app = inject('app');
+const weatherPageAuth = inject('weatherPageAuth');
 
 const titlePage = 'История погоды в городе ' + props.city.name;
 
@@ -30,6 +32,13 @@ const linksList = [{
         }, {
             text: titlePage
         }];
+
+// Изменяет число записей погоды на странице
+const changeNumberOfWeatherOnPage = function(newNumber) {
+    weatherPageAuth.page = 1;
+    weatherPageAuth.perPage = newNumber;
+    router.get(weatherPageAuth.getUrl(`/userlogsweather/${props.city.id}`));
+};
 </script>
 
 <template>
@@ -37,6 +46,16 @@ const linksList = [{
     <AccountLayout :errors="errors" :user="user" :linksList="linksList">
         <div>
             <h2>{{ titlePage }}</h2>
+
+            <div class="flex justify-start pb-4">
+                <Dropdown
+                    buttonName="Число записей погоды на странице"
+                    :itemsNumberOnPage="weatherPage.per_page"
+                    :changeNumber="changeNumberOfWeatherOnPage"
+                    :options="[5, 10, 20, 50, 100, 500, 1000]"
+                />
+            </div>
+
             <table class="container">
                 <caption>
                     Показано {{ weatherPage.per_page }} показаний погоды с {{ weatherPage.from }} по {{ weatherPage.to }} из {{ weatherPage.total }}
