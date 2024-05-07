@@ -6,6 +6,8 @@ import { setActivePinia, createPinia } from 'pinia';
 import UserLogsWeather from "@/Pages/Auth/Account/UserLogsWeather.vue";
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
+import Dropdown from '@/Components/Elements/Dropdown.vue';
+import WeatherFilterByDateBlock from '@/Components/Pages/Auth/Account/WeatherFilterByDateBlock.vue';
 import { useAppStore } from '@/Stores/app';
 import { useWeatherPageAuthStore } from '@/Stores/weather';
 
@@ -61,6 +63,15 @@ describe("@/Pages/Auth/Account/UserLogsWeather.vue", () => {
         
         const h2 = wrapper.get('h2');
         expect(h2.text()).toBe('История погоды в городе ' + city.name);
+        
+        const dropdown = wrapper.getComponent(Dropdown);
+        expect(dropdown.props('buttonName')).toBe('Число записей погоды на странице');
+        expect(dropdown.props('itemsNumberOnPage')).toBe(weather3.per_page);
+        expect(dropdown.props('changeNumber')).toBe(wrapper.vm.changeNumberOfWeatherOnPage);
+        expect(dropdown.props('options')).toStrictEqual([5, 10, 20, 50, 100, 500, 1000]);
+        
+        const weatherFilterByDateBlock = wrapper.getComponent(WeatherFilterByDateBlock);
+        expect(weatherFilterByDateBlock.props('refreshWeather')).toBe(wrapper.vm.refreshWeather);
         
         // Отрисовывается таблица с данными погоды
         const table = wrapper.get('table.container');

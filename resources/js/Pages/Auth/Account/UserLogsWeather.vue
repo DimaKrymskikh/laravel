@@ -1,10 +1,11 @@
 <script setup>
-import { ref, reactive, inject, onUpdated } from 'vue';
+import { ref, reactive, inject, watch } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3'
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
+import WeatherFilterByDateBlock from '@/Components/Pages/Auth/Account/WeatherFilterByDateBlock.vue';
 import Spinner from '@/Components/Svg/Spinner.vue';
 import ArrowPathSvg from '@/Components/Svg/ArrowPathSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
@@ -33,11 +34,16 @@ const linksList = [{
             text: titlePage
         }];
 
+// Отправляет запрос на получение нового списка 
+function refreshWeather() {
+    router.get(weatherPageAuth.getUrl(`/userlogsweather/${props.city.id}`));
+}
+
 // Изменяет число записей погоды на странице
 const changeNumberOfWeatherOnPage = function(newNumber) {
     weatherPageAuth.page = 1;
     weatherPageAuth.perPage = newNumber;
-    router.get(weatherPageAuth.getUrl(`/userlogsweather/${props.city.id}`));
+    refreshWeather();
 };
 </script>
 
@@ -45,7 +51,7 @@ const changeNumberOfWeatherOnPage = function(newNumber) {
     <Head :title="titlePage" />
     <AccountLayout :errors="errors" :user="user" :linksList="linksList">
         <div>
-            <h2>{{ titlePage }}</h2>
+            <h2 class="mb-6 text-orange-700">{{ titlePage }}</h2>
 
             <div class="flex justify-start pb-4">
                 <Dropdown
@@ -55,6 +61,8 @@ const changeNumberOfWeatherOnPage = function(newNumber) {
                     :options="[5, 10, 20, 50, 100, 500, 1000]"
                 />
             </div>
+
+            <WeatherFilterByDateBlock :refreshWeather="refreshWeather" />
 
             <table class="container">
                 <caption>

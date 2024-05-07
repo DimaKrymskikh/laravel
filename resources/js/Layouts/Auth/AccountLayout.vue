@@ -22,7 +22,7 @@ defineProps({
                 <BreadCrumb :linksList="linksList" />
                 <div class="relative">
                     <PersonalDataBlock :user="user" />
-                    <h1>Добрый день, {{ user.login }}</h1>
+                    <h1 class="mb-8 text-orange-900">Добрый день, {{ user.login }}</h1>
 
                     <slot />
                 </div>

@@ -14,7 +14,7 @@ final class OpenWeatherWeatherRepository
 {
     use Paginator;
     
-    public const ADDITIONAL_PARAMS_IN_URL = [];
+    public const ADDITIONAL_PARAMS_IN_URL = ['datefrom', 'dateto'];
     
     private RequestGuard $guard;
     
@@ -41,6 +41,7 @@ final class OpenWeatherWeatherRepository
                         'created_at'
                     )
                 ->where('city_id', $city->id)
+                ->filter($request)
                 ->orderBy('created_at', 'desc');
         
         $weatherList = $this->setPagination($query, $request, $this->guard);

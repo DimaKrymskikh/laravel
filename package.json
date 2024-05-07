@@ -23,5 +23,8 @@
         "tailwindcss": "^3.2.6",
         "vite": "^4.0.0",
         "vitest": "^0.34.1"
+    },
+    "dependencies": {
+        "pikaday": "^1.8.2"
     }
 }

@@ -37,3 +37,39 @@ window.Echo = new Echo({
 //     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
 //     enabledTransports: ['ws', 'wss'],
 // });
+
+import Pikaday from 'pikaday';
+window.pikaday = function(id) {
+    return new Pikaday({
+        field: document.getElementById(id),
+        firstDay: 1,
+        format: 'DD.MM.YYYY',
+        toString(date, format) {
+            let day = date.getDate();
+            day = day > 9 ? day : '0' + day;
+            
+            let month = date.getMonth() + 1;
+            month = month > 9 ? month : '0' + month;
+            
+            const year = date.getFullYear();
+            
+            return `${day}.${month}.${year}`;
+        },
+        // Метод parse предотвращает постоянную смену день/месяц, когда день <= 12
+        parse(dateString, format) {
+            // dateString is the result of `toString` method
+            const parts = dateString.split('.');
+            const day = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1;
+            const year = parseInt(parts[2], 10);
+            return new Date(year, month, day);
+        },
+        i18n: {
+            previousMonth : 'P',
+            nextMonth     : 'N',
+            months        : ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+            weekdays      : ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'],
+            weekdaysShort : ['Вс','Пн','Вт','Ср','Чт','Пт','Сб']
+        }
+    });
+};
