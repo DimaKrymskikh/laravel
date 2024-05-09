@@ -13,9 +13,6 @@ class UserLogsWeatherTest extends TestCase
 {
     use RefreshDatabase, Authentication, UserCities;
     
-    /**
-     * A basic feature test example.
-     */
     public function test_auth_can_get_weather_logs_for_one_city(): void
     {
         $this->seedCitiesAndUsersWithLogsWeather();
@@ -51,5 +48,57 @@ class UserLogsWeatherTest extends TestCase
                                 ->etc()
                         )
             );
+    }
+    
+    public function test_assert_ok_if_request_parameters_are_valid(): void
+    {
+        $this->seedCitiesAndUsersWithLogsWeather();
+        
+        $user = $this->getUser('AuthTestLogin');
+        $acting = $this->actingAs($user);
+        
+        $responseWithoutParameters = $acting->get('userlogsweather/'.CitySeeder::ID_NOVOSIBIRSK);
+        $responseWithoutParameters->assertOk();
+
+        $responseWithoutDate = $acting->get('userlogsweather/'.CitySeeder::ID_NOVOSIBIRSK.'?page=3&number=10');
+        $responseWithoutDate->assertOk();
+
+        $responseEmptyDate = $acting->get('userlogsweather/'.CitySeeder::ID_NOVOSIBIRSK.'?page=3&number=20&datefrom=&dateto=');
+        $responseEmptyDate->assertOk();
+
+        $responseAllParameters = $acting->get('userlogsweather/'.CitySeeder::ID_NOVOSIBIRSK.'?page=3&number=20&datefrom=12.01.2024&dateto=29.02.2024');
+        $responseAllParameters->assertOk();
+    }
+    
+    public function test_assert_not_found_if_city_id_is_not_integer(): void
+    {
+        $this->seedCitiesAndUsersWithLogsWeather();
+        
+        $user = $this->getUser('AuthTestLogin');
+        $acting = $this->actingAs($user);
+        $response = $acting->get('userlogsweather/aa');
+        
+        $response->assertNotFound();
+    }
+    
+    public function test_assert_redirect_if_request_parameter_is_not_valid(): void
+    {
+        $this->seedCitiesAndUsersWithLogsWeather();
+        
+        $user = $this->getUser('AuthTestLogin');
+        $acting = $this->actingAs($user);
+        
+        // Параметр page не является целым
+        $responsePage = $acting->get('userlogsweather/'.CitySeeder::ID_NOVOSIBIRSK.'?page=&number=20');
+        $responsePage->assertRedirect('userweather');
+        // Параметр number не является целым
+        $responseNumber = $acting->get('userlogsweather/'.CitySeeder::ID_NOVOSIBIRSK.'?page=3&number=a');
+        $responseNumber->assertRedirect('userweather');
+        // Параметр datefrom не является датой
+        $responseDatefrom = $acting->get('userlogsweather/'.CitySeeder::ID_NOVOSIBIRSK.'?page=3&number=20&datefrom=111&dateto=01.02.2024');
+        $responseDatefrom->assertRedirect('userweather');
+        // Несуществующая дата в dateto
+        $responseTo = $acting->get('userlogsweather/'.CitySeeder::ID_NOVOSIBIRSK.'?page=3&number=20&datefrom=12.01.2024&dateto=30.02.2024');
+        $responseTo->assertRedirect('userweather');
     }
 }

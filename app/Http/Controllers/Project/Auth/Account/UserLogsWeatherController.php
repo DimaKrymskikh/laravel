@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Project\Auth\Account;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Logs\WeatherFilterRequest;
 use App\Models\Thesaurus\City;
 use App\Repositories\Logs\OpenWeatherWeatherRepository;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,7 +16,7 @@ class UserLogsWeatherController extends Controller
     )
     {}
     
-    public function index(Request $request, int $city_id): Response
+    public function index(WeatherFilterRequest $request, int $city_id): Response
     {
         $city = City::select('id', 'name', 'timezone_id')->firstWhere('id', $city_id);
 

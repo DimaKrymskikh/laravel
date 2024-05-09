@@ -46,6 +46,8 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });
+        
+        Route::pattern('city_id', '[0-9]+');
     }
 
     /**
