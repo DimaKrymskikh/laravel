@@ -47,7 +47,10 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/web.php'));
         });
         
+        Route::pattern('id', '[0-9]+');
         Route::pattern('city_id', '[0-9]+');
+        Route::pattern('film_id', '[0-9]+');
+        Route::pattern('timezone_id', '[0-9]+');
     }
 
     /**
