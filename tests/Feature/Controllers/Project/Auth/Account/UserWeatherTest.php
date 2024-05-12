@@ -116,4 +116,28 @@ class UserWeatherTest extends TestCase
         $response
             ->assertOk();
     }
+    
+    public function test_city_weather_can_not_be_refresh_if_the_response_does_not_have_200_http_status_code(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            "api.openweathermap.org/data/2.5/weather?*" => Http::response($this->getWeatherForOneCity(), 201),
+        ]);
+        
+        Event::fake();
+        
+        // Посев без погоды
+        $this->seedCitiesAndUsers();
+        $city = City::where('id', CitySeeder::ID_NOVOSIBIRSK)->first();
+        
+        $user = $this->getUser('AuthTestLogin');
+        $acting = $this->actingAs($user);
+        $response = $acting->withoutExceptionHandling()->post("userweather/refresh/$city->id");
+        
+        // Событие Broadcasting не отправляется
+        Event::assertNotDispatched(RefreshCityWeather::class);
+        
+        $response
+            ->assertOk();
+    }
 }
