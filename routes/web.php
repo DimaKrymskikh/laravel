@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\FallbackController;
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -25,3 +28,5 @@ $testFile = __DIR__.'/technical/test.php';
 if(config('app.env') === 'local' && file_exists($testFile)) {
     require $testFile;
 }
+
+Route::fallback([FallbackController::class, 'index']);

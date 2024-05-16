@@ -70,17 +70,6 @@ class UserLogsWeatherTest extends TestCase
         $responseAllParameters->assertOk();
     }
     
-    public function test_assert_not_found_if_city_id_is_not_integer(): void
-    {
-        $this->seedCitiesAndUsersWithLogsWeather();
-        
-        $user = $this->getUser('AuthTestLogin');
-        $acting = $this->actingAs($user);
-        $response = $acting->get('userlogsweather/aa');
-        
-        $response->assertNotFound();
-    }
-    
     public function test_assert_redirect_if_request_parameter_is_not_valid(): void
     {
         $this->seedCitiesAndUsersWithLogsWeather();
