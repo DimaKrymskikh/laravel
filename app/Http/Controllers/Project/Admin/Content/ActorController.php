@@ -69,7 +69,7 @@ class ActorController extends Controller
     {
         $actorService->update($request->getActorDto(), $actor_id);
         
-        return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_ADMIN_ACTORS, $request));
+        return redirect($this->url->getUrlByItem(RouteServiceProvider::URL_ADMIN_ACTORS, $request, $this->actors, $actor_id));
     }
 
     /**

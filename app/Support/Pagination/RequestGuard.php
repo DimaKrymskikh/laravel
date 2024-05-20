@@ -23,7 +23,7 @@ class RequestGuard
      */
     public function getPage(Request $request): int
     {
-        return $request->page ?? self::DEFAULT_CURRENT_PAGE;
+        return $request->input('page', self::DEFAULT_CURRENT_PAGE);
     }
 
     /**
@@ -34,7 +34,7 @@ class RequestGuard
      */
     public function getNumber(Request $request): int
     {
-        return $request->number ?? self::DEFAULT_PER_PAGE;
+        return $request->input('number', self::DEFAULT_PER_PAGE);
     }
 
     /**
@@ -67,6 +67,14 @@ class RequestGuard
         return $serialNumber ? $this->getPageOfItem($serialNumber, $number) : $page;
     }
     
+    /**
+     * Возвращает номер страницы пагинации после удаления элемента.
+     * (Либо страницу, на которой был элемент, либо последнюю страницу, если удаляемый элемент был последним на последней странице)
+     * 
+     * @param Request $request
+     * @param int $maxSerialNumber - число элементов в списке
+     * @return int
+     */
     public function getCurrentPageAfterRemovingItems(Request $request, int $maxSerialNumber): int
     {
         $page = $this->getPage($request);
@@ -79,6 +87,12 @@ class RequestGuard
         return $page;
     }
     
+    /**
+     * Возвращает массив параметров для url, которые используются в фильтре запроса к базе
+     * 
+     * @param Request $request
+     * @return array
+     */
     private function setArrayOfAdditionalParamsForUrl(Request $request): array
     {
         $arr = [];
@@ -89,17 +103,32 @@ class RequestGuard
         return $arr;
     }
     
-    public function setParamsArrayForUrl(Request $request, int $page, int $number): array
+    /**
+     * Возвращает массив параметров для url
+     * 
+     * @param Request $request
+     * @param int|null $page - если задан, то это номер текущей страницы пагинации
+     * @return array
+     */
+    public function setParamsArrayForUrl(Request $request, ?int $page = null): array
     {
         return array_merge([
-                    'page' => $page,
-                    'number' => $number,
+                    'page' => $page ?? $this->getPage($request),
+                    'number' => $this->getNumber($request),
                 ], $this->setArrayOfAdditionalParamsForUrl($request));
 
     }
     
-    public function getUrl(string $baseUrl, Request $request, int $page, int $number): string
+    /**
+     * Возвращает url со всеми параметрами пагинации
+     * 
+     * @param string $baseUrl
+     * @param Request $request
+     * @param int|null $page - если задан, то это номер текущей страницы пагинации
+     * @return string
+     */
+    public function getUrl(string $baseUrl, Request $request, ?int $page = null): string
     {
-        return "$baseUrl?".http_build_query($this->setParamsArrayForUrl($request, $page, $number));
+        return "$baseUrl?".http_build_query($this->setParamsArrayForUrl($request, $page));
     }
 }

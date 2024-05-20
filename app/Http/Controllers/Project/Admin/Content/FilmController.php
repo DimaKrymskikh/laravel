@@ -77,7 +77,7 @@ class FilmController extends Controller
         $film->$field = $request->$field;
         $film->save();
         
-        return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_ADMIN_FILMS, $request));
+        return redirect($this->url->getUrlByItem(RouteServiceProvider::URL_ADMIN_FILMS, $request, $this->films, $film_id));
     }
 
     /**
