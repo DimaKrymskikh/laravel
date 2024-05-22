@@ -30,7 +30,9 @@ const handlerAddFilm = function(e) {
             app.isRequest = true;
             errorsField.value = '';
         },
-        onSuccess: () => {
+        onSuccess: res => {
+            // Если было изменено название фильма, то текущая страница пагинации может измениться
+            filmsAdmin.page = res.props.films.current_page;
             props.hideUpdateFilmModal();
         },
         onError: errors => {

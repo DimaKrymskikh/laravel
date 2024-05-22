@@ -79,8 +79,10 @@ class RequestGuard
     {
         $page = $this->getPage($request);
         $number = $this->getNumber($request);
+        // Находим последнюю страницу пагинации
+        $maxPage = $this->getPageOfItem($maxSerialNumber, $number);
         
-        while($page > $this->getPageOfItem($maxSerialNumber, $number)) {
+        while($page > $maxPage) {
             $page--;
         }
         

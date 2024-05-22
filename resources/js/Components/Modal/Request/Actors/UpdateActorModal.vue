@@ -38,7 +38,9 @@ const handlerUpdateActor = function(e) {
             errorsFirstName.value = '';
             errorsLastName.value = '';
         },
-        onSuccess: () => {
+        onSuccess: res => {
+            // Если было изменено имя или фамилия актёра, то текущая страница пагинации может измениться
+            actorsList.page = res.props.actors.current_page;
             props.hideUpdateActorModal();
         },
         onError: errors => {
