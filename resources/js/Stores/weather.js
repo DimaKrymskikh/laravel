@@ -1,12 +1,11 @@
 import { ref } from 'vue';
 import { defineStore } from "pinia";
+import { getPaginationOptions } from "@/Services/pagination.js";
 
 const weatherModel = function() {
     return function() {
-        // Активная страница
-        const page = ref(1);
-        // Число элементов на странице
-        const perPage = ref(20);
+        const { page, perPage } = getPaginationOptions();
+    
         const datefrom = ref('');
         const dateto = ref('');
 

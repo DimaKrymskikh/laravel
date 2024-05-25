@@ -1,13 +1,12 @@
 import { ref } from 'vue';
 import { defineStore } from "pinia";
+import { getPaginationOptions } from "@/Services/pagination.js";
 
 export const useActorsListStore = defineStore("actorsList", function() {
+        const { page, perPage } = getPaginationOptions();
+    
         // Сортировка по полному имени актёра
         const name = ref('');
-        // Активная страница
-        const page = ref(1);
-        // Число элементов на странице
-        const perPage = ref(20);
 
         const getUrl = function(id) {
             const strGetParameters = `page=${page.value}&number=${perPage.value}&name=${name.value}`;
