@@ -1,6 +1,6 @@
 import { getPaginationOptions } from "@/Services/pagination.js";
 
-describe("@/Pages/Auth/Account/UserFilms.vue", () => {
+describe("@/Services/pagination.js", () => {
     it("getPaginationOptions задаёт разные объекты", () => {
         const pagination1 = getPaginationOptions();
         const pagination2 = getPaginationOptions();
