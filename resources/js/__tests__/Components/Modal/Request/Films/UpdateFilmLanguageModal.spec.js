@@ -9,6 +9,7 @@ import { useFilmsAdminStore } from '@/Stores/films';
 import { languages } from '@/__tests__/data/languages';
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
+import { eventTargetClassListContainsFalseAndGetAttribute8 } from '@/__tests__/fake/Event';
 
 vi.mock('@inertiajs/vue3');
         
@@ -158,5 +159,77 @@ describe("@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue", () => {
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.filmLanguage, 'Р');
         await flushPromises();
         expect(appRequest).toHaveBeenCalledTimes(1);
+    });
+    
+    it("Функция handlerUpdateFilmLanguage вызывает router.put с нужными параметрами", () => {
+        const app = useAppStore();
+        const filmsAdmin = useFilmsAdminStore();
+        const options = {
+            preserveScroll: true,
+            onBefore: expect.anything(),
+            onSuccess: expect.anything(),
+            onError: expect.anything(),
+            onFinish: expect.anything()
+        };
+
+        const wrapper = getWrapper(app, filmsAdmin);
+        
+        wrapper.vm.handlerUpdateFilmLanguage(eventTargetClassListContainsFalseAndGetAttribute8);
+        
+        expect(router.put).toHaveBeenCalledTimes(1);
+        expect(router.put).toHaveBeenCalledWith(filmsAdmin.getUrl(`/admin/films/${wrapper.vm.props.updateFilm.id}`), {
+                field: 'language_id',
+                language_id: eventTargetClassListContainsFalseAndGetAttribute8.target.getAttribute('data-id')
+            }, options);
+    });
+    
+    it("Проверка функции onBeforeForHandlerUpdateFilmLanguage", () => {
+        const app = useAppStore();
+        // По умолчанию
+        expect(app.isRequest).toBe(false);
+        const filmsAdmin = useFilmsAdminStore();
+        
+        const wrapper = getWrapper(app, filmsAdmin);
+        wrapper.vm.errorsName = 'ErrorName';
+        wrapper.vm.onBeforeForHandlerUpdateFilmLanguage();
+        
+        expect(app.isRequest).toBe(true);
+        expect(wrapper.vm.errorsName).toBe('');
+    });
+    
+    it("Проверка функции onSuccessForHandlerUpdateFilmLanguage", async () => {
+        const app = useAppStore();
+        const filmsAdmin = useFilmsAdminStore();
+        
+        const wrapper = getWrapper(app, filmsAdmin);
+        
+        expect(hideUpdateFilmLanguageModal).not.toHaveBeenCalled();
+        wrapper.vm.onSuccessForHandlerUpdateFilmLanguage();
+        
+        expect(hideUpdateFilmLanguageModal).toHaveBeenCalledTimes(1);
+        expect(hideUpdateFilmLanguageModal).toHaveBeenCalledWith();
+    });
+    
+    it("Проверка функции onErrorForHandlerUpdateFilmLanguage", async () => {
+        const app = useAppStore();
+        const filmsAdmin = useFilmsAdminStore();
+        
+        const wrapper = getWrapper(app, filmsAdmin);
+        
+        expect(wrapper.vm.errorsName).toBe('');
+        wrapper.vm.onErrorForHandlerUpdateFilmLanguage({name: 'ErrorName'});
+        
+        expect(wrapper.vm.errorsName).toBe('ErrorName');
+    });
+    
+    it("Проверка функции onFinishForHandlerUpdateFilmLanguage", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        const filmsAdmin = useFilmsAdminStore();
+        
+        const wrapper = getWrapper(app, filmsAdmin);
+        wrapper.vm.onFinishForHandlerUpdateFilmLanguage();
+        
+        expect(app.isRequest).toBe(false);
     });
 });

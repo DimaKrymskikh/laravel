@@ -14,6 +14,17 @@ const app = inject('app');
 const cityName = ref(updateCity.name);
 const errorsName = ref('');
 
+const onBeforeForHandlerUpdateCity = () => {
+            app.isRequest = true;
+            errorsName.value = '';
+        };
+
+const onSuccessForHandlerUpdateCity = () => { hideUpdateCityModal(); };
+
+const onErrorForHandlerUpdateCity = errors => { errorsName.value = errors.name; };
+
+const onFinishForHandlerUpdateCity = () => { app.isRequest = false; };
+
 /**
  * Обработчик изменения названия города
  * @param {Event} e
@@ -29,19 +40,10 @@ const handlerUpdateCity = function(e) {
         name: cityName.value
     }, {
         preserveScroll: true,
-        onBefore: () => {
-            app.isRequest = true;
-            errorsName.value = '';
-        },
-        onSuccess: () => {
-            hideUpdateCityModal();
-        },
-        onError: errors => {
-            errorsName.value = errors.name;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerUpdateCity,
+        onSuccess: onSuccessForHandlerUpdateCity,
+        onError: onErrorForHandlerUpdateCity,
+        onFinish: onFinishForHandlerUpdateCity
     });
 };
 </script>

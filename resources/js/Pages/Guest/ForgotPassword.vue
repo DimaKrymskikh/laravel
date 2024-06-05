@@ -29,11 +29,15 @@ const linksList = [{
         }, {
             text: 'Сброс пароля'
         }];
+
+const onBeforeForForgotPassword = () => { app.isRequest = true; };
+
+const onFinishForForgotPassword = () => { app.isRequest = false; };
     
 const handlerForgotPassword = function() {
     form.post('/forgot-password', {
-        onBefore: () => app.isRequest = true,
-        onFinish: () => app.isRequest = false
+        onBefore: onBeforeForForgotPassword,
+        onFinish: onFinishForForgotPassword
     });
 };
 </script>

@@ -8,6 +8,8 @@ import { useActorsListStore } from '@/Stores/actors';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
+import { eventCurrentTargetClassListContainsFalse } from '@/__tests__/fake/Event';
+import { actors } from '@/__tests__/data/actors';
 
 vi.mock('@inertiajs/vue3');
         
@@ -82,5 +84,84 @@ describe("@/Components/Modal/Request/Actors/UpdateActorModal.vue", () => {
         
         await checkBaseModal.notHideBaseModal(wrapper, hideUpdateActorModal);
         await checkBaseModal.notSubmitRequestInBaseModal(wrapper, router.put);
+    });
+    
+    it("Функция handlerUpdateActor вызывает router.put с нужными параметрами", () => {
+        const app = useAppStore();
+        const actorsList = useActorsListStore();
+        const options = {
+            preserveScroll: true,
+            onBefore: expect.anything(),
+            onSuccess: expect.anything(),
+            onError: expect.anything(),
+            onFinish: expect.anything()
+        };
+
+        const wrapper = getWrapper(app, actorsList);
+        
+        wrapper.vm.handlerUpdateActor(eventCurrentTargetClassListContainsFalse);
+        
+        expect(router.put).toHaveBeenCalledTimes(1);
+        expect(router.put).toHaveBeenCalledWith(actorsList.getUrl(wrapper.vm.props.updateActor.id), {
+                first_name: wrapper.vm.actorFirstName,
+                last_name: wrapper.vm.actorLastName
+            }, options);
+    });
+    
+    it("Проверка функции onBeforeForHandlerUpdateActor", () => {
+        const app = useAppStore();
+        // По умолчанию
+        expect(app.isRequest).toBe(false);
+        const actorsList = useActorsListStore();
+        
+        const wrapper = getWrapper(app, actorsList);
+        wrapper.vm.errorsFirstName = 'ErrorFirstName';
+        wrapper.vm.errorsLastName = 'ErrorLastName';
+        wrapper.vm.onBeforeForHandlerUpdateActor();
+        
+        expect(app.isRequest).toBe(true);
+        expect(wrapper.vm.errorsFirstName).toBe('');
+        expect(wrapper.vm.errorsLastName).toBe('');
+    });
+    
+    it("Проверка функции onSuccessForHandlerUpdateActor", async () => {
+        const app = useAppStore();
+        const actorsList = useActorsListStore();
+        expect(actorsList.page).toBe(1);
+        
+        const wrapper = getWrapper(app, actorsList);
+        
+        expect(hideUpdateActorModal).not.toHaveBeenCalled();
+        wrapper.vm.onSuccessForHandlerUpdateActor({props: {actors}});
+        
+        expect(hideUpdateActorModal).toHaveBeenCalledTimes(1);
+        expect(hideUpdateActorModal).toHaveBeenCalledWith();
+        expect(actorsList.page).toBe(actors.current_page);
+        expect(actors.current_page).toBe(2);
+    });
+    
+    it("Проверка функции onErrorForHandlerUpdateActor", async () => {
+        const app = useAppStore();
+        const actorsList = useActorsListStore();
+        
+        const wrapper = getWrapper(app, actorsList);
+        
+        expect(wrapper.vm.errorsFirstName).toBe('');
+        expect(wrapper.vm.errorsLastName).toBe('');
+        wrapper.vm.onErrorForHandlerUpdateActor({ first_name: 'ErrorFirstName', last_name: 'ErrorLastName' });
+        
+        expect(wrapper.vm.errorsFirstName).toBe('ErrorFirstName');
+        expect(wrapper.vm.errorsLastName).toBe('ErrorLastName');
+    });
+    
+    it("Проверка функции onFinishForHandlerUpdateActor", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        const actorsList = useActorsListStore();
+        
+        const wrapper = getWrapper(app, actorsList);
+        wrapper.vm.onFinishForHandlerUpdateActor();
+        
+        expect(app.isRequest).toBe(false);
     });
 });

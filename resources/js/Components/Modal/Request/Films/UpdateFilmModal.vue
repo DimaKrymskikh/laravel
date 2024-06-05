@@ -16,7 +16,22 @@ const filmsAdmin = inject('filmsAdmin');
 const fieldValue = ref(props.updateFilm.fieldValue);
 const errorsField = ref('');
 
-const handlerAddFilm = function(e) {
+const onBeforeForHandlerUpdateFilm = () => {
+    app.isRequest = true;
+    errorsField.value = '';
+};
+
+const onSuccessForHandlerUpdateFilm = res => {
+    // Если было изменено название фильма, то текущая страница пагинации может измениться
+    filmsAdmin.page = res.props.films.current_page;
+    props.hideUpdateFilmModal();
+};
+
+const onErrorForHandlerUpdateFilm = errors => { errorsField.value = errors[props.field]; };
+
+const onFinishForHandlerUpdateFilm = () => { app.isRequest = false; };
+
+const handlerUpdateFilm = function(e) {
     // Защита от повторного запроса
     if(e.currentTarget.classList.contains('disabled')) {
         return;
@@ -26,21 +41,10 @@ const handlerAddFilm = function(e) {
             field: props.field,
             [props.field]: fieldValue.value
         }, {
-        onBefore: () => {
-            app.isRequest = true;
-            errorsField.value = '';
-        },
-        onSuccess: res => {
-            // Если было изменено название фильма, то текущая страница пагинации может измениться
-            filmsAdmin.page = res.props.films.current_page;
-            props.hideUpdateFilmModal();
-        },
-        onError: errors => {
-            errorsField.value = errors[props.field];
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerUpdateFilm,
+        onSuccess: onSuccessForHandlerUpdateFilm,
+        onError: onErrorForHandlerUpdateFilm,
+        onFinish: onFinishForHandlerUpdateFilm
     });
 };
 
@@ -68,7 +72,7 @@ switch(props.field) {
     <BaseModal
         :headerTitle="headerTitle"
         :hideModal="hideUpdateFilmModal"
-        :handlerSubmit="handlerAddFilm"
+        :handlerSubmit="handlerUpdateFilm"
     >
         <template v-slot:body>
             <div class="mb-3">

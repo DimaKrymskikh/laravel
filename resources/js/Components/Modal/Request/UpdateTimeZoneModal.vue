@@ -27,6 +27,19 @@ const handlerTimeZoneName = async function() {
     timezones.value = await app.request(`/admin/timezone?name=${cityTimeZone.value}`, 'GET');
 };
 
+const onBeforeForHandlerUpdateTimeZone = () => {
+            app.isRequest = true;
+            errorsName.value = '';
+        };
+
+const onSuccessForHandlerUpdateTimeZone = () => { hideUpdateTimeZoneModal(); };
+
+const onErrorForHandlerUpdateTimeZone = errors => {
+            errorsName.value = errors.name;
+        };
+
+const onFinishForHandlerUpdateTimeZone = () => { app.isRequest = false; };
+
 /**
  * Обработчик изменения временного пояса города
  * @param {Event} e
@@ -44,19 +57,10 @@ const handlerUpdateTimeZone = function(e) {
         timezone_id: cityTimeZone.value
     }, {
         preserveScroll: true,
-        onBefore: () => {
-            app.isRequest = true;
-            errorsName.value = '';
-        },
-        onSuccess: () => {
-            hideUpdateTimeZoneModal();
-        },
-        onError: errors => {
-            errorsName.value = errors.name;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerUpdateTimeZone,
+        onSuccess: onSuccessForHandlerUpdateTimeZone,
+        onError: onErrorForHandlerUpdateTimeZone,
+        onFinish: onFinishForHandlerUpdateTimeZone
     });
 };
 

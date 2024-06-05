@@ -14,6 +14,17 @@ const app = inject('app');
 const languageName = ref(props.updateLanguage.name);
 const errorsName = ref('');
 
+const onBeforeForHandlerUpdateLanguage = () => {
+    app.isRequest = true;
+    errorsName.value = '';
+};
+
+const onSuccessForHandlerUpdateLanguage = () => { props.hideUpdateLanguageModal(); };
+
+const onErrorForHandlerUpdateLanguage = errors => { errorsName.value = errors.name; };
+
+const onFinishForHandlerUpdateLanguage = () => { app.isRequest = false; };
+
 /**
  * Обработчик изменения названия города
  * @param {Event} e
@@ -29,19 +40,10 @@ const handlerUpdateLanguage = function(e) {
         name: languageName.value
     }, {
         preserveScroll: true,
-        onBefore: () => {
-            app.isRequest = true;
-            errorsName.value = '';
-        },
-        onSuccess: () => {
-            props.hideUpdateLanguageModal();
-        },
-        onError: errors => {
-            errorsName.value = errors.name;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerUpdateLanguage,
+        onSuccess: onSuccessForHandlerUpdateLanguage,
+        onError: onErrorForHandlerUpdateLanguage,
+        onFinish: onFinishForHandlerUpdateLanguage
     });
 };
 </script>

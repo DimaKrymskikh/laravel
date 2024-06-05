@@ -23,18 +23,21 @@ const actors = ref(null);
 const handlerActorName = async function() {
     actors.value = await app.request(`/admin/films/actors?name=${actorName.value}&film_id=${props.updateFilm.id}`, 'GET');
 };
-handlerActorName();
 
 (async function() {
+    // Получаем общий список актёров без актёров фильма
+    await handlerActorName();
+    // Актёры фильма
     filmActors.value = await app.request(`/admin/films/getActorsList/${props.updateFilm.id}`, 'GET');
 })();
 
+const onBeforeForHandlerAddActorInFilm = () => { app.isRequest = true; };
+
+const onSuccessForHandlerAddActorInFilm = () => { props.hideUpdateFilmActorsModal(); };
+
+const onFinishForHandlerAddActorInFilm = () => { app.isRequest = false; };
+
 const handlerAddActorInFilm = function(e) {
-    // Защита от повторного запроса
-    if(e.target.classList.contains('disabled')) {
-        return;
-    }
-    
     const actor_id = e.target.getAttribute('data-id');
     
     router.post(filmsAdmin.getUrl('/admin/films/actors'), {
@@ -42,15 +45,9 @@ const handlerAddActorInFilm = function(e) {
         actor_id
     }, {
         preserveScroll: true,
-        onBefore: () => {
-            app.isRequest = true;
-        },
-        onSuccess: () => {
-            props.hideUpdateFilmActorsModal();
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerAddActorInFilm,
+        onSuccess: onSuccessForHandlerAddActorInFilm,
+        onFinish: onFinishForHandlerAddActorInFilm
     });
 };
 
@@ -75,8 +72,7 @@ watch(actorName, handlerActorName);
                             v-if="filmActors && filmActors.actors.length"
                         >
                             <li
-                                class="text-center mx-16 mb-2 p-1 border rounded-md"
-                                :class="app.isRequest ? 'disabled' : 'text-neutral-700 border-orange-300 hover:text-neutral-900 hover:border-orange-500 cursor-pointer'"
+                                class="text-center mx-16 mb-2 p-1 border rounded-md text-neutral-700 border-orange-300 hover:text-neutral-900 hover:border-orange-500 cursor-pointer"
                                 :data-id="actor.id"
                                 :data-first_name="actor.first_name"
                                 :data-last_name="actor.last_name"
@@ -107,8 +103,7 @@ watch(actorName, handlerActorName);
                             v-if="actors && actors.length"
                         >
                             <li
-                                class="text-center mx-16 mb-2 p-1 border rounded-md"
-                                :class="app.isRequest ? 'disabled' : 'text-neutral-700 border-orange-300 hover:text-neutral-900 hover:border-orange-500 cursor-pointer'"
+                                class="text-center mx-16 mb-2 p-1 border rounded-md text-neutral-700 border-orange-300 hover:text-neutral-900 hover:border-orange-500 cursor-pointer"
                                 :data-id="actor.id"
                                 v-for="actor in actors"
                                 title="Клик добавит актёра"

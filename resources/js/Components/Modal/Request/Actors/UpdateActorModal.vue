@@ -17,6 +17,25 @@ const actorLastName = ref(props.updateActor.last_name);
 const errorsFirstName = ref('');
 const errorsLastName = ref('');
 
+const onBeforeForHandlerUpdateActor = () => {
+            app.isRequest = true;
+            errorsFirstName.value = '';
+            errorsLastName.value = '';
+        };
+
+const onSuccessForHandlerUpdateActor = res => {
+            // Если было изменено имя или фамилия актёра, то текущая страница пагинации может измениться
+            actorsList.page = res.props.actors.current_page;
+            props.hideUpdateActorModal();
+        };
+
+const onErrorForHandlerUpdateActor = errors => {
+            errorsFirstName.value = errors.first_name;
+            errorsLastName.value = errors.last_name;
+        };
+
+const onFinishForHandlerUpdateActor = () => { app.isRequest = false; };
+
 /**
  * Обработчик изменения полного имени актёра
  * @param {Event} e
@@ -33,23 +52,10 @@ const handlerUpdateActor = function(e) {
         last_name: actorLastName.value
     }, {
         preserveScroll: true,
-        onBefore: () => {
-            app.isRequest = true;
-            errorsFirstName.value = '';
-            errorsLastName.value = '';
-        },
-        onSuccess: res => {
-            // Если было изменено имя или фамилия актёра, то текущая страница пагинации может измениться
-            actorsList.page = res.props.actors.current_page;
-            props.hideUpdateActorModal();
-        },
-        onError: errors => {
-            errorsFirstName.value = errors.first_name;
-            errorsLastName.value = errors.last_name;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerUpdateActor,
+        onSuccess: onSuccessForHandlerUpdateActor,
+        onError: onErrorForHandlerUpdateActor,
+        onFinish: onFinishForHandlerUpdateActor
     });
 };
 </script>

@@ -151,7 +151,7 @@ describe("@/Pages/Auth/Cities.vue", () => {
         const tbody = table.get('tbody');
         const tbodyTr = tbody.findAll('tr');
         
-        // Новосибирск
+        // Новосибирск (cities_user[0])
         const td0 = tbodyTr[0].findAll('td');
         // Отрисован плюс
         const plusCircleSvg = td0[3].findComponent(PlusCircleSvg);
@@ -160,6 +160,12 @@ describe("@/Pages/Auth/Cities.vue", () => {
         expect(router.post).not.toHaveBeenCalled();
         await plusCircleSvg.trigger('click');
         expect(router.post).toHaveBeenCalledTimes(1);
+        // router.post вызывается с нужными параметрами
+        expect(router.post).toHaveBeenCalledWith(`/cities/addcity/${cities_user[0].id}`, {}, {
+            preserveScroll: true,
+            onBefore: expect.anything(),
+            onFinish: expect.anything()
+        });
         
         router.post.mockClear();
         
@@ -206,5 +212,26 @@ describe("@/Pages/Auth/Cities.vue", () => {
         expect(tbodyTr[0].findComponent(Spinner).exists()).toBe(true);
         expect(tbodyTr[1].findComponent(Spinner).exists()).toBe(false);
         expect(tbodyTr[2].findComponent(Spinner).exists()).toBe(false);
+    });
+    
+    it("Проверка функции onBeforeForAddCity", () => {
+        const app = useAppStore();
+        // По умолчанию
+        expect(app.isRequest).toBe(false);
+        
+        const wrapper = getWrapper(app, cities_user);
+        wrapper.vm.onBeforeForAddCity();
+        
+        expect(app.isRequest).toBe(true);
+    });
+    
+    it("Проверка функции onFinishForAddCity", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        
+        const wrapper = getWrapper(app, cities_user);
+        wrapper.vm.onFinishForAddCity();
+        
+        expect(app.isRequest).toBe(false);
     });
 });

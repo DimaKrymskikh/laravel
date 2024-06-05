@@ -324,6 +324,7 @@ describe("@/Pages/Auth/Films.vue", () => {
         const tbody = table.get('tbody');
         const tbodyTr = tbody.findAll('tr');
         
+        // films_10_user.data[3]
         // title: 'Attacks Hate'
         const td3 = tbodyTr[3].findAll('td');
         // Отрисован плюс
@@ -333,6 +334,12 @@ describe("@/Pages/Auth/Films.vue", () => {
         expect(router.post).not.toHaveBeenCalled();
         await plusCircleSvg.trigger('click');
         expect(router.post).toHaveBeenCalledTimes(1);
+        // router.post вызывается с нужными параметрами
+        expect(router.post).toHaveBeenCalledWith(filmsList.getUrl(`userfilms/addfilm/${films_10_user.data[3].id}`), {}, {
+            preserveScroll: true,
+            onBefore: expect.anything(),
+            onFinish: expect.anything()
+        });
         
         router.post.mockClear();
         
@@ -343,6 +350,28 @@ describe("@/Pages/Auth/Films.vue", () => {
         expect(td4[4].findComponent(CheckCircleSvg).exists()).toBe(true);
         // Клик по галочке не отправляет запрос на сервер
         expect(router.post).not.toHaveBeenCalled();
+        await plusCircleSvg.trigger('click');
+        expect(router.post).not.toHaveBeenCalled();
+    });
+    
+    it("Нельзя отправить запрос на добавление фильма, если app.isRequest = true", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        const filmsList = useFilmsListStore();
+        
+        const wrapper = getWrapper(app, filmsList, films_10_user);
+        
+        // В таблице находим фильм с "+"
+        const table = wrapper.get('table.container');
+        const tbody = table.get('tbody');
+        const tbodyTr = tbody.findAll('tr');
+        
+        // title: 'Attacks Hate'
+        const td3 = tbodyTr[3].findAll('td');
+        // Отрисован плюс
+        const plusCircleSvg = td3[4].findComponent(PlusCircleSvg);
+        expect(plusCircleSvg.exists()).toBe(true);
+        // Клик по плюсу не отправляет запрос на сервер
         await plusCircleSvg.trigger('click');
         expect(router.post).not.toHaveBeenCalled();
     });
@@ -380,5 +409,28 @@ describe("@/Pages/Auth/Films.vue", () => {
         expect(tbodyTr[0].findComponent(Spinner).exists()).toBe(false);
         expect(tbodyTr[3].findComponent(Spinner).exists()).toBe(true);
         expect(tbodyTr[4].findComponent(Spinner).exists()).toBe(false);
+    });
+    
+    it("Проверка функции onBeforeForAddFilm", () => {
+        const app = useAppStore();
+        // По умолчанию
+        expect(app.isRequest).toBe(false);
+        const filmsList = useFilmsListStore();
+        
+        const wrapper = getWrapper(app, filmsList, films_10_user);
+        wrapper.vm.onBeforeForAddFilm();
+        
+        expect(app.isRequest).toBe(true);
+    });
+    
+    it("Проверка функции onFinishForAddFilm", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        const filmsList = useFilmsListStore();
+        
+        const wrapper = getWrapper(app, filmsList, films_10_user);
+        wrapper.vm.onFinishForAddFilm();
+        
+        expect(app.isRequest).toBe(false);
     });
 });

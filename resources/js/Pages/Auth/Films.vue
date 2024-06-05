@@ -38,6 +38,10 @@ const linksList = [{
 // События Broadcast передаются в массиве
 const pusherEvents = ['AddFilmInUserList'];
 
+const onBeforeForAddFilm = () => { app.isRequest = true; };
+
+const onFinishForAddFilm = () => { app.isRequest = false; };
+
 /**
  * Добавляет фильм в коллекцию пользователя
  * @param {Element} tag
@@ -55,19 +59,10 @@ const addFilm = function(tag) {
     
     filmId.value = td.getAttribute('data-film_id');
     
-    router.post(`userfilms/addfilm/${filmId.value}`, {
-            page: filmsList.page,
-            number: filmsList.perPage,
-            title: filmsList.title,
-            description: filmsList.description
-        }, {
+    router.post(filmsList.getUrl(`userfilms/addfilm/${filmId.value}`), {}, {
             preserveScroll: true,
-            onBefore: () => {
-                app.isRequest = true;
-            },
-            onFinish: () => {
-                app.isRequest = false;
-            }
+            onBefore: onBeforeForAddFilm,
+            onFinish: onFinishForAddFilm
         });
 };
 

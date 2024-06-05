@@ -13,10 +13,10 @@ defineProps({
 const app = inject('app');
 
 const form = useForm({
-    login: null,
-    email: null,
-    password: null,
-    password_confirmation: null
+    login: '',
+    email: '',
+    password: '',
+    password_confirmation: ''
 });
 
 const titlePage = 'Регистрация';
@@ -31,16 +31,18 @@ const linksList = [{
         }, {
             text: 'Регистрация'
         }];
+
+const onBeforeForHandlerRegister = () => { app.isRequest = true; };
+
+const onFinishForHandlerRegister = () => {
+            app.isRequest = false;
+            form.reset('password', 'password_confirmation');
+        };
     
 const handlerRegister = function() {
     form.post('/register', {
-        onBefore: () => {
-            app.isRequest = true;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-            form.reset('password', 'password_confirmation');
-        }
+        onBefore: onBeforeForHandlerRegister,
+        onFinish: onFinishForHandlerRegister
     });
 };
 </script>

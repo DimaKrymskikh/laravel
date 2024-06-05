@@ -18,6 +18,17 @@ const inputPassword = ref('');
 // при последующем открытии модального окна этого сообщения об ошибке не было.
 const errorsPassword = ref('');
 
+const onBeforeForHandlerRemoveCity = () => {
+            app.isRequest = true;
+            errorsPassword.value = '';
+        };
+
+const onSuccessForHandlerRemoveCity = () => { hideRemoveCityModal(); };
+
+const onErrorForHandlerRemoveCity = errors => { errorsPassword.value = errors.password; };
+
+const onFinishForHandlerRemoveCity = () => { app.isRequest = false; };
+
 /**
  * Обработчик удаления фильма
  * @param {Event} e
@@ -32,21 +43,12 @@ const handlerRemoveCity = function(e) {
     router.delete(`cities/${removeCity.id}`, {
         preserveScroll: true,
         data: {
-            password: inputPassword.value,
+            password: inputPassword.value
         },
-        onBefore: () => {
-            app.isRequest = true;
-            errorsPassword.value = '';
-        },
-        onSuccess: () => {
-            hideRemoveCityModal();
-        },
-        onError: errors => {
-            errorsPassword.value = errors.password;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerRemoveCity,
+        onSuccess: onSuccessForHandlerRemoveCity,
+        onError: onErrorForHandlerRemoveCity,
+        onFinish: onFinishForHandlerRemoveCity
     });
 };
 </script>

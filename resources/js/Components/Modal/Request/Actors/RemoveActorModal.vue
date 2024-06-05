@@ -19,6 +19,17 @@ const inputPassword = ref('');
 // при последующем открытии модального окна этого сообщения об ошибке не было.
 const errorsPassword = ref('');
 
+const onBeforeForHandlerRemoveActor = () => {
+            app.isRequest = true;
+            errorsPassword.value = '';
+        };
+
+const onSuccessForHandlerRemoveActor = () => { props.hideRemoveActorModal(); };
+
+const onErrorForHandlerRemoveActor = errors => { errorsPassword.value = errors.password; };
+
+const onFinishForHandlerRemoveActor = () => { app.isRequest = false; };
+
 /**
  * Обработчик удаления актёра
  * @param {Event} e
@@ -35,19 +46,10 @@ const handlerRemoveActor = function(e) {
         data: {
             password: inputPassword.value
         },
-        onBefore: () => {
-            app.isRequest = true;
-            errorsPassword.value = '';
-        },
-        onSuccess: () => {
-            props.hideRemoveActorModal();
-        },
-        onError: errors => {
-            errorsPassword.value = errors.password;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerRemoveActor,
+        onSuccess: onSuccessForHandlerRemoveActor,
+        onError: onErrorForHandlerRemoveActor,
+        onFinish: onFinishForHandlerRemoveActor
     });
 };
 </script>

@@ -8,6 +8,7 @@ import { useFilmsAdminStore } from '@/Stores/films';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
+import { eventCurrentTargetClassListContainsFalse } from '@/__tests__/fake/Event';
 
 vi.mock('@inertiajs/vue3');
         
@@ -84,5 +85,78 @@ describe("@/Components/Modal/Request/Films/RemoveActorFromFilmModal.vue", () => 
         
         await checkBaseModal.notHideBaseModal(wrapper, hideRemoveActorFromFilmModal);
         await checkBaseModal.notSubmitRequestInBaseModal(wrapper, router.delete);
+    });
+    
+    it("Функция handlerRemoveActorFromFilm вызывает router.delete с нужными параметрами", () => {
+        const app = useAppStore();
+        const filmsAdmin = useFilmsAdminStore();
+
+        const wrapper = getWrapper(app, filmsAdmin);
+        const options = {
+            data: {
+                password: wrapper.vm.inputPassword,
+                film_id: wrapper.vm.props.updateFilm.id
+            },
+            preserveScroll: true,
+            onBefore: expect.anything(),
+            onSuccess: expect.anything(),
+            onError: expect.anything(),
+            onFinish: expect.anything()
+        };
+        
+        wrapper.vm.handlerRemoveActorFromFilm(eventCurrentTargetClassListContainsFalse);
+        
+        expect(router.delete).toHaveBeenCalledTimes(1);
+        expect(router.delete).toHaveBeenCalledWith(filmsAdmin.getUrl(`/admin/films/actors/${wrapper.vm.props.removeActor.id}`), options);
+    });
+    
+    it("Проверка функции onBeforeForHandlerRemoveActorFromFilm", () => {
+        const app = useAppStore();
+        // По умолчанию
+        expect(app.isRequest).toBe(false);
+        const filmsAdmin = useFilmsAdminStore();
+        
+        const wrapper = getWrapper(app, filmsAdmin);
+        wrapper.vm.errorsPassword = 'ErrorPassword';
+        wrapper.vm.onBeforeForHandlerRemoveActorFromFilm();
+        
+        expect(app.isRequest).toBe(true);
+        expect(wrapper.vm.errorsPassword).toBe('');
+    });
+    
+    it("Проверка функции onSuccessForHandlerRemoveActorFromFilm", async () => {
+        const app = useAppStore();
+        const filmsAdmin = useFilmsAdminStore();
+        
+        const wrapper = getWrapper(app, filmsAdmin);
+        
+        expect(hideRemoveActorFromFilmModal).not.toHaveBeenCalled();
+        wrapper.vm.onSuccessForHandlerRemoveActorFromFilm();
+        
+        expect(hideRemoveActorFromFilmModal).toHaveBeenCalledTimes(1);
+        expect(hideRemoveActorFromFilmModal).toHaveBeenCalledWith();
+    });
+    
+    it("Проверка функции onErrorForHandlerRemoveActorFromFilm", async () => {
+        const app = useAppStore();
+        const filmsAdmin = useFilmsAdminStore();
+        
+        const wrapper = getWrapper(app, filmsAdmin);
+        
+        expect(wrapper.vm.errorsPassword).toBe('');
+        wrapper.vm.onErrorForHandlerRemoveActorFromFilm({password: 'ErrorPassword'});
+        
+        expect(wrapper.vm.errorsPassword).toBe('ErrorPassword');
+    });
+    
+    it("Проверка функции onFinishForHandlerRemoveActorFromFilm", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        const filmsAdmin = useFilmsAdminStore();
+        
+        const wrapper = getWrapper(app, filmsAdmin);
+        wrapper.vm.onFinishForHandlerRemoveActorFromFilm();
+        
+        expect(app.isRequest).toBe(false);
     });
 });

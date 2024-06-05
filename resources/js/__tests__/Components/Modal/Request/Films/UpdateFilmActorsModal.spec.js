@@ -10,6 +10,7 @@ import { useFilmsAdminStore } from '@/Stores/films';
 import { json_film_actors, json_film_actors_0, json_free_actors, json_free_actors_0 } from '@/__tests__/data/actors';
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
+import { eventTargetClassListContainsFalseAndGetAttribute8 } from '@/__tests__/fake/Event';
 
 vi.mock('@inertiajs/vue3');
         
@@ -184,7 +185,10 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
         const filmsAdmin = useFilmsAdminStore();
 
         const wrapper = getWrapper(app, filmsAdmin);
-        
+        // При сборке компоненты app.request вызывается дважды: общий список актёров и список актёров фильма
+        await flushPromises();
+        expect(appRequest).toHaveBeenCalledTimes(2);
+        // Очищаем вызовы
         appRequest.mockClear();
         expect(appRequest).not.toHaveBeenCalled();
         // После ввода одного символа отправляется запрос на сервер
@@ -192,5 +196,62 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.actorName, 'И');
         await flushPromises();
         expect(appRequest).toHaveBeenCalledTimes(1);
+    });
+    
+    it("Функция handlerAddActorInFilm вызывает router.post с нужными параметрами", () => {
+        const app = useAppStore();
+        const filmsAdmin = useFilmsAdminStore();
+        const options = {
+            preserveScroll: true,
+            onBefore: expect.anything(),
+            onSuccess: expect.anything(),
+            onFinish: expect.anything()
+        };
+
+        const wrapper = getWrapper(app, filmsAdmin);
+        
+        wrapper.vm.handlerAddActorInFilm(eventTargetClassListContainsFalseAndGetAttribute8);
+        
+        expect(router.post).toHaveBeenCalledTimes(1);
+        expect(router.post).toHaveBeenCalledWith(filmsAdmin.getUrl('/admin/films/actors'), {
+                film_id: wrapper.vm.props.updateFilm.id,
+                actor_id: eventTargetClassListContainsFalseAndGetAttribute8.target.getAttribute('data-id')
+            }, options);
+    });
+    
+    it("Проверка функции onBeforeForHandlerAddActorInFilm", () => {
+        const app = useAppStore();
+        // По умолчанию
+        expect(app.isRequest).toBe(false);
+        const filmsAdmin = useFilmsAdminStore();
+        
+        const wrapper = getWrapper(app, filmsAdmin);
+        wrapper.vm.onBeforeForHandlerAddActorInFilm();
+        
+        expect(app.isRequest).toBe(true);
+    });
+    
+    it("Проверка функции onSuccessForHandlerAddActorInFilm", async () => {
+        const app = useAppStore();
+        const filmsAdmin = useFilmsAdminStore();
+        
+        const wrapper = getWrapper(app, filmsAdmin);
+        
+        expect(hideUpdateFilmActorsModal).not.toHaveBeenCalled();
+        wrapper.vm.onSuccessForHandlerAddActorInFilm();
+        
+        expect(hideUpdateFilmActorsModal).toHaveBeenCalledTimes(1);
+        expect(hideUpdateFilmActorsModal).toHaveBeenCalledWith();
+    });
+    
+    it("Проверка функции onFinishForHandlerAddActorInFilm", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        const filmsAdmin = useFilmsAdminStore();
+        
+        const wrapper = getWrapper(app, filmsAdmin);
+        wrapper.vm.onFinishForHandlerAddActorInFilm();
+        
+        expect(app.isRequest).toBe(false);
     });
 });

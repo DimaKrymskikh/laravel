@@ -16,6 +16,27 @@ const description = ref('');
 const errorsTitle = ref('');
 const errorsDescription = ref('');
 
+const onBeforeForHandlerAddFilm = () => {
+    app.isRequest = true;
+    errorsTitle.value = '';
+    errorsDescription.value = '';
+};
+
+const onSuccessForHandlerAddFilm = res => { 
+            props.hideAddFilmModal();
+            // При добавлении фильма сбрасываем фильтр поиска
+            filmsAdmin.resetSearchFilter();
+            // Запоминаем активную страницу пагинации
+            filmsAdmin.page = res.props.films.current_page;
+        };
+
+const onErrorForHandlerAddFilm = errors => {
+            errorsTitle.value = errors.title;
+            errorsDescription.value = errors.description;
+        };
+
+const onFinishForHandlerAddFilm = () => { app.isRequest = false; };
+
 const handlerAddFilm = function(e) {
     // Защита от повторного запроса
     if(e.currentTarget.classList.contains('disabled')) {
@@ -26,25 +47,10 @@ const handlerAddFilm = function(e) {
             title: title.value,
             description: description.value
         }, {
-        onBefore: () => {
-            app.isRequest = true;
-            errorsTitle.value = '';
-            errorsDescription.value = '';
-        },
-        onSuccess: (res) => {
-            props.hideAddFilmModal();
-            // При добавлении фильма сбрасываем фильтр поиска
-            filmsAdmin.resetSearchFilter();
-            // Запоминаем активную страницу пагинации
-            filmsAdmin.page = res.props.films.current_page;
-        },
-        onError: errors => {
-            errorsTitle.value = errors.title;
-            errorsDescription.value = errors.description;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerAddFilm,
+        onSuccess: onSuccessForHandlerAddFilm,
+        onError: onErrorForHandlerAddFilm,
+        onFinish: onFinishForHandlerAddFilm
     });
 };
 

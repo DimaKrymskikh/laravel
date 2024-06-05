@@ -16,6 +16,27 @@ const lastName = ref('');
 const errorsFirstName = ref('');
 const errorsLastName = ref('');
 
+const onBeforeForHandlerAddActor = () => {
+            app.isRequest = true;
+            errorsFirstName.value = '';
+            errorsLastName.value = '';
+        };
+
+const onSuccessForHandlerAddActor = res => {
+            hideAddActorModal();
+            // При добавлении актёра сбрасываем фильтр поиска
+            actorsList.name = '';
+            // Запоминаем активную страницу пагинации
+            actorsList.page = res.props.actors.current_page;
+        };
+
+const onErrorForHandlerAddActor = errors => {
+            errorsFirstName.value = errors.first_name;
+            errorsLastName.value = errors.last_name;
+        };
+
+const onFinishForHandlerAddActor = () => { app.isRequest = false; };
+
 const handlerAddActor = function(e) {
     // Защита от повторного запроса
     if(e.currentTarget.classList.contains('disabled')) {
@@ -26,25 +47,10 @@ const handlerAddActor = function(e) {
             first_name: firstName.value,
             last_name: lastName.value
         }, {
-        onBefore: () => {
-            app.isRequest = true;
-            errorsFirstName.value = '';
-            errorsLastName.value = '';
-        },
-        onSuccess: (res) => {
-            hideAddActorModal();
-            // При добавлении актёра сбрасываем фильтр поиска
-            actorsList.name = '';
-            // Запоминаем активную страницу пагинации
-            actorsList.page = res.props.actors.current_page;
-        },
-        onError: errors => {
-            errorsFirstName.value = errors.first_name;
-            errorsLastName.value = errors.last_name;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerAddActor,
+        onSuccess: onSuccessForHandlerAddActor,
+        onError: onErrorForHandlerAddActor,
+        onFinish: onFinishForHandlerAddActor
     });
 };
 

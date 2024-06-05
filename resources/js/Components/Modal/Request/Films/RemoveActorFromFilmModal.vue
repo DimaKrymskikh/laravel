@@ -20,6 +20,17 @@ const inputPassword = ref('');
 // при последующем открытии модального окна этого сообщения об ошибке не было.
 const errorsPassword = ref('');
 
+const onBeforeForHandlerRemoveActorFromFilm = () => {
+    app.isRequest = true;
+    errorsPassword.value = '';
+};
+
+const onSuccessForHandlerRemoveActorFromFilm = () => { props.hideRemoveActorFromFilmModal(); };
+
+const onErrorForHandlerRemoveActorFromFilm = errors => { errorsPassword.value = errors.password; };
+
+const onFinishForHandlerRemoveActorFromFilm = () => { app.isRequest = false; };
+
 const handlerRemoveActorFromFilm = function(e) {
     // Защита от повторного запроса
     if(e.currentTarget.classList.contains('disabled')) {
@@ -32,19 +43,10 @@ const handlerRemoveActorFromFilm = function(e) {
             film_id: props.updateFilm.id,
             password: inputPassword.value
         },
-        onBefore: () => {
-            app.isRequest = true;
-            errorsPassword.value = '';
-        },
-        onSuccess: () => {
-            props.hideRemoveActorFromFilmModal();
-        },
-        onError: errors => {
-            errorsPassword.value = errors.password;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerRemoveActorFromFilm,
+        onSuccess: onSuccessForHandlerRemoveActorFromFilm,
+        onError: onErrorForHandlerRemoveActorFromFilm,
+        onFinish: onFinishForHandlerRemoveActorFromFilm
     });
 };
 </script>

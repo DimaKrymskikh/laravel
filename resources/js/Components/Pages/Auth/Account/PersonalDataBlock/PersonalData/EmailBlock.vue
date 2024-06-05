@@ -10,15 +10,15 @@ defineProps({
 
 const app = inject('app');
 const form = useForm({});
+
+const onBeforeForHandlerVerifyEmail = () => { app.isRequest = true; };
+
+const onFinishForHandlerVerifyEmail = () => { app.isRequest = false; };
     
 const handlerVerifyEmail = function() {
     form.post('/verify-email', {
-        onBefore: () => {
-            app.isRequest = true;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerVerifyEmail,
+        onFinish: onFinishForHandlerVerifyEmail
     });
 };
 

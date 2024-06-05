@@ -21,6 +21,20 @@ const inputPassword = ref('');
 // при последующем открытии модального окна этого сообщения об ошибке не было.
 const errorsPassword = ref('');
 
+const onBeforeForHandlerRemoveFilm = () => {
+            app.isRequest = true;
+            errorsPassword.value = '';
+        };
+
+const onSuccessForHandlerRemoveFilm = res => {
+            hideFilmRemoveModal();
+            filmsAccount.page = res.props.films.current_page;
+        };
+
+const onErrorForHandlerRemoveFilm = errors => { errorsPassword.value = errors.password; };
+
+const onFinishForHandlerRemoveFilm = () => { app.isRequest = false; };
+
 /**
  * Обработчик удаления фильма
  * @param {Event} e
@@ -32,29 +46,15 @@ const handlerRemoveFilm = function(e) {
         return;
     }
     
-    router.delete(`userfilms/removefilm/${removeFilmId}`, {
+    router.delete(filmsAccount.getUrl(`userfilms/removefilm/${removeFilmId}`), {
         preserveScroll: true,
         data: {
-            password: inputPassword.value,
-            page: filmsAccount.page,
-            number: filmsAccount.perPage,
-            title: filmsAccount.title,
-            description: filmsAccount.description
+            password: inputPassword.value
         },
-        onBefore: () => {
-            app.isRequest = true;
-            errorsPassword.value = '';
-        },
-        onSuccess: response => {
-            hideFilmRemoveModal();
-            filmsAccount.page = response.props.films.current_page;
-        },
-        onError: errors => {
-            errorsPassword.value = errors.password;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerRemoveFilm,
+        onSuccess: onSuccessForHandlerRemoveFilm,
+        onError: onErrorForHandlerRemoveFilm,
+        onFinish: onFinishForHandlerRemoveFilm
     });
 };
 </script>

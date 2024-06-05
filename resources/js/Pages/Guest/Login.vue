@@ -14,8 +14,8 @@ defineProps({
 const app = inject('app');
 
 const form = useForm({
-    login: null,
-    password: null
+    login: '',
+    password: ''
 });
 
 const titlePage = 'Вход';
@@ -27,16 +27,18 @@ const linksList = [{
         }, {
             text: 'Вход'
         }];
-    
-const handlerLogin = function() {
-    form.post('/login', {
-        onBefore: () => {
-            app.isRequest = true;
-        },
-        onFinish: () => {
+
+const onBeforeForHandlerLogin = () => { app.isRequest = true; };
+
+const onFinishForHandlerLogin = () => {
             app.isRequest = false;
             form.reset('password');
-        }
+        };
+
+const handlerLogin = function() {
+    form.post('/login', {
+        onBefore: onBeforeForHandlerLogin,
+        onFinish: onFinishForHandlerLogin
     });
 };
 </script>

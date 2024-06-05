@@ -8,7 +8,7 @@ import { useAppStore } from '@/Stores/app';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
-
+import { eventTargetClassListContainsFalseAndGetAttribute8 } from '@/__tests__/fake/Event';
 import { timezones_nov } from '@/__tests__/data/timezones';
 
 vi.mock('@inertiajs/vue3');
@@ -235,5 +235,71 @@ describe("@/Components/Modal/Request/UpdateTimeZoneModal.vue", () => {
         await activeLi.trigger('click');
         // Запрос на изменение временного пояса не отправляется
         expect(router.put).not.toHaveBeenCalled();
+    });
+    
+    it("Функция handlerUpdateTimeZone вызывает router.put с нужными параметрами", () => {
+        const app = useAppStore();
+        const options = {
+            preserveScroll: true,
+            onBefore: expect.anything(),
+            onSuccess: expect.anything(),
+            onError: expect.anything(),
+            onFinish: expect.anything()
+        };
+
+        const wrapper = getWrapper(app);
+        
+        wrapper.vm.handlerUpdateTimeZone(eventTargetClassListContainsFalseAndGetAttribute8);
+        
+        expect(router.put).toHaveBeenCalledTimes(1);
+        expect(router.put).toHaveBeenCalledWith(`cities/${wrapper.vm.updateCity.id}/timezone/${eventTargetClassListContainsFalseAndGetAttribute8.target.getAttribute('data-id')}`, {
+                timezone_id: wrapper.vm.cityTimeZone
+            }, options);
+    });
+    
+    it("Проверка функции onBeforeForHandlerUpdateTimeZone", () => {
+        const app = useAppStore();
+        // По умолчанию
+        expect(app.isRequest).toBe(false);
+        
+        const wrapper = getWrapper(app);
+        wrapper.vm.errorsName = 'ErrorName';
+        wrapper.vm.onBeforeForHandlerUpdateTimeZone();
+        
+        expect(app.isRequest).toBe(true);
+        expect(wrapper.vm.errorsName).toBe('');
+    });
+    
+    it("Проверка функции onSuccessForHandlerUpdateTimeZone", async () => {
+        const app = useAppStore();
+        
+        const wrapper = getWrapper(app);
+        
+        expect(hideUpdateTimeZoneModal).not.toHaveBeenCalled();
+        wrapper.vm.onSuccessForHandlerUpdateTimeZone();
+        
+        expect(hideUpdateTimeZoneModal).toHaveBeenCalledTimes(1);
+        expect(hideUpdateTimeZoneModal).toHaveBeenCalledWith();
+    });
+    
+    it("Проверка функции onErrorForHandlerUpdateTimeZone", async () => {
+        const app = useAppStore();
+        
+        const wrapper = getWrapper(app);
+        
+        expect(wrapper.vm.errorsName).toBe('');
+        wrapper.vm.onErrorForHandlerUpdateTimeZone({ name: 'ErrorName' });
+        
+        expect(wrapper.vm.errorsName).toBe('ErrorName');
+    });
+    
+    it("Проверка функции onFinishForHandlerUpdateTimeZone", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        
+        const wrapper = getWrapper(app);
+        wrapper.vm.onFinishForHandlerUpdateTimeZone();
+        
+        expect(app.isRequest).toBe(false);
     });
 });

@@ -32,7 +32,16 @@ const pusherEvents = ['AddCityInWeatherList'];
 // id фильма, который добавляется в коллекцию пользователя
 const cityId = ref(null);
 
+const onBeforeForAddCity = () => { app.isRequest = true; };
+
+const onFinishForAddCity = () => { app.isRequest = false; };
+
 const addCity = function(tag) {
+    // Если на странице выполняется запрос, выходим из функции
+    if(app.isRequest) {
+        return;
+    }
+    
     const td = tag.closest('td');
     // Защита от повторного клика
     td.classList.remove('add-city');
@@ -41,12 +50,8 @@ const addCity = function(tag) {
 
     router.post(`/cities/addcity/${cityId.value}`, {}, {
             preserveScroll: true,
-            onBefore: () => {
-                app.isRequest = true;
-            },
-            onFinish: () => {
-                app.isRequest = false;
-            }
+            onBefore: onBeforeForAddCity,
+            onFinish: onFinishForAddCity
         });
 };
 

@@ -131,4 +131,42 @@ describe("@/Pages/Guest/ForgotPassword.vue", () => {
         
         expect(wrapper.find('#forgot-password-status').exists()).toBe(true);
     });
+    
+    it("Функция handlerForgotPassword вызывает form.post с нужными параметрами", () => {
+        const app = useAppStore();
+        const options = {
+            onBefore: expect.anything(),
+            onFinish: expect.anything()
+        };
+        
+        const wrapper = getWrapper(app);
+        
+        const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
+        
+        wrapper.vm.handlerForgotPassword();
+        
+        expect(formPost).toHaveBeenCalledTimes(1);
+        expect(formPost).toHaveBeenCalledWith('/forgot-password', options);
+    });
+    
+    it("Проверка функции onBeforeForForgotPassword", () => {
+        const app = useAppStore();
+        // По умолчанию
+        expect(app.isRequest).toBe(false);
+        
+        const wrapper = getWrapper(app);
+        wrapper.vm.onBeforeForForgotPassword();
+        
+        expect(app.isRequest).toBe(true);
+    });
+    
+    it("Проверка функции onFinishForForgotPassword", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        
+        const wrapper = getWrapper(app);
+        wrapper.vm.onFinishForForgotPassword();
+        
+        expect(app.isRequest).toBe(false);
+    });
 });

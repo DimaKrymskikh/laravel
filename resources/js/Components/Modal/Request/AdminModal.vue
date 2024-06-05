@@ -15,6 +15,17 @@ const filmsAccount = inject('filmsAccount');
 const inputPassword = ref('');
 const errorsPassword = ref('');
 
+const onBeforeForHandlerSubmit = () => {
+            app.isRequest = true;
+            errorsPassword.value = '';
+        };
+
+const onSuccessForHandlerSubmit = () => { hideAdminModal(); };
+
+const onErrorForHandlerSubmit = errors => { errorsPassword.value = errors.password; };
+
+const onFinishForHandlerSubmit = () => { app.isRequest = false; };
+
 const handlerSubmit = function(e) {
     // Защита от повторного запроса
     if(e.currentTarget.classList.contains('disabled')) {
@@ -23,27 +34,14 @@ const handlerSubmit = function(e) {
     
     let url = admin ? 'admin/destroy' : 'admin/create';
     
-    router.post(url, {
-            password: inputPassword.value,
-            page: filmsAccount.page,
-            number: filmsAccount.perPage,
-            title: filmsAccount.title,
-            description: filmsAccount.description
+    router.post(filmsAccount.getUrl(url), {
+            password: inputPassword.value
         }, {
-        onBefore: () => {
-            app.isRequest = true;
-            errorsPassword.value = '';
-        },
-        onSuccess: () => {
-            hideAdminModal();
-        },
-        onError: errors => {
-            errorsPassword.value = errors.password;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
-    });
+            onBefore: onBeforeForHandlerSubmit,
+            onSuccess: onSuccessForHandlerSubmit,
+            onError: onErrorForHandlerSubmit,
+            onFinish: onFinishForHandlerSubmit
+        });
 };
 
 </script>

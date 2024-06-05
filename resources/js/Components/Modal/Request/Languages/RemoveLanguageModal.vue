@@ -18,6 +18,17 @@ const inputPassword = ref('');
 // при последующем открытии модального окна этого сообщения об ошибке не было.
 const errorsPassword = ref('');
 
+const onBeforeForHandlerRemoveLanguage = () => {
+    app.isRequest = true;
+    errorsPassword.value = '';
+};
+
+const onSuccessForHandlerRemoveLanguage = () => { props.hideRemoveLanguageModal(); };
+
+const onErrorForHandlerRemoveLanguage = errors => { errorsPassword.value = errors.password; };
+
+const onFinishForHandlerRemoveLanguage = () => { app.isRequest = false; };
+
 /**
  * Обработчик удаления фильма
  * @param {Event} e
@@ -34,19 +45,10 @@ const handlerRemoveLanguage = function(e) {
         data: {
             password: inputPassword.value,
         },
-        onBefore: () => {
-            app.isRequest = true;
-            errorsPassword.value = '';
-        },
-        onSuccess: () => {
-            props.hideRemoveLanguageModal();
-        },
-        onError: errors => {
-            errorsPassword.value = errors.password;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerRemoveLanguage,
+        onSuccess: onSuccessForHandlerRemoveLanguage,
+        onError: onErrorForHandlerRemoveLanguage,
+        onFinish: onFinishForHandlerRemoveLanguage
     });
 };
 </script>

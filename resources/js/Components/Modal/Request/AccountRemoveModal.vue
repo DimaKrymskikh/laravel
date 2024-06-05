@@ -13,6 +13,20 @@ const app = inject('app');
 const inputPassword = ref('');
 const errorsPassword = ref('');
 
+const onBeforeForHandlerRemoveAccount = () => {
+            app.isRequest = true;
+            errorsPassword.value = '';
+        };
+
+const onSuccessForHandlerRemoveAccount = () => { hideAccountRemoveModal(); };
+
+const onErrorForHandlerRemoveAccount = errors => { errorsPassword.value = errors.password; };
+
+const onFinishForHandlerRemoveAccount = () => {
+            app.isRequest = false;
+            inputPassword.value = '';
+        };
+
 // Обработчик удаления аккаунта
 const handlerRemoveAccount = function(e) {
     // Защита от повторного запроса
@@ -24,20 +38,10 @@ const handlerRemoveAccount = function(e) {
         data: {
             password: inputPassword.value
         },
-        onBefore: () => {
-            app.isRequest = true;
-            errorsPassword.value = '';
-        },
-        onSuccess: () => {
-            hideAccountRemoveModal();
-        },
-        onError: errors => {
-            errorsPassword.value = errors.password;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-            inputPassword.value = '';
-        }
+        onBefore: onBeforeForHandlerRemoveAccount,
+        onSuccess: onSuccessForHandlerRemoveAccount,
+        onError: onErrorForHandlerRemoveAccount,
+        onFinish: onFinishForHandlerRemoveAccount
     });
 };
 

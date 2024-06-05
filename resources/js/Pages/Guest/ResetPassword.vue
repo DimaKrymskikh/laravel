@@ -35,16 +35,20 @@ const linksList = [{
             text: 'Сброс пароля'
         }];
 
-const handlerResetPassword = () => {
-    form.post('/reset-password', {
-        onBefore: () => app.isRequest = true,
-        onError: errors => {
-            app.errorRequest(errors);
-        },
-        onFinish: () => {
+const onBeforeForHandlerResetPassword = () => { app.isRequest = true; };
+
+const onErrorForHandlerResetPassword = errors => { app.errorRequest(errors); };
+
+const onFinishForHandlerResetPassword = () => {
             form.reset('password', 'password_confirmation');
             app.isRequest = false;
-        }
+        };
+
+const handlerResetPassword = () => {
+    form.post('/reset-password', {
+        onBefore: onBeforeForHandlerResetPassword,
+        onError: onErrorForHandlerResetPassword,
+        onFinish: onFinishForHandlerResetPassword
     });
 };
 </script>

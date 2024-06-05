@@ -15,6 +15,21 @@ const openWeatherId = ref('');
 const errorsName = ref('');
 const errorsOpenWeatherId = ref('');
 
+const onBeforeForHandlerAddCity = () => {
+            app.isRequest = true;
+            errorsName.value = '';
+            errorsOpenWeatherId.value = '';
+        };
+
+const onSuccessForHandlerAddCity = () => { hideAddCityModal(); };
+
+const onErrorForHandlerAddCity = errors => {
+            errorsName.value = errors.name;
+            errorsOpenWeatherId.value = errors.open_weather_id;
+        };
+
+const onFinishForHandlerAddCity = () => { app.isRequest = false; };
+
 const handlerAddCity = function(e) {
     // Защита от повторного запроса
     if(e.currentTarget.classList.contains('disabled')) {
@@ -25,21 +40,10 @@ const handlerAddCity = function(e) {
             name: cityName.value,
             open_weather_id: openWeatherId.value
         }, {
-        onBefore: () => {
-            app.isRequest = true;
-            errorsName.value = '';
-            errorsOpenWeatherId.value = '';
-        },
-        onSuccess: () => {
-            hideAddCityModal();
-        },
-        onError: errors => {
-            errorsName.value = errors.name;
-            errorsOpenWeatherId.value = errors.open_weather_id;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerAddCity,
+        onSuccess: onSuccessForHandlerAddCity,
+        onError: onErrorForHandlerAddCity,
+        onFinish: onFinishForHandlerAddCity
     });
 };
 

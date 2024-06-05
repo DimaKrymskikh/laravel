@@ -8,6 +8,7 @@ import { useAppStore } from '@/Stores/app';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
+import { eventCurrentTargetClassListContainsFalse } from '@/__tests__/fake/Event';
 
 vi.mock('@inertiajs/vue3');
         
@@ -82,5 +83,72 @@ describe("@/Components/Modal/Request/RemoveCityModal.vue", () => {
         
         await checkBaseModal.notHideBaseModal(wrapper, hideRemoveCityModal);
         await checkBaseModal.notSubmitRequestInBaseModal(wrapper, router.delete);
+    });
+    
+    it("Функция handlerRemoveCity вызывает router.delete с нужными параметрами", () => {
+        const app = useAppStore();
+
+        const wrapper = getWrapper(app);
+        
+        wrapper.vm.handlerRemoveCity(eventCurrentTargetClassListContainsFalse);
+        const options = {
+            data: {
+                password: wrapper.vm.inputPassword
+            },
+            preserveScroll: true,
+            onBefore: expect.anything(),
+            onSuccess: expect.anything(),
+            onError: expect.anything(),
+            onFinish: expect.anything()
+        };
+        
+        expect(router.delete).toHaveBeenCalledTimes(1);
+        expect(router.delete).toHaveBeenCalledWith(`cities/${wrapper.vm.removeCity.id}`, options);
+    });
+    
+    it("Проверка функции onBeforeForHandlerRemoveCity", () => {
+        const app = useAppStore();
+        // По умолчанию
+        expect(app.isRequest).toBe(false);
+        
+        const wrapper = getWrapper(app);
+        wrapper.vm.errorsPassword = 'ErrorPassword';
+        wrapper.vm.onBeforeForHandlerRemoveCity();
+        
+        expect(app.isRequest).toBe(true);
+        expect(wrapper.vm.errorsPassword).toBe('');
+    });
+    
+    it("Проверка функции onSuccessForHandlerRemoveCity", async () => {
+        const app = useAppStore();
+        
+        const wrapper = getWrapper(app);
+        
+        expect(hideRemoveCityModal).not.toHaveBeenCalled();
+        wrapper.vm.onSuccessForHandlerRemoveCity();
+        
+        expect(hideRemoveCityModal).toHaveBeenCalledTimes(1);
+        expect(hideRemoveCityModal).toHaveBeenCalledWith();
+    });
+    
+    it("Проверка функции onErrorForHandlerRemoveCity", async () => {
+        const app = useAppStore();
+        
+        const wrapper = getWrapper(app);
+        
+        expect(wrapper.vm.errorsPassword).toBe('');
+        wrapper.vm.onErrorForHandlerRemoveCity({ password: 'ErrorPassword' });
+        
+        expect(wrapper.vm.errorsPassword).toBe('ErrorPassword');
+    });
+    
+    it("Проверка функции onFinishForHandlerRemoveCity", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        
+        const wrapper = getWrapper(app);
+        wrapper.vm.onFinishForHandlerRemoveCity();
+        
+        expect(app.isRequest).toBe(false);
     });
 });

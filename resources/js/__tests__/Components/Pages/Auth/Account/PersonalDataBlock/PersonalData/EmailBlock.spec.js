@@ -82,4 +82,42 @@ describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue", (
         // Кнопка для отправки нового письма отсутствует
         checkFormButton.isFormButton(wrapper, false);
     });
+    
+    it("Функция handlerVerifyEmail вызывает form.post с нужными параметрами", () => {
+        const app = useAppStore();
+        const options = {
+            onBefore: expect.anything(),
+            onFinish: expect.anything()
+        };
+        
+        const wrapper = getWrapper(app);
+        
+        const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
+        
+        wrapper.vm.handlerVerifyEmail();
+        
+        expect(formPost).toHaveBeenCalledTimes(1);
+        expect(formPost).toHaveBeenCalledWith('/verify-email', options);
+    });
+    
+    it("Проверка функции onBeforeForHandlerVerifyEmail", () => {
+        const app = useAppStore();
+        // По умолчанию
+        expect(app.isRequest).toBe(false);
+        
+        const wrapper = getWrapper(app);
+        wrapper.vm.onBeforeForHandlerVerifyEmail();
+        
+        expect(app.isRequest).toBe(true);
+    });
+    
+    it("Проверка функции onFinishForHandlerVerifyEmail", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        
+        const wrapper = getWrapper(app);
+        wrapper.vm.onFinishForHandlerVerifyEmail();
+        
+        expect(app.isRequest).toBe(false);
+    });
 });

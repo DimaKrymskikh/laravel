@@ -13,6 +13,17 @@ const app = inject('app');
 const languageName = ref('');
 const errorsName = ref('');
 
+const onBeforeForHandlerAddLanguage = () => {
+    app.isRequest = true;
+    errorsName.value = '';
+};
+
+const onSuccessForHandlerAddLanguage = () => { hideAddLanguageModal(); };
+
+const onErrorForHandlerAddLanguage = errors => { errorsName.value = errors.name; };
+
+const onFinishForHandlerAddLanguage = () => { app.isRequest = false; };
+
 const handlerAddLanguage = function(e) {
     // Защита от повторного запроса
     if(e.currentTarget.classList.contains('disabled')) {
@@ -22,19 +33,10 @@ const handlerAddLanguage = function(e) {
     router.post('/admin/languages', {
             name: languageName.value
         }, {
-        onBefore: () => {
-            app.isRequest = true;
-            errorsName.value = '';
-        },
-        onSuccess: () => {
-            hideAddLanguageModal();
-        },
-        onError: errors => {
-            errorsName.value = errors.name;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerAddLanguage,
+        onSuccess: onSuccessForHandlerAddLanguage,
+        onError: onErrorForHandlerAddLanguage,
+        onFinish: onFinishForHandlerAddLanguage
     });
 };
 

@@ -25,6 +25,17 @@ const handlerLanguageName = async function() {
 };
 handlerLanguageName();
 
+const onBeforeForHandlerUpdateFilmLanguage = () => {
+    app.isRequest = true;
+    errorsName.value = '';
+};
+
+const onSuccessForHandlerUpdateFilmLanguage = () => { props.hideUpdateFilmLanguageModal(); };
+
+const onErrorForHandlerUpdateFilmLanguage = errors => { errorsName.value = errors.name; };
+
+const onFinishForHandlerUpdateFilmLanguage = () => { app.isRequest = false; };
+
 const handlerUpdateFilmLanguage = function(e) {
     // Защита от повторного запроса
     if(e.target.classList.contains('disabled')) {
@@ -38,19 +49,10 @@ const handlerUpdateFilmLanguage = function(e) {
         language_id
     }, {
         preserveScroll: true,
-        onBefore: () => {
-            app.isRequest = true;
-            errorsName.value = '';
-        },
-        onSuccess: () => {
-            props.hideUpdateFilmLanguageModal();
-        },
-        onError: errors => {
-            errorsName.value = errors.name;
-        },
-        onFinish: () => {
-            app.isRequest = false;
-        }
+        onBefore: onBeforeForHandlerUpdateFilmLanguage,
+        onSuccess: onSuccessForHandlerUpdateFilmLanguage,
+        onError: onErrorForHandlerUpdateFilmLanguage,
+        onFinish: onFinishForHandlerUpdateFilmLanguage
     });
 };
 
