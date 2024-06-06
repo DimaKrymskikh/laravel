@@ -32,7 +32,7 @@ onMounted(() => {
             case 'RefreshCityWeather':
                 echoChannel
                     .listen(event, (e) => {
-                        action(e.weather, e.cityId);
+                        action(e.weather);
                     });
                 break;
         }

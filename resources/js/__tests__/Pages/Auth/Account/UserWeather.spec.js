@@ -13,6 +13,7 @@ import { useAppStore } from '@/Stores/app';
 import { useWeatherPageAuthStore } from '@/Stores/weather';
 
 import {  cities_with_weather } from '@/__tests__/data/cities';
+import { weatherForOneCity } from '@/__tests__/data/weather';
 import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
 
 // Делаем заглушку для Head
@@ -123,6 +124,8 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
         const app = useAppStore();
         const weatherPageAuth = useWeatherPageAuthStore();
         
+        const appRequest = vi.spyOn(app, 'request');
+        
         const wrapper = getWrapper(app, weatherPageAuth);
         
         const flexes = wrapper.findAll('div.flex.justify-between.border-b');
@@ -130,5 +133,27 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
         
         const arrowPathSvg = flexes[2].getComponent(ArrowPathSvg);
         expect(arrowPathSvg.props('title')).toBe('Получить последние данные погоды в городе');
+        
+        expect(appRequest).not.toHaveBeenCalled();
+        await arrowPathSvg.trigger('click');
+        expect(appRequest).toHaveBeenCalledTimes(1);
+    });
+    
+    it("refreshCityWeather", async () => {
+        const app = useAppStore();
+        const weatherPageAuth = useWeatherPageAuthStore();
+        
+        const wrapper = getWrapper(app, weatherPageAuth);
+        
+        wrapper.vm.cities.forEach( city => {
+            expect(city.weather).not.toStrictEqual(weatherForOneCity);
+        });
+        wrapper.vm.refreshCityWeather(weatherForOneCity);
+        // Для первого города погода изменилась
+        expect(wrapper.vm.cities[0].weather).toStrictEqual(weatherForOneCity);
+        // Для остальных городов осталась прежней
+        for(let i = 1; i < wrapper.vm.cities.length; i++) {
+            expect(wrapper.vm.cities[i].weather).not.toStrictEqual(weatherForOneCity);
+        }
     });
 });

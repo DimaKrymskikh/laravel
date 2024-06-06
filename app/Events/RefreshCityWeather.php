@@ -44,8 +44,7 @@ class RefreshCityWeather implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'weather' => (new WeatherRepository($this->timezoneService))->getLatestWeatherForOneCity($this->city),
-            'cityId' => $this->city->id,
+            'weather' => (new WeatherRepository($this->timezoneService))->getLatestWeatherForOneCity($this->city)
         ];
     }
 }

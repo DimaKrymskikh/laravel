@@ -180,6 +180,28 @@ describe("@/Pages/Auth/Cities.vue", () => {
         expect(router.post).not.toHaveBeenCalled();
     });
     
+    it("Нельзя отправить запрос на добавление города, если app.isRequest = true", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        
+        const wrapper = getWrapper(app, cities_user);
+        
+        // Тело таблицы состоит из рядов с данными фильмов
+        const table = wrapper.get('table');
+        const tbody = table.get('tbody');
+        const tbodyTr = tbody.findAll('tr');
+        
+        // Новосибирск (cities_user[0])
+        const td0 = tbodyTr[0].findAll('td');
+        // Отрисован плюс
+        const plusCircleSvg = td0[3].findComponent(PlusCircleSvg);
+        expect(plusCircleSvg.exists()).toBe(true);
+        // Клик по плюсу не отправляет запрос на сервер
+        expect(router.post).not.toHaveBeenCalled();
+        await plusCircleSvg.trigger('click');
+        expect(router.post).not.toHaveBeenCalled();
+    });
+    
     it("Проверка появления спинера", async () => {
         const app = useAppStore();
         

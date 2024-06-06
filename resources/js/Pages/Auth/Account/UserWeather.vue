@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, inject, onUpdated } from 'vue';
+import { ref, reactive, inject } from 'vue';
 import { Head, Link } from '@inertiajs/vue3'
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
@@ -35,10 +35,7 @@ const linksList = [{
 const pusherEvents = ['RemoveCityFromWeatherList', 'RefreshCityWeather'];
     
 let cities = reactive(props.cities);
-onUpdated(() => {
-    cities = props.cities;
-});
-    
+
 const isShowRemoveCityFromListOfWeatherModal = ref(false);
 
 const removeCity = reactive({
@@ -67,9 +64,9 @@ const handlerDataChange = function(e) {
 };
 
 // Обновляет данные о погоде в городе
-const refreshCityWeather = function(weather, cityId) {
+const refreshCityWeather = function(weather) {
     cities.forEach((city) => {
-        if(city.id === cityId) {
+        if(city.id === weather.city_id) {
             city.weather = weather;
         }
     });

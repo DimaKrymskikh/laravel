@@ -43,3 +43,18 @@ function getWeather3() {
 }
 
 export const weather3 = getWeather3();
+
+// Связь city_id см. в cities_with_weather ('@/__tests__/data/cities')
+export const weatherForOneCity = {
+            city_id: 8,
+            weather_description: "небольшая облачность",
+            main_temp: "-12",
+            main_feels_like: "-15.5",
+            main_pressure: 1015,
+            main_humidity: 60,
+            visibility: 10000,
+            wind_speed: "12",
+            wind_deg: 45,
+            clouds_all: 0,
+            created_at: "12:15:29 05.06.2024"
+};

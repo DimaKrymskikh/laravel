@@ -40,7 +40,7 @@ class RefreshCityWeatherTest extends TestCase
         $this->assertEquals($weather['wind_deg'], 210);
         $this->assertEquals($weather['clouds_all'], 0);
         
-        $this->assertEquals($broadcastWith['cityId'], CitySeeder::ID_NOVOSIBIRSK);
+        $this->assertEquals($broadcastWith['weather']->city_id, CitySeeder::ID_NOVOSIBIRSK);
         
         // Проверка имени канала
         $channelName = $refreshCityWeather->broadcastOn()[0]->name;
