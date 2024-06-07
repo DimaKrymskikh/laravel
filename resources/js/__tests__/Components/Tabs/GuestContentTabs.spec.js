@@ -1,27 +1,32 @@
 import { mount } from "@vue/test-utils";
+import { Link } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
 import GuestContentTabs from '@/components/Tabs/GuestContentTabs.vue';
 import { useFilmsListStore } from '@/Stores/films';
+
+const getWrapper = function(filmsList, component) {
+    return mount(GuestContentTabs, {
+            global: {
+                mocks: {
+                    $page: {
+                        component
+                    }
+                },
+                provide: { filmsList }
+            }
+        });
+};
 
 describe("@/components/Tabs/GuestContentTabs.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
     });
     
-    it("Монтирование GuestContentTabs", async () => {
+    it("Монтирование GuestContentTabs ('router-link-active': true)", async () => {
         const filmsList = useFilmsListStore();
         
-        const wrapper = mount(GuestContentTabs, {
-            global: {
-                mocks: {
-                    $page: {
-                        component: 'Guest/Films'
-                    }
-                },
-                provide: { filmsList }
-            }
-        });
+        const wrapper = getWrapper(filmsList, 'Guest/Films');
         
         // В начальный момент список отсутствует
         expect(wrapper.find('ul').exists()).toBe(false);
@@ -33,18 +38,46 @@ describe("@/components/Tabs/GuestContentTabs.vue", () => {
         // Клик по кнопке 'контент' открывает список
         await span.trigger('click');
         const ul = wrapper.get('ul');
-        const lis = ul.findAll('li');
-        expect(lis.length).toBe(2);
+        const links = ul.findAllComponents(Link);
+        expect(links.length).toBe(2);
+        // Первая кнопка активная (component: 'Guest/Films')
+        expect(links[0].attributes('href')).toBe(filmsList.getUrl('/guest/films'));
+        expect(links[0].classes('tabs-link-active')).toBe(true);
+        expect(links[0].text()).toBe('фильмы');
+        // Вторая кнопка неактивная
+        expect(links[1].attributes('href')).toBe('/guest/cities');
+        expect(links[1].classes('tabs-link-active')).toBe(false);
+        expect(links[1].text()).toBe('города');
         
-        const a0 = lis[0].get('a');
-        expect(a0.attributes('href')).toBe(filmsList.getUrl('/guest/films'));
-        expect(a0.classes('tabs-link-active')).toBe(true);
-        expect(a0.text()).toBe('фильмы');
+        // Повторный клик по кнопке 'контент' скрывает список
+        await span.trigger('click');
+        expect(wrapper.find('ul').exists()).toBe(false);
+    });
+    
+    it("Монтирование GuestContentTabs ('router-link-active': false)", async () => {
+        const filmsList = useFilmsListStore();
         
-        const a1 = lis[1].get('a');
-        expect(a1.attributes('href')).toBe('/guest/cities');
-        expect(a1.classes('tabs-link-active')).toBe(false);
-        expect(a1.text()).toBe('города');
+        const wrapper = getWrapper(filmsList, 'Guest/Login');
+        
+        // В начальный момент список отсутствует
+        expect(wrapper.find('ul').exists()).toBe(false);
+        
+        const span = wrapper.get('span');
+        expect(span.text()).toBe('контент');
+        expect(span.classes('router-link-active')).toBe(false);
+        
+        // Клик по кнопке 'контент' открывает список
+        await span.trigger('click');
+        const ul = wrapper.get('ul');
+        const links = ul.findAllComponents(Link);
+        expect(links.length).toBe(2);
+        // Обе кнопки неактивные
+        expect(links[0].attributes('href')).toBe(filmsList.getUrl('/guest/films'));
+        expect(links[0].classes('tabs-link-active')).toBe(false);
+        expect(links[0].text()).toBe('фильмы');
+        expect(links[1].attributes('href')).toBe('/guest/cities');
+        expect(links[1].classes('tabs-link-active')).toBe(false);
+        expect(links[1].text()).toBe('города');
         
         // Повторный клик по кнопке 'контент' скрывает список
         await span.trigger('click');
