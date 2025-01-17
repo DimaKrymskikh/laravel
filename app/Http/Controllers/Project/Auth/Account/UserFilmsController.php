@@ -5,107 +5,96 @@ namespace App\Http\Controllers\Project\Auth\Account;
 use App\Events\AddFilmInUserList;
 use App\Events\RemoveFilmFromUserList;
 use App\Http\Controllers\Controller;
-use App\Models\Dvd\Film;
-use App\Models\Person\UserFilm;
+use App\Http\Requests\Dvd\Filters\FilmFilterRequest;
 use App\Providers\RouteServiceProvider;
-use App\Repositories\Dvd\FilmRepository;
-use App\Support\Pagination\Url;
+use App\Services\Database\Dvd\FilmService;
+use App\Support\Pagination\Urls\FilmUrls;
+use App\Services\Database\Person\UserFilmService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class UserFilmsController extends Controller
 {
-    private Url $url;
-
     public function __construct(
-        private FilmRepository $films,
-    )
-    {
-        $this->url = new Url(FilmRepository::ADDITIONAL_PARAMS_IN_URL);
+        private FilmService $filmService,
+        private UserFilmService $userFilmService,
+        private FilmUrls $filmUrls
+    ) {
     }
     
     /**
      * Отрисовывает страницу аккаунта
      * 
-     * @param Request $request
+     * @param FilmFilterRequest $request
      * @return Response
      */
-    public function create(Request $request): Response
+    public function create(FilmFilterRequest $request): Response
     {
         return Inertia::render('Auth/Account/UserFilms', [
-            'films' => $this->films->getUserFilmsList($request),
+            'films' => $this->filmService->getUserFilmsListForPage($request->getPaginatorDto(), $request->getFilmFilterDto(), $request->user()->id),
             'user' => $request->user()
         ]);
     }
     
     /**
-     * Добавляет фильм с film_id в коллекцию пользователя
+     * Добавляет фильм с filmId в коллекцию пользователя
      * 
-     * @param Request $request
-     * @param string $film_id
+     * @param FilmFilterRequest $request
+     * @param int $filmId
      * @return RedirectResponse
-     * @throws type
      */
-    public function addFilm(Request $request, int $film_id): RedirectResponse
+    public function addFilm(FilmFilterRequest $request, int $filmId): RedirectResponse
     {
-        // Проверка наличия в таблице 'person.users_films' пары первичных ключей (user_id, film_id)
-        if (
-            UserFilm::where('user_id', '=', Auth::id())
-                ->where('film_id', '=', $film_id)
-                ->exists()
-        ) {
-            // Если пара существует, выбрасываем исключение
-            $film = Film::find($film_id);
-            throw ValidationException::withMessages([
-                'message' => trans("user.film.message", [
-                    'film' => $film->title
-                ]),
-            ]);
-        }
-        
-        // Новую пару записываем в таблицу 'person.users_films'
-        $userFilm = new UserFilm;
-        $userFilm->user_id = Auth::id();
-        $userFilm->film_id = $film_id;
+        $user = $request->user();
         
         // Если запись была успешной, пользователь получает оповещение
-        if ($userFilm->save()) {
-            event(new AddFilmInUserList(Auth::id(), $film_id));
+        if ($this->userFilmService->create($user->id, $filmId)) {
+            event(new AddFilmInUserList($user->id, $filmId));
         }
         
-        return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_AUTH_FILMS, $request));
+        return redirect($this->filmUrls->getUrlWithPaginationOptionsByRequest(
+                    RouteServiceProvider::URL_AUTH_FILMS,
+                    $request->getPaginatorDto(),
+                    $request->getFilmFilterDto()
+                ));
     }
     
     /**
-     * Удаляет фильм с film_id из коллекции пользователя.
+     * Удаляет фильм с filmId из коллекции пользователя.
      * 
-     * @param Request $request
-     * @param string $film_id
+     * @param FilmFilterRequest $request
+     * @param int $filmId
      * @return RedirectResponse
-     * @throws type
      */
-    public function removeFilm(Request $request, int $film_id): RedirectResponse
+    public function removeFilm(FilmFilterRequest $request, int $filmId): RedirectResponse
     {
-        $query = UserFilm::where('user_id', '=', Auth::id())
-                ->where('film_id', '=', $film_id);
+        $user = $request->user();
         
         // Удаление фильма с film_id из коллекции пользователя.
-        if ($query->delete()) {
+        if ($this->userFilmService->delete($user->id, $filmId)) {
             // При успешном удалении фильма пользователь получает оповещение
-            event(new RemoveFilmFromUserList(Auth::id(), $film_id));
+            event(new RemoveFilmFromUserList(Auth::id(), $filmId));
         }
         
-        return redirect($this->url->getUrlAfterRemovingItem(RouteServiceProvider::URL_AUTH_USERFILMS, $request, $this->films));
+        return redirect($this->filmUrls->getUrlWithPaginationOptionsAfterRemovingFilm(
+                    RouteServiceProvider::URL_AUTH_USERFILMS,
+                    $request->getPaginatorDto(),
+                    $request->getFilmFilterDto()
+                ));
     }
     
-    public function show(int $film_id): Response
+    /**
+     * Отрисовывает карточку фильма
+     * 
+     * @param int $filmId
+     * @return Response
+     */
+    public function show(int $filmId): Response
     {
         return Inertia::render('Auth/FilmCard', [
-            'film' => $this->films->getFilmCard($film_id),
+            'film' => $this->filmService->getFilmCard($filmId),
             'user' => Auth::getUser()
         ]);
     }

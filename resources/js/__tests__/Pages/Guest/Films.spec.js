@@ -9,6 +9,7 @@ import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 import { useFilmsListStore } from '@/Stores/films';
+import { useGlobalConstsStore } from '@/Stores/globalConsts';
 
 import { films_0, films_10 } from '@/__tests__/data/films';
 import { GuestLayoutStub } from '@/__tests__/stubs/layout';
@@ -25,7 +26,7 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(filmsList, films) {
+const getWrapper = function(filmsList, films, globalConsts) {
     return mount(Films, {
             props: {
                 errors: {},
@@ -35,7 +36,7 @@ const getWrapper = function(filmsList, films) {
                 stubs: {
                     GuestLayout: GuestLayoutStub
                 },
-                provide: { filmsList }
+                provide: { filmsList, globalConsts }
             }
         });
 };
@@ -70,8 +71,9 @@ describe("@/Pages/Guest/Films.vue", () => {
     
     it("Отрисовка каталога фильмов", () => {
         const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsList, films_10);
+        const wrapper = getWrapper(filmsList, films_10, globalConsts);
         
         expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
@@ -135,8 +137,9 @@ describe("@/Pages/Guest/Films.vue", () => {
     
     it("Отрисовка каталога фильмов без фильмов", () => {
         const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsList, films_0);
+        const wrapper = getWrapper(filmsList, films_0, globalConsts);
         
         expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
@@ -193,8 +196,9 @@ describe("@/Pages/Guest/Films.vue", () => {
     
     it("Изменение числа фильмов", async () => {
         const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsList, films_10);
+        const wrapper = getWrapper(filmsList, films_10, globalConsts);
         
         expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
@@ -220,11 +224,12 @@ describe("@/Pages/Guest/Films.vue", () => {
         expect(ul.exists()).toBe(true);
         // Проверяем список с выбором числа фильмов
         const li = ul.findAll('li');
-        expect(li.length).toBe(4);
+        expect(li.length).toBe(5);
         expect(li[0].text()).toBe('10');
         expect(li[1].text()).toBe('20');
         expect(li[2].text()).toBe('50');
         expect(li[3].text()).toBe('100');
+        expect(li[4].text()).toBe('1000');
         
         // Запрос на сервер не отправлен
         expect(router.get).not.toHaveBeenCalled();
@@ -240,8 +245,9 @@ describe("@/Pages/Guest/Films.vue", () => {
     
     it("Задание фильтра для фильмов", async () => {
         const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsList, films_10);
+        const wrapper = getWrapper(filmsList, films_10, globalConsts);
         
         expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         

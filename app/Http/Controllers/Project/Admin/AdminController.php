@@ -3,47 +3,52 @@
 namespace App\Http\Controllers\Project\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Dvd\Filters\FilmFilterRequest;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
-use App\Repositories\Dvd\FilmRepository;
-use App\Support\Pagination\Url;
+use App\Support\Pagination\Urls\FilmUrls;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    private Url $url;
-
-    public function __construct()
-    {
-        $this->url = new Url(FilmRepository::ADDITIONAL_PARAMS_IN_URL);
+    public function __construct(
+        private FilmUrls $filmUrls
+    ) {
     }
     
     /**
      * Аутентифицированный пользователь становится админом
      * 
-     * @param Request $request
+     * @param FilmFilterRequest $request
      * @return RedirectResponse
      */
-    public function create(Request $request): RedirectResponse
+    public function create(FilmFilterRequest $request): RedirectResponse
     {
         User::where('id', $request->user()->id)
             ->update(['is_admin' => true]);
         
-        return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_AUTH_USERFILMS, $request));
+        return redirect($this->filmUrls->getUrlWithPaginationOptionsByRequest(
+                    RouteServiceProvider::URL_AUTH_USERFILMS,
+                    $request->getPaginatorDto(),
+                    $request->getFilmFilterDto()
+                ));
     }
     
     /**
      * Админ отказывается от прав
      * 
-     * @param Request $request
+     * @param FilmFilterRequest $request
      * @return RedirectResponse
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(FilmFilterRequest $request): RedirectResponse
     {
         User::where('id', $request->user()->id)
             ->update(['is_admin' => false]);
         
-        return redirect($this->url->getUrlByRequest(RouteServiceProvider::URL_AUTH_USERFILMS, $request));
+        return redirect($this->filmUrls->getUrlWithPaginationOptionsByRequest(
+                    RouteServiceProvider::URL_AUTH_USERFILMS,
+                    $request->getPaginatorDto(),
+                    $request->getFilmFilterDto()
+                ));
     }
 }

@@ -1,16 +1,31 @@
 import { mount } from "@vue/test-utils";
 
+import { setActivePinia, createPinia } from 'pinia';
 import Dropdown from "@/components/Elements/Dropdown.vue";
+import { useGlobalConstsStore } from '@/Stores/globalConsts';
 
-describe("@/components/Elements/Dropdown.vue", () => {
-    it("Монтирование компоненты, выпадение/сокрытие списка", async () => {
-        const wrapper = mount(Dropdown, {
+const getWrapper = function(changeNumber, globalConsts) {
+    return mount(Dropdown, {
             props: {
                 buttonName: 'Текст кнопки',
                 itemsNumberOnPage: 50,
-                changeNumber: vi.fn()
-            }
+                changeNumber
+            },
+            global: {
+                provide: { globalConsts }
+             }
         });
+};
+
+describe("@/components/Elements/Dropdown.vue", () => {
+    beforeEach(() => {
+        setActivePinia(createPinia());
+    });
+    
+    it("Монтирование компоненты, выпадение/сокрытие списка", async () => {
+        const globalConsts = useGlobalConstsStore();
+        
+        const wrapper = getWrapper(vi.fn(), globalConsts);
 
         const button = wrapper.get('button');
         expect(button.text()).toBe('Текст кнопки');
@@ -23,7 +38,7 @@ describe("@/components/Elements/Dropdown.vue", () => {
         const ul =  wrapper.find('ul');
         expect(ul.exists()).toBe(true);
         const li = ul.findAll('li');
-        expect(li).toHaveLength(4);
+        expect(li).toHaveLength(5);
         // Первый вариант не выбран
         expect(li[0].text()).toBe('10');
         expect(li[0].attributes('data-number')).toBe('10');
@@ -48,16 +63,12 @@ describe("@/components/Elements/Dropdown.vue", () => {
     });
     
     it("Изменение выбора", async () => {
+        const globalConsts = useGlobalConstsStore();
+        
         // Для отслеживания параметра запроса
         const changeNumber = vi.fn((n) => n);
         
-        const wrapper = mount(Dropdown, {
-            props: {
-                buttonName: 'Текст кнопки',
-                itemsNumberOnPage: 50,
-                changeNumber
-            }
-        });
+        const wrapper = getWrapper(changeNumber, globalConsts);
 
         const button = wrapper.get('button');
         // Список скрыт
@@ -68,7 +79,7 @@ describe("@/components/Elements/Dropdown.vue", () => {
         const ul =  wrapper.find('ul');
         expect(ul.exists()).toBe(true);
         const li = ul.findAll('li');
-        expect(li).toHaveLength(4);
+        expect(li).toHaveLength(5);
 /**
 * При тестировании делегированного события нужно кликать по дочерним элементам
 * Когда событие удаляет элементы, к узлам DOM нужно обращаться через wrapper.find 

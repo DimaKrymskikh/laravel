@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Models\Dvd;
+
+use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 
-class Actor extends Model
+final class Actor extends Model
 {
     use HasFactory;
     
@@ -14,10 +15,10 @@ class Actor extends Model
     
     public $timestamps = false;
     
-    public function scopeFilter(Builder $query, Request $request): Builder
+    public function scopeFilter(Builder $query, ActorFilterDto $dto): Builder
     {
         return $query
-            ->when($request->name, function (Builder $query, string $name) {
+            ->when($dto->name, function (Builder $query, string $name) {
                 $query->whereRaw("concat(first_name, ' ', last_name) ILIKE ?", ["%$name%"]);
             });
     }

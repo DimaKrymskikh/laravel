@@ -74,6 +74,8 @@ class UserFilmsTest extends TestCase
         Notification::fake();
         
         $this->seedUserFilms();
+        $nFilms = UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count();
+        
         $user = $this->getUser('AuthTestLogin');
         $acting = $this->actingAs($user);
         
@@ -82,8 +84,8 @@ class UserFilmsTest extends TestCase
             'number' => 100
         ]);
         
-        // У BaseTestLogin теперь 4 фильма (было 3 и 1 добавился)
-        $this->assertEquals(4, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
+        // В коллекции AuthTestLogin добавился один фильм
+        $this->assertEquals($nFilms + 1, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
         
         // Отправляется оповещение о добавлении фильма
         Notification::assertSentTo(
@@ -92,7 +94,7 @@ class UserFilmsTest extends TestCase
         
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_AUTH_FILMS.'?page=1&number=100');
+            ->assertRedirect(RouteServiceProvider::URL_AUTH_FILMS.'?page=1&number=100&title_filter=&description_filter=&release_year_filter=');
     }
     
     public function test_film_can_not_add_in_user_list_with_duplicate(): void
@@ -129,6 +131,8 @@ class UserFilmsTest extends TestCase
         Notification::fake();
         
         $this->seedUserFilms();
+        $nFilms = UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count();
+        
         $user = $this->getUser('AuthTestLogin');
         $acting = $this->actingAs($user);
         
@@ -138,8 +142,8 @@ class UserFilmsTest extends TestCase
             'number' => 100
         ]);
         
-        // У AuthTestLogin теперь 2 фильма (было 3 и 1 удалился)
-        $this->assertEquals(2, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
+        // Из коллекции AuthTestLogin удалён один фильм
+        $this->assertEquals($nFilms - 1, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
 
         // Отправляется оповещение об удалении фильма
         Notification::assertSentTo(
@@ -148,7 +152,7 @@ class UserFilmsTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=100');
+            ->assertRedirect(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=100&title_filter=&description_filter=&release_year_filter=');
     }
     
     public function test_film_can_not_remove_from_user_list_with_wrong_password(): void

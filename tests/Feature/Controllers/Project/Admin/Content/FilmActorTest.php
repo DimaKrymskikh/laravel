@@ -58,7 +58,7 @@ class FilmActorTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
     }
     
     public function test_admin_can_not_add_the_actor_in_the_film_if_the_couple_exists(): void
@@ -103,7 +103,7 @@ class FilmActorTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
     }
     
     public function test_admin_can_not_delete_the_actor_from_the_film_if_the_password_is_incorrect(): void

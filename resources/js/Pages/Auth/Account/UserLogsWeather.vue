@@ -58,7 +58,6 @@ const changeNumberOfWeatherOnPage = function(newNumber) {
                     buttonName="Число записей погоды на странице"
                     :itemsNumberOnPage="weatherPage.per_page"
                     :changeNumber="changeNumberOfWeatherOnPage"
-                    :options="[5, 10, 20, 50, 100, 500, 1000]"
                 />
             </div>
 

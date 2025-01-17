@@ -12,6 +12,7 @@ import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import PencilSvg from '@/Components/Svg/PencilSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import { useActorsListStore } from '@/Stores/actors';
+import { useGlobalConstsStore } from '@/Stores/globalConsts';
 
 import { actors, actors_0 } from '@/__tests__/data/actors';
 import { AdminLayoutStub } from '@/__tests__/stubs/layout';
@@ -28,7 +29,7 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(actors, actorsList) {
+const getWrapper = function(actors, actorsList, globalConsts) {
     return mount(Actors, {
             props: {
                 errors: {},
@@ -40,7 +41,7 @@ const getWrapper = function(actors, actorsList) {
                     RemoveActorModal: true,
                     UpdateActorModal: true
                 },
-                provide: { actorsList }
+                provide: { actorsList, globalConsts }
             }
         });
 };
@@ -68,7 +69,6 @@ const checkElements = function(wrapper) {
     expect(dropdown.props('buttonName')).toBe('Число актёров на странице');
     expect(dropdown.props('itemsNumberOnPage')).toBe(wrapper.vm.props.actors.per_page);
     expect(dropdown.props('changeNumber')).toBe(wrapper.vm.changeNumberOfActorsOnPage);
-    expect(dropdown.props('options')).toStrictEqual([10, 20, 50, 100, 500]);
 
     expect(wrapper.getComponent(AddActorBlock).isVisible()).toBe(true);
 };
@@ -80,8 +80,9 @@ describe("@/Pages/Admin/Actors.vue", () => {
     
     it("Отрисовка страницы 'Актёры' при наличии актёров", () => {
         const actorsList = useActorsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(actors, actorsList);
+        const wrapper = getWrapper(actors, actorsList, globalConsts);
         
         // Проверяем заголовок
         checkH1(wrapper);
@@ -137,8 +138,9 @@ describe("@/Pages/Admin/Actors.vue", () => {
     
     it("Отрисовка страницы 'Актёры' без актёров", () => {
         const actorsList = useActorsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(actors_0, actorsList);
+        const wrapper = getWrapper(actors_0, actorsList, globalConsts);
         
         // Проверяем заголовок
         checkH1(wrapper);
@@ -169,7 +171,9 @@ describe("@/Pages/Admin/Actors.vue", () => {
         // actors.per_page не равен дефолтному actorsList.perPage
         actorsList.perPage = actors.per_page;
         
-        const wrapper = getWrapper(actors, actorsList);
+        const globalConsts = useGlobalConstsStore();
+        
+        const wrapper = getWrapper(actors, actorsList, globalConsts);
         
         // Запрос не отправлен
         expect(router.get).not.toHaveBeenCalled();
@@ -198,7 +202,9 @@ describe("@/Pages/Admin/Actors.vue", () => {
         const actorsList = useActorsListStore();
         actorsList.perPage = actors.per_page;
         
-        const wrapper = getWrapper(actors, actorsList);
+        const globalConsts = useGlobalConstsStore();
+        
+        const wrapper = getWrapper(actors, actorsList, globalConsts);
         
         expect(wrapper.vm.actorsList.page).toBe(2);
         expect(wrapper.vm.actorsList.perPage).toBe(10);
@@ -225,7 +231,7 @@ describe("@/Pages/Admin/Actors.vue", () => {
         expect(li[1].text()).toBe('20');
         expect(li[2].text()).toBe('50');
         expect(li[3].text()).toBe('100');
-        expect(li[4].text()).toBe('500');
+        expect(li[4].text()).toBe('1000');
         
         // Запрос на сервер не отправлен
         expect(router.get).not.toHaveBeenCalled();
@@ -241,8 +247,9 @@ describe("@/Pages/Admin/Actors.vue", () => {
     
     it("Проверка появления модальных окон", async () => {
         const actorsList = useActorsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(actors, actorsList);
+        const wrapper = getWrapper(actors, actorsList, globalConsts);
         
         // Находим таблицу
         const table = wrapper.get('table');
@@ -275,8 +282,9 @@ describe("@/Pages/Admin/Actors.vue", () => {
     
     it("Функция hideRemoveActorModal изменяет isShowRemoveActorModal с true на false", () => {
         const actorsList = useActorsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(actors, actorsList);
+        const wrapper = getWrapper(actors, actorsList, globalConsts);
         
         wrapper.vm.isShowRemoveActorModal = true;
         wrapper.vm.hideRemoveActorModal();
@@ -285,8 +293,9 @@ describe("@/Pages/Admin/Actors.vue", () => {
     
     it("Функция hideUpdateActorModal изменяет isShowUpdateActorModal с true на false", () => {
         const actorsList = useActorsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(actors, actorsList);
+        const wrapper = getWrapper(actors, actorsList, globalConsts);
         
         wrapper.vm.isShowUpdateActorModal = true;
         wrapper.vm.hideUpdateActorModal();

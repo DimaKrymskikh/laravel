@@ -5,13 +5,11 @@ namespace App\CommandHandlers\OpenWeather;
 use App\Exceptions\OpenWeatherException;
 use App\Models\Thesaurus\City;
 use App\Repositories\OpenWeather\WeatherRepository;
-use App\Support\Url\Url;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
-class GetWeatherFromOpenWeatherCommandHandler {
-    use Url;
-    
+final class GetWeatherFromOpenWeatherCommandHandler
+{
     // Число запросов на сервер OpenWeather при бесплатном тарифе
     public const OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE = 60;
     // Период обновления погоды для города в минутах
@@ -20,8 +18,10 @@ class GetWeatherFromOpenWeatherCommandHandler {
     /**
      * Отправляет запрос на сервер OpenWeather
      * 
-     * @param int $cityOpenWeatherId
+     * @param City $city
+     * @param WeatherRepository $weatherRepository
      * @return Response
+     * @throws OpenWeatherException
      */
     public function handle(City $city, WeatherRepository $weatherRepository): Response
     {
@@ -33,11 +33,11 @@ class GetWeatherFromOpenWeatherCommandHandler {
             throw new OpenWeatherException(trans('openweather.request_limit_exceeded_for_one_minute'));
         }
         
-        return Http::get($this->getUrl("http://api.openweathermap.org/data/2.5/weather", [
-                'units' => 'metric',
-                'lang' => 'ru',
-                'id' => $city->open_weather_id,
-                'appid' => config('api.openweather_key')
-            ]));
+        return Http::get("http://api.openweathermap.org/data/2.5/weather".'?'.http_build_query([
+                    'units' => 'metric',
+                    'lang' => 'ru',
+                    'id' => $city->open_weather_id,
+                    'appid' => config('api.openweather_key')
+                ]));
     }
 }

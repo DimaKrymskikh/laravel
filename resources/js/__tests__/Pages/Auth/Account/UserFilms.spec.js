@@ -14,6 +14,7 @@ import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import FilmRemoveModal from '@/Components/Modal/Request/FilmRemoveModal.vue';
 import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 import { useFilmsAccountStore } from '@/Stores/films';
+import { useGlobalConstsStore } from '@/Stores/globalConsts';
 
 import { films_10_user } from '@/__tests__/data/films';
 import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
@@ -36,7 +37,7 @@ const user = {
             login: 'TestLogin'
         };
 
-const getWrapper = function(filmsAccount) {
+const getWrapper = function(filmsAccount, globalConsts) {
     return mount(UserFilms, {
             props: {
                 errors: null,
@@ -48,7 +49,7 @@ const getWrapper = function(filmsAccount) {
                     AccountLayout: AuthAccountLayoutStub,
                     FilmRemoveModal: true
                 },
-                provide: { filmsAccount }
+                provide: { filmsAccount, globalConsts }
             }
         });
 };
@@ -60,8 +61,9 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
     
     it("Отрисовка UserFilms", () => {
         const filmsAccount = useFilmsAccountStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsAccount);
+        const wrapper = getWrapper(filmsAccount, globalConsts);
         
         // Проверяем, что текущая страница пагинации сохранена в filmsAccount
         expect(wrapper.vm.filmsAccount.page).toBe(films_10_user.current_page);
@@ -140,8 +142,9 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
     
     it("Показать модальное окно удаления фильма", async () => {
         const filmsAccount = useFilmsAccountStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsAccount);
+        const wrapper = getWrapper(filmsAccount, globalConsts);
         
         const table = wrapper.get('table.container');
         const tbody = table.get('tbody');
@@ -164,8 +167,9 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
     // Закрытие модального окна (вызов функции hideFilmRemoveModal) проверяется в FilmRemoveModal
     it("Функция hideFilmRemoveModal изменяет isShowFilmRemoveModal с true на false", () => {
         const filmsAccount = useFilmsAccountStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsAccount);
+        const wrapper = getWrapper(filmsAccount, globalConsts);
         
         wrapper.vm.isShowFilmRemoveModal = true;
         wrapper.vm.hideFilmRemoveModal();
@@ -175,8 +179,9 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
     // В Dropdown проверяется клик по элементам DOM
     it("Функция changeNumberOfFilmsOnPage отправляет запрос на изменение числа фильмов на странице", () => {
         const filmsAccount = useFilmsAccountStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsAccount);
+        const wrapper = getWrapper(filmsAccount, globalConsts);
         
         // Запрос не отправлен
         expect(router.get).not.toHaveBeenCalled();
@@ -190,8 +195,9 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
     
     it("Проверка работы фильтров", async () => {
         const filmsAccount = useFilmsAccountStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsAccount);
+        const wrapper = getWrapper(filmsAccount, globalConsts);
         
         // Запрос не отправлен
         expect(router.get).not.toHaveBeenCalled();

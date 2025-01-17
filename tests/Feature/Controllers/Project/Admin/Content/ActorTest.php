@@ -194,7 +194,7 @@ class ActorTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_ADMIN_ACTORS.'?page=1&number=20');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_ACTORS.'?page=1&number=20&name=');
     }
     
     public function test_admin_can_not_update_actor_if_the_first_name_or_the_last_name_starts_with_a_small_letter(): void
@@ -238,7 +238,7 @@ class ActorTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_ADMIN_ACTORS.'?page=1&number=20');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_ACTORS.'?page=1&number=20&name=');
     }
     
     public function test_admin_can_not_delete_actor_if_the_password_is_incorrect(): void

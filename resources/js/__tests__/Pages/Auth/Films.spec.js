@@ -15,6 +15,7 @@ import Spinner from '@/components/Svg/Spinner.vue';
 import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 import { useAppStore } from '@/Stores/app';
 import { useFilmsListStore } from '@/Stores/films';
+import { useGlobalConstsStore } from '@/Stores/globalConsts';
 
 import { films_0, films_10_user } from '@/__tests__/data/films';
 import { AuthLayoutStub } from '@/__tests__/stubs/layout';
@@ -37,7 +38,7 @@ const user = {
             is_admin: false
         };
 
-const getWrapper = function(app, filmsList, films) {
+const getWrapper = function(app, filmsList, films, globalConsts) {
     return mount(Films, {
             props: {
                 errors: {},
@@ -48,7 +49,7 @@ const getWrapper = function(app, filmsList, films) {
                 stubs: {
                     AuthLayout: AuthLayoutStub
                 },
-                provide: { app, filmsList }
+                provide: { app, filmsList, globalConsts }
             }
         });
 };
@@ -61,8 +62,9 @@ describe("@/Pages/Auth/Films.vue", () => {
     it("Отрисовка каталога фильмов (залогиненный пользователь)", () => {
         const app = useAppStore();
         const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(app, filmsList, films_10_user);
+        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
         
         const authLayout = wrapper.getComponent(AuthLayout);
         expect(authLayout.props('user')).toStrictEqual(user);
@@ -153,8 +155,9 @@ describe("@/Pages/Auth/Films.vue", () => {
     it("Отрисовка каталога фильмов без фильмов (залогиненный пользователь)", () => {
         const app = useAppStore();
         const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(app, filmsList, films_0);
+        const wrapper = getWrapper(app, filmsList, films_0, globalConsts);
         
         const authLayout = wrapper.getComponent(AuthLayout);
         expect(authLayout.props('user')).toStrictEqual(user);
@@ -220,8 +223,9 @@ describe("@/Pages/Auth/Films.vue", () => {
     it("Изменение числа фильмов (залогиненный пользователь)", async () => {
         const app = useAppStore();
         const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(app, filmsList, films_10_user);
+        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
         
         // Изменяется текущая страница с дефолтного 1 на films_10.current_page
         expect(wrapper.vm.filmsList.page).toBe(5);
@@ -241,11 +245,12 @@ describe("@/Pages/Auth/Films.vue", () => {
         expect(ul.exists()).toBe(true);
         // Проверяем список с выбором числа фильмов
         const li = ul.findAll('li');
-        expect(li.length).toBe(4);
+        expect(li.length).toBe(5);
         expect(li[0].text()).toBe('10');
         expect(li[1].text()).toBe('20');
         expect(li[2].text()).toBe('50');
         expect(li[3].text()).toBe('100');
+        expect(li[4].text()).toBe('1000');
         
         // Запрос на сервер не отправлен
         expect(router.get).not.toHaveBeenCalled();
@@ -262,8 +267,9 @@ describe("@/Pages/Auth/Films.vue", () => {
     it("Задание фильтра для фильмов (залогиненный пользователь)", async () => {
         const app = useAppStore();
         const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(app, filmsList, films_10_user);
+        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
         
         // Изменяется текущая страница с дефолтного 1 на films_10.current_page
         expect(wrapper.vm.filmsList.page).toBe(5);
@@ -308,8 +314,9 @@ describe("@/Pages/Auth/Films.vue", () => {
     it("Добавление фильма в коллекцию пользователя", async () => {
         const app = useAppStore();
         const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(app, filmsList, films_10_user);
+        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
         
         // Изменяется текущая страница с дефолтного 1 на films_10.current_page
         expect(wrapper.vm.filmsList.page).toBe(5);
@@ -358,8 +365,9 @@ describe("@/Pages/Auth/Films.vue", () => {
         const app = useAppStore();
         app.isRequest = true;
         const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(app, filmsList, films_10_user);
+        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
         
         // В таблице находим фильм с "+"
         const table = wrapper.get('table.container');
@@ -379,6 +387,7 @@ describe("@/Pages/Auth/Films.vue", () => {
     it("Проверка появления спинера", async () => {
         const app = useAppStore();
         const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
         
         const wrapper = getWrapper(app, filmsList, films_10_user);
         
@@ -416,8 +425,9 @@ describe("@/Pages/Auth/Films.vue", () => {
         // По умолчанию
         expect(app.isRequest).toBe(false);
         const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(app, filmsList, films_10_user);
+        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
         wrapper.vm.onBeforeForAddFilm();
         
         expect(app.isRequest).toBe(true);
@@ -427,8 +437,9 @@ describe("@/Pages/Auth/Films.vue", () => {
         const app = useAppStore();
         app.isRequest = true;
         const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(app, filmsList, films_10_user);
+        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
         wrapper.vm.onFinishForAddFilm();
         
         expect(app.isRequest).toBe(false);

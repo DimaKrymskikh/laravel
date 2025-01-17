@@ -25,7 +25,7 @@ class AdminTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=20');
+            ->assertRedirect(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
     }
 
     public function test_admin_can_revoke_admin_rights(): void
@@ -42,6 +42,6 @@ class AdminTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=20');
+            ->assertRedirect(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
     }
 }

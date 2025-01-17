@@ -3,38 +3,34 @@
 namespace App\Http\Controllers\Project\Admin\Content;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Dvd\Filters\ActorFilterRequest;
 use App\Http\Requests\Dvd\ActorRequest;
 use App\Providers\RouteServiceProvider;
-use App\Repositories\Dvd\ActorRepository;
 use App\Services\Database\Dvd\ActorService;
-use App\Support\Pagination\Url;
+use App\Support\Pagination\Urls\ActorUrls;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ActorController extends Controller
 {
-    private Url $url;
-    
     public function __construct(
-        private ActorRepository $actors,
-    )
-    {
+        private ActorService $actorService,
+        private ActorUrls $actorUrls,
+    ) {
         $this->middleware('check.password')->only('destroy');
-        $this->url = new Url(ActorRepository::ADDITIONAL_PARAMS_IN_URL);
     }
     
     /**
      * В админской части отрисовывает таблицу актёров
      * 
-     * @param Request $request
+     * @param ActorFilterRequest $request
      * @return Response
      */
-    public function index(Request $request): Response
+    public function index(ActorFilterRequest $request): Response
     {
         return Inertia::render('Admin/Actors', [
-            'actors' => $this->actors->getCommonActorsList($request)
+            'actors' => $this->actorService->getActorsListForPage($request->getPaginatorDto(), $request->getActorFilterDto())
         ]);
     }
 
@@ -42,48 +38,54 @@ class ActorController extends Controller
      * В таблицу 'dvd.actors' добавляется новый актёр
      * 
      * @param ActorRequest $request
-     * @param ActorService $actorService
      * @return RedirectResponse
      */
-    public function store(ActorRequest $request, ActorService $actorService): RedirectResponse
+    public function store(ActorRequest $request): RedirectResponse
     {
         // Создаём новую запись в таблице 'thesaurus.languages'
         // (Валидация уже выполнена в ActorRequest)
-        $actor = $actorService->create($request->getActorDto());
+        $actor = $this->actorService->create($request->getActorDto());
         
-        // Нужно сбросить фильтр поиска, чтобы новый актёр гарантированно попал в список актёров
-        $request->name = '';
-        
-        return redirect($this->url->getUrlByItem(RouteServiceProvider::URL_ADMIN_ACTORS, $request, $this->actors, $actor->id));
+        return redirect($this->actorUrls->getUrlWithPaginationOptionsAfterCreatingOrUpdatingActor(
+                    RouteServiceProvider::URL_ADMIN_ACTORS,
+                    $request->getPaginatorDto(),
+                    $actor->id
+                ));
     }
 
     /**
-     * Изменяет полное имя актёра с id = $actor_id
+     * Изменяет полное имя актёра с id = $actorId
      * 
      * @param ActorRequest $request
-     * @param ActorService $actorService
-     * @param int $actor_id
+     * @param int $actorId
      * @return RedirectResponse
      */
-    public function update(ActorRequest $request, ActorService $actorService, int $actor_id): RedirectResponse
+    public function update(ActorRequest $request, int $actorId): RedirectResponse
     {
-        $actorService->update($request->getActorDto(), $actor_id);
+        $this->actorService->update($request->getActorDto(), $actorId);
         
-        return redirect($this->url->getUrlByItem(RouteServiceProvider::URL_ADMIN_ACTORS, $request, $this->actors, $actor_id));
+        return redirect($this->actorUrls->getUrlWithPaginationOptionsAfterCreatingOrUpdatingActor(
+                    RouteServiceProvider::URL_ADMIN_ACTORS,
+                    $request->getPaginatorDto(),
+                    $actorId
+                ));
     }
 
     /**
-     * Удаляет актёра с id = $actor_id из таблицы 'dvd.actors'
+     * Удаляет актёра с id = $actorId из таблицы 'dvd.actors'
      * 
-     * @param Request $request
-     * @param ActorService $actorService
-     * @param int $actor_id
+     * @param ActorFilterRequest $request
+     * @param int $actorId
      * @return RedirectResponse
      */
-    public function destroy(Request $request, ActorService $actorService, int $actor_id): RedirectResponse
+    public function destroy(ActorFilterRequest $request, int $actorId): RedirectResponse
     {
-        $actorService->delete($actor_id);
+        $this->actorService->delete($actorId);
         
-        return redirect($this->url->getUrlAfterRemovingItem(RouteServiceProvider::URL_ADMIN_ACTORS, $request, $this->actors));
+        return redirect($this->actorUrls->getUrlWithPaginationOptionsAfterRemovingActor(
+                    RouteServiceProvider::URL_ADMIN_ACTORS,
+                    $request->getPaginatorDto(),
+                    $request->getActorFilterDto()
+                ));
     }
 }

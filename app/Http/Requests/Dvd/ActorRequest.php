@@ -3,20 +3,12 @@
 namespace App\Http\Requests\Dvd;
 
 use App\DataTransferObjects\Database\Dvd\ActorDto;
+use App\Http\Requests\Dvd\Filters\ActorFilterRequest;
 use App\Rules\CapitalFirstLetter;
 use App\ValueObjects\PersonName;
-use Illuminate\Foundation\Http\FormRequest;
 
-class ActorRequest extends FormRequest
+class ActorRequest extends ActorFilterRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *

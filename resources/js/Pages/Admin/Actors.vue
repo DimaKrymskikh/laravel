@@ -99,7 +99,6 @@ const handlerTableChange = function(e) {
                 buttonName="Число актёров на странице"
                 :itemsNumberOnPage="actors.per_page"
                 :changeNumber="changeNumberOfActorsOnPage"
-                :options="[10, 20, 50, 100, 500]"
             />
             <AddActorBlock />
         </div>

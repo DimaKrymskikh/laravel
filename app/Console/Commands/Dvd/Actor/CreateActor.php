@@ -26,8 +26,11 @@ class CreateActor extends Command
 
     /**
      * Execute the console command.
+     * 
+     * @param ActorService $actorService
+     * @return void
      */
-    public function handle(): void
+    public function handle(ActorService $actorService): void
     {
         $this->info('Старт.');
         
@@ -42,13 +45,12 @@ class CreateActor extends Command
                     PersonName::create($lastName, 'last_name', 'attr.actor.last_name.capital_first_letter'),
                 );
             
-            $actor = (new ActorService())->create($actorDto);
+            $actor = $actorService->create($actorDto);
             $this->line("В таблицу dvd.actors добавлен актёр $actor->first_name $actor->last_name.");
             $this->info('Команда выполнена.');
             
         } catch(ValidationException $ex) {
             $this->error($ex->getMessage());
         }
-        
     }
 }

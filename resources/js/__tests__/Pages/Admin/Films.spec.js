@@ -16,6 +16,7 @@ import Info from '@/Components/Pagination/Info.vue';
 import PencilSvg from '@/Components/Svg/PencilSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import { useFilmsAdminStore } from '@/Stores/films';
+import { useGlobalConstsStore } from '@/Stores/globalConsts';
 
 import { films_10, films_0 } from '@/__tests__/data/films';
 import { AdminLayoutStub } from '@/__tests__/stubs/layout';
@@ -32,7 +33,7 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(films, filmsAdmin) {
+const getWrapper = function(films, filmsAdmin, globalConsts) {
     return mount(Films, {
             props: {
                 errors: {},
@@ -46,7 +47,7 @@ const getWrapper = function(films, filmsAdmin) {
                     RemoveFilmModal: true,
                     UpdateFilmActorsModal: true
                 },
-                provide: { filmsAdmin }
+                provide: { filmsAdmin, globalConsts }
             }
         });
 };
@@ -85,8 +86,9 @@ describe("@/Pages/Admin/Films.vue", () => {
     
     it("Отрисовка страницы 'Фильмы' при наличии фильмов", () => {
         const filmsAdmin = useFilmsAdminStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(films_10, filmsAdmin);
+        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
         
         // Проверяем заголовок
         checkH1(wrapper);
@@ -159,8 +161,9 @@ describe("@/Pages/Admin/Films.vue", () => {
     
     it("Отрисовка страницы 'Фильмы' без фильмов", () => {
         const filmsAdmin = useFilmsAdminStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(films_0, filmsAdmin);
+        const wrapper = getWrapper(films_0, filmsAdmin, globalConsts);
         
         // Проверяем заголовок
         checkH1(wrapper);
@@ -192,7 +195,9 @@ describe("@/Pages/Admin/Films.vue", () => {
         // films_10.per_page не равен дефолтному filmsAdmin.perPage
         filmsAdmin.perPage = films_10.per_page;
         
-        const wrapper = getWrapper(films_10, filmsAdmin);
+        const globalConsts = useGlobalConstsStore();
+        
+        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
         
         // Запрос не отправлен
         expect(router.get).not.toHaveBeenCalled();
@@ -234,7 +239,9 @@ describe("@/Pages/Admin/Films.vue", () => {
         const filmsAdmin = useFilmsAdminStore();
         filmsAdmin.perPage = films_10.per_page;
         
-        const wrapper = getWrapper(films_10, filmsAdmin);
+        const globalConsts = useGlobalConstsStore();
+        
+        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
         
         expect(wrapper.vm.filmsAdmin.page).toBe(films_10.current_page);
         expect(wrapper.vm.filmsAdmin.perPage).toBe(films_10.per_page);
@@ -256,11 +263,12 @@ describe("@/Pages/Admin/Films.vue", () => {
         expect(ul.exists()).toBe(true);
         // Проверяем список с выбором числа элементов
         const li = ul.findAll('li');
-        expect(li.length).toBe(4);
+        expect(li.length).toBe(5);
         expect(li[0].text()).toBe('10');
         expect(li[1].text()).toBe('20');
         expect(li[2].text()).toBe('50');
         expect(li[3].text()).toBe('100');
+        expect(li[4].text()).toBe('1000');
         
         // Запрос на сервер не отправлен
         expect(router.get).not.toHaveBeenCalled();
@@ -276,8 +284,9 @@ describe("@/Pages/Admin/Films.vue", () => {
     
     it("Проверка появления модальных окон", async () => {
         const filmsAdmin = useFilmsAdminStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(films_10, filmsAdmin);
+        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
         
         // Находим таблицу
         const table = wrapper.get('table');
@@ -347,7 +356,9 @@ describe("@/Pages/Admin/Films.vue", () => {
     
     it("Функция hideUpdateFilmModal изменяет isShowUpdateFilmModal с true на false", () => {
         const filmsAdmin = useFilmsAdminStore();
-        const wrapper = getWrapper(films_10, filmsAdmin);
+        const globalConsts = useGlobalConstsStore();
+        
+        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
         
         wrapper.vm.isShowUpdateFilmModal = true;
         wrapper.vm.hideUpdateFilmModal();
@@ -356,7 +367,9 @@ describe("@/Pages/Admin/Films.vue", () => {
     
     it("Функция hideRemoveFilmModal изменяет isShowRemoveFilmModal с true на false", () => {
         const filmsAdmin = useFilmsAdminStore();
-        const wrapper = getWrapper(films_10, filmsAdmin);
+        const globalConsts = useGlobalConstsStore();
+        
+        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
         
         wrapper.vm.isShowRemoveFilmModal = true;
         wrapper.vm.hideRemoveFilmModal();
@@ -365,7 +378,9 @@ describe("@/Pages/Admin/Films.vue", () => {
     
     it("Функция hideUpdateFilmActorsModal изменяет isShowUpdateFilmActorsModal с true на false", () => {
         const filmsAdmin = useFilmsAdminStore();
-        const wrapper = getWrapper(films_10, filmsAdmin);
+        const globalConsts = useGlobalConstsStore();
+        
+        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
         
         wrapper.vm.isShowUpdateFilmActorsModal = true;
         wrapper.vm.hideUpdateFilmActorsModal();
@@ -374,7 +389,9 @@ describe("@/Pages/Admin/Films.vue", () => {
     
     it("Функция hideUpdateFilmLanguageModal изменяет isShowUpdateFilmLanguageModal с true на false", () => {
         const filmsAdmin = useFilmsAdminStore();
-        const wrapper = getWrapper(films_10, filmsAdmin);
+        const globalConsts = useGlobalConstsStore();
+        
+        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
         
         wrapper.vm.isShowUpdateFilmLanguageModal = true;
         wrapper.vm.hideUpdateFilmLanguageModal();

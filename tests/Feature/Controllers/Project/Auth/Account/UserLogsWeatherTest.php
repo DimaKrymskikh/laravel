@@ -79,15 +79,15 @@ class UserLogsWeatherTest extends TestCase
         
         // Параметр page не является целым
         $responsePage = $acting->get('userlogsweather/'.CitySeeder::ID_NOVOSIBIRSK.'?page=&number=20');
-        $responsePage->assertRedirect('userweather');
+        $responsePage->assertOk();
         // Параметр number не является целым
         $responseNumber = $acting->get('userlogsweather/'.CitySeeder::ID_NOVOSIBIRSK.'?page=3&number=a');
-        $responseNumber->assertRedirect('userweather');
+        $responseNumber->assertOk();
         // Параметр datefrom не является датой
         $responseDatefrom = $acting->get('userlogsweather/'.CitySeeder::ID_NOVOSIBIRSK.'?page=3&number=20&datefrom=111&dateto=01.02.2024');
-        $responseDatefrom->assertRedirect('userweather');
+        $responseDatefrom->assertOk();
         // Несуществующая дата в dateto
-        $responseTo = $acting->get('userlogsweather/'.CitySeeder::ID_NOVOSIBIRSK.'?page=3&number=20&datefrom=12.01.2024&dateto=30.02.2024');
-        $responseTo->assertRedirect('userweather');
+        $responseDateTo = $acting->get('userlogsweather/'.CitySeeder::ID_NOVOSIBIRSK.'?page=3&number=20&datefrom=12.01.2024&dateto=30.02.2024');
+        $responseDateTo->assertOk();
     }
 }

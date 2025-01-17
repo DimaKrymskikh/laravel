@@ -2,6 +2,7 @@
 
 namespace App\Models\Dvd;
 
+use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\Models\Dvd\Actor;
 use App\Models\Thesaurus\Language;
 use Illuminate\Database\Eloquent\Builder;
@@ -9,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Http\Request;
 
 class Film extends Model
 {
@@ -29,17 +29,17 @@ class Film extends Model
         return $this->belongsToMany(Actor::class, 'dvd.films_actors', 'film_id', 'actor_id');
     }
     
-    public function scopeFilter(Builder $query, Request $request): Builder
+    public function scopeFilter(Builder $query, FilmFilterDto $dto): Builder
     {
         return $query
-                ->when($request->title_filter, function (Builder $query, string $title) {
+                ->when($dto->title, function (Builder $query, string $title) {
                     $query->where('title', 'ILIKE', "%$title%");
                 })
-                ->when($request->description_filter, function (Builder $query, string $description) {
+                ->when($dto->description, function (Builder $query, string $description) {
                     $query->where('description', 'ILIKE', "%$description%");
                 })
-                ->when($request->release_year_filter, function (Builder $query, string $release_year) {
-                    $query->where('release_year', 'ILIKE', "%$release_year%");
+                ->when((string) $dto->releaseYear, function (Builder $query, string $releaseYear) {
+                    $query->where('release_year', 'ILIKE', "%$releaseYear%");
                 });
     }
 }

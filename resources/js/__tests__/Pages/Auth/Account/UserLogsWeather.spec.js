@@ -9,6 +9,7 @@ import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import WeatherFilterByDateBlock from '@/Components/Pages/Auth/Account/WeatherFilterByDateBlock.vue';
 import { useAppStore } from '@/Stores/app';
+import { useGlobalConstsStore } from '@/Stores/globalConsts';
 import { useWeatherPageAuthStore } from '@/Stores/weather';
 
 import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
@@ -28,7 +29,7 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(app, weatherPageAuth) {
+const getWrapper = function(app, weatherPageAuth, globalConsts) {
     return mount(UserLogsWeather, {
             props: {
                 errors: {},
@@ -40,7 +41,7 @@ const getWrapper = function(app, weatherPageAuth) {
                 stubs: {
                     AccountLayout: AuthAccountLayoutStub
                 },
-                provide: { app, weatherPageAuth }
+                provide: { app, weatherPageAuth, globalConsts }
             }
         });
 };
@@ -53,8 +54,9 @@ describe("@/Pages/Auth/Account/UserLogsWeather.vue", () => {
     it("Отрисовка UserLogsWeather", () => {
         const app = useAppStore();
         const weatherPageAuth = useWeatherPageAuthStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(app, weatherPageAuth);
+        const wrapper = getWrapper(app, weatherPageAuth, globalConsts);
         
         const accountLayout = wrapper.getComponent(AccountLayout);
         expect(accountLayout.props('user')).toStrictEqual(userAuth);
@@ -68,7 +70,6 @@ describe("@/Pages/Auth/Account/UserLogsWeather.vue", () => {
         expect(dropdown.props('buttonName')).toBe('Число записей погоды на странице');
         expect(dropdown.props('itemsNumberOnPage')).toBe(weather3.per_page);
         expect(dropdown.props('changeNumber')).toBe(wrapper.vm.changeNumberOfWeatherOnPage);
-        expect(dropdown.props('options')).toStrictEqual([5, 10, 20, 50, 100, 500, 1000]);
         
         const weatherFilterByDateBlock = wrapper.getComponent(WeatherFilterByDateBlock);
         expect(weatherFilterByDateBlock.props('refreshWeather')).toBe(wrapper.vm.refreshWeather);
@@ -114,8 +115,9 @@ describe("@/Pages/Auth/Account/UserLogsWeather.vue", () => {
     it("Функция changeNumberOfWeatherOnPage отправляет запрос на изменение числа записей погоды на странице", () => {
         const app = useAppStore();
         const weatherPageAuth = useWeatherPageAuthStore();
+        const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(app, weatherPageAuth);
+        const wrapper = getWrapper(app, weatherPageAuth, globalConsts);
         
         // Запрос не отправлен
         expect(router.get).not.toHaveBeenCalled();

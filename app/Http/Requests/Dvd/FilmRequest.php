@@ -2,18 +2,12 @@
 
 namespace App\Http\Requests\Dvd;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\DataTransferObjects\Database\Dvd\FilmDto;
+use App\Http\Requests\Dvd\Filters\FilmFilterRequest;
+use App\ValueObjects\IntValue;
 
-class FilmRequest extends FormRequest
+class FilmRequest extends FilmFilterRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -36,5 +30,14 @@ class FilmRequest extends FormRequest
             'description.string' => trans("attr.film.description.string"),
             'release_year.integer' => trans("attr.film.release_year.integer"),
         ];
+    }
+    
+    public function getFilmDto(): FilmDto
+    {
+        return new FilmDto(
+                $this->input('title'),
+                $this->input('description'),
+                IntValue::create($this->input('release_year')),
+            );
     }
 }
