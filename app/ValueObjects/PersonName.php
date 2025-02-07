@@ -2,25 +2,23 @@
 
 namespace App\ValueObjects;
 
-use Illuminate\Validation\ValidationException;
+use App\Exceptions\RuleException;
 
-readonly final class PersonName
+final readonly class PersonName
 {
     public string $name;
     
-    private function __construct(?string $name, string $validatableAttribute, string $translationStringKey)
+    private function __construct(?string $name, string $attribute, string $message)
     {
         if (!$name || mb_convert_case($name, MB_CASE_TITLE_SIMPLE) !== $name) {
-            throw ValidationException::withMessages([
-                $validatableAttribute => trans($translationStringKey)
-            ]);
+            throw new RuleException($attribute, $message);
         }
         
         $this->name = $name;
     }
     
-    public static function create(?string $name, string $validatableAttribute, string $translationStringKey): self
+    public static function create(?string $name, string $attribute, string $message): self
     {
-        return new self($name, $validatableAttribute, $translationStringKey);
+        return new self($name, $attribute, $message);
     }
 }

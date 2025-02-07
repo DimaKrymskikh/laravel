@@ -119,10 +119,9 @@ class UserFilmsTest extends TestCase
             [$user], AddFilmNotification::class
         );
 
+        $filmTitle = Film::find(FilmSeeder::ID_BOILED_DARES)->title;
         $response->assertInvalid([
-                'message' => trans("user.film.message", [
-                    'film' => Film::find(FilmSeeder::ID_BOILED_DARES)->title
-                ])
+                'message' => "Фильм '$filmTitle' уже находится в вашей коллекции."
             ]);
     }
     
@@ -153,6 +152,37 @@ class UserFilmsTest extends TestCase
         $response
             ->assertStatus(302)
             ->assertRedirect(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=100&title_filter=&description_filter=&release_year_filter=');
+    }
+    
+    public function test_film_can_not_remove_from_user_list_if_film_not_exists(): void
+    {
+        Notification::fake();
+        
+        $this->seedUserFilms();
+        $nFilms = UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count();
+        
+        $user = $this->getUser('AuthTestLogin');
+        $acting = $this->actingAs($user);
+        
+        // Передаётся id фильма, которого нет в коллекции пользователя AuthTestLogin
+        $response = $acting->delete(RouteServiceProvider::URL_AUTH_USERFILMS.'/removefilm/'.FilmSeeder::ID_JAPANESE_RUN, [
+            'password' => 'AuthTestPassword2',
+            'page' => 1,
+            'number' => 100
+        ]);
+        
+        // Коллекция пользователя AuthTestLogin не изменилась
+        $this->assertEquals($nFilms, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
+
+        // Оповещение об удалении фильма не отправляется
+        Notification::assertNotSentTo(
+            [$user], RemoveFilmNotification::class
+        );
+
+        $filmTitle = Film::find(FilmSeeder::ID_JAPANESE_RUN)->title;
+        $response->assertInvalid([
+                'message' => "Фильма '$filmTitle' нет в вашей коллекции. Удаление невозможно."
+            ]);
     }
     
     public function test_film_can_not_remove_from_user_list_with_wrong_password(): void

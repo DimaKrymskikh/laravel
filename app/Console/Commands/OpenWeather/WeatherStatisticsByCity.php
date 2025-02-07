@@ -2,12 +2,13 @@
 
 namespace App\Console\Commands\OpenWeather;
 
+use App\Exceptions\DatabaseException;
+use App\Exceptions\RuleException;
 use App\Models\Thesaurus\City;
 use App\Services\Database\Thesaurus\CityService;
 use App\ValueObjects\IntValue;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class WeatherStatisticsByCity extends Command
 {
@@ -36,9 +37,12 @@ class WeatherStatisticsByCity extends Command
         
         if($open_weather_id) {
             try {
-                $openWeatherId = IntValue::create($open_weather_id, 'message', 'commands.parameter.int');
+                $openWeatherId = IntValue::create($open_weather_id, 'message', 'Параметр команды не является целым числом.');
                 $cityService->findCityByOpenWeatherId($openWeatherId->value);
-            } catch(ValidationException $ex) {
+            } catch(DatabaseException $ex) {
+                $this->error($ex->getMessage());
+                return;
+            } catch(RuleException $ex) {
                 $this->error($ex->getMessage());
                 return;
             }

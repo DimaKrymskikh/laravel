@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\Thesaurus\City;
+use App\Services\Database\Thesaurus\CityService;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -18,10 +18,11 @@ class AddCityInWeatherList implements ShouldBroadcast
      */
     public function __construct
     (
-            private int $user_id,
-            private int $city_id,
-    )
-    {}
+            private int $userId,
+            private int $cityId,
+            private CityService $cityService,
+    ) {
+    }
 
     /**
      * Get the channels the event should broadcast on.
@@ -31,14 +32,14 @@ class AddCityInWeatherList implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("auth.{$this->user_id}"),
+            new PrivateChannel("auth.{$this->userId}"),
         ];
     }
     
     public function broadcastWith(): array
     {
-        $cityName = City::find($this->city_id)->name;
+        $cityName = $this->cityService->getCityById($this->cityId)->name;
         
-        return ['message' => trans('event_messages.add_city_in_weather_list', ['cityName' => $cityName])];
+        return ['message' => "Вы добавили город $cityName в список просмотра погоды"];
     }
 }

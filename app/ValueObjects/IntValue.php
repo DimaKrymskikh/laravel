@@ -2,21 +2,23 @@
 
 namespace App\ValueObjects;
 
-use Illuminate\Validation\ValidationException;
+use App\Exceptions\RuleException;
 
 final readonly class IntValue
 {
     public int $value;
     
-    private function __construct(?string $value, ?string $validatableAttribute = null, ?string $translationStringKey = null)
+    private function __construct(?string $value, ?string $attribute = null, ?string $message = null)
     {
-        $intValue = intval(trim($value ?? ''));
+        $strValue = trim($value ?? '');
         
-        if(!$intValue) {
-            if ($validatableAttribute && $translationStringKey) {
-                throw ValidationException::withMessages([
-                    $validatableAttribute => trans($translationStringKey)
-                ]);
+        // intval может вернуть не ноль.
+        // Например, '17dd' -> 17
+        $regValue = preg_match('/^-*[0-9]+$/', $strValue);
+        
+        if (!$regValue) {
+            if ($attribute && $message) {
+                throw new RuleException($attribute, $message);
             } else {
                 $this->value = 0;
             }
@@ -24,11 +26,11 @@ final readonly class IntValue
             return;
         }
         
-        $this->value = $value;
+        $this->value = intval($strValue);
     }
     
-    public static function create(?string $value, ?string $validatableAttribute = null, ?string $translationStringKey = null): self
+    public static function create(?string $value, ?string $attribute = null, ?string $message = null): self
     {
-        return new self($value, $validatableAttribute, $translationStringKey);
+        return new self($value, $attribute, $message);
     }
 }

@@ -6,98 +6,75 @@ use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\DataTransferObjects\Database\Dvd\FilmDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
 use App\Models\Dvd\Film;
-use App\Queries\Dvd\FilmQueries;
-use App\Services\Database\BaseDatabaseService;
-use Illuminate\Database\Eloquent\Builder;
+use App\Repositories\Dvd\FilmRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-final class FilmService extends BaseDatabaseService
+final class FilmService
 {
     public function __construct(
-        private FilmQueries $filmQueries,
+        private FilmRepositoryInterface $filmRepository,
     ) {
     }
     
     public function create(FilmDto $dto): Film
     {
         $film = new Film();
-        $film->title = $dto->title;
-        $film->description = $dto->description;
-        $film->release_year = $dto->releaseYear->value;
-        $film->save();
+        $this->filmRepository->save($film, $dto);
         
         return $film;
     }
     
     public function update(string $field, ?string $value, int $filmId): Film
     {
-        $film = $this->filmQueries->getFilmById($filmId);
-        $film->$field = $value;
-        $film->save();
+        $film = $this->filmRepository->getById($filmId);
+        $this->filmRepository->saveField($film, $field, $value);
         
         return $film;
     }
     
     public function delete(int $filmId): void
     {
-        $this->filmQueries->delete($filmId);
+        $this->filmRepository->delete($filmId);
+    }
+    
+    public function getFilmById($filmId): Film
+    {
+        return $this->filmRepository->getById($filmId);
     }
     
     public function getFilmCard(int $filmId): Film
     {
-        return $this->filmQueries->queryFilmCard($filmId)->first();
+        return $this->filmRepository->getByIdWithActors($filmId);
     }
     
-    public function getAllFilmsList(FilmFilterDto $filmFilterDto): Collection
+    public function getFilmsList(FilmFilterDto $filmFilterDto): Collection
     {
-        return $this->filmQueries->queryFilmsList($filmFilterDto)->limit(BaseDatabaseService::DEFAULT_LIMIT)->get();
+        return $this->filmRepository->getList($filmFilterDto);
     }
     
     public function getFilmsListForPage(PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto): LengthAwarePaginator
     {
-        $query = $this->filmQueries->queryFilmsList($filmFilterDto);
-        
-        return $this->paginate($query, $paginatorDto, $filmFilterDto);
+        return $this->filmRepository->getListForPage($paginatorDto, $filmFilterDto);
     }
     
-    public function getUserFilmsListForPage(PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto, int $userId): LengthAwarePaginator
+    public function getFilmsListByUserIdForPage(PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto, int $userId): LengthAwarePaginator
     {
-        $query = $this->filmQueries->queryUserFilmsList($filmFilterDto, $userId);
-        
-        return $this->paginate($query, $paginatorDto, $filmFilterDto);
+        return $this->filmRepository->getListByUserIdForPage($paginatorDto, $filmFilterDto, $userId);
     }
     
     public function getFilmsListWithAvailable(PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto, int $userId): LengthAwarePaginator
     {
-        $query = $this->filmQueries->queryFilmsListWithAvailable($filmFilterDto, $userId);
-                
-        return $this->paginate($query, $paginatorDto, $filmFilterDto);
+        return $this->filmRepository->getListForPageWithAvailable($paginatorDto, $filmFilterDto, $userId);
     }
     
     public function getFilmsListWithActorsForPage(PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto): LengthAwarePaginator
     {
-        $query = $this->filmQueries->queryFilmsListWithActors($filmFilterDto);
-                
-        return $this->paginate($query, $paginatorDto, $filmFilterDto);
+        return $this->filmRepository->getListForPageWithActors($paginatorDto, $filmFilterDto);
     }
     
     public function getActorsList(int $filmId): Film
     {
-        return $this->filmQueries->queryActorsList($filmId)->first();
-    }
-    
-    private function paginate(Builder $query, PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto): LengthAwarePaginator
-    {
-        $perPage = $paginatorDto->perPage->value;
-                
-        return $query
-                ->paginate($perPage)
-                ->appends([
-                    'number' => $perPage,
-                    'title_filter' => $filmFilterDto->title,
-                    'description_filter' => $filmFilterDto->description,
-                    'release_year_filter' => (string) $filmFilterDto->releaseYear,
-                ]);
+        return $this->filmRepository->getByIdWithActors($filmId);
     }
 }

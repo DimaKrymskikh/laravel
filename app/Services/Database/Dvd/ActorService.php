@@ -6,70 +6,45 @@ use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use App\DataTransferObjects\Database\Dvd\ActorDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
 use App\Models\Dvd\Actor;
-use App\Models\Dvd\FilmActor;
-use App\Queries\Dvd\ActorQueries;
-use App\Services\Database\BaseDatabaseService;
-use Illuminate\Database\Eloquent\Builder;
+use App\Repositories\Dvd\ActorRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
 
-final class ActorService extends BaseDatabaseService
+final class ActorService
 {
     public function __construct(
-        private ActorQueries $actorQueries,
+            private ActorRepositoryInterface $actorRepository,
     ) {
     }
     
     public function create(ActorDto $dto): Actor
     {
         $actor = new Actor();
-        $actor->first_name = $dto->firstName->name;
-        $actor->last_name = $dto->lastName->name;
-        $actor->save();
+        $this->actorRepository->save($actor, $dto);
         
         return $actor;
     }
     
-    public function update(ActorDto $dto, int $actor_id): Actor
+    public function update(ActorDto $dto, int $actorId): Actor
     {
-        $actor = Actor::find($actor_id);
-        $actor->first_name = $dto->firstName->name;
-        $actor->last_name = $dto->lastName->name;
-        $actor->save();
+        $actor = $this->actorRepository->getById($actorId);
+        $this->actorRepository->save($actor, $dto);
         
         return $actor;
     }
     
     public function delete(int $actorId): void
     {
-        DB::transaction(function () use ($actorId) {
-            FilmActor::where('actor_id', $actorId)->delete();
-            Actor::find($actorId)->delete();
-        });
+        $this->actorRepository->delete($actorId);
     }
     
     public function getAllActorsList(ActorFilterDto $actorFilterDto): Collection
     {
-        return $this->actorQueries->queryActorsList($actorFilterDto)->limit(BaseDatabaseService::DEFAULT_LIMIT)->get();
+        return $this->actorRepository->getList($actorFilterDto);
     }
     
     public function getActorsListForPage(PaginatorDto $paginatorDto, ActorFilterDto $actorFilterDto): LengthAwarePaginator
     {
-        $query =  $this->actorQueries->queryActorsList($actorFilterDto);
-        
-        return $this->paginate($query, $paginatorDto, $actorFilterDto);
-    }
-    
-    private function paginate(Builder $query, PaginatorDto $paginatorDto, ActorFilterDto $actorFilterDto): LengthAwarePaginator
-    {
-        $perPage = $paginatorDto->perPage->value;
-                
-        return $query
-                ->paginate($perPage)
-                ->appends([
-                    'number' => $perPage,
-                    'name' => $actorFilterDto->name
-                ]);
+        return $this->actorRepository->getListForPage($paginatorDto, $actorFilterDto);
     }
 }

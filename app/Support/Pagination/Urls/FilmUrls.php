@@ -4,22 +4,15 @@ namespace App\Support\Pagination\Urls;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
-use App\Queries\Dvd\FilmQueries;
+use App\Repositories\Dvd\FilmRepositoryInterface;
 use App\Support\Pagination\Paginator;
 
 final class FilmUrls
 {
     public function __construct(
-        private FilmQueries $filmQueries,
+        private FilmRepositoryInterface $filmRepository,
         private Paginator $paginator
     ) {
-    }
-    
-    private function getSerialNumberOfItemInList(int $filmId): int
-    {
-        $film = $this->filmQueries->queryAllRowNumbers()->get()->find($filmId);
-        
-        return $film ? $film->n : Paginator::PAGINATOR_DEFAULT_SERIAL_NUMBER;
     }
     
     public function getUrlWithPaginationOptionsByRequest(string $url, PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto): string
@@ -35,7 +28,8 @@ final class FilmUrls
     
     public function getUrlWithPaginationOptionsAfterCreatingOrUpdatingFilm(string $url, PaginatorDto $dto, int $filmId): string
     {
-        $itemNumber = $this->getSerialNumberOfItemInList($filmId);
+        $film = $this->filmRepository->getRowNumbers()->find($filmId);
+        $itemNumber = $film ? $film->n : Paginator::PAGINATOR_DEFAULT_SERIAL_NUMBER;
         
         return $url.'?'.http_build_query([
             'page' => $this->paginator->getPageOfItem($itemNumber, $dto->perPage->value),
@@ -49,7 +43,7 @@ final class FilmUrls
     
     public function getUrlWithPaginationOptionsAfterRemovingFilm(string $url, PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto): string
     {
-        $maxSerialNumber = $this->filmQueries->getFilmsCount($filmFilterDto);
+        $maxSerialNumber = $this->filmRepository->count($filmFilterDto);
         
         return $url.'?'.http_build_query([
             'page' => $this->paginator->getCurrentPage($maxSerialNumber, $paginatorDto->page->value, $paginatorDto->perPage->value),

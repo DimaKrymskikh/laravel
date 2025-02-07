@@ -2,19 +2,19 @@
 
 namespace App\Console\Commands\OpenWeather;
 
+use App\Exceptions\DatabaseException;
 use App\Exceptions\OpenWeatherException;
+use App\Exceptions\RuleException;
 use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
 use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Models\Thesaurus\City;
-use App\Repositories\OpenWeather\WeatherRepository;
+use App\Services\Database\Logs\OpenWeatherWeatherService;
 use App\Services\Database\OpenWeather\WeatherService;
 use App\Services\Database\Thesaurus\CityService;
 use App\ValueObjects\IntValue;
 use App\ValueObjects\ResponseObjects\OpenWeatherObject;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\Response;
-use Illuminate\Validation\ValidationException;
-
 class GetWeather extends Command
 {
     /**
@@ -34,11 +34,18 @@ class GetWeather extends Command
     /**
      * Выполняет консольную команду.
      * 
+     * @param OpenWeatherWeatherService $openWeatherWeatherService
      * @param WeatherService $weatherService
+     * @param CityService $cityService
      * @param GetWeatherFromOpenWeatherCommandHandler $request
      * @return void
      */
-    public function handle(WeatherRepository $weatherRepository, WeatherService $weatherService, CityService $cityService, GetWeatherFromOpenWeatherCommandHandler $request): void
+    public function handle(
+            OpenWeatherWeatherService $openWeatherWeatherService,
+            WeatherService $weatherService,
+            CityService $cityService,
+            GetWeatherFromOpenWeatherCommandHandler $request
+    ): void
     {
         $this->info('Старт.');
         $this->line("$this->description");
@@ -48,9 +55,12 @@ class GetWeather extends Command
         
         if($open_weather_id) {
             try {
-                $openWeatherId = IntValue::create($open_weather_id, 'message', 'commands.parameter.int');
+                $openWeatherId = IntValue::create($open_weather_id, 'message', 'Параметр команды не является целым числом.');
                 $city = $cityService->findCityByOpenWeatherId($openWeatherId->value);
-            } catch(ValidationException $ex) {
+            } catch(DatabaseException $ex) {
+                $this->error($ex->getMessage());
+                return;
+            } catch(RuleException $ex) {
                 $this->error($ex->getMessage());
                 return;
             }
@@ -64,7 +74,7 @@ class GetWeather extends Command
             $this->line("$city->name [$city->open_weather_id]: отправляем запрос на сервер OpenWeather");
 
             try {
-                $response = $request->handle($city, $weatherRepository);
+                $response = $request->handle($city, $openWeatherWeatherService);
             } catch(OpenWeatherException $ex) {
                 report($ex);
                 $this->error($ex->getMessage());

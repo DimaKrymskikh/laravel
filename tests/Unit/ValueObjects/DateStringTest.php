@@ -37,13 +37,13 @@ class DateStringTest extends TestCase
     }
     
     #[DataProvider('correctDateStringProvider')]
-    public function test_correct_pages(string $result, ?string $date): void
+    public function test_correct_dates(string $result, ?string $date): void
     {
         $this->assertEquals($result, DateString::create($date)->value);
     }
     
     #[DataProvider('inCorrectDateStringProvider')]
-    public function test_incorrect_pages(string $date): void
+    public function test_incorrect_dates(string $date): void
     {
         $this->assertEquals(now()->format('d.m.Y'), DateString::create($date)->value);
     }

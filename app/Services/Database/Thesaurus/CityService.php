@@ -2,48 +2,58 @@
 
 namespace App\Services\Database\Thesaurus;
 
+use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
-use App\Services\CarbonService;
-use App\Services\Database\Thesaurus\TimezoneService;
+use App\Repositories\Thesaurus\CityRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Validation\ValidationException;
 
-class CityService
+final class CityService
 {
-    public function __construct(
-        private TimezoneService $timezoneService,
-    )
-    {}
+    const VARIABLE_TABLE_FIELDS = ['name', 'timezone_id'];
     
-    /**
-     * Для каждого города коллекции устанавливает у данных погоды временной пояс города.
-     * Коллекция $cities должна быть получена жадной загрузкой, чтобы не было запросов в цикле.
-     * 
-     * @param Collection $cities
-     * @return void
-     */
-    public function setTimezoneOfCitiesForWeatherData(Collection $cities): void
-    {
-        foreach($cities as $city) {
-            // Пропускаем город, если он не связан с таблицей open_weather.weather
-            // Например, для города ещё не получены данные о погоде
-            if(!$city->weather) {
-                continue;
-            }
-            $this->setCityTimezoneForWeatherData($city);
-        }
+    public function __construct(
+        private CityRepositoryInterface $cityRepository,
+    ) {
     }
     
-    /**
-     * Устанавливает временной пояс города для данных погоды
-     * 
-     * @param City $city
-     * @return void
-     */
-    public function setCityTimezoneForWeatherData(City $city): void
+    public function create(string $name, int $openWeatherId): void
     {
-            $tzName = $this->timezoneService->getTimezoneByCity($city);
-            $city->weather->created_at = CarbonService::setNewTimezone($city->weather->created_at, $tzName);
+        $this->cityRepository->save(new City(), $name, $openWeatherId);
+    }
+    
+    public function update(int $cityId, string $field, mixed $value): void
+    {
+        if (!in_array($field, self::VARIABLE_TABLE_FIELDS)) {
+            throw new DatabaseException("Поле '$field' таблицы 'thesaurus.cities' нельзя изменять.");
+        }
+        
+        $fieldValue = match ($field) {
+            'timezone_id' => $value ?: null,
+            default => $value
+        };
+        
+        $city = $this->cityRepository->getById($cityId);
+        $this->cityRepository->saveField($city, $field, $fieldValue);
+    }
+    
+    public function delete(int $cityId): void
+    {
+        $this->cityRepository->delete($cityId);
+    }
+    
+    public function getCityById(int $cityId): City
+    {
+        return $this->cityRepository->getById($cityId);
+    }
+    
+    public function getAllCitiesList(): Collection
+    {
+        return $this->cityRepository->getList();
+    }
+    
+    public function getListWithAvailableByUserId(int $userId): Collection
+    {
+        return $this->cityRepository->getListWithAvailableByUserId($userId);
     }
     
     /**
@@ -54,10 +64,8 @@ class CityService
      */
     public function findCityByOpenWeatherId($openWeatherId): City
     {
-        $city = City::where('open_weather_id', $openWeatherId)->first();
+        $city = $this->cityRepository->getByOpenWeatherId($openWeatherId);
         
-        return $city ?? throw ValidationException::withMessages([
-                'message' => trans('city.openWeatherId.exist', ['openWeatherId' => $openWeatherId])
-            ]);
+        return $city ?? throw new DatabaseException("В таблице 'thesaurus.cities' нет городов с полем open_weather_id = $openWeatherId");
     }
 }

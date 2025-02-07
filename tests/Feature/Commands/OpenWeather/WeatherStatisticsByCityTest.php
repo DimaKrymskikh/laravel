@@ -70,9 +70,10 @@ class WeatherStatisticsByCityTest extends TestCase
         $this->seedCities();
 
         // Запускаем команду с параметром 13
+        $openWeatherId = 13;
         $this
-            ->artisan("statistics:weather 13")
-            ->expectsOutput(trans('city.openWeatherId.exist', ['openWeatherId' => 13]))
+            ->artisan("statistics:weather $openWeatherId")
+            ->expectsOutput("В таблице 'thesaurus.cities' нет городов с полем open_weather_id = $openWeatherId")
             ->assertExitCode(0);
     }
     

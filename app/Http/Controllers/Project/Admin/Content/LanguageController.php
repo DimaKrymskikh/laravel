@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Project\Admin\Content;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Thesaurus\Filters\LanguageFilterRequest;
 use App\Http\Requests\Thesaurus\LanguageRequest;
-use App\Models\Thesaurus\Language;
 use App\Providers\RouteServiceProvider;
-use Illuminate\Database\Eloquent\Builder;
+use App\Services\Database\Thesaurus\LanguageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,8 +14,9 @@ use Inertia\Response;
 
 class LanguageController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(
+        private LanguageService $languageService,
+    ) {
         $this->middleware('check.password')->only('destroy');
     }
     
@@ -24,12 +25,10 @@ class LanguageController extends Controller
      * 
      * @return Response
      */
-    public function index(): Response
+    public function index(LanguageFilterRequest $request): Response
     {
         return Inertia::render('Admin/Languages', [
-            'languages' => Language::select('id', 'name')
-                ->orderBy('name')
-                ->get()
+            'languages' => $this->languageService->getAllLanguagesList($request->getLanguageFilterDto())
         ]);
     }
 
@@ -42,9 +41,7 @@ class LanguageController extends Controller
     public function store(LanguageRequest $request): RedirectResponse
     {
         // Создаём новую запись в таблице 'thesaurus.languages'
-        $language = new Language();
-        $language->name = $request->name;
-        $language->save();
+        $this->languageService->create($request->name);
         
         return redirect(RouteServiceProvider::URL_ADMIN_LANGUAGES);
     }
@@ -56,11 +53,9 @@ class LanguageController extends Controller
      * @param string $id
      * @return RedirectResponse
      */
-    public function update(LanguageRequest $request, string $id): RedirectResponse
+    public function update(LanguageRequest $request, int $id): RedirectResponse
     {
-        $language = Language::find($id);
-        $language->name = $request->name;
-        $language->save();
+        $this->languageService->update($request->name, $id);
         
         return redirect(RouteServiceProvider::URL_ADMIN_LANGUAGES);
     }
@@ -73,7 +68,7 @@ class LanguageController extends Controller
      */
     public function destroy(string $id): RedirectResponse
     {
-        Language::find($id)->delete();
+        $this->languageService->delete($id);
         
         return redirect(RouteServiceProvider::URL_ADMIN_LANGUAGES);
     }
@@ -84,13 +79,8 @@ class LanguageController extends Controller
      * @param Request $request
      * @return string
      */
-    public function getJson(Request $request): string
+    public function getJson(LanguageFilterRequest $request): string
     {
-        return (string) Language::select('id', 'name')
-                            ->when($request->name, function (Builder $query, string $name) {
-                                $query->where('name', 'ILIKE', "%$name%");
-                            })
-                            ->orderBy('name')
-                            ->get();
+        return (string) $this->languageService->getAllLanguagesList($request->getLanguageFilterDto());
     }
 }

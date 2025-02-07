@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\Dvd\Film;
+use App\Services\Database\Dvd\FilmService;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -19,10 +19,12 @@ class RemoveFilmFromUserList implements ShouldBroadcast
      * Create a new event instance.
      */
     public function __construct(
-            private int $user_id,
-            readonly public int $film_id,
-    )
-    {}
+            private int $userId,
+            // Используется в App\Listeners\SendEmailRemoveFilmNotification
+            readonly public int $filmId,
+            private FilmService $filmService,
+    ) {
+    }
 
     /**
      * Get the channels the event should broadcast on.
@@ -32,14 +34,14 @@ class RemoveFilmFromUserList implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("auth.{$this->user_id}"),
+            new PrivateChannel("auth.{$this->userId}"),
         ];
     }
     
     public function broadcastWith(): array
     {
-        $filmTitle = Film::find($this->film_id)->title;
+        $filmTitle = $this->filmService->getFilmById($this->filmId)->title;
         
-        return ['message' => trans('event_messages.remove_film_from_user_list', ['filmTitle' => $filmTitle])];
+        return ['message' => "Вы удалили из своей коллекции фильм $filmTitle"];
     }
 }

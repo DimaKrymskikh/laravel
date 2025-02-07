@@ -22,7 +22,7 @@ class FilmsController extends Controller
     public function getFilms(FilmFilterRequest $request): string
     {
         return (string) collect([
-            'films' => $this->filmService->getAllFilmsList($request->getFilmFilterDto())
+            'films' => $this->filmService->getFilmsList($request->getFilmFilterDto())
         ]);
     }
     

@@ -4,28 +4,55 @@ namespace App\Services\Database\OpenWeather;
 
 use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Models\OpenWeather\Weather;
-use Carbon\Carbon;
+use App\Repositories\OpenWeather\WeatherRepositoryInterface;
+use App\Repositories\Person\UserRepositoryInterface;
+use App\Repositories\Thesaurus\CityRepositoryInterface;
+use App\Services\Database\Thesaurus\TimezoneService;
+use Illuminate\Database\Eloquent\Collection;
 
 final class WeatherService
 {
+    public function __construct(
+            private WeatherRepositoryInterface $weatherRepository,
+            private UserRepositoryInterface $userRepository,
+            private CityRepositoryInterface $cityRepository,
+            private TimezoneService $timezoneService,
+    ) {
+    }
+    
     public function updateOrCreate(WeatherDto $dto): Weather
     {
-        $data = $dto->openWeatherObject->data;
-         
-        return Weather::updateOrCreate([
-                'city_id' => $dto->cityId,
-            ], [
-                'weather_description' => $data->weatherDescription,
-                'main_temp' => $data->mainTemp,
-                'main_feels_like' => $data->mainFeelsLike,
-                'main_pressure' => $data->mainPressure,
-                'main_humidity' => $data->mainHumidity,
-                'visibility' => $data->visibility,
-                'wind_speed' => $data->windSpeed,
-                'wind_deg' => $data->windDeg,
-                'clouds_all' => $data->cloudsAll,
-                // Время нужно задавать с часовым поясом 'UTC'
-                'created_at' => Carbon::now('UTC'),
-            ]);
+        $weather = new Weather();
+        
+        $this->weatherRepository->save($weather, $dto);
+        
+        return $weather;
+    }
+    
+    public function getWeatherInCitiesForAuthUserByUserId(int $userId): Collection
+    {
+        $user = $this->userRepository->getById($userId);
+        $cities = $this->cityRepository->getByUserWithWeather($user);
+        
+        // Устанавливаем в данных погоды часовой пояс города
+        $this->timezoneService->setTimezoneOfCitiesForWeatherData($cities);
+        
+        return $cities;
+    }
+    
+    /**
+     * Возвращает последние данные о погоде для города $city.
+     * Данные берутся из таблицы open_weather.weather.
+     * 
+     * @param int $cityId
+     * @return Weather
+     */
+    public function getLatestWeatherForOneCityByCityId(int $cityId): Weather
+    {
+        $city = $this->cityRepository->getById($cityId);
+        
+        $this->timezoneService->setCityTimezoneForWeatherData($city, $city->weather);
+        
+        return $city->weather;
     }
 }

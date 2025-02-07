@@ -21,7 +21,7 @@ const errorsName = ref('');
 const languages = ref(null);
 
 const handlerLanguageName = async function() {
-    languages.value = await app.request(`/admin/languages/getJson?name=${filmLanguage.value}`, 'GET');
+    languages.value = await app.request(`/admin/languages/getJson?name_filter=${filmLanguage.value}`, 'GET');
 };
 handlerLanguageName();
 

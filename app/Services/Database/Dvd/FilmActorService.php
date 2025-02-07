@@ -2,49 +2,42 @@
 
 namespace App\Services\Database\Dvd;
 
+use App\Exceptions\DatabaseException;
 use App\Models\Dvd\FilmActor;
-use App\Queries\Dvd\ActorQueries;
-use App\Queries\Dvd\FilmActorQueries;
-use App\Queries\Dvd\FilmQueries;
+use App\Repositories\Dvd\ActorRepositoryInterface;
+use App\Repositories\Dvd\FilmActorRepositoryInterface;
+use App\Repositories\Dvd\FilmRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Validation\ValidationException;
 
 final class FilmActorService
 {
     public function __construct(
-            private ActorQueries $actorQueries,
-            private FilmActorQueries $filmActorQueries,
-            private FilmQueries $filmQueries,
+            private ActorRepositoryInterface $actorRepository,
+            private FilmActorRepositoryInterface $filmActorRepository,
+            private FilmRepositoryInterface $filmRepository,
     ) {
     }
     
     public function create(int $filmId, int $actorId): void
     {
-        if ($this->filmActorQueries->checkFilmActor($filmId, $actorId)) {
+        if ($this->filmActorRepository->exists($filmId, $actorId)) {
             // Если пара существует, выбрасываем исключение
-            $film = $this->filmQueries->getFilmById($filmId);
-            $actor = $this->actorQueries->getActorById($actorId);
-            throw ValidationException::withMessages([
-                'message' => trans("attr.film.contains.actor", [
-                    'film' => $film->title,
-                    'actor' => "$actor->first_name $actor->last_name",
-                ]),
-            ]);
+            $filmTitle = $this->filmRepository->getById($filmId)->title;
+            $actor = $this->actorRepository->getById($actorId);
+            $name = "$actor->->first_name $actor->last_name";
+            throw new DatabaseException("Фильм '$filmTitle' уже содержит актёра $name");
         }
         
-        $filmActor = new FilmActor();
-        $filmActor->film_id = $filmId;
-        $filmActor->actor_id = $actorId;
-        $filmActor->save();
+        $this->filmActorRepository->save(new FilmActor(), $filmId, $actorId);
     }
     
     public function getActorsListByFilmId(int $filmId): Collection
     {
-        return $this->filmActorQueries->queryActorsListByFilmId($filmId)->get();
+        return $this->filmActorRepository->getByFilmId($filmId);
     }
     
     public function delete(int $filmId, int $actorId): void
     {
-        $this->filmActorQueries->queryFilmActor($filmId, $actorId)->delete();
+        $this->filmActorRepository->delete($filmId, $actorId);
     }
 }

@@ -2,14 +2,25 @@
 
 namespace App\Http\Controllers\Project\Admin;
 
-use App\Models\Thesaurus\Timezone;
 use App\Http\Controllers\Controller;
+use App\Services\Database\Thesaurus\TimezoneService;
 use Illuminate\Http\Request;
 
 class TimezoneController extends Controller
 {
+    public function __construct(
+            private TimezoneService $timezoneService,
+    ) {
+    }
+    
+    /**
+     * Возвращает список временных зон при редактировании города
+     * 
+     * @param Request $request
+     * @return string
+     */
     public function index(Request $request): string
     {
-        return (string) Timezone::select('id', 'name')->where('name', 'ilike', "%$request->name%")->orderBy('name')->get();
+        return (string) $this->timezoneService->getAllTimezonesList($request->name);
     }
 }

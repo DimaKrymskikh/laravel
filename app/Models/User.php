@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Dvd\Film;
 use App\Models\Thesaurus\City;
 use App\Notifications\Auth\ResetPasswordNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -75,5 +76,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function cities(): BelongsToMany
     {
         return $this->belongsToMany(City::class, 'person.users_cities', 'user_id', 'city_id');
+    }
+    
+    public function films(): BelongsToMany
+    {
+        return $this->belongsToMany(Film::class, 'person.users_films', 'user_id', 'film_id');
     }
 }

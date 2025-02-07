@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Commands\OpenWeather;
 
-use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
 use App\Events\RefreshCityWeather;
 use App\Models\Logs\OpenWeatherWeather;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
+use App\Services\Database\Logs\OpenWeatherWeatherService;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
@@ -67,9 +67,10 @@ class GetWeatherTest extends TestCase
         ]);
 
         // Запускаем команду с параметром 13
+        $openWeatherId = 13;
         $this
-            ->artisan("get:weather 13")
-            ->expectsOutput(trans('city.openWeatherId.exist', ['openWeatherId' => 13]))
+            ->artisan("get:weather $openWeatherId")
+            ->expectsOutput("В таблице 'thesaurus.cities' нет городов с полем open_weather_id = $openWeatherId")
             ->assertExitCode(0);
         // Нет данных погоды
         $this->assertEquals(0, Weather::all()->count());
@@ -185,7 +186,7 @@ class GetWeatherTest extends TestCase
         $this->assertEquals(0, OpenWeatherWeather::all()->count());
 
         // Пока не превышен лимит запросов в минуту, происходит новое выполнение команды
-        for ($i = 1; $i <= GetWeatherFromOpenWeatherCommandHandler::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE; $i++) {
+        for ($i = 1; $i <= OpenWeatherWeatherService::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE; $i++) {
             // Создаем новый город
             $city = City::factory(['open_weather_id' => $i])->create();
             // Выполняется команда
@@ -199,7 +200,7 @@ class GetWeatherTest extends TestCase
         }
 
         // Создаем новый город
-        $city = City::factory(['open_weather_id' => GetWeatherFromOpenWeatherCommandHandler::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE + 1])->create();
+        $city = City::factory(['open_weather_id' => OpenWeatherWeatherService::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE + 1])->create();
         // Выполняется команда
         $this
             ->artisan("get:weather $city->open_weather_id")
@@ -207,6 +208,6 @@ class GetWeatherTest extends TestCase
             ->expectsOutput('Выполнение команды прервано.')
             ->assertExitCode(0);
         // Число записей в таблице open_weather.weather не изменилось
-        $this->assertEquals(GetWeatherFromOpenWeatherCommandHandler::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE, OpenWeatherWeather::all()->count());
+        $this->assertEquals(OpenWeatherWeatherService::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE, OpenWeatherWeather::all()->count());
     }
 }

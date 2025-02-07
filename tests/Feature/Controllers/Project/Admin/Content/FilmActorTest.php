@@ -65,11 +65,14 @@ class FilmActorTest extends TestCase
     {
         $this->seedFilmsAndActors();
         $nFilmsActors = FilmActor::all()->count();
+        $film = Film::find(FilmSeeder::ID_JAPANESE_RUN);
+        $filmTitle = $film->title;
+        $actor = Actor::find(ActorSeeder::ID_NICK_WAHLBERG);
+        $name = "$actor->->first_name $actor->last_name";
         
         $this->seedUsers();
-        $film = Film::find(FilmSeeder::ID_JAPANESE_RUN);
-        $actor = Actor::find(ActorSeeder::ID_NICK_WAHLBERG);
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
+        
         $response = $acting->post(RouteServiceProvider::URL_ADMIN_FILMS.'/actors', [
             'film_id' => $film->id,
             'actor_id' => $actor->id,
@@ -79,10 +82,7 @@ class FilmActorTest extends TestCase
 
         $response
             ->assertInvalid([
-                'message' => trans("attr.film.contains.actor", [
-                    'film' => $film->title,
-                    'actor' => "$actor->first_name $actor->last_name"
-                ])
+                'message' => "Фильм '$filmTitle' уже содержит актёра $name"
             ]);
     }
     

@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Project\Admin\Content;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OpenWeather\CityRequest;
-use App\Models\Thesaurus\City;
 use App\Providers\RouteServiceProvider;
+use App\Services\Database\Thesaurus\CityService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -14,40 +14,43 @@ use Inertia\Response;
 
 class CityController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(
+        private CityService $cityService,
+    ) {
         $this->middleware('check.password')->only('destroy');
     }
     
     /**
-     * Display a listing of the resource.
+     * В админской части отрисовывает таблицу городов.
+     * 
+     * @return Response
      */
     public function index(): Response
     {
         return Inertia::render('Admin/Cities', [
-            'cities' => City::select('id', 'name', 'open_weather_id', 'timezone_id')
-                ->with('timezone:id,name')
-                ->orderBy('name')
-                ->get()
+            'cities' => $this->cityService->getAllCitiesList(),
         ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Создаёт новую запись в таблице 'thesaurus.cities'.
+     * 
+     * @param CityRequest $request
+     * @return RedirectResponse
      */
     public function store(CityRequest $request): RedirectResponse
     {
-        // Создаём новую запись в таблице 'thesaurus.cities'
-        $city = new City();
-        $city->name = $request->name;
-        $city->open_weather_id = $request->open_weather_id;
-        $city->save();
+        $this->cityService->create($request->name, $request->open_weather_id);
         
         return redirect(RouteServiceProvider::URL_ADMIN_CITIES);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Изменяет название города.
+     * 
+     * @param Request $request
+     * @param string $id
+     * @return RedirectResponse
      */
     public function update(Request $request, string $id): RedirectResponse
     {
@@ -58,29 +61,34 @@ class CityController extends Controller
             'name.string' => trans("city.cityName.string"),
         ])->validated();
         
-        $city = City::find($id);
-        $city->name = $request->name;
-        $city->save();
+        $this->cityService->update($id, 'name', $request->name);
         
         return redirect(RouteServiceProvider::URL_ADMIN_CITIES);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Удаляет город из таблицы 'thesaurus.cities'.
+     * 
+     * @param string $id
+     * @return RedirectResponse
      */
     public function destroy(string $id): RedirectResponse
     {
-        City::find($id)->delete();
+        $this->cityService->delete($id);
         
         return redirect(RouteServiceProvider::URL_ADMIN_CITIES);
     }
     
-    public function setTimezone(int $city_id, int $timezone_id): RedirectResponse
+    /**
+     * Изменяет/Задаёт временной пояс города.
+     * 
+     * @param int $cityId
+     * @param int $timezoneId
+     * @return RedirectResponse
+     */
+    public function setTimezone(int $cityId, int $timezoneId): RedirectResponse
     {
-        
-        $city = City::find($city_id);
-        $city->timezone_id = $timezone_id ?: null;
-        $city->save();
+        $this->cityService->update($cityId, 'timezone_id', $timezoneId);
         
         return redirect(RouteServiceProvider::URL_ADMIN_CITIES);
     }

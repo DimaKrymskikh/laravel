@@ -6,11 +6,9 @@ use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
 use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Events\RefreshCityWeather;
 use App\Http\Controllers\Controller;
-use App\Models\Thesaurus\City;
-use App\Repositories\OpenWeather\WeatherRepository;
-use App\Repositories\Thesaurus\CityRepository;
+use App\Services\Database\Logs\OpenWeatherWeatherService;
 use App\Services\Database\OpenWeather\WeatherService;
-use App\Services\Database\Thesaurus\TimezoneService;
+use App\Services\Database\Thesaurus\CityService;
 use App\ValueObjects\ResponseObjects\OpenWeatherObject;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,10 +17,9 @@ use Inertia\Response;
 class UserWeatherController extends Controller
 {
     public function __construct(
-        private CityRepository $cities,
-        private WeatherRepository $weatherRepository,
+        private OpenWeatherWeatherService $openWeatherWeatherService,
         private WeatherService $weatherService,
-        private TimezoneService $timezoneService,
+        private CityService $cityService,
     )
     {}
     
@@ -35,7 +32,7 @@ class UserWeatherController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('Auth/Account/UserWeather', [
-            'cities' => $this->cities->getWeatherForCitiesOfAuth($request),
+            'cities' => $this->weatherService->getWeatherInCitiesForAuthUserByUserId($request->user()->id),
             'user' => $request->user()
         ]);
     }
@@ -51,9 +48,9 @@ class UserWeatherController extends Controller
      */
     public function refresh(Request $request, int $city_id, GetWeatherFromOpenWeatherCommandHandler $commandHandler): void
     {
-        $city = City::find($city_id);
+        $city = $this->cityService->getCityById($city_id);
         
-        $response = $commandHandler->handle($city, $this->weatherRepository);
+        $response = $commandHandler->handle($city, $this->openWeatherWeatherService);
         
         if($response->status() !== 200) {
             return;
@@ -62,6 +59,6 @@ class UserWeatherController extends Controller
         $dto = new WeatherDto($city_id, OpenWeatherObject::create($response->object()));
 
         $this->weatherService->updateOrCreate($dto);
-        event(new RefreshCityWeather($city_id, $request->user()->id, $this->timezoneService));
+        event(new RefreshCityWeather($city_id, $request->user()->id, $this->weatherService));
     }
 }

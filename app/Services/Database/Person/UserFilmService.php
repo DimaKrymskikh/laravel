@@ -2,42 +2,40 @@
 
 namespace App\Services\Database\Person;
 
+use App\Exceptions\DatabaseException;
 use App\Models\Person\UserFilm;
-use App\Queries\Dvd\FilmQueries;
-use App\Queries\Person\UserFilmQueries;
-use Illuminate\Validation\ValidationException;
+use App\Repositories\Dvd\FilmRepositoryInterface;
+use App\Repositories\Person\UserFilmRepositoryInterface;
 
-class UserFilmService
+final class UserFilmService
 {
     public function __construct(
-            private FilmQueries $filmQueries,
-            private UserFilmQueries $userFilmQueries,
+            private FilmRepositoryInterface $filmRepository,
+            private UserFilmRepositoryInterface $userFilmRepository,
     ) {
     }
     
-    public function create(int $userId, int $filmId): bool
+    public function create(int $userId, int $filmId): void
     {
         // Проверка наличия в таблице 'person.users_films' пары первичных ключей (user_id, film_id)
-        if ($this->userFilmQueries->checkUserFilm($userId, $filmId)) {
+        if ($this->userFilmRepository->exists($userId, $filmId)) {
             // Если пара существует, выбрасываем исключение
-            $film = $this->filmQueries->getFilmById($filmId);
-            throw ValidationException::withMessages([
-                'message' => trans("user.film.message", [
-                    'film' => $film->title
-                ]),
-            ]);
+            $filmTitle = $this->filmRepository->getById($filmId)->title;
+            throw new DatabaseException("Фильм '$filmTitle' уже находится в вашей коллекции.");
         }
         
         // Новую пару записываем в таблицу 'person.users_films'
-        $userFilm = new UserFilm;
-        $userFilm->user_id = $userId;
-        $userFilm->film_id = $filmId;
-        
-        return $userFilm->save();
+        $this->userFilmRepository->save(new UserFilm(), $userId, $filmId);
     }
     
-    public function delete(int $userId, int $filmId): bool
+    public function delete(int $userId, int $filmId): void
     {
-        return $this->userFilmQueries->getUserFilm($userId, $filmId)->delete();
+        // Если пара не существует, выбрасываем исключение
+        if (!$this->userFilmRepository->exists($userId, $filmId)) {
+            $filmTitle = $this->filmRepository->getById($filmId)->title;
+            throw new DatabaseException("Фильма '$filmTitle' нет в вашей коллекции. Удаление невозможно.");
+        }
+        
+        $this->userFilmRepository->delete($userId, $filmId);
     }
 }

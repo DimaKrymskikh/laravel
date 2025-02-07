@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands\Dvd\Actor;
 
+use App\Exceptions\RuleException;
 use App\DataTransferObjects\Database\Dvd\ActorDto;
 use App\Services\Database\Dvd\ActorService;
 use App\ValueObjects\PersonName;
 use Illuminate\Console\Command;
-use Illuminate\Validation\ValidationException;
 
 class CreateActor extends Command
 {
@@ -41,15 +41,15 @@ class CreateActor extends Command
             $lastName = $this->ask('Введите фамилию актёра?');
 
             $actorDto = new ActorDto(
-                    PersonName::create($firstName, 'first_name', 'attr.actor.first_name.capital_first_letter'),
-                    PersonName::create($lastName, 'last_name', 'attr.actor.last_name.capital_first_letter'),
+                    PersonName::create($firstName, 'first_name', 'Имя актёра должно начинаться с заглавной буквы. Остальные буквы должны быть строчными.'),
+                    PersonName::create($lastName, 'last_name', 'Фамилия актёра должна начинаться с заглавной буквы. Остальные буквы должны быть строчными.'),
                 );
             
             $actor = $actorService->create($actorDto);
             $this->line("В таблицу dvd.actors добавлен актёр $actor->first_name $actor->last_name.");
             $this->info('Команда выполнена.');
             
-        } catch(ValidationException $ex) {
+        } catch(RuleException $ex) {
             $this->error($ex->getMessage());
         }
     }

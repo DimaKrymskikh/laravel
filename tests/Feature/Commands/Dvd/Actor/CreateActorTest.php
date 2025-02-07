@@ -37,7 +37,7 @@ class CreateActorTest extends TestCase
             ->artisan('create:actor')
             ->expectsQuestion('Введите имя актёра?', '')
             ->expectsQuestion('Введите фамилию актёра?', '')
-            ->expectsOutput(trans('attr.actor.first_name.capital_first_letter'))
+            ->expectsOutput('Имя актёра должно начинаться с заглавной буквы. Остальные буквы должны быть строчными.')
             ->assertExitCode(0);
 
         // В таблице 'dvd.actors' число актёров не изменилось
@@ -47,7 +47,7 @@ class CreateActorTest extends TestCase
             ->artisan('create:actor')
             ->expectsQuestion('Введите имя актёра?', 'Андрей')
             ->expectsQuestion('Введите фамилию актёра?', null)
-            ->expectsOutput(trans('attr.actor.last_name.capital_first_letter'))
+            ->expectsOutput('Фамилия актёра должна начинаться с заглавной буквы. Остальные буквы должны быть строчными.')
             ->assertExitCode(0);
 
         // В таблице 'dvd.actors' число актёров не изменилось

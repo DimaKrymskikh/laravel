@@ -4,33 +4,22 @@ namespace App\Support\Pagination\Urls;
 
 use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
-use App\Queries\Dvd\ActorQueries;
+use App\Repositories\Dvd\ActorRepositoryInterface;
 use App\Support\Pagination\Paginator;
 
 final class ActorUrls
 {
     public function __construct(
-        private ActorQueries $actorQueries,
+        private ActorRepositoryInterface $actorRepository,
         private Paginator $paginator
     ) {
     }
     
-    /**
-     * Возвращает номер актёра в списке/таблице актёров с фильтрами и с сортировкой
-     * 
-     * @param int $actorId - id актёра
-     * @return int
-     */
-    private function getSerialNumberOfItemInList(int $actorId): int
-    {
-        $actor = $this->actorQueries->queryAllRowNumbers()->get()->find($actorId);
-        
-        return $actor ? $actor->n : Paginator::PAGINATOR_DEFAULT_SERIAL_NUMBER;
-    }
-    
     public function getUrlWithPaginationOptionsAfterCreatingOrUpdatingActor(string $url, PaginatorDto $dto, int $actorId): string
     {
-        $itemNumber = $this->getSerialNumberOfItemInList($actorId);
+        $actor = $this->actorRepository->getRowNumbers()->find($actorId);
+        
+        $itemNumber = $actor ? $actor->n : Paginator::PAGINATOR_DEFAULT_SERIAL_NUMBER;
         
         return $url.'?'.http_build_query([
             'page' => $this->paginator->getPageOfItem($itemNumber, $dto->perPage->value),
@@ -42,7 +31,7 @@ final class ActorUrls
     
     public function getUrlWithPaginationOptionsAfterRemovingActor(string $url, PaginatorDto $paginatorDto, ActorFilterDto $actorFilterDto): string
     {
-        $maxItemNumber = $this->actorQueries->getActorsCount($actorFilterDto);
+        $maxItemNumber = $this->actorRepository->count($actorFilterDto);
         
         return $url.'?'.http_build_query([
             'page' => $this->paginator->getCurrentPage($maxItemNumber, $paginatorDto->page->value, $paginatorDto->perPage->value),

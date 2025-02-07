@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Project\Auth\Account;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Logs\Filters\WeatherFilterRequest;
-use App\Models\Thesaurus\City;
 use App\Services\Database\Logs\OpenWeatherWeatherService;
+use App\Services\Database\Thesaurus\CityService;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,6 +13,7 @@ class UserLogsWeatherController extends Controller
 {
     public function __construct(
         private OpenWeatherWeatherService $openWeatherWeatherService,
+        private CityService $cityService,
     ) {
     }
     
@@ -25,7 +26,7 @@ class UserLogsWeatherController extends Controller
      */
     public function index(WeatherFilterRequest $request, int $cityId): Response
     {
-        $city = City::select('id', 'name', 'timezone_id')->firstWhere('id', $cityId);
+        $city = $this->cityService->getCityById($cityId);
 
         return Inertia::render('Auth/Account/UserLogsWeather', [
             'weatherPage' => $this->openWeatherWeatherService->getWeatherListForPageByCity($request->getPaginatorDto(), $request->getWeatherFilterDto(), $city),

@@ -124,12 +124,20 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 1,
         ],
+        
         'openweather' => [
             'driver' => 'daily',
             'path' => storage_path('logs/openweather/openweather.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 14,
-        ]
+        ],
+        
+        'database' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/database/database.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 14,
+        ],
     ],
 
 ];

@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\Thesaurus;
 
+use App\Http\Requests\Thesaurus\Filters\LanguageFilterRequest;
 use App\Rules\CapitalFirstLetter;
-use Illuminate\Foundation\Http\FormRequest;
 
-class LanguageRequest extends FormRequest
+class LanguageRequest extends LanguageFilterRequest
 {
     /**
      * Determine if the user is authorized to make this request.

@@ -33,7 +33,7 @@ class UserFilmsController extends Controller
     public function create(FilmFilterRequest $request): Response
     {
         return Inertia::render('Auth/Account/UserFilms', [
-            'films' => $this->filmService->getUserFilmsListForPage($request->getPaginatorDto(), $request->getFilmFilterDto(), $request->user()->id),
+            'films' => $this->filmService->getFilmsListByUserIdForPage($request->getPaginatorDto(), $request->getFilmFilterDto(), $request->user()->id),
             'user' => $request->user()
         ]);
     }
@@ -49,10 +49,9 @@ class UserFilmsController extends Controller
     {
         $user = $request->user();
         
+        $this->userFilmService->create($user->id, $filmId);
         // Если запись была успешной, пользователь получает оповещение
-        if ($this->userFilmService->create($user->id, $filmId)) {
-            event(new AddFilmInUserList($user->id, $filmId));
-        }
+        event(new AddFilmInUserList($user->id, $filmId, $this->filmService));
         
         return redirect($this->filmUrls->getUrlWithPaginationOptionsByRequest(
                     RouteServiceProvider::URL_AUTH_FILMS,
@@ -72,11 +71,10 @@ class UserFilmsController extends Controller
     {
         $user = $request->user();
         
-        // Удаление фильма с film_id из коллекции пользователя.
-        if ($this->userFilmService->delete($user->id, $filmId)) {
-            // При успешном удалении фильма пользователь получает оповещение
-            event(new RemoveFilmFromUserList(Auth::id(), $filmId));
-        }
+        // Удаление фильма с filmId из коллекции пользователя.
+        $this->userFilmService->delete($user->id, $filmId);
+        // При успешном удалении фильма пользователь получает оповещение
+        event(new RemoveFilmFromUserList($user->id, $filmId, $this->filmService));
         
         return redirect($this->filmUrls->getUrlWithPaginationOptionsAfterRemovingFilm(
                     RouteServiceProvider::URL_AUTH_USERFILMS,
