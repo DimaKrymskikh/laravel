@@ -20,7 +20,7 @@ const { films } = defineProps({
 const app = inject('app');
 
 const filmsList = inject('filmsList');
-filmsList.page = films.current_page;
+filmsList.setOptions(films);
 
 const titlePage = 'Каталог';
 

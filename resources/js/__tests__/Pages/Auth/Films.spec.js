@@ -227,10 +227,10 @@ describe("@/Pages/Auth/Films.vue", () => {
         
         const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
         
-        // Изменяется текущая страница с дефолтного 1 на films_10.current_page
-        expect(wrapper.vm.filmsList.page).toBe(5);
-        // В начальный момент число фильмов на странице дефолтное
-        expect(wrapper.vm.filmsList.perPage).toBe(20);
+        // В начальный момент текущая страница films_10_user.current_page = 5
+        expect(wrapper.vm.filmsList.page).toBe(films_10_user.current_page);
+        // В начальный момент число фильмов на странице films_10_user.per_page = 10
+        expect(wrapper.vm.filmsList.perPage).toBe(films_10_user.per_page);
         
         // Находим кнопку для изменения числа фильмов
         const dropdown = wrapper.getComponent(Dropdown);

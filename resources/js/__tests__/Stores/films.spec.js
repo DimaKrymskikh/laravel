@@ -77,4 +77,22 @@ describe("@/Stores/films", () => {
         
         expect(url).toBe('/films?page=1&number=5&title_filter=ab&description_filter=x y&release_year_filter=2020'); 
     });
+    
+    it("setOptions изменяет параметры фильма", () => {
+        const filmsList = useFilmsListStore();
+        
+        const films = {
+            current_page: 11,
+            per_page: 50
+        };
+        window.location.search = '/films?page=3&number=10&title_filter=ab&description_filter=xyz&release_year_filter=2025';
+        
+        filmsList.setOptions(films);
+        
+        expect(filmsList.page).toBe(films.current_page); 
+        expect(filmsList.perPage).toBe(films.per_page); 
+        expect(filmsList.title).toBe('ab'); 
+        expect(filmsList.description).toBe('xyz'); 
+        expect(filmsList.release_year).toBe('2025'); 
+    });
 });

@@ -23,6 +23,16 @@ const filmsModel = function() {
             description.value = '';
             release_year.value = '';
         };
+        
+        const setOptions = function(films) {
+            page.value = films.current_page;
+            perPage.value = films.per_page;
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            title.value = !!urlParams.get('title_filter') ? urlParams.get('title_filter') : '';
+            description.value = !!urlParams.get('description_filter') ? urlParams.get('description_filter') : '';
+            release_year.value = !!urlParams.get('release_year_filter') ? urlParams.get('release_year_filter') : '';
+        };
 
         return {
             title,
@@ -31,7 +41,8 @@ const filmsModel = function() {
             page,
             perPage,
             getUrl,
-            resetSearchFilter
+            resetSearchFilter,
+            setOptions
         };
     };
 };

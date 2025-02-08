@@ -203,9 +203,10 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         expect(router.get).not.toHaveBeenCalled();
         
         // При загрузке страницы изменяется filmsAccount.page (films_10_user.current_page == 5)
-        expect(wrapper.vm.filmsAccount.page).toBe(5);
+        expect(wrapper.vm.filmsAccount.page).toBe(films_10_user.current_page);
+        // Число фильмов на странице films_10_user.per_page = 10
+        expect(wrapper.vm.filmsAccount.perPage).toBe(films_10_user.per_page);
         // Остальные свойства дефолтные
-        expect(wrapper.vm.filmsAccount.perPage).toBe(20);
         expect(wrapper.vm.filmsAccount.title).toBe('');
         expect(wrapper.vm.filmsAccount.description).toBe('');
         

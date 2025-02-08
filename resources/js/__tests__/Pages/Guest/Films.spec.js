@@ -202,10 +202,10 @@ describe("@/Pages/Guest/Films.vue", () => {
         
         expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
-        // Изменяется текущая страница с дефолтного 1 на films_10.current_page
-        expect(wrapper.vm.filmsList.page).toBe(5);
-        // В начальный момент число фильмов на странице дефолтное
-        expect(wrapper.vm.filmsList.perPage).toBe(20);
+        // В начальный момент текущая страница films_10.current_page = 5
+        expect(wrapper.vm.filmsList.page).toBe(films_10.current_page);
+        // В начальный момент число фильмов на странице films_10.per_page = 10
+        expect(wrapper.vm.filmsList.perPage).toBe(films_10.per_page);
         
         checkH1(wrapper);
         

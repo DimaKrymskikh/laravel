@@ -31,7 +31,7 @@ const linksList = [{
         }];
 
 const filmsAdmin = inject('filmsAdmin');
-filmsAdmin.page = films.current_page;
+filmsAdmin.setOptions(films);
 
 // Изменяет число фильмов на странице
 const changeNumberOfFilmsOnPage = function(newNumber) {

@@ -35,4 +35,20 @@ describe("@/Stores/actors", () => {
         const urlWithId = actorsList.getUrl(77);
         expect(urlWithId).toBe('/admin/actors/77?page=1&number=5&name=Иван'); 
     });
+    
+    it("setOptions изменяет параметры фильма", () => {
+        const actorsList = useActorsListStore();
+        
+        const actors = {
+            current_page: 11,
+            per_page: 50
+        };
+        window.location.search = '/admin/actors?page=3&number=10&name=Тест';
+        
+        actorsList.setOptions(actors);
+        
+        expect(actorsList.page).toBe(actors.current_page); 
+        expect(actorsList.perPage).toBe(actors.per_page); 
+        expect(actorsList.name).toBe('Тест'); 
+    });
 });

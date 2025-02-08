@@ -24,7 +24,7 @@ const linksList = [{
         }];
 
 const filmsList = inject('filmsList');
-filmsList.page = films.current_page;
+filmsList.setOptions(films);
 
 // Изменяет число фильмов на странице
 const changeNumberOfFilmsOnPage = function(newNumber) {

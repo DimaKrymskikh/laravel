@@ -27,7 +27,7 @@ const linksList = [{
         }];
 
 const actorsList = inject('actorsList');
-actorsList.page = props.actors.current_page;
+actorsList.setOptions(props.actors);
     
 const getActorName = function(actor) {
     return actor.first_name + ' ' + actor.last_name;

@@ -30,7 +30,7 @@ const linksList = [{
 const pusherEvents = ['RemoveFilmFromUserList'];
 
 const filmsAccount = inject('filmsAccount');
-filmsAccount.page = films.current_page;
+filmsAccount.setOptions(films);
 
 // Отслеживает отрисовку/удаление модального окна для удаления фильма
 const isShowFilmRemoveModal = ref(false);
