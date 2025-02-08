@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, inject } from 'vue';
+import { ref, reactive, inject, onUpdated } from 'vue';
 import { Head, Link } from '@inertiajs/vue3'
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
@@ -44,6 +44,9 @@ const removeCity = reactive({
 });
 
 const refreshCityId = ref(0);
+onUpdated(() => {
+    cities = props.cities;
+});
 
 const hideRemoveCityFromListOfWeatherModal = function() {
     isShowRemoveCityFromListOfWeatherModal.value = false;
