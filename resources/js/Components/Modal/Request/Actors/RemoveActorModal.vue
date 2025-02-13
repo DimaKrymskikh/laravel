@@ -26,7 +26,10 @@ const onBeforeForHandlerRemoveActor = () => {
 
 const onSuccessForHandlerRemoveActor = () => { props.hideRemoveActorModal(); };
 
-const onErrorForHandlerRemoveActor = errors => { errorsPassword.value = errors.password; };
+const onErrorForHandlerRemoveActor = errors => {
+            !!errors.password ? errorsPassword.value = errors.password : props.hideRemoveActorModal();
+            app.errorRequest(errors);
+        };
 
 const onFinishForHandlerRemoveActor = () => { app.isRequest = false; };
 

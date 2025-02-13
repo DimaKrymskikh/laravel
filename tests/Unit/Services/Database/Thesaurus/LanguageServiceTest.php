@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services\Database\Thesaurus;
 
+use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\Language;
 use App\Repositories\Thesaurus\LanguageRepositoryInterface;
 use App\Services\Database\Thesaurus\LanguageService;
@@ -46,8 +47,29 @@ class LanguageServiceTest extends TestCase
     public function test_success_delete(): void
     {
         $this->languageRepository->expects($this->once())
+                ->method('exists')
+                ->with($this->identicalTo($this->languageId))
+                ->willReturn(true);
+        
+        $this->languageRepository->expects($this->once())
                 ->method('delete')
                 ->with($this->identicalTo($this->languageId));
+        
+        $this->assertNull($this->languageService->delete($this->languageId));
+    }
+    
+    public function test_fail_delete(): void
+    {
+        $this->languageRepository->expects($this->once())
+                ->method('exists')
+                ->with($this->identicalTo($this->languageId))
+                ->willReturn(false);
+        
+        $this->languageRepository->expects($this->never())
+                ->method('delete')
+                ->with($this->identicalTo($this->languageId));
+        
+        $this->expectException(DatabaseException::class);
         
         $this->assertNull($this->languageService->delete($this->languageId));
     }

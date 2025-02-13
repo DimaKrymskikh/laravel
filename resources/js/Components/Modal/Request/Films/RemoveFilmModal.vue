@@ -26,7 +26,10 @@ const onBeforeForHandlerRemoveFilm = () => {
 
 const onSuccessForHandlerRemoveFilm = () => { props.hideRemoveFilmModal(); };
 
-const onErrorForHandlerRemoveFilm = errors => { errorsPassword.value = errors.password; };
+const onErrorForHandlerRemoveFilm = errors => {
+            errors.password ? errorsPassword.value = errors.password : props.hideRemoveFilmModal();
+            app.errorRequest(errors);
+        };
 
 const onFinishForHandlerRemoveFilm = () => { app.isRequest = false; };
 
@@ -65,15 +68,17 @@ const handlerRemoveFilm = function(e) {
                 Вы действительно хотите удалить фильм
                 <span>{{ removeFilm.title }}</span> ?
             </div>
-            <div class="mb-3">
-                <InputField
-                    titleText="Введите пароль:"
-                    type="password"
-                    :errorsMessage="errorsPassword"
-                    :isInputAutofocus="true"
-                    v-model="inputPassword"
-                />
-            </div>
+            <form @submit.prevent autocomplete="off">
+                <div class="mb-3">
+                    <InputField
+                        titleText="Введите пароль:"
+                        type="password"
+                        :errorsMessage="errorsPassword"
+                        :isInputAutofocus="true"
+                        v-model="inputPassword"
+                    />
+                </div>
+            </form>
         </template>
     </BaseModal>
 </template>

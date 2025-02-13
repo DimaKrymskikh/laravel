@@ -8,7 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Dvd\Filters\FilmFilterRequest;
 use App\Providers\RouteServiceProvider;
 use App\Services\Database\Dvd\FilmService;
-use App\Support\Pagination\Urls\FilmUrls;
+use App\Support\Pagination\Urls\Films\FilmUrls;
+use App\Support\Pagination\Urls\Films\UserFilmUrls;
 use App\Services\Database\Person\UserFilmService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,8 @@ class UserFilmsController extends Controller
     public function __construct(
         private FilmService $filmService,
         private UserFilmService $userFilmService,
-        private FilmUrls $filmUrls
+        private FilmUrls $filmUrls,
+        private UserFilmUrls $userFilmUrls,
     ) {
     }
     
@@ -76,10 +78,11 @@ class UserFilmsController extends Controller
         // При успешном удалении фильма пользователь получает оповещение
         event(new RemoveFilmFromUserList($user->id, $filmId, $this->filmService));
         
-        return redirect($this->filmUrls->getUrlWithPaginationOptionsAfterRemovingFilm(
+        return redirect($this->userFilmUrls->getUrlWithPaginationOptionsAfterRemovingFilm(
                     RouteServiceProvider::URL_AUTH_USERFILMS,
                     $request->getPaginatorDto(),
-                    $request->getFilmFilterDto()
+                    $request->getFilmFilterDto(),
+                    $user->id
                 ));
     }
     

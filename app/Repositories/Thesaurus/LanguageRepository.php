@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Collection;
 
 final class LanguageRepository implements LanguageRepositoryInterface
 {
+    public function exists(int $languageId): bool
+    {
+        return Language::where('id', $languageId)->exists();
+    }
+    
     public function save(Language $language, string $name): void
     {
         $language->name = $name;

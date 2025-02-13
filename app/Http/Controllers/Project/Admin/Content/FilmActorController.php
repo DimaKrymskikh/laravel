@@ -8,7 +8,7 @@ use App\Http\Requests\Dvd\Filters\FilmFilterRequest;
 use App\Providers\RouteServiceProvider;
 use App\Services\Database\Dvd\ActorService;
 use App\Services\Database\Dvd\FilmActorService;
-use App\Support\Pagination\Urls\FilmUrls;
+use App\Support\Pagination\Urls\Films\FilmUrls;
 use Illuminate\Http\RedirectResponse;
 
 class FilmActorController extends Controller

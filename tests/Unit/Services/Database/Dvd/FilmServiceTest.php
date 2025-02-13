@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services\Database\Dvd;
 
+use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
 use App\Repositories\Dvd\FilmRepositoryInterface;
 use App\Services\Database\Dvd\FilmService;
@@ -51,8 +52,29 @@ class FilmServiceTest extends TestCase
     public function test_success_delete(): void
     {
         $this->filmRepository->expects($this->once())
+                ->method('exists')
+                ->with($this->identicalTo($this->filmId))
+                ->willReturn(true);
+        
+        $this->filmRepository->expects($this->once())
                 ->method('delete')
                 ->with($this->identicalTo($this->filmId));
+        
+        $this->assertNull($this->filmService->delete($this->filmId));
+    }
+    
+    public function test_fail_delete(): void
+    {
+        $this->filmRepository->expects($this->once())
+                ->method('exists')
+                ->with($this->identicalTo($this->filmId))
+                ->willReturn(false);
+        
+        $this->filmRepository->expects($this->never())
+                ->method('delete')
+                ->with($this->identicalTo($this->filmId));
+        
+        $this->expectException(DatabaseException::class);
         
         $this->assertNull($this->filmService->delete($this->filmId));
     }

@@ -5,6 +5,7 @@ namespace Tests\Unit\Services\Database\Dvd;
 use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use App\DataTransferObjects\Database\Dvd\ActorDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
+use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Actor;
 use App\Repositories\Dvd\ActorRepositoryInterface;
 use App\Services\Database\Dvd\ActorService;
@@ -53,8 +54,29 @@ class ActorServiceTest extends TestCase
     public function test_success_delete(): void
     {
         $this->actorRepository->expects($this->once())
+                ->method('exists')
+                ->with($this->actorId)
+                ->willReturn(true);
+        
+        $this->actorRepository->expects($this->once())
                 ->method('delete')
-                ->with($this->actorId);
+                ->with($this->identicalTo($this->actorId));
+        
+        $this->actorService->delete($this->actorId);
+    }
+    
+    public function test_fail_delete(): void
+    {
+        $this->actorRepository->expects($this->once())
+                ->method('exists')
+                ->with($this->actorId)
+                ->willReturn(false);
+        
+        $this->actorRepository->expects($this->never())
+                ->method('delete')
+                ->with($this->identicalTo($this->actorId));
+        
+        $this->expectException(DatabaseException::class);
         
         $this->actorService->delete($this->actorId);
     }

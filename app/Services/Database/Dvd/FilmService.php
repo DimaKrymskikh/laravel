@@ -5,6 +5,7 @@ namespace App\Services\Database\Dvd;
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\DataTransferObjects\Database\Dvd\FilmDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
+use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
 use App\Repositories\Dvd\FilmRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -35,6 +36,10 @@ final class FilmService
     
     public function delete(int $filmId): void
     {
+        if (!$this->filmRepository->exists($filmId)) {
+            throw new DatabaseException("В таблице 'dvd.films' нет записи с id=$filmId.");
+        }
+        
         $this->filmRepository->delete($filmId);
     }
     

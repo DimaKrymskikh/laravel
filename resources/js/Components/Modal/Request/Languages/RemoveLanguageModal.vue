@@ -25,7 +25,10 @@ const onBeforeForHandlerRemoveLanguage = () => {
 
 const onSuccessForHandlerRemoveLanguage = () => { props.hideRemoveLanguageModal(); };
 
-const onErrorForHandlerRemoveLanguage = errors => { errorsPassword.value = errors.password; };
+const onErrorForHandlerRemoveLanguage = errors => {
+            !!errors.password ? errorsPassword.value = errors.password : props.hideRemoveLanguageModal();
+            app.errorRequest(errors);
+        };
 
 const onFinishForHandlerRemoveLanguage = () => { app.isRequest = false; };
 

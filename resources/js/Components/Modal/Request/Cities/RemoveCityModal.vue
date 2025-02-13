@@ -25,7 +25,10 @@ const onBeforeForHandlerRemoveCity = () => {
 
 const onSuccessForHandlerRemoveCity = () => { hideRemoveCityModal(); };
 
-const onErrorForHandlerRemoveCity = errors => { errorsPassword.value = errors.password; };
+const onErrorForHandlerRemoveCity = errors => {
+            !!errors.password ? errorsPassword.value = errors.password : hideRemoveCityModal();
+            app.errorRequest(errors);
+        };
 
 const onFinishForHandlerRemoveCity = () => { app.isRequest = false; };
 

@@ -74,8 +74,29 @@ class CityServiceTest extends TestCase
     public function test_success_delete(): void
     {
         $this->cityRepository->expects($this->once())
+                ->method('exists')
+                ->with($this->identicalTo($this->cityId))
+                ->willReturn(true);
+        
+        $this->cityRepository->expects($this->once())
                 ->method('delete')
                 ->with($this->identicalTo($this->cityId));
+        
+        $this->cityService->delete($this->cityId);
+    }
+
+    public function test_fail_delete(): void
+    {
+        $this->cityRepository->expects($this->once())
+                ->method('exists')
+                ->with($this->identicalTo($this->cityId))
+                ->willReturn(false);
+        
+        $this->cityRepository->expects($this->never())
+                ->method('delete')
+                ->with($this->identicalTo($this->cityId));
+        
+        $this->expectException(DatabaseException::class);
         
         $this->cityService->delete($this->cityId);
     }

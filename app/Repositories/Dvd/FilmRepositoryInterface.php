@@ -6,12 +6,13 @@ use App\DataTransferObjects\Database\Dvd\FilmDto;
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
 use App\Models\Dvd\Film;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 interface FilmRepositoryInterface
 {
+    public function exists(int $filmId): bool;
+    
     public function save(Film $film, FilmDto $dto): void;
     
     public function saveField(Film $film, string $field, ?string $value): void;

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface LanguageRepositoryInterface
 {
+    public function exists(int $languageId): bool;
+    
     public function save(Language $language, string $name): void;
     
     public function delete(int $id): void;

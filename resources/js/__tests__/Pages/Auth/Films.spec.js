@@ -345,6 +345,7 @@ describe("@/Pages/Auth/Films.vue", () => {
         expect(router.post).toHaveBeenCalledWith(filmsList.getUrl(`userfilms/addfilm/${films_10_user.data[3].id}`), {}, {
             preserveScroll: true,
             onBefore: expect.anything(),
+            onError: expect.anything(),
             onFinish: expect.anything()
         });
         

@@ -38,6 +38,10 @@ final class FilmActorService
     
     public function delete(int $filmId, int $actorId): void
     {
+        if(!$this->filmActorRepository->exists($filmId, $actorId)) {
+            throw new DatabaseException("В таблице 'dvd.films_actors' нет записи с film_id=$filmId и actor_id=$actorId");
+        }
+        
         $this->filmActorRepository->delete($filmId, $actorId);
     }
 }

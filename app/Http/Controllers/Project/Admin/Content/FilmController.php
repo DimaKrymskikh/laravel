@@ -7,7 +7,7 @@ use App\Http\Requests\Dvd\Filters\FilmFilterRequest;
 use App\Http\Requests\Dvd\FilmRequest;
 use App\Providers\RouteServiceProvider;
 use App\Services\Database\Dvd\FilmService;
-use App\Support\Pagination\Urls\FilmUrls;
+use App\Support\Pagination\Urls\Films\FilmUrls;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;

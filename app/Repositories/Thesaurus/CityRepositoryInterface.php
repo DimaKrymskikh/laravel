@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface CityRepositoryInterface
 {
+    public function exists(int $sityId): bool;
+    
     public function save(City $city, string $name, int $openWeatherId): void;
     
     public function saveField(City $city, string $field, mixed $value): void;

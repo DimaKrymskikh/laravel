@@ -2,6 +2,7 @@
 
 namespace App\Services\Database\Thesaurus;
 
+use App\Exceptions\DatabaseException;
 use App\DataTransferObjects\Database\Thesaurus\Filters\LanguageFilterDto;
 use App\Models\Thesaurus\Language;
 use App\Repositories\Thesaurus\LanguageRepositoryInterface;
@@ -27,6 +28,10 @@ final class LanguageService
     
     public function delete(int $id): void
     {
+        if(!$this->languageRepository->exists($id)) {
+            throw new DatabaseException("В таблице 'thesaurus.languages' нет записи с id=$id");
+        }
+        
         $this->languageRepository->delete($id);
     }
     

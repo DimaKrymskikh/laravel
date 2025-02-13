@@ -11,6 +11,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 interface ActorRepositoryInterface
 {
+    public function exists(int $actorId): bool;
+    
     public function save(Actor $actor, ActorDto $dto): void;
     
     public function delete(int $actorId): void;

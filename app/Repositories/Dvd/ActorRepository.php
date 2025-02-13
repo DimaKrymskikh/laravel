@@ -15,6 +15,11 @@ use Illuminate\Support\Facades\DB;
 
 final class ActorRepository implements ActorRepositoryInterface
 {
+    public function exists(int $actorId): bool
+    {
+        return Actor::where('id', $actorId)->exists();
+    }
+    
     public function save(Actor $actor, ActorDto $dto): void
     {
         $actor->first_name = $dto->firstName->name;
@@ -26,7 +31,7 @@ final class ActorRepository implements ActorRepositoryInterface
     {
         DB::transaction(function () use ($actorId) {
             FilmActor::where('actor_id', $actorId)->delete();
-            Actor::find($actorId)->delete();
+            Actor::where('id', $actorId)->delete();
         });
     }
     

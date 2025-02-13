@@ -5,6 +5,7 @@ namespace App\Services\Database\Dvd;
 use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use App\DataTransferObjects\Database\Dvd\ActorDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
+use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Actor;
 use App\Repositories\Dvd\ActorRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -35,6 +36,10 @@ final class ActorService
     
     public function delete(int $actorId): void
     {
+        if(!$this->actorRepository->exists($actorId)) {
+            throw new DatabaseException("В таблице 'dvd.actors' нет записи с id=$actorId");
+        }
+        
         $this->actorRepository->delete($actorId);
     }
     

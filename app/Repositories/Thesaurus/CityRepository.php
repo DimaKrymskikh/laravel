@@ -10,6 +10,11 @@ use Illuminate\Database\Query\JoinClause;
 
 final class CityRepository implements CityRepositoryInterface
 {
+    public function exists(int $sityId): bool
+    {
+        return City::where('id', $sityId)->exists();
+    }
+    
     public function save(City $city, string $name, int $openWeatherId): void
     {
         $city->name = $name;

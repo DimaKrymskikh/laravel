@@ -57,11 +57,32 @@ class FilmActorServiceTest extends TestCase
         $this->filmActorService->getActorsListByFilmId($this->filmId);
     }
 
-    public function test_delete(): void
+    public function test_success_delete(): void
     {
+        $this->filmActorRepository->expects($this->once())
+                ->method('exists')
+                ->with($this->identicalTo($this->filmId), $this->identicalTo($this->actorId))
+                ->willReturn(true);
+        
         $this->filmActorRepository->expects($this->once())
                 ->method('delete')
                 ->with($this->identicalTo($this->filmId), $this->identicalTo($this->actorId));
+        
+        $this->filmActorService->delete($this->filmId, $this->actorId);
+    }
+
+    public function test_fail_delete(): void
+    {
+        $this->filmActorRepository->expects($this->once())
+                ->method('exists')
+                ->with($this->identicalTo($this->filmId), $this->identicalTo($this->actorId))
+                ->willReturn(false);
+        
+        $this->filmActorRepository->expects($this->never())
+                ->method('delete')
+                ->with($this->identicalTo($this->filmId), $this->identicalTo($this->actorId));
+        
+        $this->expectException(DatabaseException::class);
         
         $this->filmActorService->delete($this->filmId, $this->actorId);
     }

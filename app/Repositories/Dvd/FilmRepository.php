@@ -17,6 +17,11 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 final class FilmRepository implements FilmRepositoryInterface
 {
+    public function exists(int $filmId): bool
+    {
+        return Film::where('id', $filmId)->exists();
+    }
+    
     public function save(Film $film, FilmDto $dto): void
     {
         $film->title = $dto->title;
@@ -35,7 +40,7 @@ final class FilmRepository implements FilmRepositoryInterface
     {
         DB::transaction(function () use ($filmId) {
             FilmActor::where('film_id', $filmId)->delete();
-            Film::find($filmId)->delete();
+            Film::where('id', $filmId)->delete();
         });
     }
     

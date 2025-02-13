@@ -31,9 +31,14 @@ const onSuccessForHandlerRemoveFilm = res => {
             filmsAccount.page = res.props.films.current_page;
         };
 
-const onErrorForHandlerRemoveFilm = errors => { errorsPassword.value = errors.password; };
+const onErrorForHandlerRemoveFilm = errors => {
+            errors.password ? errorsPassword.value = errors.password : hideFilmRemoveModal();
+            app.errorRequest(errors);
+        };
 
-const onFinishForHandlerRemoveFilm = () => { app.isRequest = false; };
+const onFinishForHandlerRemoveFilm = () => {
+            app.isRequest = false;
+        };
 
 /**
  * Обработчик удаления фильма
@@ -70,7 +75,7 @@ const handlerRemoveFilm = function(e) {
                 Вы действительно хотите удалить фильм 
                 <span>{{ removeFilmTitle }}</span>?
             </div>
-            <form autocomplete="off">
+            <form @submit.prevent autocomplete="off">
                 <div class="mb-3">
                     <InputField
                         titleText="Введите пароль:"

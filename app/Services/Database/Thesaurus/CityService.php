@@ -38,6 +38,10 @@ final class CityService
     
     public function delete(int $cityId): void
     {
+        if (!$this->cityRepository->exists($cityId)) {
+            throw new DatabaseException("В таблице 'thesaurus.cities' нет записи с id=$cityId");
+        }
+        
         $this->cityRepository->delete($cityId);
     }
     
