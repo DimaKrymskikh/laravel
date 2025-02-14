@@ -121,15 +121,34 @@ describe("@/Components/Modal/Request/Languages/RemoveLanguageModal.vue", () => {
         expect(hideRemoveLanguageModal).toHaveBeenCalledWith();
     });
     
-    it("Проверка функции onErrorForHandlerRemoveLanguage", async () => {
+    it("Проверка функции onErrorForHandlerRemoveLanguage ({password: 'ErrorPassword'})", async () => {
         const app = useAppStore();
         
         const wrapper = getWrapper(app);
         
         expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+        
         wrapper.vm.onErrorForHandlerRemoveLanguage({password: 'ErrorPassword'});
         
         expect(wrapper.vm.errorsPassword).toBe('ErrorPassword');
+        expect(app.errorMessage).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+    });
+    
+    it("Проверка функции onErrorForHandlerRemoveLanguage ({ message: 'ServerError' })", async () => {
+        const app = useAppStore();
+        
+        const wrapper = getWrapper(app);
+        
+        expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+        
+        wrapper.vm.onErrorForHandlerRemoveLanguage({ message: 'ServerError' });
+        
+        expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.errorMessage).toBe('ServerError');
+        expect(app.isShowForbiddenModal).toBe(true);
     });
     
     it("Проверка функции onFinishForHandlerRemoveLanguage", async () => {

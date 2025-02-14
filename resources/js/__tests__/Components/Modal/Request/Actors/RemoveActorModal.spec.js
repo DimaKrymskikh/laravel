@@ -129,16 +129,36 @@ describe("@/Components/Modal/Request/Actors/RemoveActorModal.vue", () => {
         expect(hideRemoveActorModal).toHaveBeenCalledWith();
     });
     
-    it("Проверка функции onErrorForHandlerRemoveActor", async () => {
+    it("Проверка функции onErrorForHandlerRemoveActor ({ password: 'ErrorPassword' })", async () => {
         const app = useAppStore();
         const actorsList = useActorsListStore();
         
         const wrapper = getWrapper(app, actorsList);
         
         expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+        
         wrapper.vm.onErrorForHandlerRemoveActor({ password: 'ErrorPassword' });
         
         expect(wrapper.vm.errorsPassword).toBe('ErrorPassword');
+        expect(app.errorMessage).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+    });
+    
+    it("Проверка функции onErrorForHandlerRemoveActor ({ message: 'ServerError' })", async () => {
+        const app = useAppStore();
+        const actorsList = useActorsListStore();
+        
+        const wrapper = getWrapper(app, actorsList);
+        
+        expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+        
+        wrapper.vm.onErrorForHandlerRemoveActor({ message: 'ServerError' });
+        
+        expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.errorMessage).toBe('ServerError');
+        expect(app.isShowForbiddenModal).toBe(true);
     });
     
     it("Проверка функции onFinishForHandlerRemoveActor", async () => {

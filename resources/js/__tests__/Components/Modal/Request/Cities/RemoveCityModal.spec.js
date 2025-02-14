@@ -131,15 +131,34 @@ describe("@/Components/Modal/Request/RemoveCityModal.vue", () => {
         expect(hideRemoveCityModal).toHaveBeenCalledWith();
     });
     
-    it("Проверка функции onErrorForHandlerRemoveCity", async () => {
+    it("Проверка функции onErrorForHandlerRemoveCity ({ password: 'ErrorPassword' })", async () => {
         const app = useAppStore();
         
         const wrapper = getWrapper(app);
         
         expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+        
         wrapper.vm.onErrorForHandlerRemoveCity({ password: 'ErrorPassword' });
         
         expect(wrapper.vm.errorsPassword).toBe('ErrorPassword');
+        expect(app.errorMessage).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+    });
+    
+    it("Проверка функции onErrorForHandlerRemoveCity ({ message: 'ServerError' })", async () => {
+        const app = useAppStore();
+        
+        const wrapper = getWrapper(app);
+        
+        expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+        
+        wrapper.vm.onErrorForHandlerRemoveCity({ message: 'ServerError' });
+        
+        expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.errorMessage).toBe('ServerError');
+        expect(app.isShowForbiddenModal).toBe(true);
     });
     
     it("Проверка функции onFinishForHandlerRemoveCity", async () => {

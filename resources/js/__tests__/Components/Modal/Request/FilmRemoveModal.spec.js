@@ -140,16 +140,36 @@ describe("@/Components/Modal/Request/FilmRemoveModal.vue", () => {
         expect(films_10.current_page).toBe(5);
     });
     
-    it("Проверка функции onErrorForHandlerRemoveFilm", async () => {
+    it("Проверка функции onErrorForHandlerRemoveFilm ({ password: 'ErrorPassword' })", async () => {
         const app = useAppStore();
         const filmsAccount = useFilmsAccountStore();
         
         const wrapper = getWrapper(app, filmsAccount);
         
         expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+        
         wrapper.vm.onErrorForHandlerRemoveFilm({ password: 'ErrorPassword' });
         
         expect(wrapper.vm.errorsPassword).toBe('ErrorPassword');
+        expect(app.errorMessage).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+    });
+    
+    it("Проверка функции onErrorForHandlerRemoveFilm ({ message: 'ServerError' })", async () => {
+        const app = useAppStore();
+        const filmsAccount = useFilmsAccountStore();
+        
+        const wrapper = getWrapper(app, filmsAccount);
+        
+        expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+        
+        wrapper.vm.onErrorForHandlerRemoveFilm({ message: 'ServerError' });
+        
+        expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.errorMessage).toBe('ServerError');
+        expect(app.isShowForbiddenModal).toBe(true);
     });
     
     it("Проверка функции onFinishForHandlerRemoveFilm", async () => {

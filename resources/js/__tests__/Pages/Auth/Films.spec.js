@@ -434,6 +434,32 @@ describe("@/Pages/Auth/Films.vue", () => {
         expect(app.isRequest).toBe(true);
     });
     
+    it("Проверка функции onErrorForAddFilm ({})", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
+        
+        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
+        wrapper.vm.onErrorForAddFilm({});
+        
+        expect(app.errorMessage).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+    });
+    
+    it("Проверка функции onErrorForAddFilm ({ message: 'ServerError' })", async () => {
+        const app = useAppStore();
+        app.isRequest = true;
+        const filmsList = useFilmsListStore();
+        const globalConsts = useGlobalConstsStore();
+        
+        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
+        wrapper.vm.onErrorForAddFilm({ message: 'ServerError' });
+        
+        expect(app.errorMessage).toBe('ServerError');
+        expect(app.isShowForbiddenModal).toBe(true);
+    });
+    
     it("Проверка функции onFinishForAddFilm", async () => {
         const app = useAppStore();
         app.isRequest = true;

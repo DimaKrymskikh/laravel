@@ -129,16 +129,36 @@ describe("@/Components/Modal/Request/Films/RemoveFilmModal.vue", () => {
         expect(hideRemoveFilmModal).toHaveBeenCalledWith();
     });
     
-    it("Проверка функции onErrorForHandlerRemoveFilm", async () => {
+    it("Проверка функции onErrorForHandlerRemoveFilm ({password: 'ErrorPassword'})", async () => {
         const app = useAppStore();
         const filmsAdmin = useFilmsAdminStore();
         
         const wrapper = getWrapper(app, filmsAdmin);
         
         expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+        
         wrapper.vm.onErrorForHandlerRemoveFilm({password: 'ErrorPassword'});
         
         expect(wrapper.vm.errorsPassword).toBe('ErrorPassword');
+        expect(app.errorMessage).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+    });
+    
+    it("Проверка функции onErrorForHandlerRemoveFilm ({ message: 'ServerError' })", async () => {
+        const app = useAppStore();
+        const filmsAdmin = useFilmsAdminStore();
+        
+        const wrapper = getWrapper(app, filmsAdmin);
+        
+        expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.isShowForbiddenModal).toBe(false);
+        
+        wrapper.vm.onErrorForHandlerRemoveFilm({ message: 'ServerError' });
+        
+        expect(wrapper.vm.errorsPassword).toBe('');
+        expect(app.errorMessage).toBe('ServerError');
+        expect(app.isShowForbiddenModal).toBe(true);
     });
     
     it("Проверка функции onFinishForHandlerRemoveFilm", async () => {
