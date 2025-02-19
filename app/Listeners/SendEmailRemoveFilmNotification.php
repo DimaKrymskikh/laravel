@@ -5,7 +5,6 @@ namespace App\Listeners;
 use App\Events\RemoveFilmFromUserList;
 use App\Models\User;
 use App\Notifications\Dvdrental\RemoveFilmNotification;
-
 use Illuminate\Support\Facades\Auth;
 
 class SendEmailRemoveFilmNotification
@@ -25,6 +24,6 @@ class SendEmailRemoveFilmNotification
      */
     public function handle(RemoveFilmFromUserList $event): void
     {
-        $this->user->notify(new RemoveFilmNotification($event->filmId));
+        $this->user->notify(new RemoveFilmNotification($event));
     }
 }

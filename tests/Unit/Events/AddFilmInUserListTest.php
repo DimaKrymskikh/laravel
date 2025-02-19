@@ -26,6 +26,8 @@ class AddFilmInUserListTest extends TestCase
                 ->with($this->identicalTo($this->filmId))
                 ->willReturn($film);
         
+        $this->addFilmInUserList = new AddFilmInUserList($this->userId, $this->filmId, $this->filmService);
+        
         $broadcastWith = $this->addFilmInUserList->broadcastWith();
         // Проверка отправляемого сообщения
         $this->assertEquals($broadcastWith['message'], "Вы добавили в свою коллекцию фильм $film->title");
@@ -33,13 +35,13 @@ class AddFilmInUserListTest extends TestCase
         // Проверка имени канала
         $channelName = $this->addFilmInUserList->broadcastOn()[0]->name;
         $this->assertEquals($channelName, "private-auth.$this->userId");
+        
+        $this->assertSame($film->title, $this->addFilmInUserList->getFilmTitle());
     }
     
     protected function setUp(): void
     {
         $this->filmRepository = $this->createMock(FilmRepositoryInterface::class);
         $this->filmService = new FilmService($this->filmRepository);
-        
-        $this->addFilmInUserList = new AddFilmInUserList($this->userId, $this->filmId, $this->filmService);
     }
 }

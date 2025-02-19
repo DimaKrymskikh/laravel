@@ -16,7 +16,7 @@ class RemoveFilmFromUserListTest extends TestCase
     private int $userId = 2;
     private int $filmId = 17;
     
-    public function test_film_can_be_add_in_user_list(): void
+    public function test_film_can_be_remove_from_user_list(): void
     {
         $film = new Film();
         $film->title = 'TestTitle';
@@ -26,6 +26,8 @@ class RemoveFilmFromUserListTest extends TestCase
                 ->with($this->identicalTo($this->filmId))
                 ->willReturn($film);
         
+        $this->removeFilmFromUserList = new RemoveFilmFromUserList($this->userId, $this->filmId, $this->filmService);
+        
         $broadcastWith = $this->removeFilmFromUserList->broadcastWith();
         // Проверка отправляемого сообщения
         $this->assertEquals($broadcastWith['message'], "Вы удалили из своей коллекции фильм $film->title");
@@ -33,13 +35,13 @@ class RemoveFilmFromUserListTest extends TestCase
         // Проверка имени канала
         $channelName = $this->removeFilmFromUserList->broadcastOn()[0]->name;
         $this->assertEquals($channelName, "private-auth.$this->userId");
+        
+        $this->assertSame($film->title, $this->removeFilmFromUserList->getFilmTitle());
     }
     
     protected function setUp(): void
     {
         $this->filmRepository = $this->createMock(FilmRepositoryInterface::class);
         $this->filmService = new FilmService($this->filmRepository);
-        
-        $this->removeFilmFromUserList = new RemoveFilmFromUserList($this->userId, $this->filmId, $this->filmService);
     }
 }

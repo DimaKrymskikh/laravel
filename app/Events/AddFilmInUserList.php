@@ -12,16 +12,22 @@ use Illuminate\Queue\SerializesModels;
 class AddFilmInUserList implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
+    
+    private int $userId;
+    private string $filmTitle;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(
-            private int $userId,
-            // Используется в App\Listeners\SendEmailAddFilmNotification
-            readonly public int $filmId,
-            private FilmService $filmService,
-    ) {
+    public function __construct(int $userId, int $filmId, FilmService $filmService)
+    {
+        $this->userId = $userId;
+        $this->filmTitle = $filmService->getFilmById($filmId)->title;
+    }
+    
+    public function getFilmTitle(): string
+    {
+        return $this->filmTitle;
     }
 
     /**
@@ -38,8 +44,6 @@ class AddFilmInUserList implements ShouldBroadcast
     
     public function broadcastWith(): array
     {
-        $filmTitle = $this->filmService->getFilmById($this->filmId)->title;
-        
-        return ['message' => "Вы добавили в свою коллекцию фильм $filmTitle"];
+        return ['message' => "Вы добавили в свою коллекцию фильм $this->filmTitle"];
     }
 }

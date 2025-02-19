@@ -2,7 +2,7 @@
 
 namespace App\Notifications\Dvdrental;
 
-use App\Models\Dvd\Film;
+use App\Events\AddFilmInUserList;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,15 +11,13 @@ use Illuminate\Notifications\Notification;
 class AddFilmNotification extends Notification implements ShouldQueue
 {
     use Queueable;
-    
-    private string $title;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(int $film_id)
-    {
-        $this->title = Film::find($film_id)->title;
+    public function __construct(
+            private AddFilmInUserList $event,
+    ) {
     }
 
     /**
@@ -42,20 +40,8 @@ class AddFilmNotification extends Notification implements ShouldQueue
                     ->view(
                         'notifications.dvdrental.addfilm', [
                             'login' => $notifiable->login,
-                            'title' => $this->title,
+                            'title' => $this->event->getFilmTitle(),
                         ]
                     );
-    }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(object $notifiable): array
-    {
-        return [
-            //
-        ];
     }
 }

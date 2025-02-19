@@ -13,17 +13,21 @@ class RemoveFilmFromUserList implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     
-    public string $message;
+    private int $userId;
+    private string $filmTitle;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(
-            private int $userId,
-            // Используется в App\Listeners\SendEmailRemoveFilmNotification
-            readonly public int $filmId,
-            private FilmService $filmService,
-    ) {
+    public function __construct(int $userId, int $filmId, FilmService $filmService)
+    {
+        $this->userId = $userId;
+        $this->filmTitle = $filmService->getFilmById($filmId)->title;
+    }
+    
+    public function getFilmTitle(): string
+    {
+        return $this->filmTitle;
     }
 
     /**
@@ -40,8 +44,6 @@ class RemoveFilmFromUserList implements ShouldBroadcast
     
     public function broadcastWith(): array
     {
-        $filmTitle = $this->filmService->getFilmById($this->filmId)->title;
-        
-        return ['message' => "Вы удалили из своей коллекции фильм $filmTitle"];
+        return ['message' => "Вы удалили из своей коллекции фильм $this->filmTitle"];
     }
 }
