@@ -2,6 +2,7 @@
 import { ref, inject } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
+import AlertPrimary from '@/Components/Alerts/AlertPrimary.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
@@ -130,6 +131,12 @@ const putFilms = function(e) {
                     </tr>
                 </tbody>
             </table>
+        
+            <AlertPrimary
+                v-if="films.total == 0"
+                class="text-center"
+                text="В вашей коллекции нет фильмов"
+            />
 
             <Buttons :links="films.links" v-if="films.total > 0" />
         

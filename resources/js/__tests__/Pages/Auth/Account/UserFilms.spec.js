@@ -6,6 +6,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import UserFilms from "@/Pages/Auth/Account/UserFilms.vue";
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 
+import AlertPrimary from '@/Components/Alerts/AlertPrimary.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
@@ -16,7 +17,7 @@ import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 import { useFilmsAccountStore } from '@/Stores/films';
 import { useGlobalConstsStore } from '@/Stores/globalConsts';
 
-import { films_10_user } from '@/__tests__/data/films';
+import { films_10_user, films_0 } from '@/__tests__/data/films';
 import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
 
 // Делаем заглушку для Head
@@ -37,11 +38,11 @@ const user = {
             login: 'TestLogin'
         };
 
-const getWrapper = function(filmsAccount, globalConsts) {
+const getWrapper = function(filmsAccount, films, globalConsts) {
     return mount(UserFilms, {
             props: {
                 errors: null,
-                films: films_10_user,
+                films,
                 user
             },
             global: {
@@ -54,6 +55,48 @@ const getWrapper = function(filmsAccount, globalConsts) {
         });
 };
 
+const checkAccountLayout = function(wrapper) {
+    const accountLayout = wrapper.getComponent(AccountLayout);
+    expect(accountLayout.props('user')).toStrictEqual(user);
+    expect(accountLayout.props('errors')).toStrictEqual(null);
+    expect(accountLayout.props('linksList')).toStrictEqual(wrapper.vm.linksList);
+};
+
+const checkDropdown = function(wrapper, films) {
+    const dropdown = wrapper.getComponent(Dropdown);
+    expect(dropdown.props('buttonName')).toBe('Число фильмов на странице');
+    expect(dropdown.props('itemsNumberOnPage')).toBe(films.per_page);
+    expect(dropdown.props('changeNumber')).toBe(wrapper.vm.changeNumberOfFilmsOnPage);
+};
+
+const checkTableHeaders = function(tag) {
+    const th = tag.findAll('th');
+    expect(th.length).toBe(6);
+    expect(th[0].text()).toBe('#');
+    expect(th[1].text()).toBe('Название');
+    expect(th[2].text()).toBe('Описание');
+    expect(th[3].text()).toBe('Язык');
+    expect(th[4].text()).toBe('');
+    expect(th[5].text()).toBe('');
+};
+
+const checkTableInputFields = function(tag) {
+    const th = tag.findAll('th');
+    expect(th.length).toBe(6);
+    expect(th[0].text()).toBe('');
+    expect(th[1].get('input').element.value).toBe('');
+    expect(th[2].get('input').element.value).toBe('');
+    expect(th[3].text()).toBe('');
+    expect(th[4].text()).toBe('');
+    expect(th[5].text()).toBe('');
+};
+
+const checkEchoAuth = function(wrapper) {
+    const echoAuth = wrapper.getComponent(EchoAuth);
+    expect(echoAuth.props('user')).toStrictEqual(user);
+    expect(echoAuth.props('events')).toStrictEqual(['RemoveFilmFromUserList']);
+};
+
 describe("@/Pages/Auth/Account/UserFilms.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
@@ -63,21 +106,15 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         const filmsAccount = useFilmsAccountStore();
         const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsAccount, globalConsts);
+        const wrapper = getWrapper(filmsAccount, films_10_user, globalConsts);
+        
+        checkAccountLayout(wrapper);
         
         // Проверяем, что текущая страница пагинации сохранена в filmsAccount
         expect(wrapper.vm.filmsAccount.page).toBe(films_10_user.current_page);
         
-        const accountLayout = wrapper.getComponent(AccountLayout);
-        expect(accountLayout.props('user')).toStrictEqual(user);
-        expect(accountLayout.props('errors')).toStrictEqual(null);
-        expect(accountLayout.props('linksList')).toStrictEqual(wrapper.vm.linksList);
-        
         // Отрисовывается кнопка изменения числа фильмов
-        const dropdown = wrapper.getComponent(Dropdown);
-        expect(dropdown.props('buttonName')).toBe('Число фильмов на странице');
-        expect(dropdown.props('itemsNumberOnPage')).toBe(films_10_user.per_page);
-        expect(dropdown.props('changeNumber')).toBe(wrapper.vm.changeNumberOfFilmsOnPage);
+        checkDropdown(wrapper, films_10_user);
         
         // Отрисовывается таблица фильмов
         const table = wrapper.get('table.container');
@@ -94,24 +131,10 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         expect(theadTr.length).toBe(2);
         
         // Первый ряд содержит заголовки
-        const th0 = theadTr[0].findAll('th');
-        expect(th0.length).toBe(6);
-        expect(th0[0].text()).toBe('#');
-        expect(th0[1].text()).toBe('Название');
-        expect(th0[2].text()).toBe('Описание');
-        expect(th0[3].text()).toBe('Язык');
-        expect(th0[4].text()).toBe('');
-        expect(th0[5].text()).toBe('');
+        checkTableHeaders(theadTr[0]);
         
         // Второй ряд содержит поля ввода
-        const th1 = theadTr[1].findAll('th');
-        expect(th1.length).toBe(6);
-        expect(th1[0].text()).toBe('');
-        expect(th1[1].get('input').element.value).toBe('');
-        expect(th1[2].get('input').element.value).toBe('');
-        expect(th1[3].text()).toBe('');
-        expect(th1[4].text()).toBe('');
-        expect(th1[5].text()).toBe('');
+        checkTableInputFields(theadTr[1]);
         
         // Тело таблицы состоит из рядов с данными фильмов
         const tbody = table.get('tbody');
@@ -135,16 +158,65 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         const buttons = wrapper.findComponent(Buttons);
         expect(buttons.exists()).toBe(true);
         
-        const echoAuth = wrapper.getComponent(EchoAuth);
-        expect(echoAuth.props('user')).toStrictEqual(user);
-        expect(echoAuth.props('events')).toStrictEqual(['RemoveFilmFromUserList']);
+        expect(wrapper.findComponent(AlertPrimary).exists()).toBe(false);
+        
+        checkEchoAuth(wrapper);
+    });
+    
+    it("Отрисовка UserFilms без фильмов", () => {
+        const filmsAccount = useFilmsAccountStore();
+        const globalConsts = useGlobalConstsStore();
+        
+        const wrapper = getWrapper(filmsAccount, films_0, globalConsts);
+        
+        checkAccountLayout(wrapper);
+        
+        // Проверяем, что текущая страница пагинации сохранена в filmsAccount
+        expect(wrapper.vm.filmsAccount.page).toBe(films_0.current_page);
+        
+        // Отрисовывается кнопка изменения числа фильмов
+        checkDropdown(wrapper, films_0);
+        
+        // Отрисовывается таблица фильмов
+        const table = wrapper.get('table.container');
+        expect(table.isVisible()).toBe(true);
+        
+        // Отсутствует заголовок к таблице
+        const info = table.get('caption').findComponent(Info);
+        expect(info.exists()).toBe(false);
+        
+        // В шапке таблицы два ряда
+        const thead = table.get('thead');
+        expect(thead.isVisible()).toBe(true);
+        const theadTr = thead.findAll('tr');
+        expect(theadTr.length).toBe(2);
+        
+        // Первый ряд содержит заголовки
+        checkTableHeaders(theadTr[0]);
+        
+        // Второй ряд содержит поля ввода
+        checkTableInputFields(theadTr[1]);
+        
+        // В теле таблицы нет рядов с фильмами
+        const tbody = table.get('tbody');
+        expect(tbody.isVisible()).toBe(true);
+        const tbodyTr = tbody.findAll('tr');
+        expect(tbodyTr.length).toBe(0);
+        
+        // Отсутствуют кнопки пагинации
+        const buttons = wrapper.findComponent(Buttons);
+        expect(buttons.exists()).toBe(false);
+        
+        expect(wrapper.findComponent(AlertPrimary).exists()).toBe(true);
+        
+        checkEchoAuth(wrapper);
     });
     
     it("Показать модальное окно удаления фильма", async () => {
         const filmsAccount = useFilmsAccountStore();
         const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsAccount, globalConsts);
+        const wrapper = getWrapper(filmsAccount, films_10_user, globalConsts);
         
         const table = wrapper.get('table.container');
         const tbody = table.get('tbody');
@@ -169,7 +241,7 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         const filmsAccount = useFilmsAccountStore();
         const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsAccount, globalConsts);
+        const wrapper = getWrapper(filmsAccount, films_10_user, globalConsts);
         
         wrapper.vm.isShowFilmRemoveModal = true;
         wrapper.vm.hideFilmRemoveModal();
@@ -181,7 +253,7 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         const filmsAccount = useFilmsAccountStore();
         const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsAccount, globalConsts);
+        const wrapper = getWrapper(filmsAccount, films_10_user, globalConsts);
         
         // Запрос не отправлен
         expect(router.get).not.toHaveBeenCalled();
@@ -197,7 +269,7 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         const filmsAccount = useFilmsAccountStore();
         const globalConsts = useGlobalConstsStore();
         
-        const wrapper = getWrapper(filmsAccount, globalConsts);
+        const wrapper = getWrapper(filmsAccount, films_10_user, globalConsts);
         
         // Запрос не отправлен
         expect(router.get).not.toHaveBeenCalled();
