@@ -29,6 +29,9 @@
     input {
         @apply bg-orange-50 border border-orange-300 focus:ring-orange-700 focus:border-orange-700 text-sm rounded-lg block w-full px-4 py-2;
     }
+    input[type=checkbox] {
+        @apply inline-block w-auto mx-4;
+    }
     td {
         @apply border border-slate-300 p-1;
     }

@@ -4,6 +4,7 @@ import { Head, useForm, Link } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import FormButton from '@/Components/Elements/FormButton.vue';
+import Checkbox from '@/components/Elements/Form/Checkbox.vue';
 import InputField from '@/components/Elements/InputField.vue';
 
 defineProps({
@@ -15,7 +16,8 @@ const app = inject('app');
 
 const form = useForm({
     login: '',
-    password: ''
+    password: '',
+    is_remember: false
 });
 
 const titlePage = 'Вход';
@@ -28,7 +30,9 @@ const linksList = [{
             text: 'Вход'
         }];
 
-const onBeforeForHandlerLogin = () => { app.isRequest = true; };
+const onBeforeForHandlerLogin = () => {
+            app.isRequest = true;
+        };
 
 const onFinishForHandlerLogin = () => {
             app.isRequest = false;
@@ -70,6 +74,13 @@ const handlerLogin = function() {
                     type="password"
                     :errorsMessage="form.errors.password"
                     v-model="form.password"
+                />
+            </div>
+
+            <div class="w-1/3">
+                <Checkbox 
+                    titleText="Запомнить меня:"
+                    v-model="form.is_remember"
                 />
             </div>
 

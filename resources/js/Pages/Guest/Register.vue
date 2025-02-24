@@ -4,6 +4,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import FormButton from '@/Components/Elements/FormButton.vue';
+import Checkbox from '@/components/Elements/Form/Checkbox.vue';
 import InputField from '@/components/Elements/InputField.vue';
 
 defineProps({
@@ -16,7 +17,8 @@ const form = useForm({
     login: '',
     email: '',
     password: '',
-    password_confirmation: ''
+    password_confirmation: '',
+    is_remember: false
 });
 
 const titlePage = 'Регистрация';
@@ -87,6 +89,13 @@ const handlerRegister = function() {
                     titleText="Подтверждение пароля:"
                     type="password"
                     v-model="form.password_confirmation"
+                />
+            </div>
+
+            <div class="w-1/3">
+                <Checkbox 
+                    titleText="Запомнить меня:"
+                    v-model="form.is_remember"
                 />
             </div>
 

@@ -4,9 +4,11 @@ import { setActivePinia, createPinia } from 'pinia';
 import Login from "@/Pages/Guest/Login.vue";
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
+import Checkbox from '@/components/Elements/Form/Checkbox.vue';
 import InputField from '@/components/Elements/InputField.vue';
 import { useAppStore } from '@/Stores/app';
 
+import * as testCheckbox from '@/__tests__/methods/Checkbox/checkbox';
 import { checkFormButton } from '@/__tests__/methods/checkFormButton';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
 import { GuestLayoutStub } from '@/__tests__/stubs/layout';
@@ -90,6 +92,10 @@ describe("@/Pages/Guest/Login.vue", () => {
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], '', 'TestLogin');
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[1], '', 'TestPassword');
         
+        const checkbox = formTag.findComponent(Checkbox);
+        testCheckbox.existsRememberMe(checkbox);
+        testCheckbox.successChecked(checkbox);
+        
         // Проверяем кнопку формы
         checkFormButton.checkPropsFormButton(wrapper, 'Вход', 'w-36');
         await checkFormButton.submitFormButton(wrapper, formPost);
@@ -126,6 +132,10 @@ describe("@/Pages/Guest/Login.vue", () => {
         checkInputField.checkPropsInputField(inputFields[1], 'Введите пароль:', 'password', wrapper.vm.form.errors.password, wrapper.vm.form.password);
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[0], '', 'TestLogin');
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[1], '', 'TestPassword');
+        
+        const checkbox = formTag.findComponent(Checkbox);
+        testCheckbox.existsRememberMe(checkbox);
+        testCheckbox.failChecked(checkbox);
         
         // Проверяем кнопку формы
         checkFormButton.checkPropsFormButton(wrapper, 'Вход', 'w-36');

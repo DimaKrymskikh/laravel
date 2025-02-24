@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 15.4 (Debian 15.4-1.pgdg120+1)
--- Dumped by pg_dump version 15.4 (Ubuntu 15.4-1.pgdg22.04+1)
+-- Dumped by pg_dump version 15.10 (Ubuntu 15.10-1.pgdg22.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -584,6 +584,7 @@ CREATE TABLE person.users (
     email text NOT NULL,
     email_verified_at timestamp with time zone,
     is_admin boolean DEFAULT false NOT NULL,
+    remember_token text,
     CONSTRAINT users_login_check CHECK ((login ~ '^[A-Z]\w{3,17}$'::text))
 );
 
@@ -635,6 +636,13 @@ COMMENT ON COLUMN person.users.email IS 'email пользователя';
 --
 
 COMMENT ON COLUMN person.users.email_verified_at IS 'Время подтверждения email пользователя';
+
+
+--
+-- Name: COLUMN users.remember_token; Type: COMMENT; Schema: person; Owner: -
+--
+
+COMMENT ON COLUMN person.users.remember_token IS 'Токен "запомнить меня"';
 
 
 --
@@ -1369,7 +1377,7 @@ ALTER TABLE ONLY thesaurus.cities
 --
 
 -- Dumped from database version 15.4 (Debian 15.4-1.pgdg120+1)
--- Dumped by pg_dump version 15.4 (Ubuntu 15.4-1.pgdg22.04+1)
+-- Dumped by pg_dump version 15.10 (Ubuntu 15.10-1.pgdg22.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1396,6 +1404,7 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 24	2024_03_26_105021_create_logs_trigger_function	6
 25	2024_03_26_111438_create_logs_trigger_on_table	6
 26	2024_03_30_141820_update_open_weather_weather_table	7
+28	2025_02_19_174211_add_collumn_remember_token_to_table_person_users	9
 \.
 
 
@@ -1403,7 +1412,7 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 -- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.migrations_id_seq', 26, true);
+SELECT pg_catalog.setval('public.migrations_id_seq', 28, true);
 
 
 --

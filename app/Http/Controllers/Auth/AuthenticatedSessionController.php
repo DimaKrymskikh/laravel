@@ -26,7 +26,7 @@ class AuthenticatedSessionController extends Controller
     {
         $credentials = $request->validated();
         
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials, $request->input('is_remember'))) {
             $request->session()->regenerate();
             redirect()->intended(RouteServiceProvider::HOME);
         }
