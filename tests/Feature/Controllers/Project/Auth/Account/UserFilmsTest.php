@@ -106,7 +106,9 @@ class UserFilmsTest extends TestCase
         $acting = $this->actingAs($user);
         
         // Попытка добавить в список пользователя уже существующий там фильм
-        $response = $acting->post(RouteServiceProvider::URL_AUTH_USERFILMS.'/addfilm/'.FilmSeeder::ID_BOILED_DARES, [
+        $response = $acting->withHeaders([
+            'X-Inertia' => true,
+        ])->post(RouteServiceProvider::URL_AUTH_USERFILMS.'/addfilm/'.FilmSeeder::ID_BOILED_DARES, [
             'page' => 1,
             'number' => 100
         ]);
@@ -165,7 +167,9 @@ class UserFilmsTest extends TestCase
         $acting = $this->actingAs($user);
         
         // Передаётся id фильма, которого нет в коллекции пользователя AuthTestLogin
-        $response = $acting->delete(RouteServiceProvider::URL_AUTH_USERFILMS.'/removefilm/'.FilmSeeder::ID_JAPANESE_RUN, [
+        $response = $acting->withHeaders([
+            'X-Inertia' => true,
+        ])->delete(RouteServiceProvider::URL_AUTH_USERFILMS.'/removefilm/'.FilmSeeder::ID_JAPANESE_RUN, [
             'password' => 'AuthTestPassword2',
             'page' => 1,
             'number' => 100

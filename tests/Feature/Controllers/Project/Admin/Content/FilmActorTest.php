@@ -73,7 +73,9 @@ class FilmActorTest extends TestCase
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
         
-        $response = $acting->post(RouteServiceProvider::URL_ADMIN_FILMS.'/actors', [
+        $response = $acting->withHeaders([
+            'X-Inertia' => true,
+        ])->post(RouteServiceProvider::URL_ADMIN_FILMS.'/actors', [
             'film_id' => $film->id,
             'actor_id' => $actor->id,
         ]);

@@ -21,15 +21,12 @@ final class DatabaseException extends \Exception
     
     public function render(Request $request): string|RedirectResponse
     {
-        /**
-         * Не знаю как отличить запрос Inertia от axios
-         */
-        if(/*$request->ajax()*/ false) {
-            return (string) collect(['message' => $this->exceptionMessage]);
-        } else {
+        if($request->header('X-Inertia', false)) {
             return redirect()->back()
                    ->withInput()
                    ->withErrors(['message' => $this->exceptionMessage]);
+        } else {
+            return (string) collect(['message' => $this->exceptionMessage]);
         }
     }
 }
