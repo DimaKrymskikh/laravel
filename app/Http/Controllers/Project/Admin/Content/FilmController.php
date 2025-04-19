@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Project\Admin\Content;
 
+use App\CommandHandlers\Database\Dvd\Films\FilmsListForPageCommandHandler;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dvd\Filters\FilmFilterRequest;
 use App\Http\Requests\Dvd\FilmRequest;
@@ -15,7 +16,8 @@ use Inertia\Response;
 class FilmController extends Controller
 {
     public function __construct(
-        private FilmService $filmService,
+            private FilmsListForPageCommandHandler $filmHandler,
+            private FilmService $filmService,
         private FilmUrls $filmUrls
     ) {
         $this->middleware('check.password')->only('destroy');
@@ -30,7 +32,7 @@ class FilmController extends Controller
     public function index(FilmFilterRequest $request): Response
     {
         return Inertia::render('Admin/Films', [
-                'films' => $this->filmService->getFilmsListWithActorsForPage($request->getPaginatorDto(), $request->getFilmFilterDto())
+                'films' => $this->filmHandler->handle($request->getPaginatorDto(), $request->getFilmFilterDto())
             ]);
     }
 

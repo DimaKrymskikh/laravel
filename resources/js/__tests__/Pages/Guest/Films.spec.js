@@ -8,8 +8,10 @@ import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
+import { useAppStore } from '@/Stores/app';
 import { useFilmsListStore } from '@/Stores/films';
 import { useGlobalConstsStore } from '@/Stores/globalConsts';
+import { useLanguagesListStore } from '@/Stores/languages';
 
 import { films_0, films_10 } from '@/__tests__/data/films';
 import { GuestLayoutStub } from '@/__tests__/stubs/layout';
@@ -26,7 +28,7 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(filmsList, films, globalConsts) {
+const getWrapper = function(films) {
     return mount(Films, {
             props: {
                 errors: {},
@@ -36,7 +38,12 @@ const getWrapper = function(filmsList, films, globalConsts) {
                 stubs: {
                     GuestLayout: GuestLayoutStub
                 },
-                provide: { filmsList, globalConsts }
+                provide: {
+                    app: useAppStore(),
+                    filmsList: useFilmsListStore(),
+                    globalConsts: useGlobalConstsStore(),
+                    languagesList: useLanguagesListStore()
+                }
             }
         });
 };
@@ -64,16 +71,38 @@ const checkBreadCrumb = function(wrapper) {
     expect(li[1].text()).toBe('Фильмы');
 };
 
+const checkTableHead = function(table) {
+        // В шапке таблицы два ряда
+        const thead = table.get('thead');
+        expect(thead.isVisible()).toBe(true);
+        const theadTr = thead.findAll('tr');
+        expect(theadTr.length).toBe(2);
+        
+        // Первый ряд содержит заголовки
+        const th0 = theadTr[0].findAll('th');
+        expect(th0.length).toBe(5);
+        expect(th0[0].text()).toBe('#');
+        expect(th0[1].text()).toBe('Название');
+        expect(th0[2].text()).toBe('Описание');
+        expect(th0[4].text()).toBe('Год выхода');
+        
+        // Второй ряд содержит поля ввода
+        const th1 = theadTr[1].findAll('th');
+        expect(th1.length).toBe(5);
+        expect(th1[0].text()).toBe('');
+        expect(th1[1].get('input').element.value).toBe('');
+        expect(th1[2].get('input').element.value).toBe('');
+        expect(th1[3].text()).toBe('все');
+        expect(th1[4].text()).toBe('все');
+};
+
 describe("@/Pages/Guest/Films.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
     });
     
     it("Отрисовка каталога фильмов", () => {
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(filmsList, films_10, globalConsts);
+        const wrapper = getWrapper(films_10);
         
         expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
@@ -96,27 +125,7 @@ describe("@/Pages/Guest/Films.vue", () => {
         const info = table.get('caption').findComponent(Info);
         expect(info.text()).toBe(`Показано ${films_10.per_page} фильмов с ${films_10.from} по ${films_10.to} из ${films_10.total}`);
         
-        // В шапке таблицы два ряда
-        const thead = table.get('thead');
-        expect(thead.isVisible()).toBe(true);
-        const theadTr = thead.findAll('tr');
-        expect(theadTr.length).toBe(2);
-        
-        // Первый ряд содержит заголовки
-        const th0 = theadTr[0].findAll('th');
-        expect(th0.length).toBe(4);
-        expect(th0[0].text()).toBe('#');
-        expect(th0[1].text()).toBe('Название');
-        expect(th0[2].text()).toBe('Описание');
-        expect(th0[3].text()).toBe('Язык');
-        
-        // Второй ряд содержит поля ввода
-        const th1 = theadTr[1].findAll('th');
-        expect(th1.length).toBe(4);
-        expect(th1[0].text()).toBe('');
-        expect(th1[1].get('input').element.value).toBe('');
-        expect(th1[2].get('input').element.value).toBe('');
-        expect(th1[3].text()).toBe('');
+        checkTableHead(table);
         
         // Тело таблицы состоит из рядов с данными фильмов
         const tbody = table.get('tbody');
@@ -124,11 +133,12 @@ describe("@/Pages/Guest/Films.vue", () => {
         const tbodyTr = tbody.findAll('tr');
         expect(tbodyTr.length).toBe(films_10.per_page);
         const td3 = tbodyTr[3].findAll('td');
-        expect(td3.length).toBe(4);
+        expect(td3.length).toBe(5);
         expect(td3[0].text()).toBe(`${films_10.from + 3}`);
         expect(td3[1].text()).toBe(films_10.data[3].title);
         expect(td3[2].text()).toBe(films_10.data[3].description);
-        expect(td3[3].text()).toBe(films_10.data[3].language.name);
+        expect(td3[3].text()).toBe(films_10.data[3].languageName);
+        expect(td3[4].text()).toBe(films_10.data[3].releaseYear);
         
         // Отрисовываются кнопки пагинации
         const buttons = wrapper.findComponent(Buttons);
@@ -136,10 +146,7 @@ describe("@/Pages/Guest/Films.vue", () => {
     });
     
     it("Отрисовка каталога фильмов без фильмов", () => {
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(filmsList, films_0, globalConsts);
+        const wrapper = getWrapper(films_0);
         
         expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
@@ -161,27 +168,7 @@ describe("@/Pages/Guest/Films.vue", () => {
         // Заголовок к таблице отсутствует
         expect(table.get('caption').findComponent(Info).exists()).toBe(false);
         
-        // В шапке таблицы два ряда
-        const thead = table.get('thead');
-        expect(thead.isVisible()).toBe(true);
-        const theadTr = thead.findAll('tr');
-        expect(theadTr.length).toBe(2);
-        
-        // Первый ряд содержит заголовки
-        const th0 = theadTr[0].findAll('th');
-        expect(th0.length).toBe(4);
-        expect(th0[0].text()).toBe('#');
-        expect(th0[1].text()).toBe('Название');
-        expect(th0[2].text()).toBe('Описание');
-        expect(th0[3].text()).toBe('Язык');
-        
-        // Второй ряд содержит поля ввода
-        const th1 = theadTr[1].findAll('th');
-        expect(th1.length).toBe(4);
-        expect(th1[0].text()).toBe('');
-        expect(th1[1].get('input').element.value).toBe('');
-        expect(th1[2].get('input').element.value).toBe('');
-        expect(th1[3].text()).toBe('');
+        checkTableHead(table);
         
         // Тело таблицы пустое
         const tbody = table.get('tbody');
@@ -195,10 +182,7 @@ describe("@/Pages/Guest/Films.vue", () => {
     });
     
     it("Изменение числа фильмов", async () => {
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(filmsList, films_10, globalConsts);
+        const wrapper = getWrapper(films_10);
         
         expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
@@ -244,10 +228,9 @@ describe("@/Pages/Guest/Films.vue", () => {
     });
     
     it("Задание фильтра для фильмов", async () => {
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
+        vi.useFakeTimers();
         
-        const wrapper = getWrapper(filmsList, films_10, globalConsts);
+        const wrapper = getWrapper(films_10);
         
         expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
@@ -265,11 +248,11 @@ describe("@/Pages/Guest/Films.vue", () => {
         const thead = wrapper.get('thead');
         const theadTr = thead.findAll('tr');
         const th1 = theadTr[1].findAll('th');
-        expect(th1.length).toBe(4);
+        expect(th1.length).toBe(5);
         expect(th1[0].text()).toBe('');
         expect(th1[1].get('input').element.value).toBe('');
         expect(th1[2].get('input').element.value).toBe('');
-        expect(th1[3].text()).toBe('');
+        expect(th1[3].text()).toBe('все');
         
         // Изменяем поле title
         th1[1].get('input').setValue('abc');
@@ -281,16 +264,28 @@ describe("@/Pages/Guest/Films.vue", () => {
         expect(th1[2].get('input').element.value).toBe('xyz');
         expect(wrapper.vm.filmsList.description).toBe('xyz');
         
-        // Клик по кнопке 'a' не отправляет запрос на сервер
+        // Нажимаем три клавиши, запрос отправляется один раз
         expect(router.get).not.toHaveBeenCalled();
         await th1[1].get('input').trigger('keyup', {key: 'a'});
-        expect(router.get).not.toHaveBeenCalled();
-        
-        // Клик по кнопке 'enter' отправляет запрос на сервер с правильным параметром
-        await th1[1].get('input').trigger('keyup', {key: "enter"});
+        await th1[1].get('input').trigger('keyup', {key: 'b'});
+        await th1[1].get('input').trigger('keyup', {key: 'c'});
+        vi.advanceTimersByTime(2000);
         expect(router.get).toHaveBeenCalledTimes(1);
-        expect(router.get).toHaveBeenCalledWith(wrapper.vm.filmsList.getUrl('/guest/films'));
-        // Текущая страница становится 1
-        expect(wrapper.vm.filmsList.page).toBe(1);
+    });
+    
+    it("Функция setNewLanguageName изменяет languageName", async () => {
+        const wrapper = getWrapper(films_10);
+        
+        expect(wrapper.vm.languageName).toBe('');
+        wrapper.vm.setNewLanguageName('Новый язык');
+        expect(wrapper.vm.languageName).toBe('Новый язык');
+    });
+    
+    it("Функция setNewReleaseYear изменяет releaseYear", async () => {
+        const wrapper = getWrapper(films_10);
+        
+        expect(wrapper.vm.releaseYear).toBe('');
+        wrapper.vm.setNewReleaseYear('1970');
+        expect(wrapper.vm.releaseYear).toBe('1970');
     });
 });

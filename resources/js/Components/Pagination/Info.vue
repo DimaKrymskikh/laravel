@@ -7,6 +7,6 @@ const { films } = defineProps({
 </script>
 
 <template>
-    Показано {{ films.per_page }} фильмов с {{ films.from }} по {{ films.to }} из {{ films.total }}
+    Показано {{ films.data.length }} фильмов с {{ films.from }} по {{ films.to }} из {{ films.total }}
 </template>
 

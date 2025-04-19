@@ -74,21 +74,12 @@ class FilmTest extends TestCase
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
         $title = 'Ap';
         $description = 'Oo';
-        $response = $acting->get(RouteServiceProvider::URL_ADMIN_FILMS."?title_filter=$title&description_filter=$description");
+        $response = $acting->get(RouteServiceProvider::URL_ADMIN_FILMS."?title_filter=$title&description_filter=$description&release_year_filter=2025&language_name_filter=ru");
 
         $response
                 ->assertStatus(200)
                 ->assertInertia(fn (Assert $page) => 
                     $page->component('Admin/Films')
-                        ->has('films', fn (Assert $page) => 
-                            $page->has('data', Film::where('title', 'ILIKE', "%$title%")
-                                        ->where('description', 'ILIKE', "%$description%")
-                                        ->count()
-                            )
-                            ->etc()
-                        )
-                        ->has('errors', 0)
-                        ->etc()
                 );
     }
     

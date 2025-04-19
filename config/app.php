@@ -196,6 +196,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         
         App\Providers\BindingInterfaces\RepositoriesProvider::class,
+        App\Providers\BindingInterfaces\QueriesProvider::class,
 
     ],
 

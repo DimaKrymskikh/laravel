@@ -14,8 +14,10 @@ import EyeSvg from '@/Components/Svg/EyeSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import FilmRemoveModal from '@/Components/Modal/Request/FilmRemoveModal.vue';
 import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
+import { useAppStore } from '@/Stores/app';
 import { useFilmsAccountStore } from '@/Stores/films';
 import { useGlobalConstsStore } from '@/Stores/globalConsts';
+import { useLanguagesListStore } from '@/Stores/languages';
 
 import { films_10_user, films_0 } from '@/__tests__/data/films';
 import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
@@ -38,7 +40,7 @@ const user = {
             login: 'TestLogin'
         };
 
-const getWrapper = function(filmsAccount, films, globalConsts) {
+const getWrapper = function(films) {
     return mount(UserFilms, {
             props: {
                 errors: null,
@@ -50,7 +52,12 @@ const getWrapper = function(filmsAccount, films, globalConsts) {
                     AccountLayout: AuthAccountLayoutStub,
                     FilmRemoveModal: true
                 },
-                provide: { filmsAccount, globalConsts }
+                provide: {
+                    app: useAppStore(),
+                    filmsAccount: useFilmsAccountStore(),
+                    globalConsts: useGlobalConstsStore(),
+                    languagesList: useLanguagesListStore()
+                }
             }
         });
 };
@@ -71,24 +78,26 @@ const checkDropdown = function(wrapper, films) {
 
 const checkTableHeaders = function(tag) {
     const th = tag.findAll('th');
-    expect(th.length).toBe(6);
+    expect(th.length).toBe(7);
     expect(th[0].text()).toBe('#');
     expect(th[1].text()).toBe('Название');
     expect(th[2].text()).toBe('Описание');
     expect(th[3].text()).toBe('Язык');
-    expect(th[4].text()).toBe('');
+    expect(th[4].text()).toBe('Год выхода');
     expect(th[5].text()).toBe('');
+    expect(th[6].text()).toBe('');
 };
 
 const checkTableInputFields = function(tag) {
     const th = tag.findAll('th');
-    expect(th.length).toBe(6);
+    expect(th.length).toBe(7);
     expect(th[0].text()).toBe('');
     expect(th[1].get('input').element.value).toBe('');
     expect(th[2].get('input').element.value).toBe('');
-    expect(th[3].text()).toBe('');
-    expect(th[4].text()).toBe('');
+    expect(th[3].text()).toBe('все');
+    expect(th[4].text()).toBe('все');
     expect(th[5].text()).toBe('');
+    expect(th[6].text()).toBe('');
 };
 
 const checkEchoAuth = function(wrapper) {
@@ -103,10 +112,7 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
     });
     
     it("Отрисовка UserFilms", () => {
-        const filmsAccount = useFilmsAccountStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(filmsAccount, films_10_user, globalConsts);
+        const wrapper = getWrapper(films_10_user);
         
         checkAccountLayout(wrapper);
         
@@ -144,15 +150,16 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         
         // Отрисовка одного ряда тела таблицы
         const td3 = tbodyTr[3].findAll('td');
-        expect(td3.length).toBe(6);
+        expect(td3.length).toBe(7);
         expect(td3[0].text()).toBe(`${films_10_user.from + 3}`);
         expect(td3[1].text()).toBe(films_10_user.data[3].title);
         expect(td3[2].text()).toBe(films_10_user.data[3].description);
-        expect(td3[3].text()).toBe(films_10_user.data[3].language.name);
-        const a4 = td3[4].get('a');
-        expect(a4.attributes('href')).toBe(`/userfilms/${films_10_user.data[3].id}`);
-        expect(a4.findComponent(EyeSvg).props('title')).toBe('Посмотреть карточку фильма');
-        expect(td3[5].findComponent(TrashSvg).props('title')).toBe('Удалить фильм из своей коллекции');
+        expect(td3[3].text()).toBe(films_10_user.data[3].languageName);
+        expect(td3[4].text()).toBe(films_10_user.data[3].releaseYear);
+        const a5 = td3[5].get('a');
+        expect(a5.attributes('href')).toBe(`/userfilms/${films_10_user.data[3].id}`);
+        expect(a5.findComponent(EyeSvg).props('title')).toBe('Посмотреть карточку фильма');
+        expect(td3[6].findComponent(TrashSvg).props('title')).toBe('Удалить фильм из своей коллекции');
         
         // Отрисовываются кнопки пагинации
         const buttons = wrapper.findComponent(Buttons);
@@ -164,10 +171,7 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
     });
     
     it("Отрисовка UserFilms без фильмов", () => {
-        const filmsAccount = useFilmsAccountStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(filmsAccount, films_0, globalConsts);
+        const wrapper = getWrapper(films_0);
         
         checkAccountLayout(wrapper);
         
@@ -213,10 +217,7 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
     });
     
     it("Показать модальное окно удаления фильма", async () => {
-        const filmsAccount = useFilmsAccountStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(filmsAccount, films_10_user, globalConsts);
+        const wrapper = getWrapper(films_10_user);
         
         const table = wrapper.get('table.container');
         const tbody = table.get('tbody');
@@ -224,7 +225,7 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         
         // Находим кнопку для удаления фильма
         const td3 = tbodyTr[3].findAll('td');
-        const trashSvg = td3[5].findComponent(TrashSvg);
+        const trashSvg = td3[6].findComponent(TrashSvg);
         // Модальное окно для удаления фильма скрыто
         expect(wrapper.vm.isShowFilmRemoveModal).toBe(false);
         expect(wrapper.findComponent(FilmRemoveModal).exists()).toBe(false);
@@ -238,10 +239,7 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
     
     // Закрытие модального окна (вызов функции hideFilmRemoveModal) проверяется в FilmRemoveModal
     it("Функция hideFilmRemoveModal изменяет isShowFilmRemoveModal с true на false", () => {
-        const filmsAccount = useFilmsAccountStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(filmsAccount, films_10_user, globalConsts);
+        const wrapper = getWrapper(films_10_user);
         
         wrapper.vm.isShowFilmRemoveModal = true;
         wrapper.vm.hideFilmRemoveModal();
@@ -250,10 +248,7 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
     
     // В Dropdown проверяется клик по элементам DOM
     it("Функция changeNumberOfFilmsOnPage отправляет запрос на изменение числа фильмов на странице", () => {
-        const filmsAccount = useFilmsAccountStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(filmsAccount, films_10_user, globalConsts);
+        const wrapper = getWrapper(films_10_user);
         
         // Запрос не отправлен
         expect(router.get).not.toHaveBeenCalled();
@@ -266,10 +261,9 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
     });
     
     it("Проверка работы фильтров", async () => {
-        const filmsAccount = useFilmsAccountStore();
-        const globalConsts = useGlobalConstsStore();
+        vi.useFakeTimers();
         
-        const wrapper = getWrapper(filmsAccount, films_10_user, globalConsts);
+        const wrapper = getWrapper(films_10_user);
         
         // Запрос не отправлен
         expect(router.get).not.toHaveBeenCalled();
@@ -292,13 +286,30 @@ describe("@/Pages/Auth/Account/UserFilms.vue", () => {
         await inputs[1].setValue('12345');
         expect(wrapper.vm.filmsAccount.description).toBe('12345');
         
-        await inputs[0].trigger('keyup', {key: 'a'});
-        // Запрос не отправлен
+        // Нажимаем три клавиши, запрос отправляется один раз
         expect(router.get).not.toHaveBeenCalled();
-        
-        await inputs[0].trigger('keyup', {key: 'enter'});
-        // Активная страница становится первой, и отправляется запрос с нужными параметрами
+        await inputs[0].trigger('keyup', {key: 'a'});
+        await inputs[0].trigger('keyup', {key: 'b'});
+        await inputs[0].trigger('keyup', {key: 'c'});
+        vi.advanceTimersByTime(2000);
+         // Активная страница становится первой, и отправляется запрос с нужными параметрами
         expect(wrapper.vm.filmsAccount.page).toBe(1);
         expect(router.get).toHaveBeenCalledWith(wrapper.vm.filmsAccount.getUrl('/userfilms'));
+    });
+    
+    it("Функция setNewLanguageName изменяет languageName", async () => {
+        const wrapper = getWrapper(films_10_user);
+        
+        expect(wrapper.vm.languageName).toBe('');
+        wrapper.vm.setNewLanguageName('Новый язык');
+        expect(wrapper.vm.languageName).toBe('Новый язык');
+    });
+    
+    it("Функция setNewReleaseYear изменяет releaseYear", async () => {
+        const wrapper = getWrapper(films_10_user);
+        
+        expect(wrapper.vm.releaseYear).toBe('');
+        wrapper.vm.setNewReleaseYear('1970');
+        expect(wrapper.vm.releaseYear).toBe('1970');
     });
 });

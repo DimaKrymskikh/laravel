@@ -1,8 +1,10 @@
 <script setup>
-import { ref, inject } from 'vue';
+import { ref, inject, watch } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import AlertPrimary from '@/Components/Alerts/AlertPrimary.vue';
+import LangugeDropdown from '@/Components/Elements/Dropdowns/LanguageDropdown.vue';
+import YearDropdown from '@/Components/Elements/Dropdowns/YearDropdown.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
@@ -32,6 +34,17 @@ const pusherEvents = ['RemoveFilmFromUserList'];
 
 const filmsAccount = inject('filmsAccount');
 filmsAccount.setOptions(films);
+
+const languageName = ref(filmsAccount.languageName);
+const releaseYear = ref(filmsAccount.releaseYear);
+        
+const setNewLanguageName = function(name) {
+    languageName.value = name;
+};
+
+const setNewReleaseYear = function(year) {
+    releaseYear.value = year;
+};
 
 // Отслеживает отрисовку/удаление модального окна для удаления фильма
 const isShowFilmRemoveModal = ref(false);
@@ -71,13 +84,15 @@ const changeNumberOfFilmsOnPage = function(newNumber) {
 };
 
 const putFilms = function(e) {
-    if(e.key.toLowerCase() !== "enter") {
-        return;
-    }
-    
-    filmsAccount.page = 1;
-    router.get(filmsAccount.getUrl('/userfilms'));
+    setTimeout(function() {
+        e.target.setAttribute('disabled', '');
+        filmsAccount.refreshFilms(languageName.value, releaseYear.value, '/userfilms');
+    }, 2000);
 };
+
+watch([languageName, releaseYear], () => {
+    filmsAccount.refreshFilms(languageName.value, releaseYear.value, '/userfilms');
+});
 </script>
 
 <template>
@@ -102,6 +117,7 @@ const putFilms = function(e) {
                         <th>Название</th>
                         <th>Описание</th>
                         <th>Язык</th>
+                        <th>Год выхода</th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -109,7 +125,8 @@ const putFilms = function(e) {
                         <th></th>
                         <th><input type="text" v-model="filmsAccount.title" @keyup="putFilms"></th>
                         <th><input type="text" v-model="filmsAccount.description" @keyup="putFilms"></th>
-                        <th></th>
+                        <th><LangugeDropdown :languageName="languageName" :setNewLanguageName="setNewLanguageName"/></th>
+                        <th><YearDropdown :releaseYear="releaseYear" :setNewReleaseYear="setNewReleaseYear"/></th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -119,7 +136,8 @@ const putFilms = function(e) {
                         <td>{{ films.from + index }}</td>
                         <td>{{ film.title }}</td>
                         <td>{{ film.description }}</td>
-                        <td>{{ film.language ? film.language.name : '' }}</td>
+                        <td class="text-center">{{ film.languageName }}</td>
+                        <td class="text-center">{{ film.releaseYear }}</td>
                         <td>
                             <Link :href="`/userfilms/${film.id}`">
                                 <EyeSvg title="Посмотреть карточку фильма"/>

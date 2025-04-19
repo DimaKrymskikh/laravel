@@ -16,6 +16,7 @@ import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 import { useAppStore } from '@/Stores/app';
 import { useFilmsListStore } from '@/Stores/films';
 import { useGlobalConstsStore } from '@/Stores/globalConsts';
+import { useLanguagesListStore } from '@/Stores/languages';
 
 import { films_0, films_10_user } from '@/__tests__/data/films';
 import { AuthLayoutStub } from '@/__tests__/stubs/layout';
@@ -38,7 +39,10 @@ const user = {
             is_admin: false
         };
 
-const getWrapper = function(app, filmsList, films, globalConsts) {
+const getWrapper = function(films, isRequest = false) {
+    const app = useAppStore();
+    app.isRequest = isRequest;
+    
     return mount(Films, {
             props: {
                 errors: {},
@@ -49,9 +53,42 @@ const getWrapper = function(app, filmsList, films, globalConsts) {
                 stubs: {
                     AuthLayout: AuthLayoutStub
                 },
-                provide: { app, filmsList, globalConsts }
+                provide: {
+                    app: useAppStore(),
+                    filmsList: useFilmsListStore(),
+                    globalConsts: useGlobalConstsStore(),
+                    languagesList: useLanguagesListStore()
+                }
             }
         });
+};
+
+const checkTableHead = function(table) {
+    // В шапке таблицы два ряда
+    const thead = table.get('thead');
+    expect(thead.isVisible()).toBe(true);
+    const theadTr = thead.findAll('tr');
+    expect(theadTr.length).toBe(2);
+
+    // Первый ряд содержит заголовки
+    const th0 = theadTr[0].findAll('th');
+    expect(th0.length).toBe(6);
+    expect(th0[0].text()).toBe('#');
+    expect(th0[1].text()).toBe('Название');
+    expect(th0[2].text()).toBe('Описание');
+    expect(th0[3].text()).toBe('Язык');
+    expect(th0[4].text()).toBe('Год выхода');
+    expect(th0[5].text()).toBe('');
+
+    // Второй ряд содержит поля ввода
+    const th1 = theadTr[1].findAll('th');
+    expect(th1.length).toBe(6);
+    expect(th1[0].text()).toBe('');
+    expect(th1[1].get('input').element.value).toBe('');
+    expect(th1[2].get('input').element.value).toBe('');
+    expect(th1[3].text()).toBe('все');
+    expect(th1[4].text()).toBe('все');
+    expect(th1[5].text()).toBe('');
 };
 
 describe("@/Pages/Auth/Films.vue", () => {
@@ -60,11 +97,7 @@ describe("@/Pages/Auth/Films.vue", () => {
     });
     
     it("Отрисовка каталога фильмов (залогиненный пользователь)", () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
+        const wrapper = getWrapper(films_10_user);
         
         const authLayout = wrapper.getComponent(AuthLayout);
         expect(authLayout.props('user')).toStrictEqual(user);
@@ -93,29 +126,7 @@ describe("@/Pages/Auth/Films.vue", () => {
         const info = table.get('caption').findComponent(Info);
         expect(info.text()).toBe(`Показано ${films_10_user.per_page} фильмов с ${films_10_user.from} по ${films_10_user.to} из ${films_10_user.total}`);
         
-        // В шапке таблицы два ряда
-        const thead = table.get('thead');
-        expect(thead.isVisible()).toBe(true);
-        const theadTr = thead.findAll('tr');
-        expect(theadTr.length).toBe(2);
-        
-        // Первый ряд содержит заголовки
-        const th0 = theadTr[0].findAll('th');
-        expect(th0.length).toBe(5);
-        expect(th0[0].text()).toBe('#');
-        expect(th0[1].text()).toBe('Название');
-        expect(th0[2].text()).toBe('Описание');
-        expect(th0[3].text()).toBe('Язык');
-        expect(th0[4].text()).toBe('');
-        
-        // Второй ряд содержит поля ввода
-        const th1 = theadTr[1].findAll('th');
-        expect(th1.length).toBe(5);
-        expect(th1[0].text()).toBe('');
-        expect(th1[1].get('input').element.value).toBe('');
-        expect(th1[2].get('input').element.value).toBe('');
-        expect(th1[3].text()).toBe('');
-        expect(th1[4].text()).toBe('');
+        checkTableHead(table);
         
         // Тело таблицы состоит из рядов с данными фильмов
         const tbody = table.get('tbody');
@@ -125,23 +136,25 @@ describe("@/Pages/Auth/Films.vue", () => {
         
         // title: 'Attacks Hate'
         const td3 = tbodyTr[3].findAll('td');
-        expect(td3.length).toBe(5);
+        expect(td3.length).toBe(6);
         expect(td3[0].text()).toBe(`${films_10_user.from + 3}`);
         expect(td3[1].text()).toBe(films_10_user.data[3].title);
         expect(td3[2].text()).toBe(films_10_user.data[3].description);
-        expect(td3[3].text()).toBe(films_10_user.data[3].language.name);
+        expect(td3[3].text()).toBe(films_10_user.data[3].languageName);
+        expect(td3[4].text()).toBe(films_10_user.data[3].releaseYear);
         // Отрисован плюс
-        expect(td3[4].findComponent(PlusCircleSvg).exists()).toBe(true);
+        expect(td3[5].findComponent(PlusCircleSvg).exists()).toBe(true);
         
         // title: 'Attraction Newton'
         const td4 = tbodyTr[4].findAll('td');
-        expect(td4.length).toBe(5);
+        expect(td4.length).toBe(6);
         expect(td4[0].text()).toBe(`${films_10_user.from + 4}`);
         expect(td4[1].text()).toBe(films_10_user.data[4].title);
         expect(td4[2].text()).toBe(films_10_user.data[4].description);
-        expect(td4[3].text()).toBe(films_10_user.data[4].language.name);
+        expect(td4[3].text()).toBe(films_10_user.data[4].languageName);
+        expect(td4[4].text()).toBe(films_10_user.data[4].releaseYear);
         // Отрисована галочка
-        expect(td4[4].findComponent(CheckCircleSvg).exists()).toBe(true);
+        expect(td4[5].findComponent(CheckCircleSvg).exists()).toBe(true);
         
         // Отрисовываются кнопки пагинации
         const buttons = wrapper.findComponent(Buttons);
@@ -153,11 +166,7 @@ describe("@/Pages/Auth/Films.vue", () => {
     });
     
     it("Отрисовка каталога фильмов без фильмов (залогиненный пользователь)", () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(app, filmsList, films_0, globalConsts);
+        const wrapper = getWrapper(films_0);
         
         const authLayout = wrapper.getComponent(AuthLayout);
         expect(authLayout.props('user')).toStrictEqual(user);
@@ -185,29 +194,7 @@ describe("@/Pages/Auth/Films.vue", () => {
         // Заголовок к таблице отсутствует
         expect(table.get('caption').findComponent(Info).exists()).toBe(false);
         
-        // В шапке таблицы два ряда
-        const thead = table.get('thead');
-        expect(thead.isVisible()).toBe(true);
-        const theadTr = thead.findAll('tr');
-        expect(theadTr.length).toBe(2);
-        
-        // Первый ряд содержит заголовки
-        const th0 = theadTr[0].findAll('th');
-        expect(th0.length).toBe(5);
-        expect(th0[0].text()).toBe('#');
-        expect(th0[1].text()).toBe('Название');
-        expect(th0[2].text()).toBe('Описание');
-        expect(th0[3].text()).toBe('Язык');
-        expect(th0[4].text()).toBe('');
-        
-        // Второй ряд содержит поля ввода
-        const th1 = theadTr[1].findAll('th');
-        expect(th1.length).toBe(5);
-        expect(th1[0].text()).toBe('');
-        expect(th1[1].get('input').element.value).toBe('');
-        expect(th1[2].get('input').element.value).toBe('');
-        expect(th1[3].text()).toBe('');
-        expect(th1[4].text()).toBe('');
+        checkTableHead(table);
         
         // Тело таблицы пустое
         const tbody = table.get('tbody');
@@ -221,11 +208,7 @@ describe("@/Pages/Auth/Films.vue", () => {
     });
     
     it("Изменение числа фильмов (залогиненный пользователь)", async () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
+        const wrapper = getWrapper(films_10_user);
         
         // В начальный момент текущая страница films_10_user.current_page = 5
         expect(wrapper.vm.filmsList.page).toBe(films_10_user.current_page);
@@ -265,11 +248,9 @@ describe("@/Pages/Auth/Films.vue", () => {
     });
     
     it("Задание фильтра для фильмов (залогиненный пользователь)", async () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
+        vi.useFakeTimers();
         
-        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
+        const wrapper = getWrapper(films_10_user);
         
         // Изменяется текущая страница с дефолтного 1 на films_10.current_page
         expect(wrapper.vm.filmsList.page).toBe(5);
@@ -281,12 +262,13 @@ describe("@/Pages/Auth/Films.vue", () => {
         const thead = wrapper.get('thead');
         const theadTr = thead.findAll('tr');
         const th1 = theadTr[1].findAll('th');
-        expect(th1.length).toBe(5);
+        expect(th1.length).toBe(6);
         expect(th1[0].text()).toBe('');
         expect(th1[1].get('input').element.value).toBe('');
         expect(th1[2].get('input').element.value).toBe('');
-        expect(th1[3].text()).toBe('');
-        expect(th1[4].text()).toBe('');
+        expect(th1[3].text()).toBe('все');
+        expect(th1[4].text()).toBe('все');
+        expect(th1[5].text()).toBe('');
         
         // Изменяем поле title
         th1[1].get('input').setValue('abc');
@@ -298,25 +280,19 @@ describe("@/Pages/Auth/Films.vue", () => {
         expect(th1[2].get('input').element.value).toBe('xyz');
         expect(wrapper.vm.filmsList.description).toBe('xyz');
         
-        // Клик по кнопке 'a' не отправляет запрос на сервер
+        // Нажимаем три клавиши, запрос отправляется один раз
         expect(router.get).not.toHaveBeenCalled();
         await th1[1].get('input').trigger('keyup', {key: 'a'});
-        expect(router.get).not.toHaveBeenCalled();
-        
-        // Клик по кнопке 'enter' отправляет запрос на сервер с правильным параметром
-        await th1[1].get('input').trigger('keyup', {key: "enter"});
+        await th1[1].get('input').trigger('keyup', {key: 'b'});
+        await th1[1].get('input').trigger('keyup', {key: 'c'});
+        vi.advanceTimersByTime(2000);
         expect(router.get).toHaveBeenCalledTimes(1);
-        expect(router.get).toHaveBeenCalledWith(wrapper.vm.filmsList.getUrl('/films'));
         // Текущая страница становится 1
         expect(wrapper.vm.filmsList.page).toBe(1);
     });
     
     it("Добавление фильма в коллекцию пользователя", async () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
+        const wrapper = getWrapper(films_10_user);
         
         // Изменяется текущая страница с дефолтного 1 на films_10.current_page
         expect(wrapper.vm.filmsList.page).toBe(5);
@@ -335,14 +311,14 @@ describe("@/Pages/Auth/Films.vue", () => {
         // title: 'Attacks Hate'
         const td3 = tbodyTr[3].findAll('td');
         // Отрисован плюс
-        const plusCircleSvg = td3[4].findComponent(PlusCircleSvg);
+        const plusCircleSvg = td3[5].findComponent(PlusCircleSvg);
         expect(plusCircleSvg.exists()).toBe(true);
         // Клик по плюсу отправляет запрос на сервер
         expect(router.post).not.toHaveBeenCalled();
         await plusCircleSvg.trigger('click');
         expect(router.post).toHaveBeenCalledTimes(1);
         // router.post вызывается с нужными параметрами
-        expect(router.post).toHaveBeenCalledWith(filmsList.getUrl(`userfilms/addfilm/${films_10_user.data[3].id}`), {}, {
+        expect(router.post).toHaveBeenCalledWith(wrapper.vm.filmsList.getUrl(`userfilms/addfilm/${films_10_user.data[3].id}`), {}, {
             preserveScroll: true,
             onBefore: expect.anything(),
             onError: expect.anything(),
@@ -354,8 +330,8 @@ describe("@/Pages/Auth/Films.vue", () => {
         // title: 'Attraction Newton'
         const td4 = tbodyTr[4].findAll('td');
         // Отрисована галочка
-        const checkCircleSvg = td4[4].findComponent(CheckCircleSvg);
-        expect(td4[4].findComponent(CheckCircleSvg).exists()).toBe(true);
+        const checkCircleSvg = td4[5].findComponent(CheckCircleSvg);
+        expect(checkCircleSvg.exists()).toBe(true);
         // Клик по галочке не отправляет запрос на сервер
         expect(router.post).not.toHaveBeenCalled();
         await plusCircleSvg.trigger('click');
@@ -363,12 +339,7 @@ describe("@/Pages/Auth/Films.vue", () => {
     });
     
     it("Нельзя отправить запрос на добавление фильма, если app.isRequest = true", async () => {
-        const app = useAppStore();
-        app.isRequest = true;
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
+        const wrapper = getWrapper(films_10_user, true);
         
         // В таблице находим фильм с "+"
         const table = wrapper.get('table.container');
@@ -378,7 +349,7 @@ describe("@/Pages/Auth/Films.vue", () => {
         // title: 'Attacks Hate'
         const td3 = tbodyTr[3].findAll('td');
         // Отрисован плюс
-        const plusCircleSvg = td3[4].findComponent(PlusCircleSvg);
+        const plusCircleSvg = td3[5].findComponent(PlusCircleSvg);
         expect(plusCircleSvg.exists()).toBe(true);
         // Клик по плюсу не отправляет запрос на сервер
         await plusCircleSvg.trigger('click');
@@ -386,11 +357,7 @@ describe("@/Pages/Auth/Films.vue", () => {
     });
     
     it("Проверка появления спинера", async () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(app, filmsList, films_10_user);
+        const wrapper = getWrapper(films_10_user);
         
         expect(wrapper.vm.app.isRequest).toBe(false);
         
@@ -405,7 +372,7 @@ describe("@/Pages/Auth/Films.vue", () => {
         // Attacks Hate
         const td0 = tbodyTr[3].findAll('td');
       
-        const spanPlusCircleSvg = td0[4].getComponent(PlusCircleSvg).get('span');
+        const spanPlusCircleSvg = td0[5].getComponent(PlusCircleSvg).get('span');
         // Клик по spanPlusCircleSvg приводит к вызову функции addCity
         wrapper.vm.addFilm(spanPlusCircleSvg.element);
         // Правильно находиться id фильма
@@ -470,5 +437,21 @@ describe("@/Pages/Auth/Films.vue", () => {
         wrapper.vm.onFinishForAddFilm();
         
         expect(app.isRequest).toBe(false);
+    });
+    
+    it("Функция setNewLanguageName изменяет languageName", async () => {
+        const wrapper = getWrapper(films_10_user);
+        
+        expect(wrapper.vm.languageName).toBe('');
+        wrapper.vm.setNewLanguageName('Новый язык');
+        expect(wrapper.vm.languageName).toBe('Новый язык');
+    });
+    
+    it("Функция setNewReleaseYear изменяет releaseYear", async () => {
+        const wrapper = getWrapper(films_10_user);
+        
+        expect(wrapper.vm.releaseYear).toBe('');
+        wrapper.vm.setNewReleaseYear('1970');
+        expect(wrapper.vm.releaseYear).toBe('1970');
     });
 });

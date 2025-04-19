@@ -1,8 +1,10 @@
 <script setup>
-import { ref, inject } from 'vue';
+import { ref, inject, watch } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
+import LangugeDropdown from '@/Components/Elements/Dropdowns/LanguageDropdown.vue';
+import YearDropdown from '@/Components/Elements/Dropdowns/YearDropdown.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
@@ -21,6 +23,17 @@ const app = inject('app');
 
 const filmsList = inject('filmsList');
 filmsList.setOptions(films);
+
+const languageName = ref(filmsList.languageName);
+const releaseYear = ref(filmsList.releaseYear);
+        
+const setNewLanguageName = function(name) {
+    languageName.value = name;
+};
+
+const setNewReleaseYear = function(year) {
+    releaseYear.value = year;
+};
 
 const titlePage = 'Каталог';
 
@@ -94,13 +107,15 @@ const changeNumberOfFilmsOnPage = function(newNumber) {
 };
 
 const putFilms = function(e) {
-    if(e.key.toLowerCase() !== "enter") {
-        return;
-    }
-    
-    filmsList.page = 1;
-    router.get(filmsList.getUrl('/films'));
+    setTimeout(function() {
+        e.target.setAttribute('disabled', '');
+        filmsList.refreshFilms(languageName.value, releaseYear.value, '/films');
+    }, 2000);
 };
+
+watch([languageName, releaseYear], () => {
+    filmsList.refreshFilms(languageName.value, releaseYear.value, '/films');
+});
 </script>
 
 <template>
@@ -127,13 +142,15 @@ const putFilms = function(e) {
                     <th>Название</th>
                     <th>Описание</th>
                     <th>Язык</th>
+                    <th>Год выхода</th>
                     <th></th>
                 </tr>
                 <tr>
                     <th></th>
-                    <th><input type="text" v-model="filmsList.title" @keyup="putFilms"></th>
+                    <th><input type="text" v-model="filmsList.title" @keyup.once="putFilms"></th>
                     <th><input type="text" v-model="filmsList.description" @keyup="putFilms"></th>
-                    <th></th>
+                    <th><LangugeDropdown :languageName="languageName" :setNewLanguageName="setNewLanguageName"/></th>
+                    <th><YearDropdown :releaseYear="releaseYear" :setNewReleaseYear="setNewReleaseYear"/></th>
                     <th></th>
                 </tr>
             </thead>
@@ -142,7 +159,8 @@ const putFilms = function(e) {
                     <td>{{ films.from + index }}</td>
                     <td>{{ film.title }}</td>
                     <td>{{ film.description }}</td>
-                    <td>{{ film.language ? film.language.name : '' }}</td>
+                    <td class="text-center">{{ film.languageName }}</td>
+                    <td class="text-center">{{ film.releaseYear }}</td>
                     <td
                         :class="film.isAvailable ? null : 'add-film'"
                         :data-film_id="film.isAvailable ? null : film.id"

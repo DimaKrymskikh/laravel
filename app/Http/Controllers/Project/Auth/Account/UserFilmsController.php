@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Project\Auth\Account;
 
+use App\CommandHandlers\Database\Dvd\Films\FilmsListForPageCommandHandler;
 use App\Events\AddFilmInUserList;
 use App\Events\RemoveFilmFromUserList;
 use App\Http\Controllers\Controller;
@@ -19,6 +20,7 @@ use Inertia\Response;
 class UserFilmsController extends Controller
 {
     public function __construct(
+        private FilmsListForPageCommandHandler $filmHandler,
         private FilmService $filmService,
         private UserFilmService $userFilmService,
         private FilmUrls $filmUrls,
@@ -35,7 +37,7 @@ class UserFilmsController extends Controller
     public function create(FilmFilterRequest $request): Response
     {
         return Inertia::render('Auth/Account/UserFilms', [
-            'films' => $this->filmService->getFilmsListByUserIdForPage($request->getPaginatorDto(), $request->getFilmFilterDto(), $request->user()->id),
+            'films' => $this->filmHandler->handle($request->getPaginatorDto(), $request->getFilmFilterDto(), $request->user()->id),
             'user' => $request->user()
         ]);
     }

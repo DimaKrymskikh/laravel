@@ -8,6 +8,7 @@ import { useAppStore } from '@/Stores/app';
 import { useActorsListStore } from '@/Stores/actors';
 import { useFilmsListStore, useFilmsAccountStore, useFilmsAdminStore } from '@/Stores/films';
 import { useGlobalConstsStore } from '@/Stores/globalConsts';
+import { useLanguagesListStore } from '@/Stores/languages';
 import { useWeatherPageAuthStore } from '@/Stores/weather';
 
 const app = createInertiaApp({
@@ -27,6 +28,7 @@ const app = createInertiaApp({
             .provide('filmsAccount', useFilmsAccountStore())
             .provide('filmsAdmin', useFilmsAdminStore())
             .provide('weatherPageAuth', useWeatherPageAuthStore())
+            .provide('languagesList', useLanguagesListStore())
             .mount(el);
-    },
+    }
 });

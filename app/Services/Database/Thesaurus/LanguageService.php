@@ -5,13 +5,15 @@ namespace App\Services\Database\Thesaurus;
 use App\Exceptions\DatabaseException;
 use App\DataTransferObjects\Database\Thesaurus\Filters\LanguageFilterDto;
 use App\Models\Thesaurus\Language;
+use App\Queries\Thesaurus\Languages\LanguageQueriesInterface;
 use App\Repositories\Thesaurus\LanguageRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 final class LanguageService
 {
     public function __construct(
-        private LanguageRepositoryInterface $languageRepository,
+            private LanguageQueriesInterface $languageQueries,
+            private LanguageRepositoryInterface $languageRepository,
     ) {
     }
     
@@ -37,6 +39,6 @@ final class LanguageService
     
     public function getAllLanguagesList(LanguageFilterDto $languageDto): Collection
     {
-        return $this->languageRepository->getList($languageDto);
+        return $this->languageQueries->getList($languageDto);
     }
 }

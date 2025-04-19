@@ -33,22 +33,22 @@ onUpdated(() => {
 </script>
 
 <template>
-    <div>
+    <div class="relative h-28">
         <label>
             <span class="text-orange-700">{{ titleText }}</span>
-            <div class="relative h-20" v-if="app.isRequest">
-                <Spinner class="absolute top-2 left-1/2 z-10" styleSpinner="h-6 fill-gray-700 text-gray-200" />
+            <div class="relative" v-if="app.isRequest">
+                <Spinner class="spinner" styleSpinner="h-6 fill-gray-700 text-gray-200" />
                 <input
-                    class="absolute disabled font-sans"
+                    class="disabled font-sans"
                     :type="type"
                     :value="modelValue"
                     @input="$emit('update:modelValue', $event.target.value)"
                     disabled
                 />
             </div>
-            <div class="relative h-20" v-else>
+            <div class="relative" v-else>
                 <input
-                    class="absolute font-sans"
+                    class="font-sans"
                     :class="isInputDisabled ? 'cursor-not-allowed' : ''"
                     :type="type"
                     :disabled="isInputDisabled"
@@ -56,8 +56,8 @@ onUpdated(() => {
                     @input="$emit('update:modelValue', $event.target.value)"
                     ref="input"
                 />
-                <div v-if="errorsMessage" class="error absolute top-10 text-sm font-medium">{{ errorsMessage }}</div>
             </div>
+            <div v-if="errorsMessage" class="error bottom-10 text-sm font-medium">{{ errorsMessage }}</div>
         </label>
     </div>
 </template>

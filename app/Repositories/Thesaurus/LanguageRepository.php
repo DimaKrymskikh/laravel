@@ -2,9 +2,7 @@
 
 namespace App\Repositories\Thesaurus;
 
-use App\DataTransferObjects\Database\Thesaurus\Filters\LanguageFilterDto;
 use App\Models\Thesaurus\Language;
-use Illuminate\Database\Eloquent\Collection;
 
 final class LanguageRepository implements LanguageRepositoryInterface
 {
@@ -27,13 +25,5 @@ final class LanguageRepository implements LanguageRepositoryInterface
     public function getById(int $id): Language
     {
         return Language::find($id);
-    }
-    
-    public function getList(LanguageFilterDto $dto): Collection
-    {
-        return Language::select('id', 'name')
-                    ->filter($dto)
-                    ->orderBy('name')
-                    ->get();
     }
 }

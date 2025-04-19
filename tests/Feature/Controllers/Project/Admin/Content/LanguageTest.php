@@ -225,7 +225,7 @@ class LanguageTest extends TestCase
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
-        $response = $acting->getJson(RouteServiceProvider::URL_ADMIN_LANGUAGES."/getJson?name_filter=$name");
+        $response = $acting->getJson("/languages/getJson?name_filter=$name");
 
         $response
             ->assertStatus(200)

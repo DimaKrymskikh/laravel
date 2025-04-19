@@ -13,61 +13,71 @@ function getFilms10(isLogin) {
                 title: "Arsenic Independence",
                 description	: "A Fanciful Documentary of a Mad Cow And a Womanizer who must Find a Dentist in Berlin",
                 language_id: 1,
-                language: { id: 1, name: "English" }
+                languageName: "English",
+                releaseYear: '2001'
             }, {
                 id: 42,
                 title: "Artist Coldblooded",
                 description	: "A Stunning Reflection of a Robot And a Moose who must Challenge a Woman in California",
                 language_id: 1,
-                language: { id: 1, name: "English" }
+                languageName: "English",
+                releaseYear: '1917'
             }, {
                 id: 43,
                 title: "Atlantis Cause",
                 description	: "A Thrilling Yarn of a Feminist And a Hunter who must Fight a Technical Writer in A Shark Tank",
                 language_id: 1,
-                language: { id: 1, name: "English" }
+                languageName: "English",
+                releaseYear: '2012'
             }, {
                 id: 44,
                 title: "Attacks Hate",
                 description	: "A Fast-Paced Panorama of a Technical Writer And a Mad Scientist who must Find a Feminist in An Abandoned Mine Shaft",
                 language_id: 1,
-                language: { id: 1, name: "English" }
+                languageName: "English",
+                releaseYear: '2009'
             }, {
                 id: 45,
                 title: "Attraction Newton",
                 description	: "A Astounding Panorama of a Composer And a Frisbee who must Reach a Husband in Ancient Japan",
                 language_id: 1,
-                language: { id: 1, name: "English" }
+                languageName: "English",
+                releaseYear: '1945'
             }, {
                 id: 46,
                 title: "Autumn Crow",
                 description	: "A Beautiful Tale of a Dentist And a Mad Cow who must Battle a Moose in The Sahara Desert",
                 language_id: 1,
-                language: { id: 1, name: "English" }
+                languageName: "English",
+                releaseYear: '1911'
             }, {
                 id: 47,
                 title: "Baby Hall",
                 description	: "A Boring Character Study of a A Shark And a Girl who must Outrace a Feminist in An Abandoned Mine Shaft",
                 language_id: 1,
-                language: { id: 1, name: "English" }
+                languageName: "English",
+                releaseYear: '1985'
             }, {
                 id: 48,
                 title: "Backlash Undefeated",
                 description	: "A Stunning Character Study of a Mad Scientist And a Mad Cow who must Kill a Car in A Monastery",
                 language_id: null,
-                language: null
+                language: null,
+                releaseYear: '2023'
             }, {
                 id: 49,
                 title: "Badman Dawn",
                 description	: "A Emotional Panorama of a Pioneer And a Composer who must Escape a Mad Scientist in A Jet Boat",
                 language_id: 1,
-                language: { id: 1, name: "English" }
+                languageName: "English",
+                releaseYear: '2024'
             }, {
                 id: 50,
                 title: "Baked Cleopatra",
                 description	: "A Stunning Drama of a Forensic Psychologist And a Husband who must Overcome a Waitress in A Monastery",
                 language_id: 1,
-                language: { id: 1, name: "English" }
+                languageName: "English",
+                releaseYear: '1977'
             }
         ];
     

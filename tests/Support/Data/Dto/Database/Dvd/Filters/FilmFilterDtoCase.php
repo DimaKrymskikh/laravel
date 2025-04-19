@@ -8,6 +8,6 @@ trait FilmFilterDtoCase
 {
     private function getBaseCaseFilmFilterDto(): FilmFilterDto
     {
-        return new FilmFilterDto('TestTitle', 'TestDescription', '2025');
+        return new FilmFilterDto('TestTitle', 'TestDescription', '2025', 'Русский');
     }
 }

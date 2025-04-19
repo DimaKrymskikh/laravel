@@ -67,7 +67,7 @@ class AuthenticatedSessionTest extends TestCase
     
     public function test_users_can_logout_if_auth(): void
     {
-        $response = $this->authUser()->get('logout');
+        $response = $this->authUser()->post('logout');
         $this->assertGuest();
         
         $response->assertRedirect('guest');

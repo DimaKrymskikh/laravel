@@ -4,6 +4,7 @@ namespace Tests\Unit\Services\Database\Thesaurus;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\Language;
+use App\Queries\Thesaurus\Languages\LanguageQueriesInterface;
 use App\Repositories\Thesaurus\LanguageRepositoryInterface;
 use App\Services\Database\Thesaurus\LanguageService;
 use Illuminate\Database\Eloquent\Collection;
@@ -14,6 +15,7 @@ class LanguageServiceTest extends TestCase
 {
     use LanguageFilterDtoCase;
     
+    private LanguageQueriesInterface $languageQueries;
     private LanguageRepositoryInterface $languageRepository;
     private LanguageService $languageService;
     private string $name = 'TestName';
@@ -78,7 +80,7 @@ class LanguageServiceTest extends TestCase
     {
         $dto = $this->getBaseCaseLanguageFilterDto();
         
-        $this->languageRepository->expects($this->once())
+        $this->languageQueries->expects($this->once())
                 ->method('getList')
                 ->with($this->identicalTo($dto));
         
@@ -87,8 +89,9 @@ class LanguageServiceTest extends TestCase
     
     protected function setUp(): void
     {
+        $this->languageQueries = $this->createMock(LanguageQueriesInterface::class);
         $this->languageRepository = $this->createMock(LanguageRepositoryInterface::class);
         
-        $this->languageService = new LanguageService($this->languageRepository);
+        $this->languageService = new LanguageService($this->languageQueries, $this->languageRepository);
     }
 }

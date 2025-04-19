@@ -1,0 +1,8 @@
+@layer components {
+    .dropdown-filter-button {
+        @apply bg-orange-100 text-orange-500 px-2 py-1 hover:bg-orange-300 hover:text-orange-700 rounded-lg min-w-[150px] w-full;
+    }
+    .spinner {
+        @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10;
+    }
+}

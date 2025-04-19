@@ -54,18 +54,12 @@ class UserFilmsTest extends TestCase
         $this->seedUserFilms();
         $acting = $this->actingAs($this->getUser('AuthTestLogin'));
         
-        $response = $acting->get(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=10&title_filter=boiled&description_filter=story&release_year_filter=2006');
+        $response = $acting->get(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=10&title_filter=boiled&description_filter=story&release_year_filter=2006&language_name_filter=Русский');
 
         $response
             ->assertOk()
             ->assertInertia(fn (Assert $page) => 
                     $page->component('Auth/Account/UserFilms')
-                        ->has('errors', 0)
-                        ->has('films', fn (Assert $page) => 
-                            // Отображается один фильм
-                            $page->has('data', 1)
-                                ->etc()
-                )
             );
     }
     

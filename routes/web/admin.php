@@ -25,7 +25,6 @@ Route::middleware(['auth', 'all.action'])->group(function () {
     Route::resource(RouteServiceProvider::URL_ADMIN_LANGUAGES, LanguageController::class)->only([
         'index', 'store', 'update', 'destroy'
     ]);
-    Route::get(RouteServiceProvider::URL_ADMIN_LANGUAGES.'/getJson', [LanguageController::class, 'getJson']);
     
     Route::resource(RouteServiceProvider::URL_ADMIN_ACTORS, ActorController::class)->only([
         'index', 'store', 'update', 'destroy'

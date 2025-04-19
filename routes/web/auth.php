@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
                 ->middleware('throttle:6,1')
                 ->name('verification.send');
     
-    Route::get('logout', [AuthenticatedSessionController::class, 'destroy'])
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->name('logout');
     
     Route::delete('register', [RegisteredUserController::class, 'remove'])->middleware('check.password');

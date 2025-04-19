@@ -1,5 +1,5 @@
 <script setup>
-import { inject, reactive, ref } from 'vue';
+import { inject, reactive, ref, watch } from 'vue';
 import { Head } from '@inertiajs/vue3'
 import { router } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
@@ -9,6 +9,8 @@ import UpdateFilmModal from '@/Components/Modal/Request/Films/UpdateFilmModal.vu
 import UpdateFilmActorsBlock from '@/Components/Pages/Admin/Films/UpdateFilmActorsBlock.vue';
 import UpdateFilmLanguageModal from '@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
+import LangugeDropdown from '@/Components/Elements/Dropdowns/LanguageDropdown.vue';
+import YearDropdown from '@/Components/Elements/Dropdowns/YearDropdown.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
@@ -33,6 +35,17 @@ const linksList = [{
 const filmsAdmin = inject('filmsAdmin');
 filmsAdmin.setOptions(films);
 
+const languageName = ref(filmsAdmin.languageName);
+const releaseYear = ref(filmsAdmin.releaseYear);
+        
+const setNewLanguageName = function(name) {
+    languageName.value = name;
+};
+
+const setNewReleaseYear = function(year) {
+    releaseYear.value = year;
+};
+
 // Изменяет число фильмов на странице
 const changeNumberOfFilmsOnPage = function(newNumber) {
     filmsAdmin.page = 1;
@@ -41,12 +54,10 @@ const changeNumberOfFilmsOnPage = function(newNumber) {
 };
 
 const putFilms = function(e) {
-    if(e.key.toLowerCase() !== "enter") {
-        return;
-    }
-    
-    filmsAdmin.page = 1;
-    router.get(filmsAdmin.getUrl('/admin/films'));
+    setTimeout(function() {
+        e.target.setAttribute('disabled', '');
+        filmsAdmin.refreshFilms(languageName.value, releaseYear.value, '/admin/films');
+    }, 2000);
 };
 
 const updateFilm = reactive({
@@ -106,6 +117,10 @@ const handlerTableChange = function(e) {
         isShowRemoveFilmModal.value = true;
     }
 };
+
+watch([languageName, releaseYear], () => {
+    filmsAdmin.refreshFilms(languageName.value, releaseYear.value, '/admin/films');
+});
 </script>
 
 <template>
@@ -133,17 +148,17 @@ const handlerTableChange = function(e) {
                     <th colspan="2">Название</th>
                     <th colspan="2">Описание</th>
                     <th colspan="2">Актёры</th>
-                    <th colspan="2">Год выхода</th>
                     <th colspan="2">Язык</th>
+                    <th colspan="2">Год выхода</th>
                     <th></th>
                 </tr>
                 <tr>
                     <th></th>
-                    <th colspan="2"><input type="text" v-model="filmsAdmin.title" @keyup="putFilms"></th>
-                    <th colspan="2"><input type="text" v-model="filmsAdmin.description" @keyup="putFilms"></th>
+                    <th colspan="2"><input type="text" v-model="filmsAdmin.title" @keyup.once="putFilms"></th>
+                    <th colspan="2"><input type="text" v-model="filmsAdmin.description" @keyup.once="putFilms"></th>
                     <th colspan="2"></th>
-                    <th colspan="2"><input type="text" v-model="filmsAdmin.release_year" @keyup="putFilms"></th>
-                    <th colspan="2"></th>
+                    <th colspan="2"><LangugeDropdown :languageName="languageName" :setNewLanguageName="setNewLanguageName"/></th>
+                    <th colspan="2"><YearDropdown :releaseYear="releaseYear" :setNewReleaseYear="setNewReleaseYear"/></th>
                     <th></th>
                 </tr>
             </thead>
@@ -166,7 +181,11 @@ const handlerTableChange = function(e) {
                     >
                         <PencilSvg title="Изменить список актёров" />
                     </td>
-                    <td>{{ film.release_year }}</td>
+                    <td class="text-center">{{ film.languageName }}</td>
+                    <td class="update-film-language" :data-film_id="film.id" :data-film_title="film.title">
+                        <PencilSvg title="Изменить язык фильма" />
+                    </td>
+                    <td class="text-center">{{ film.releaseYear }}</td>
                     <td
                         class="update-film-field"
                         data-field="release_year"
@@ -175,10 +194,6 @@ const handlerTableChange = function(e) {
                         :data-field_value="film.release_year"
                     >
                         <PencilSvg title="Изменить год выхода фильма" />
-                    </td>
-                    <td>{{ film.language ? film.language.name : '' }}</td>
-                    <td class="update-film-language" :data-film_id="film.id" :data-film_title="film.title">
-                        <PencilSvg title="Изменить язык фильма" />
                     </td>
                     <td class="remove-film" :data-film_id="film.id" :data-film_title="film.title">
                         <TrashSvg title="Удалить фильм" />

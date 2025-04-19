@@ -139,7 +139,7 @@ describe("@/Components/Modal/Request/Films/AddFilmModal.vue", () => {
         expect(hideAddFilmModal).toHaveBeenCalledWith();
         expect(filmsAdmin.title).toBe('');
         expect(filmsAdmin.description).toBe('');
-        expect(filmsAdmin.release_year).toBe('');
+        expect(filmsAdmin.releaseYear).toBe('');
         expect(filmsAdmin.page).toBe(films_10.current_page);
     });
     

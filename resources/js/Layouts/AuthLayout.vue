@@ -1,6 +1,6 @@
 <script setup>
 import { inject, onMounted, onUnmounted } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
 import GlobalModal from '@/components/Modal/GlobalModal.vue';
@@ -13,6 +13,8 @@ defineProps({
 
 const filmsAccount = inject('filmsAccount');
 const app = inject('app');
+
+const form = useForm({});
 
 onMounted(() => {
     document.addEventListener('inertia:start', app.handlerStart);
@@ -48,7 +50,9 @@ onUnmounted(() => {
                     </Link>
                 </li>
                 <li class="nav-tab">
-                    <Link class="nav-link small-caps" href="/logout">выход</Link>
+                    <form @submit.prevent="form.post('/logout')">
+                        <button class="nav-link small-caps">выход</button>
+                    </form>
                 </li>
             </ul>
         </div>

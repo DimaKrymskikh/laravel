@@ -4,7 +4,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import Dropdown from "@/components/Elements/Dropdown.vue";
 import { useGlobalConstsStore } from '@/Stores/globalConsts';
 
-const getWrapper = function(changeNumber, globalConsts) {
+const getWrapper = function(changeNumber) {
     return mount(Dropdown, {
             props: {
                 buttonName: 'Текст кнопки',
@@ -12,7 +12,7 @@ const getWrapper = function(changeNumber, globalConsts) {
                 changeNumber
             },
             global: {
-                provide: { globalConsts }
+                provide: { globalConsts: useGlobalConstsStore() }
              }
         });
 };
@@ -23,9 +23,7 @@ describe("@/components/Elements/Dropdown.vue", () => {
     });
     
     it("Монтирование компоненты, выпадение/сокрытие списка", async () => {
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(vi.fn(), globalConsts);
+        const wrapper = getWrapper(vi.fn());
 
         const button = wrapper.get('button');
         expect(button.text()).toBe('Текст кнопки');
@@ -34,7 +32,7 @@ describe("@/components/Elements/Dropdown.vue", () => {
         
         // Кликаем по кнопке
         await button.trigger('click');
-        // Появился список из 4 вариантов
+        // Появился список из 5 вариантов
         const ul =  wrapper.find('ul');
         expect(ul.exists()).toBe(true);
         const li = ul.findAll('li');
@@ -63,12 +61,10 @@ describe("@/components/Elements/Dropdown.vue", () => {
     });
     
     it("Изменение выбора", async () => {
-        const globalConsts = useGlobalConstsStore();
-        
         // Для отслеживания параметра запроса
         const changeNumber = vi.fn((n) => n);
         
-        const wrapper = getWrapper(changeNumber, globalConsts);
+        const wrapper = getWrapper(changeNumber);
 
         const button = wrapper.get('button');
         // Список скрыт

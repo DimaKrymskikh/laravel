@@ -13,6 +13,7 @@ class FilmFilterRequest extends PaginatorRequest
                 $this->input('title_filter'),
                 $this->input('description_filter'),
                 $this->input('release_year_filter'),
+                $this->input('language_name_filter'),
             );
     }
 }

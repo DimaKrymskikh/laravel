@@ -67,10 +67,8 @@ describe("@/Layouts/AuthLayout.vue", () => {
         expect(a1.text()).toBe('лк');
         
         // Четвёртая ссылка 'выход' не активна
-        const a2 = li[2].get('a');
-        expect(a2.attributes('href')).toBe('/logout');
-        expect(a2.classes('router-link-active')).toBe(false);
-        expect(a2.text()).toBe('выход');
+        const button = li[2].get('button');
+        expect(button.text()).toBe('выход');
         
         // Присутствует пустая компонента ForbiddenModal
         forbiddenModalExists(wrapper);
@@ -117,10 +115,8 @@ describe("@/Layouts/AuthLayout.vue", () => {
         expect(a2.text()).toBe('администрирование');
         
         // Четвёртая ссылка 'выход' не активна
-        const a3 = li[3].get('a');
-        expect(a3.attributes('href')).toBe('/logout');
-        expect(a3.classes('router-link-active')).toBe(false);
-        expect(a3.text()).toBe('выход');
+        const button = li[3].get('button');
+        expect(button.text()).toBe('выход');
         
         // Присутствует пустая компонента ForbiddenModal
         forbiddenModalExists(wrapper);

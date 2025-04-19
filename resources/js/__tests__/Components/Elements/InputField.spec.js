@@ -73,10 +73,7 @@ describe("@/components/Elements/InputField", () => {
         const spinner = label.findComponent(Spinner);
         expect(spinner.exists()).toBe(true);
         expect(spinner.props('styleSpinner')).toBe('h-6 fill-gray-700 text-gray-200');
-        expect(spinner.classes()).toContain('absolute');
-        expect(spinner.classes()).toContain('top-2');
-        expect(spinner.classes()).toContain('left-1/2');
-        expect(spinner.classes()).toContain('z-10');
+        expect(spinner.classes()).toContain('spinner');
         
         // Текстовое поле заблокировано
         const input = label.get('input');

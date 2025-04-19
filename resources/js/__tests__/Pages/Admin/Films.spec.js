@@ -15,8 +15,10 @@ import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 import PencilSvg from '@/Components/Svg/PencilSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
+import { useAppStore } from '@/Stores/app';
 import { useFilmsAdminStore } from '@/Stores/films';
 import { useGlobalConstsStore } from '@/Stores/globalConsts';
+import { useLanguagesListStore } from '@/Stores/languages';
 
 import { films_10, films_0 } from '@/__tests__/data/films';
 import { AdminLayoutStub } from '@/__tests__/stubs/layout';
@@ -33,7 +35,10 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(films, filmsAdmin, globalConsts) {
+const getWrapper = function(films, perPage = 20) {
+    const filmsAdmin = useFilmsAdminStore();
+    filmsAdmin.perPage = perPage;
+        
     return mount(Films, {
             props: {
                 errors: {},
@@ -47,7 +52,12 @@ const getWrapper = function(films, filmsAdmin, globalConsts) {
                     RemoveFilmModal: true,
                     UpdateFilmActorsModal: true
                 },
-                provide: { filmsAdmin, globalConsts }
+                provide: {
+                    app: useAppStore(),
+                    filmsAdmin,
+                    globalConsts: useGlobalConstsStore(),
+                    languagesList: useLanguagesListStore()
+                }
             }
         });
 };
@@ -85,10 +95,7 @@ describe("@/Pages/Admin/Films.vue", () => {
     });
     
     it("Отрисовка страницы 'Фильмы' при наличии фильмов", () => {
-        const filmsAdmin = useFilmsAdminStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
+        const wrapper = getWrapper(films_10);
         
         // Проверяем заголовок
         checkH1(wrapper);
@@ -119,8 +126,8 @@ describe("@/Pages/Admin/Films.vue", () => {
         expect(th0[1].text()).toBe('Название');
         expect(th0[2].text()).toBe('Описание');
         expect(th0[3].text()).toBe('Актёры');
-        expect(th0[4].text()).toBe('Год выхода');
-        expect(th0[5].text()).toBe('Язык');
+        expect(th0[4].text()).toBe('Язык');
+        expect(th0[5].text()).toBe('Год выхода');
         expect(th0[6].text()).toBe('');
         
         const th1 = trHead[1].findAll('th');
@@ -129,8 +136,8 @@ describe("@/Pages/Admin/Films.vue", () => {
         expect(th1[1].get('input').element.value).toBe('');
         expect(th1[2].get('input').element.value).toBe('');
         expect(th1[3].text()).toBe('');
-        expect(th1[4].get('input').element.value).toBe('');
-        expect(th1[5].text()).toBe('');
+        expect(th1[4].text()).toBe('все');
+        expect(th1[5].text()).toBe('все');
         expect(th1[6].text()).toBe('');
         
         // Проверяем тело таблицы фильмов 
@@ -149,10 +156,10 @@ describe("@/Pages/Admin/Films.vue", () => {
         expect(tds[4].getComponent(PencilSvg).props('title')).toBe('Изменить описание фильма');
         expect(tds[5].text()).toBe('');
         expect(tds[6].getComponent(PencilSvg).props('title')).toBe('Изменить список актёров');
-        expect(tds[7].text()).toBe('');
-        expect(tds[8].getComponent(PencilSvg).props('title')).toBe('Изменить год выхода фильма');
-        expect(tds[9].text()).toBe(films_10.data[3].language.name);
-        expect(tds[10].getComponent(PencilSvg).props('title')).toBe('Изменить язык фильма');
+        expect(tds[7].text()).toBe(films_10.data[3].languageName);
+        expect(tds[8].getComponent(PencilSvg).props('title')).toBe('Изменить язык фильма');
+        expect(tds[9].text()).toBe(films_10.data[3].releaseYear);
+        expect(tds[10].getComponent(PencilSvg).props('title')).toBe('Изменить год выхода фильма');
         expect(tds[11].getComponent(TrashSvg).props('title')).toBe('Удалить фильм');
         
         const buttons = wrapper.getComponent(Buttons);
@@ -160,10 +167,7 @@ describe("@/Pages/Admin/Films.vue", () => {
     });
     
     it("Отрисовка страницы 'Фильмы' без фильмов", () => {
-        const filmsAdmin = useFilmsAdminStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(films_0, filmsAdmin, globalConsts);
+        const wrapper = getWrapper(films_0);
         
         // Проверяем заголовок
         checkH1(wrapper);
@@ -191,13 +195,10 @@ describe("@/Pages/Admin/Films.vue", () => {
     });
     
     it("Проверка работы фильтров", async () => {
-        const filmsAdmin = useFilmsAdminStore();
+        vi.useFakeTimers();
+        
         // films_10.per_page не равен дефолтному filmsAdmin.perPage
-        filmsAdmin.perPage = films_10.per_page;
-        
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
+        const wrapper = getWrapper(films_10, films_10.per_page);
         
         // Запрос не отправлен
         expect(router.get).not.toHaveBeenCalled();
@@ -207,7 +208,7 @@ describe("@/Pages/Admin/Films.vue", () => {
         expect(wrapper.vm.filmsAdmin.perPage).toBe(films_10.per_page);
         expect(wrapper.vm.filmsAdmin.title).toBe('');
         expect(wrapper.vm.filmsAdmin.description).toBe('');
-        expect(wrapper.vm.filmsAdmin.release_year).toBe('');
+        expect(wrapper.vm.filmsAdmin.releaseYear).toBe('');
         
         const thead = wrapper.get('thead');
         // Берём 2-й ряд
@@ -215,33 +216,27 @@ describe("@/Pages/Admin/Films.vue", () => {
         const ths = tr2.findAll('th');
         const inputTitle = ths[1].get('input');
         const inputDescription = ths[2].get('input');
-        const inputReleaseYear = ths[4].get('input');
         
         // Проверяем v-model
         await inputTitle.setValue('Название');
         expect(wrapper.vm.filmsAdmin.title).toBe('Название');
         await inputDescription.setValue('Описание');
         expect(wrapper.vm.filmsAdmin.description).toBe('Описание');
-        await inputReleaseYear.setValue('2024');
-        expect(wrapper.vm.filmsAdmin.release_year).toBe('2024');
-        
-        await inputDescription.trigger('keyup', {key: 'a'});
-        // Запрос не отправлен
+
+        // Нажимаем три клавиши, запрос отправляется один раз
         expect(router.get).not.toHaveBeenCalled();
-        
-        await inputDescription.trigger('keyup', {key: 'enter'});
+        await inputDescription.trigger('keyup', {key: 'a'});
+        await inputDescription.trigger('keyup', {key: 'b'});
+        await inputDescription.trigger('keyup', {key: 'c'});
+        vi.advanceTimersByTime(2000);
         // Активная страница становится первой, и отправляется запрос с нужными параметрами
         expect(wrapper.vm.filmsAdmin.page).toBe(1);
         expect(router.get).toHaveBeenCalledWith(wrapper.vm.filmsAdmin.getUrl('/admin/films'));
+        expect(router.get).toHaveBeenCalledTimes(1);
     });
     
     it("Изменение числа фильмов на странице", async () => {
-        const filmsAdmin = useFilmsAdminStore();
-        filmsAdmin.perPage = films_10.per_page;
-        
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
+        const wrapper = getWrapper(films_10, films_10.per_page);
         
         expect(wrapper.vm.filmsAdmin.page).toBe(films_10.current_page);
         expect(wrapper.vm.filmsAdmin.perPage).toBe(films_10.per_page);
@@ -283,10 +278,7 @@ describe("@/Pages/Admin/Films.vue", () => {
     });
     
     it("Проверка появления модальных окон", async () => {
-        const filmsAdmin = useFilmsAdminStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
+        const wrapper = getWrapper(films_10);
         
         // Находим таблицу
         const table = wrapper.get('table');
@@ -304,8 +296,8 @@ describe("@/Pages/Admin/Films.vue", () => {
         const pencilTitle = tds[2].getComponent(PencilSvg);
         const pencilDescription = tds[4].getComponent(PencilSvg);
         const pencilActorsList = tds[6].getComponent(PencilSvg);
-        const pencilReleaseYear = tds[8].getComponent(PencilSvg);
-        const pencilLanguage = tds[10].getComponent(PencilSvg);
+        const pencilLanguage = tds[8].getComponent(PencilSvg);
+        const pencilReleaseYear = tds[10].getComponent(PencilSvg);
         const trashSvg = tds[11].getComponent(TrashSvg);
         
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(false);
@@ -331,19 +323,19 @@ describe("@/Pages/Admin/Films.vue", () => {
         wrapper.vm.isShowUpdateFilmActorsModal = false;
         await flushPromises();
         
+        expect(wrapper.findComponent(UpdateFilmLanguageModal).exists()).toBe(false);
+        await pencilLanguage.trigger('click');
+        expect(wrapper.findComponent(UpdateFilmLanguageModal).exists()).toBe(true);
+        // Закрываем вручную модальное окно
+        wrapper.vm.isShowUpdateFilmLanguageModal = false;
+        await flushPromises();
+        
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(false);
         await pencilReleaseYear.trigger('click');
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(true);
         expect(wrapper.vm.field).toBe('release_year');
         // Закрываем вручную модальное окно
         wrapper.vm.isShowUpdateFilmModal = false;
-        await flushPromises();
-        
-        expect(wrapper.findComponent(UpdateFilmLanguageModal).exists()).toBe(false);
-        await pencilLanguage.trigger('click');
-        expect(wrapper.findComponent(UpdateFilmLanguageModal).exists()).toBe(true);
-        // Закрываем вручную модальное окно
-        wrapper.vm.isShowUpdateFilmLanguageModal = false;
         await flushPromises();
         
         expect(wrapper.findComponent(RemoveFilmModal).exists()).toBe(false);
@@ -355,10 +347,7 @@ describe("@/Pages/Admin/Films.vue", () => {
     });
     
     it("Функция hideUpdateFilmModal изменяет isShowUpdateFilmModal с true на false", () => {
-        const filmsAdmin = useFilmsAdminStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
+        const wrapper = getWrapper(films_10);
         
         wrapper.vm.isShowUpdateFilmModal = true;
         wrapper.vm.hideUpdateFilmModal();
@@ -366,10 +355,7 @@ describe("@/Pages/Admin/Films.vue", () => {
     });
     
     it("Функция hideRemoveFilmModal изменяет isShowRemoveFilmModal с true на false", () => {
-        const filmsAdmin = useFilmsAdminStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
+        const wrapper = getWrapper(films_10);
         
         wrapper.vm.isShowRemoveFilmModal = true;
         wrapper.vm.hideRemoveFilmModal();
@@ -377,10 +363,7 @@ describe("@/Pages/Admin/Films.vue", () => {
     });
     
     it("Функция hideUpdateFilmActorsModal изменяет isShowUpdateFilmActorsModal с true на false", () => {
-        const filmsAdmin = useFilmsAdminStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
+        const wrapper = getWrapper(films_10);
         
         wrapper.vm.isShowUpdateFilmActorsModal = true;
         wrapper.vm.hideUpdateFilmActorsModal();
@@ -388,13 +371,26 @@ describe("@/Pages/Admin/Films.vue", () => {
     });
     
     it("Функция hideUpdateFilmLanguageModal изменяет isShowUpdateFilmLanguageModal с true на false", () => {
-        const filmsAdmin = useFilmsAdminStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(films_10, filmsAdmin, globalConsts);
+        const wrapper = getWrapper(films_10);
         
         wrapper.vm.isShowUpdateFilmLanguageModal = true;
         wrapper.vm.hideUpdateFilmLanguageModal();
         expect(wrapper.vm.isShowUpdateFilmLanguageModal).toBe(false);
+    });
+    
+    it("Функция setNewLanguageName изменяет languageName", async () => {
+        const wrapper = getWrapper(films_10);
+        
+        expect(wrapper.vm.languageName).toBe('');
+        wrapper.vm.setNewLanguageName('Новый язык');
+        expect(wrapper.vm.languageName).toBe('Новый язык');
+    });
+    
+    it("Функция setNewReleaseYear изменяет releaseYear", async () => {
+        const wrapper = getWrapper(films_10);
+        
+        expect(wrapper.vm.releaseYear).toBe('');
+        wrapper.vm.setNewReleaseYear('1970');
+        expect(wrapper.vm.releaseYear).toBe('1970');
     });
 });

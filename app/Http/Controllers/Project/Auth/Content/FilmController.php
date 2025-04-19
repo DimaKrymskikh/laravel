@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Project\Auth\Content;
 
+use App\CommandHandlers\Database\Dvd\Films\FilmsListForPageCommandHandler;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dvd\Filters\FilmFilterRequest;
-use App\Services\Database\Dvd\FilmService;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class FilmController extends Controller
 {
     public function __construct(
-        private FilmService $filmService,
+        private FilmsListForPageCommandHandler $filmHandler,
     ) {
     }
     
@@ -26,7 +26,7 @@ class FilmController extends Controller
         $user = $request->user();
         
         return Inertia::render('Auth/Films', [
-                'films' => $this->filmService->getFilmsListWithAvailable($request->getPaginatorDto(), $request->getFilmFilterDto(), $user->id),
+                'films' => $this->filmHandler->handle($request->getPaginatorDto(), $request->getFilmFilterDto(), $user->id),
                 'user' => $user
             ]);
     }
