@@ -24,17 +24,6 @@ describe("@/Stores/app", () => {
         setActivePinia(createPinia());
     });
     
-    it("handlerStart и handlerFinish изменяют isGlobalRequest", () => {
-        const app = useAppStore();
-        expect(app.isGlobalRequest).toBe(false);
-        
-        app.handlerStart();
-        expect(app.isGlobalRequest).toBe(true);
-        
-        app.handlerFinish();
-        expect(app.isGlobalRequest).toBe(false);
-    });
-    
     it("axios получает правильные параметры при вызове app.request", async () => {
         const app = useAppStore();
         

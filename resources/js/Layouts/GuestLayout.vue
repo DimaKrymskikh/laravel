@@ -1,6 +1,7 @@
 <script setup>
 import { inject, onMounted, onUnmounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { useGlobalRequest } from '@/Services/inertia';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
 import GlobalModal from '@/components/Modal/GlobalModal.vue';
@@ -8,15 +9,7 @@ import GuestContentTabs from '@/components/Tabs/GuestContentTabs.vue';
 
 const app = inject('app');
 
-onMounted(() => {
-    document.addEventListener('inertia:start', app.handlerStart);
-    document.addEventListener('inertia:finish', app.handlerFinish);
-});
-
-onUnmounted(() => {
-    document.removeEventListener('inertia:start', app.handlerStart);
-    document.removeEventListener('inertia:finish', app.handlerFinish);
-});    
+const isGlobalRequest = useGlobalRequest();
 </script>
 
 <template>
@@ -41,5 +34,5 @@ onUnmounted(() => {
     </main>
     
     <ForbiddenModal />
-    <GlobalModal v-if="app.isGlobalRequest && !app.isRequest" />
+    <GlobalModal v-if="isGlobalRequest && !app.isRequest" />
 </template>

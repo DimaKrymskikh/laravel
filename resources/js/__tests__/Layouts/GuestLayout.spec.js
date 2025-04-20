@@ -4,20 +4,19 @@ import { setActivePinia, createPinia } from 'pinia';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
+import GlobalModal from '@/components/Modal/GlobalModal.vue';
 import GuestContentTabs from '@/components/Tabs/GuestContentTabs.vue';
+import * as mod from '@/Services/inertia';
 import { useAppStore } from '@/Stores/app';
 import { useFilmsListStore } from '@/Stores/films';
 
-describe("@/Layouts/GuestLayout.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
+vi.spyOn(mod, 'useGlobalRequest');
+
+const getWrapper = function(isRequest = false) {
+    const app = useAppStore();
+    app.isRequest = isRequest;
     
-    it("Монтирование шаблона GuestLayout", () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
-        
-        const wrapper = mount(GuestLayout, {
+    return mount(GuestLayout, {
             global: {
                 stubs: {
                     GuestContentTabs: true
@@ -27,9 +26,21 @@ describe("@/Layouts/GuestLayout.vue", () => {
                         component: 'Guest/Home'
                     }
                 },
-                provide: { app, filmsList }
+                provide: { 
+                    app: useAppStore(),
+                    filmsList: useFilmsListStore()
+                }
             }
         });
+};
+
+describe("@/Layouts/GuestLayout.vue", () => {
+    beforeEach(() => {
+        setActivePinia(createPinia());
+    });
+    
+    it("Монтирование шаблона GuestLayout", () => {
+        const wrapper = getWrapper();
 
         // Присутствует навигация
         const nav = wrapper.find('nav');
@@ -56,5 +67,22 @@ describe("@/Layouts/GuestLayout.vue", () => {
         const forbiddenModal = wrapper.findComponent(ForbiddenModal);
         expect(forbiddenModal.exists()).toBe(true);
         expect(forbiddenModal.html()).toBe('<!--v-if-->');
+        
+        // Отсутствует компонента GlobalModal
+        expect(wrapper.findComponent(GlobalModal).exists()).toBe(false);
+    });
+    
+    it("Видна компонента GlobalModal", async () => {
+        mod.useGlobalRequest.mockReturnValue(true);
+        const wrapper = getWrapper();
+
+        expect(wrapper.findComponent(GlobalModal).exists()).toBe(true);
+    });
+    
+    it("Компонента GlobalModal не видна, т.к. app.isRequest = true", async () => {
+        mod.useGlobalRequest.mockReturnValue(true);
+        const wrapper = getWrapper(true);
+
+        expect(wrapper.findComponent(GlobalModal).exists()).toBe(false);
     });
 });

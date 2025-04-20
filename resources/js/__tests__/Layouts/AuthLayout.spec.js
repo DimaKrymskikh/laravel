@@ -4,11 +4,18 @@ import { setActivePinia, createPinia } from 'pinia';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
+import GlobalModal from '@/components/Modal/GlobalModal.vue';
 import AuthContentTabs from '@/components/Tabs/AuthContentTabs.vue';
+import * as mod from '@/Services/inertia';
 import { useAppStore } from '@/Stores/app';
 import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
 
-const getWrapper = function(app, filmsList, filmsAccount, pageComponent, is_admin = false) {
+vi.spyOn(mod, 'useGlobalRequest');
+
+const getWrapper = function(pageComponent, isRequest = false, is_admin = false) {
+    const app = useAppStore();
+    app.isRequest = isRequest;
+    
     return mount(AuthLayout, {
             props: {
                 errors: null,
@@ -25,9 +32,19 @@ const getWrapper = function(app, filmsList, filmsAccount, pageComponent, is_admi
                         component: pageComponent
                     }
                 },
-                provide: { app, filmsList, filmsAccount }
+                provide: {
+                    app,
+                    filmsList: useFilmsListStore(),
+                    filmsAccount: useFilmsAccountStore()
+                }
             }
         });
+};
+
+const forbiddenModalExists = function(wrapper) {
+    const forbiddenModal = wrapper.findComponent(ForbiddenModal);
+    expect(forbiddenModal.exists()).toBe(true);
+    expect(forbiddenModal.html()).toBe('<!--v-if-->');
 };
 
 describe("@/Layouts/AuthLayout.vue", () => {
@@ -36,11 +53,7 @@ describe("@/Layouts/AuthLayout.vue", () => {
     });
     
     it("Монтирование шаблона AuthLayout для не админа", () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
-        const filmsAccount = useFilmsAccountStore();
-     
-        const wrapper = getWrapper(app, filmsList, filmsAccount, 'Auth/Films');
+        const wrapper = getWrapper('Auth/Films');
         
         // Присутствует компонента AuthContentTabs
         expect(wrapper.getComponent(AuthContentTabs).isVisible()).toBe(true);
@@ -62,7 +75,7 @@ describe("@/Layouts/AuthLayout.vue", () => {
 
         // Вторая ссылка 'каталог' не активна с дефолтным url
         const a1 = li[1].get('a');
-        expect(a1.attributes('href')).toBe(filmsAccount.getUrl('/userfilms'));
+        expect(a1.attributes('href')).toBe(wrapper.vm.filmsAccount.getUrl('/userfilms'));
         expect(a1.classes('router-link-active')).toBe(false);
         expect(a1.text()).toBe('лк');
         
@@ -78,11 +91,7 @@ describe("@/Layouts/AuthLayout.vue", () => {
     });
     
     it("Монтирование шаблона AuthLayout для админа", () => {
-        const app = useAppStore();
-        const filmsList = useFilmsListStore();
-        const filmsAccount = useFilmsAccountStore();
-     
-        const wrapper = getWrapper(app, filmsList, filmsAccount, 'Auth/Account/UserFilms', true);
+        const wrapper = getWrapper('Auth/Account/UserFilms', false, true);
         
         // Присутствует компонента AuthContentTabs
         expect(wrapper.getComponent(AuthContentTabs).isVisible()).toBe(true);
@@ -104,7 +113,7 @@ describe("@/Layouts/AuthLayout.vue", () => {
 
         // Вторая ссылка 'лк' активна с дефолтным url ($page.component === 'Auth/Account/UserFilms')
         const a1 = li[1].get('a');
-        expect(a1.attributes('href')).toBe(filmsAccount.getUrl('/userfilms'));
+        expect(a1.attributes('href')).toBe(wrapper.vm.filmsAccount.getUrl('/userfilms'));
         expect(a1.classes('router-link-active')).toBe(true);
         expect(a1.text()).toBe('лк');
 
@@ -122,9 +131,17 @@ describe("@/Layouts/AuthLayout.vue", () => {
         forbiddenModalExists(wrapper);
     });
     
-    const forbiddenModalExists = function(wrapper) {
-        const forbiddenModal = wrapper.findComponent(ForbiddenModal);
-        expect(forbiddenModal.exists()).toBe(true);
-        expect(forbiddenModal.html()).toBe('<!--v-if-->');
-    };
+    it("Видна компонента GlobalModal", async () => {
+        mod.useGlobalRequest.mockReturnValue(true);
+        const wrapper = getWrapper('Auth/Films');
+
+        expect(wrapper.findComponent(GlobalModal).exists()).toBe(true);
+    });
+    
+    it("Компонента GlobalModal не видна, т.к. app.isRequest = true", async () => {
+        mod.useGlobalRequest.mockReturnValue(true);
+        const wrapper = getWrapper('Auth/Account/UserFilms', true);
+
+        expect(wrapper.findComponent(GlobalModal).exists()).toBe(false);
+    });
 });

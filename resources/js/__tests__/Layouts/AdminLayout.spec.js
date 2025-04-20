@@ -1,23 +1,22 @@
-import { mount, flushPromises } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 
 import { setActivePinia, createPinia } from 'pinia';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
+import GlobalModal from '@/components/Modal/GlobalModal.vue';
 import AdminContentTabs from '@/components/Tabs/AdminContentTabs.vue';
+import * as mod from '@/Services/inertia';
 import { useAppStore } from '@/Stores/app';
 import { useFilmsAccountStore } from '@/Stores/films';
 
-describe("@/Layouts/AdminLayout.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
+vi.spyOn(mod, 'useGlobalRequest');
+
+const getWrapper = function(isRequest = false) {
+    const app = useAppStore();
+    app.isRequest = isRequest;
     
-    it("Монтирование шаблона AdminLayout", () => {
-        const app = useAppStore();
-        const filmsAccount = useFilmsAccountStore();
-     
-        const wrapper = mount(AdminLayout, {
+    return mount(AdminLayout, {
             props: {
                 errors: null
             },
@@ -30,9 +29,21 @@ describe("@/Layouts/AdminLayout.vue", () => {
                         component: 'Admin/Home'
                     }
                 },
-                provide: { app, filmsAccount }
+                provide: {
+                    app,
+                    filmsAccount: useFilmsAccountStore()
+                }
             }
         });
+};
+
+describe("@/Layouts/AdminLayout.vue", () => {
+    beforeEach(() => {
+        setActivePinia(createPinia());
+    });
+    
+    it("Монтирование шаблона AdminLayout", () => {
+        const wrapper = getWrapper();
 
         // Присутствует навигация
         const nav = wrapper.find('nav');
@@ -51,7 +62,7 @@ describe("@/Layouts/AdminLayout.vue", () => {
 
         // Вторая ссылка 'лк' не активна с дефолтным url
         const a1 = li[1].get('a');
-        expect(a1.attributes('href')).toBe(filmsAccount.getUrl('/userfilms'));
+        expect(a1.attributes('href')).toBe(wrapper.vm.filmsAccount.getUrl('/userfilms'));
         expect(a1.classes('router-link-active')).toBe(false);
         expect(a1.text()).toBe('лк');
         
@@ -59,5 +70,19 @@ describe("@/Layouts/AdminLayout.vue", () => {
         const forbiddenModal = wrapper.findComponent(ForbiddenModal);
         expect(forbiddenModal.exists()).toBe(true);
         expect(forbiddenModal.html()).toBe('<!--v-if-->');
+    });
+    
+    it("Видна компонента GlobalModal", async () => {
+        mod.useGlobalRequest.mockReturnValue(true);
+        const wrapper = getWrapper();
+
+        expect(wrapper.findComponent(GlobalModal).exists()).toBe(true);
+    });
+    
+    it("Компонента GlobalModal не видна, т.к. app.isRequest = true", async () => {
+        mod.useGlobalRequest.mockReturnValue(true);
+        const wrapper = getWrapper(true);
+
+        expect(wrapper.findComponent(GlobalModal).exists()).toBe(false);
     });
 });

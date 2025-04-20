@@ -2,17 +2,9 @@ import { ref } from 'vue';
 import { defineStore } from "pinia";
 
 export const useAppStore = defineStore("app", () => {
-    const isGlobalRequest = ref(false);
     const isRequest = ref(false);
     const isShowForbiddenModal = ref(false);
     const errorMessage = ref('');
-    
-    const handlerStart = function() {
-        isGlobalRequest.value = true;
-    };
-    const handlerFinish = function() {
-        isGlobalRequest.value = false;
-    };
     
     async function request(url, method, data = null) {
         isRequest.value = true;
@@ -51,10 +43,7 @@ export const useAppStore = defineStore("app", () => {
         request, 
         errorRequest, 
         isRequest, 
-        isGlobalRequest,
         isShowForbiddenModal,
-        errorMessage,
-        handlerStart,
-        handlerFinish
+        errorMessage
     };
 });
