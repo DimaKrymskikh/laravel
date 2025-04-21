@@ -4,6 +4,7 @@ namespace Tests\Unit\Events;
 
 use App\Events\RemoveFilmFromUserList;
 use App\Models\Dvd\Film;
+use App\Modifiers\Dvd\Films\FilmModifiersInterface;
 use App\Repositories\Dvd\FilmRepositoryInterface;
 use App\Services\Database\Dvd\FilmService;
 use PHPUnit\Framework\TestCase;
@@ -11,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 class RemoveFilmFromUserListTest extends TestCase
 {
     private RemoveFilmFromUserList $removeFilmFromUserList;
+    private FilmModifiersInterface $filmModifiers;
     private FilmRepositoryInterface $filmRepository;
     private FilmService $filmService;
     private int $userId = 2;
@@ -41,7 +43,9 @@ class RemoveFilmFromUserListTest extends TestCase
     
     protected function setUp(): void
     {
+        $this->filmModifiers = $this->createMock(FilmModifiersInterface::class);
         $this->filmRepository = $this->createMock(FilmRepositoryInterface::class);
-        $this->filmService = new FilmService($this->filmRepository);
+        
+        $this->filmService = new FilmService($this->filmModifiers, $this->filmRepository);
     }
 }

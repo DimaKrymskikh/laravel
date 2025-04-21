@@ -6,20 +6,22 @@ use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\DataTransferObjects\Database\Dvd\FilmDto;
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
+use App\Modifiers\Dvd\Films\FilmModifiersInterface;
 use App\Repositories\Dvd\FilmRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 final class FilmService
 {
     public function __construct(
-        private FilmRepositoryInterface $filmRepository,
+            private FilmModifiersInterface $filmModifiers,
+            private FilmRepositoryInterface $filmRepository,
     ) {
     }
     
     public function create(FilmDto $dto): Film
     {
         $film = new Film();
-        $this->filmRepository->save($film, $dto);
+        $this->filmModifiers->save($film, $dto);
         
         return $film;
     }
@@ -27,7 +29,7 @@ final class FilmService
     public function update(string $field, ?string $value, int $filmId): Film
     {
         $film = $this->filmRepository->getById($filmId);
-        $this->filmRepository->saveField($film, $field, $value);
+        $this->filmModifiers->saveField($film, $field, $value);
         
         return $film;
     }
@@ -38,7 +40,7 @@ final class FilmService
             throw new DatabaseException("В таблице 'dvd.films' нет записи с id=$filmId.");
         }
         
-        $this->filmRepository->delete($filmId);
+        $this->filmModifiers->delete($filmId);
     }
     
     public function getFilmById($filmId): Film

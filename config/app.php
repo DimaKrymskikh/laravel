@@ -195,6 +195,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         
+        App\Providers\BindingInterfaces\ModifiersProvider::class,
         App\Providers\BindingInterfaces\RepositoriesProvider::class,
         App\Providers\BindingInterfaces\QueriesProvider::class,
 

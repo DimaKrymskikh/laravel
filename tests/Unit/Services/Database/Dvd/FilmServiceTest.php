@@ -4,6 +4,7 @@ namespace Tests\Unit\Services\Database\Dvd;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
+use App\Modifiers\Dvd\Films\FilmModifiersInterface;
 use App\Repositories\Dvd\FilmRepositoryInterface;
 use App\Services\Database\Dvd\FilmService;
 use Illuminate\Database\Eloquent\Collection;
@@ -16,6 +17,7 @@ class FilmServiceTest extends TestCase
 {
     use FilmDtoCase, FilmFilterDtoCase, PaginatorDtoCase;
     
+    private FilmModifiersInterface $filmModifiers;
     private FilmRepositoryInterface $filmRepository;
     private FilmService $filmService;
     private int $filmId = 12;
@@ -24,7 +26,7 @@ class FilmServiceTest extends TestCase
     {
         $filmDto = $this->getBaseCaseFilmDto();
         
-        $this->filmRepository->expects($this->once())
+        $this->filmModifiers->expects($this->once())
                 ->method('save')
                 ->with(new Film(), $filmDto);
         
@@ -40,7 +42,7 @@ class FilmServiceTest extends TestCase
                 ->with($this->identicalTo($this->filmId))
                 ->willReturn($film);
         
-        $this->filmRepository->expects($this->once())
+        $this->filmModifiers->expects($this->once())
                 ->method('saveField')
                 ->with($film, 'test_field', 'testValue');
         
@@ -54,7 +56,7 @@ class FilmServiceTest extends TestCase
                 ->with($this->identicalTo($this->filmId))
                 ->willReturn(true);
         
-        $this->filmRepository->expects($this->once())
+        $this->filmModifiers->expects($this->once())
                 ->method('delete')
                 ->with($this->identicalTo($this->filmId));
         
@@ -68,9 +70,8 @@ class FilmServiceTest extends TestCase
                 ->with($this->identicalTo($this->filmId))
                 ->willReturn(false);
         
-        $this->filmRepository->expects($this->never())
-                ->method('delete')
-                ->with($this->identicalTo($this->filmId));
+        $this->filmModifiers->expects($this->never())
+                ->method('delete');
         
         $this->expectException(DatabaseException::class);
         
@@ -108,8 +109,9 @@ class FilmServiceTest extends TestCase
     
     protected function setUp(): void
     {
+        $this->filmModifiers = $this->createMock(FilmModifiersInterface::class);
         $this->filmRepository = $this->createMock(FilmRepositoryInterface::class);
         
-        $this->filmService = new FilmService($this->filmRepository);
+        $this->filmService = new FilmService($this->filmModifiers, $this->filmRepository);
     }
 }
