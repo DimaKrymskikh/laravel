@@ -180,6 +180,8 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
     });
     
     it("Заполнение поля поиска актёров input отправляет запрос на сервер (проверка watch)", async () => {
+        vi.useFakeTimers();
+        
         const app = useAppStore();
         const appRequest = vi.spyOn(app, 'request');
         const filmsAdmin = useFilmsAdminStore();
@@ -191,10 +193,17 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
         // Очищаем вызовы
         appRequest.mockClear();
         expect(appRequest).not.toHaveBeenCalled();
-        // После ввода одного символа отправляется запрос на сервер
+        // Нажимаем три клавиши, запрос отправляется один раз
         const inputFields = checkInputField.findNumberOfInputFieldOnPage(wrapper, 1);
-        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.actorName, 'И');
+        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.actorName, 'a');
+        // Чтобы тест отражал суть, нужно вызвать функцию flushPromises() после каждого ввода символа
         await flushPromises();
+        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.actorName, 'b', 1);
+        await flushPromises();
+        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.actorName, 'c', 2);
+        await flushPromises();
+
+        vi.advanceTimersByTime(2000);
         expect(appRequest).toHaveBeenCalledTimes(1);
     });
     

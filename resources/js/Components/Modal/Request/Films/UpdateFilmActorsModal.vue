@@ -51,7 +51,19 @@ const handlerAddActorInFilm = function(e) {
     });
 };
 
-watch(actorName, handlerActorName);
+const isRequest = ref(false);
+
+watch(actorName, function() {
+    if(isRequest.value) {
+        return;
+    }
+    isRequest.value = true;
+    
+    setTimeout(function() {
+        handlerActorName();
+        isRequest.value = false;
+    }, 2000);
+});
 </script>
 
 <template>
@@ -62,7 +74,7 @@ watch(actorName, handlerActorName);
         <template v-slot:body>
             <h3 class="text-orange-900">Существующие актёры</h3>
                 <div class="relative overflow-x-hidden overflow-y-auto h-24">
-                    <Spinner class="absolute top-2 left-1/2 z-10" styleSpinner="h-6 fill-gray-700 text-gray-200" v-if="app.isRequest"/>
+                    <Spinner class="spinner" styleSpinner="h-6 fill-gray-700 text-gray-200" v-if="app.isRequest"/>
                     <template v-else>
                         <div v-if="!filmActors || (filmActors && !filmActors.actors.length)">
                             Актёры не добавлены
@@ -93,7 +105,7 @@ watch(actorName, handlerActorName);
                     v-model="actorName"
                 />
                 <div class="relative overflow-x-hidden overflow-y-auto h-24">
-                    <Spinner class="absolute top-2 left-1/2 z-10" styleSpinner="h-6 fill-gray-700 text-gray-200" v-if="app.isRequest"/>
+                    <Spinner class="spinner" styleSpinner="h-6 fill-gray-700 text-gray-200" v-if="app.isRequest"/>
                     <template v-else>
                         <div v-if="!actors || (actors && !actors.length)">
                             Ничего не найдено
