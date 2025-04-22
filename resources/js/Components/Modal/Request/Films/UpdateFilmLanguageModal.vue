@@ -56,7 +56,19 @@ const handlerUpdateFilmLanguage = function(e) {
     });
 };
 
-watch(filmLanguage, handlerLanguageName);
+const isRequest = ref(false);
+
+watch(filmLanguage, function() {
+    if(isRequest.value) {
+        return;
+    }
+    isRequest.value = true;
+    
+    setTimeout(function() {
+        handlerLanguageName();
+        isRequest.value = false;
+    }, 2000);
+});
 </script>
 
 <template>

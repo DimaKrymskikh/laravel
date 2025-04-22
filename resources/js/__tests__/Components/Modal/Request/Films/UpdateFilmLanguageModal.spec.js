@@ -20,14 +20,17 @@ const updateFilm = {
     fieldValue: ''
 };
 
-const getWrapper = function(app, filmsAdmin) {
+const getWrapper = function(app) {
     return mount(UpdateFilmLanguageModal, {
             props: {
                 hideUpdateFilmLanguageModal,
                 updateFilm
             },
             global: {
-                provide: { app, filmsAdmin }
+                provide: {
+                    app,
+                    filmsAdmin: useFilmsAdminStore()
+                }
             }
         });
 };
@@ -49,9 +52,8 @@ describe("@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue", () => {
     
     it("Монтирование компоненты UpdateFilmLanguageModal (isRequest: false)", async () => {
         const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
-
-        const wrapper = getWrapper(app, filmsAdmin);
+        
+        const wrapper = getWrapper(app);
         
         checkContent(wrapper);
         
@@ -73,9 +75,7 @@ describe("@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue", () => {
         // Метод app.request выполняется при монтировании компоненты и устанавливает app.isRequest = false,
         // поэтому применяем мок-функцию
         app.request = vi.fn();
-        const filmsAdmin = useFilmsAdminStore();
-
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         
         checkContent(wrapper);
         
@@ -93,12 +93,10 @@ describe("@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue", () => {
     
     it("Проверка изменения языка", async () => {
         const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
-
         app.request = vi.fn()
             .mockImplementationOnce(() => languages);
 
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         await flushPromises();
         
         const ul = wrapper.get('ul');
@@ -112,12 +110,10 @@ describe("@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue", () => {
     
     it("Если список языков пуст, то отрисовывается нужная запись", async () => {
         const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
-
         app.request = vi.fn()
             .mockImplementationOnce(() => []);
 
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         await flushPromises();
         
         expect(wrapper.text()).toContain('Ничего не найдено');
@@ -127,12 +123,10 @@ describe("@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue", () => {
         const app = useAppStore();
         // Компонента монтируется с условием, что запрос на сервер отправлен
         app.isRequest = true;
-        const filmsAdmin = useFilmsAdminStore();
-
         app.request = vi.fn()
             .mockImplementationOnce(() => languages);
 
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         await flushPromises();
         
         const ul = wrapper.get('ul');
@@ -145,25 +139,32 @@ describe("@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue", () => {
     });
     
     it("Заполнение поля поиска input отправляет запрос на сервер (проверка watch)", async () => {
+        vi.useFakeTimers();
+        
         const app = useAppStore();
         const appRequest = vi.spyOn(app, 'request');
-        const filmsAdmin = useFilmsAdminStore();
 
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         await flushPromises();
         
         appRequest.mockClear();
         expect(appRequest).not.toHaveBeenCalled();
-        // После ввода одного символа отправляется запрос на сервер
+        // Нажимаем три клавиши, запрос отправляется один раз
         const inputFields = checkInputField.findNumberOfInputFieldOnPage(wrapper, 1);
-        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.filmLanguage, 'Р');
+        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.filmLanguage, 'a');
+        // Чтобы тест отражал суть, нужно вызвать функцию flushPromises() после каждого ввода символа
         await flushPromises();
+        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.filmLanguage, 'b', 1);
+        await flushPromises();
+        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.filmLanguage, 'c', 2);
+        await flushPromises();
+        
+        vi.advanceTimersByTime(2000);
         expect(appRequest).toHaveBeenCalledTimes(1);
     });
     
     it("Функция handlerUpdateFilmLanguage вызывает router.put с нужными параметрами", () => {
         const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
         const options = {
             preserveScroll: true,
             onBefore: expect.anything(),
@@ -172,12 +173,12 @@ describe("@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue", () => {
             onFinish: expect.anything()
         };
 
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         
         wrapper.vm.handlerUpdateFilmLanguage(eventTargetClassListContainsFalseAndGetAttribute8);
         
         expect(router.put).toHaveBeenCalledTimes(1);
-        expect(router.put).toHaveBeenCalledWith(filmsAdmin.getUrl(`/admin/films/${wrapper.vm.props.updateFilm.id}`), {
+        expect(router.put).toHaveBeenCalledWith(wrapper.vm.filmsAdmin.getUrl(`/admin/films/${wrapper.vm.props.updateFilm.id}`), {
                 field: 'language_id',
                 language_id: eventTargetClassListContainsFalseAndGetAttribute8.target.getAttribute('data-id')
             }, options);
@@ -187,9 +188,8 @@ describe("@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue", () => {
         const app = useAppStore();
         // По умолчанию
         expect(app.isRequest).toBe(false);
-        const filmsAdmin = useFilmsAdminStore();
         
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         wrapper.vm.errorsName = 'ErrorName';
         wrapper.vm.onBeforeForHandlerUpdateFilmLanguage();
         
@@ -199,9 +199,8 @@ describe("@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue", () => {
     
     it("Проверка функции onSuccessForHandlerUpdateFilmLanguage", async () => {
         const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
         
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         
         expect(hideUpdateFilmLanguageModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerUpdateFilmLanguage();
@@ -212,9 +211,8 @@ describe("@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue", () => {
     
     it("Проверка функции onErrorForHandlerUpdateFilmLanguage", async () => {
         const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
         
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         
         expect(wrapper.vm.errorsName).toBe('');
         wrapper.vm.onErrorForHandlerUpdateFilmLanguage({name: 'ErrorName'});
@@ -225,9 +223,8 @@ describe("@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue", () => {
     it("Проверка функции onFinishForHandlerUpdateFilmLanguage", async () => {
         const app = useAppStore();
         app.isRequest = true;
-        const filmsAdmin = useFilmsAdminStore();
         
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         wrapper.vm.onFinishForHandlerUpdateFilmLanguage();
         
         expect(app.isRequest).toBe(false);
