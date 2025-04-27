@@ -7,14 +7,14 @@ use App\DataTransferObjects\Database\Dvd\FilmDto;
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
 use App\Modifiers\Dvd\Films\FilmModifiersInterface;
-use App\Repositories\Dvd\FilmRepositoryInterface;
+use App\Queries\Dvd\Films\FilmQueriesInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 final class FilmService
 {
     public function __construct(
+            private FilmQueriesInterface $filmQueries,
             private FilmModifiersInterface $filmModifiers,
-            private FilmRepositoryInterface $filmRepository,
     ) {
     }
     
@@ -26,9 +26,9 @@ final class FilmService
         return $film;
     }
     
-    public function update(string $field, ?string $value, int $filmId): Film
+    public function update(string $field, string|null $value, int $filmId): Film
     {
-        $film = $this->filmRepository->getById($filmId);
+        $film = $this->filmQueries->getById($filmId);
         $this->filmModifiers->saveField($film, $field, $value);
         
         return $film;
@@ -36,7 +36,7 @@ final class FilmService
     
     public function delete(int $filmId): void
     {
-        if (!$this->filmRepository->exists($filmId)) {
+        if (!$this->filmQueries->exists($filmId)) {
             throw new DatabaseException("В таблице 'dvd.films' нет записи с id=$filmId.");
         }
         
@@ -45,21 +45,21 @@ final class FilmService
     
     public function getFilmById($filmId): Film
     {
-        return $this->filmRepository->getById($filmId);
+        return $this->filmQueries->getById($filmId);
     }
     
     public function getFilmCard(int $filmId): Film
     {
-        return $this->filmRepository->getByIdWithActors($filmId);
+        return $this->filmQueries->getByIdWithActors($filmId);
     }
     
     public function getFilmsList(FilmFilterDto $filmFilterDto): Collection
     {
-        return $this->filmRepository->getList($filmFilterDto);
+        return $this->filmQueries->getList($filmFilterDto);
     }
     
     public function getActorsList(int $filmId): Film
     {
-        return $this->filmRepository->getByIdWithActors($filmId);
+        return $this->filmQueries->getByIdWithActors($filmId);
     }
 }

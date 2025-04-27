@@ -5,7 +5,7 @@ namespace Tests\Unit\Events;
 use App\Events\RemoveFilmFromUserList;
 use App\Models\Dvd\Film;
 use App\Modifiers\Dvd\Films\FilmModifiersInterface;
-use App\Repositories\Dvd\FilmRepositoryInterface;
+use App\Queries\Dvd\Films\FilmQueriesInterface;
 use App\Services\Database\Dvd\FilmService;
 use PHPUnit\Framework\TestCase;
 
@@ -13,8 +13,8 @@ class RemoveFilmFromUserListTest extends TestCase
 {
     private RemoveFilmFromUserList $removeFilmFromUserList;
     private FilmModifiersInterface $filmModifiers;
-    private FilmRepositoryInterface $filmRepository;
     private FilmService $filmService;
+    private FilmQueriesInterface $filmQueries;
     private int $userId = 2;
     private int $filmId = 17;
     
@@ -23,7 +23,7 @@ class RemoveFilmFromUserListTest extends TestCase
         $film = new Film();
         $film->title = 'TestTitle';
         
-        $this->filmRepository->expects($this->once())
+        $this->filmQueries->expects($this->once())
                 ->method('getById')
                 ->with($this->identicalTo($this->filmId))
                 ->willReturn($film);
@@ -43,9 +43,9 @@ class RemoveFilmFromUserListTest extends TestCase
     
     protected function setUp(): void
     {
+        $this->filmQueries = $this->createMock(FilmQueriesInterface::class);
         $this->filmModifiers = $this->createMock(FilmModifiersInterface::class);
-        $this->filmRepository = $this->createMock(FilmRepositoryInterface::class);
         
-        $this->filmService = new FilmService($this->filmModifiers, $this->filmRepository);
+        $this->filmService = new FilmService($this->filmQueries, $this->filmModifiers);
     }
 }

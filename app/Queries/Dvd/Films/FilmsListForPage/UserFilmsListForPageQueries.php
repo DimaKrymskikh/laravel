@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Queries\Dvd\Films;
+namespace App\Queries\Dvd\Films\FilmsListForPage;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\Models\Dvd\Film;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 
-final class AuthFilmsListForPageQueries extends BaseFilmsListForPageQueries
+final class UserFilmsListForPageQueries extends BaseFilmsListForPageQueries
 {
     protected function queryList(FilmFilterDto $dto, int|null $userId = null): Builder
     {
@@ -18,8 +18,7 @@ final class AuthFilmsListForPageQueries extends BaseFilmsListForPageQueries
                     'dvd.films.release_year AS releaseYear',
                     'thesaurus.languages.name AS languageName'
                 )
-                ->selectRaw('coalesce (person.users_films.user_id::bool, false) AS "isAvailable"')
-                ->leftJoin('person.users_films', function(JoinClause $join) use ($userId) {
+                ->join('person.users_films', function(JoinClause $join) use ($userId) {
                     $join->on('person.users_films.film_id', '=', 'dvd.films.id')
                         ->where('person.users_films.user_id', $userId);
                 })

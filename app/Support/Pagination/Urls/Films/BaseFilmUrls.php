@@ -21,6 +21,7 @@ final class BaseFilmUrls
             'title_filter' => $filmFilterDto->title,
             'description_filter' => $filmFilterDto->description,
             'release_year_filter' => $filmFilterDto->releaseYear,
+            'language_name_filter' => $filmFilterDto->languageName,
         ]);
     }
     
@@ -33,6 +34,7 @@ final class BaseFilmUrls
             'title_filter' => '',
             'description_filter' => '',
             'release_year_filter' => '',
+            'language_name_filter' => '',
         ]);
     }
     
@@ -44,6 +46,7 @@ final class BaseFilmUrls
             'title_filter' => $filmFilterDto->title,
             'description_filter' => $filmFilterDto->description,
             'release_year_filter' => $filmFilterDto->releaseYear,
+            'language_name_filter' => $filmFilterDto->languageName,
         ]);
     }
 }

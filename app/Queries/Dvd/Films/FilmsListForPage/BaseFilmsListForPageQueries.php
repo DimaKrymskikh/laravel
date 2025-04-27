@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Queries\Dvd\Films;
+namespace App\Queries\Dvd\Films\FilmsListForPage;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;

@@ -4,9 +4,9 @@ namespace App\Services\Database\Dvd;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\FilmActor;
+use App\Queries\Dvd\Films\FilmQueriesInterface;
 use App\Repositories\Dvd\ActorRepositoryInterface;
 use App\Repositories\Dvd\FilmActorRepositoryInterface;
-use App\Repositories\Dvd\FilmRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 final class FilmActorService
@@ -14,7 +14,7 @@ final class FilmActorService
     public function __construct(
             private ActorRepositoryInterface $actorRepository,
             private FilmActorRepositoryInterface $filmActorRepository,
-            private FilmRepositoryInterface $filmRepository,
+            private FilmQueriesInterface $filmQueries,
     ) {
     }
     
@@ -22,7 +22,7 @@ final class FilmActorService
     {
         if ($this->filmActorRepository->exists($filmId, $actorId)) {
             // Если пара существует, выбрасываем исключение
-            $filmTitle = $this->filmRepository->getById($filmId)->title;
+            $filmTitle = $this->filmQueries->getById($filmId)->title;
             $actor = $this->actorRepository->getById($actorId);
             $name = "$actor->->first_name $actor->last_name";
             throw new DatabaseException("Фильм '$filmTitle' уже содержит актёра $name");

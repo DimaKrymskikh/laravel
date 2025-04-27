@@ -4,9 +4,9 @@ namespace Tests\Unit\Services\Database\Dvd;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\FilmActor;
+use App\Queries\Dvd\Films\FilmQueriesInterface;
 use App\Repositories\Dvd\ActorRepositoryInterface;
 use App\Repositories\Dvd\FilmActorRepositoryInterface;
-use App\Repositories\Dvd\FilmRepositoryInterface;
 use App\Services\Database\Dvd\FilmActorService;
 use PHPUnit\Framework\TestCase;
 
@@ -14,7 +14,7 @@ class FilmActorServiceTest extends TestCase
 {
     private ActorRepositoryInterface $actorRepository;
     private FilmActorRepositoryInterface $filmActorRepository;
-    private FilmRepositoryInterface $filmRepository;
+    private FilmQueriesInterface $filmQueries;
     private FilmActorService $filmActorService;
     private int $filmId = 5;
     private int $actorId = 18;
@@ -91,8 +91,8 @@ class FilmActorServiceTest extends TestCase
     {
         $this->actorRepository = $this->createMock(ActorRepositoryInterface::class);
         $this->filmActorRepository = $this->createMock(FilmActorRepositoryInterface::class);
-        $this->filmRepository = $this->createMock(FilmRepositoryInterface::class);
+        $this->filmQueries = $this->createMock(FilmQueriesInterface::class);
         
-        $this->filmActorService = new FilmActorService($this->actorRepository, $this->filmActorRepository, $this->filmRepository);
+        $this->filmActorService = new FilmActorService($this->actorRepository, $this->filmActorRepository, $this->filmQueries);
     }
 }

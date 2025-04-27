@@ -6,8 +6,6 @@ use App\Repositories\Dvd\ActorRepository;
 use App\Repositories\Dvd\ActorRepositoryInterface;
 use App\Repositories\Dvd\FilmActorRepository;
 use App\Repositories\Dvd\FilmActorRepositoryInterface;
-use App\Repositories\Dvd\FilmRepository;
-use App\Repositories\Dvd\FilmRepositoryInterface;
 use App\Repositories\Logs\OpenWeatherWeatherRepository;
 use App\Repositories\Logs\OpenWeatherWeatherRepositoryInterface;
 use App\Repositories\OpenWeather\WeatherRepository;
@@ -39,8 +37,6 @@ class RepositoriesProvider extends ServiceProvider
         
         $this->app->bind(FilmActorRepositoryInterface::class, FilmActorRepository::class);
         
-        $this->app->bind(FilmRepositoryInterface::class, FilmRepository::class);
-        
         $this->app->bind(OpenWeatherWeatherRepositoryInterface::class, OpenWeatherWeatherRepository::class);
         
         $this->app->bind(WeatherRepositoryInterface::class, WeatherRepository::class);
@@ -56,12 +52,5 @@ class RepositoriesProvider extends ServiceProvider
         $this->app->bind(LanguageRepositoryInterface::class, LanguageRepository::class);
         
         $this->app->bind(TimezoneRepositoryInterface::class, TimezoneRepository::class);
-    }
-
-    /**
-     * Bootstrap services.
-     */
-    public function boot(): void
-    {
     }
 }

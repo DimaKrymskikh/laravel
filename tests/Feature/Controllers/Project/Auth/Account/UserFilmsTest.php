@@ -88,7 +88,7 @@ class UserFilmsTest extends TestCase
         
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_AUTH_FILMS.'?page=1&number=100&title_filter=&description_filter=&release_year_filter=');
+            ->assertRedirect(RouteServiceProvider::URL_AUTH_FILMS.'?page=1&number=100&title_filter=&description_filter=&release_year_filter=&language_name_filter=');
     }
     
     public function test_film_can_not_add_in_user_list_with_duplicate(): void
@@ -147,7 +147,7 @@ class UserFilmsTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=100&title_filter=&description_filter=&release_year_filter=');
+            ->assertRedirect(RouteServiceProvider::URL_AUTH_USERFILMS.'?page=1&number=100&title_filter=&description_filter=&release_year_filter=&language_name_filter=');
     }
     
     public function test_film_can_not_remove_from_user_list_if_film_not_exists(): void

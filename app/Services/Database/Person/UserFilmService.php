@@ -4,13 +4,13 @@ namespace App\Services\Database\Person;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Person\UserFilm;
-use App\Repositories\Dvd\FilmRepositoryInterface;
+use App\Queries\Dvd\Films\FilmQueriesInterface;
 use App\Repositories\Person\UserFilmRepositoryInterface;
 
 final class UserFilmService
 {
     public function __construct(
-            private FilmRepositoryInterface $filmRepository,
+            private FilmQueriesInterface $filmQueries,
             private UserFilmRepositoryInterface $userFilmRepository,
     ) {
     }
@@ -20,7 +20,7 @@ final class UserFilmService
         // Проверка наличия в таблице 'person.users_films' пары первичных ключей (user_id, film_id)
         if ($this->userFilmRepository->exists($userId, $filmId)) {
             // Если пара существует, выбрасываем исключение
-            $filmTitle = $this->filmRepository->getById($filmId)->title;
+            $filmTitle = $this->filmQueries->getById($filmId)->title;
             throw new DatabaseException("Фильм '$filmTitle' уже находится в вашей коллекции.");
         }
         
@@ -32,7 +32,7 @@ final class UserFilmService
     {
         // Если пара не существует, выбрасываем исключение
         if (!$this->userFilmRepository->exists($userId, $filmId)) {
-            $filmTitle = $this->filmRepository->getById($filmId)->title;
+            $filmTitle = $this->filmQueries->getById($filmId)->title;
             throw new DatabaseException("Фильма '$filmTitle' нет в вашей коллекции. Удаление невозможно.");
         }
         

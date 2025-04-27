@@ -102,7 +102,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=&language_name_filter=');
     }
     
     public function test_admin_can_add_film_with_nullable_data(): void
@@ -124,7 +124,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=&language_name_filter=');
     }
     
     public function test_admin_can_not_add_if_the_release_year_is_not_an_integer(): void
@@ -172,7 +172,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=&language_name_filter=');
     }
     
     public function test_admin_can_not_update_film_title_if_the_title_is_empty(): void
@@ -221,7 +221,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=&language_name_filter=');
     }
     
     public function test_admin_can_update_film_language(): void
@@ -243,7 +243,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=&language_name_filter=');
     }
     
     public function test_admin_can_reset_to_null_the_film_language(): void
@@ -263,7 +263,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=&language_name_filter=');
     }
     
     public function test_admin_can_update_film_release_year(): void
@@ -287,7 +287,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=&language_name_filter=');
     }
     
     public function test_admin_can_not_update_film_release_year_if_the_release_year_is_not_an_integer(): void
@@ -332,7 +332,7 @@ class FilmTest extends TestCase
 
         $response
             ->assertStatus(302)
-            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=');
+            ->assertRedirect(RouteServiceProvider::URL_ADMIN_FILMS.'?page=1&number=20&title_filter=&description_filter=&release_year_filter=&language_name_filter=');
     }
     
     public function test_admin_can_not_delete_film_if_the_password_is_incorrect(): void

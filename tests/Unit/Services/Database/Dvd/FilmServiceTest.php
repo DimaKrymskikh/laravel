@@ -5,7 +5,7 @@ namespace Tests\Unit\Services\Database\Dvd;
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
 use App\Modifiers\Dvd\Films\FilmModifiersInterface;
-use App\Repositories\Dvd\FilmRepositoryInterface;
+use App\Queries\Dvd\Films\FilmQueriesInterface;
 use App\Services\Database\Dvd\FilmService;
 use Illuminate\Database\Eloquent\Collection;
 use Tests\Support\Data\Dto\Database\Dvd\Filters\FilmFilterDtoCase;
@@ -17,8 +17,8 @@ class FilmServiceTest extends TestCase
 {
     use FilmDtoCase, FilmFilterDtoCase, PaginatorDtoCase;
     
+    private FilmQueriesInterface $filmQueries;
     private FilmModifiersInterface $filmModifiers;
-    private FilmRepositoryInterface $filmRepository;
     private FilmService $filmService;
     private int $filmId = 12;
 
@@ -37,7 +37,7 @@ class FilmServiceTest extends TestCase
     {
         $film = new Film();
         
-        $this->filmRepository->expects($this->once())
+        $this->filmQueries->expects($this->once())
                 ->method('getById')
                 ->with($this->identicalTo($this->filmId))
                 ->willReturn($film);
@@ -51,7 +51,7 @@ class FilmServiceTest extends TestCase
     
     public function test_success_delete(): void
     {
-        $this->filmRepository->expects($this->once())
+        $this->filmQueries->expects($this->once())
                 ->method('exists')
                 ->with($this->identicalTo($this->filmId))
                 ->willReturn(true);
@@ -65,7 +65,7 @@ class FilmServiceTest extends TestCase
     
     public function test_fail_delete(): void
     {
-        $this->filmRepository->expects($this->once())
+        $this->filmQueries->expects($this->once())
                 ->method('exists')
                 ->with($this->identicalTo($this->filmId))
                 ->willReturn(false);
@@ -80,7 +80,7 @@ class FilmServiceTest extends TestCase
     
     public function test_success_get_film_card(): void
     {
-        $this->filmRepository->expects($this->once())
+        $this->filmQueries->expects($this->once())
                 ->method('getByIdWithActors')
                 ->with($this->identicalTo($this->filmId));
         
@@ -91,7 +91,7 @@ class FilmServiceTest extends TestCase
     {
         $filmFilterDto = $this->getBaseCaseFilmFilterDto();
         
-        $this->filmRepository->expects($this->once())
+        $this->filmQueries->expects($this->once())
                 ->method('getList')
                 ->with($filmFilterDto);
         
@@ -100,7 +100,7 @@ class FilmServiceTest extends TestCase
     
     public function test_success_get_actors_list(): void
     {
-        $this->filmRepository->expects($this->once())
+        $this->filmQueries->expects($this->once())
                 ->method('getByIdWithActors')
                 ->with($this->identicalTo($this->filmId));
         
@@ -109,9 +109,9 @@ class FilmServiceTest extends TestCase
     
     protected function setUp(): void
     {
+        $this->filmQueries = $this->createMock(FilmQueriesInterface::class);
         $this->filmModifiers = $this->createMock(FilmModifiersInterface::class);
-        $this->filmRepository = $this->createMock(FilmRepositoryInterface::class);
         
-        $this->filmService = new FilmService($this->filmModifiers, $this->filmRepository);
+        $this->filmService = new FilmService($this->filmQueries, $this->filmModifiers);
     }
 }

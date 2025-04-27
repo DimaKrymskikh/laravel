@@ -4,14 +4,14 @@ namespace Tests\Unit\Services\Database\Person;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Person\UserFilm;
-use App\Repositories\Dvd\FilmRepositoryInterface;
+use App\Queries\Dvd\Films\FilmQueriesInterface;
 use App\Repositories\Person\UserFilmRepositoryInterface;
 use App\Services\Database\Person\UserFilmService;
 use PHPUnit\Framework\TestCase;
 
 class UserFilmServiceTest extends TestCase
 {
-    private FilmRepositoryInterface $filmRepository;
+    private FilmQueriesInterface $filmQueries;
     private UserFilmRepositoryInterface $userFilmRepository;
     private UserFilmService $userFilmService;
     private int $userId = 3;
@@ -24,7 +24,7 @@ class UserFilmServiceTest extends TestCase
                 ->with($this->identicalTo($this->userId), $this->identicalTo($this->filmId))
                 ->willReturn(false);
         
-        $this->filmRepository->expects($this->never())
+        $this->filmQueries->expects($this->never())
                 ->method('getById');
         
         $this->userFilmRepository->expects($this->once())
@@ -41,7 +41,7 @@ class UserFilmServiceTest extends TestCase
                 ->with($this->identicalTo($this->userId), $this->identicalTo($this->filmId))
                 ->willReturn(true);
         
-        $this->filmRepository->expects($this->once())
+        $this->filmQueries->expects($this->once())
                 ->method('getById')
                 ->with($this->identicalTo($this->filmId));
         
@@ -60,7 +60,7 @@ class UserFilmServiceTest extends TestCase
                 ->with($this->identicalTo($this->userId), $this->identicalTo($this->filmId))
                 ->willReturn(true);
         
-        $this->filmRepository->expects($this->never())
+        $this->filmQueries->expects($this->never())
                 ->method('getById');
         
         $this->userFilmRepository->expects($this->once())
@@ -77,7 +77,7 @@ class UserFilmServiceTest extends TestCase
                 ->with($this->identicalTo($this->userId), $this->identicalTo($this->filmId))
                 ->willReturn(false);
         
-        $this->filmRepository->expects($this->once())
+        $this->filmQueries->expects($this->once())
                 ->method('getById')
                 ->with($this->identicalTo($this->filmId));
         
@@ -91,9 +91,9 @@ class UserFilmServiceTest extends TestCase
     
     protected function setUp(): void
     {
-        $this->filmRepository = $this->createMock(FilmRepositoryInterface::class);
+        $this->filmQueries = $this->createMock(FilmQueriesInterface::class);
         $this->userFilmRepository = $this->createMock(UserFilmRepositoryInterface::class);
         
-        $this->userFilmService = new UserFilmService($this->filmRepository, $this->userFilmRepository);
+        $this->userFilmService = new UserFilmService($this->filmQueries, $this->userFilmRepository);
     }
 }

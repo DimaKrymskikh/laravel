@@ -3,7 +3,7 @@
 namespace Tests\Unit\CommandHandlers\Database\Dvd\Films;
 
 use App\CommandHandlers\Database\Dvd\Films\FilmsListForPageCommandHandler;
-use App\Queries\Dvd\Films\FilmsListForPageQueriesInterface;
+use App\Queries\Dvd\Films\FilmsListForPage\FilmsListForPageQueriesInterface;
 use PHPUnit\Framework\TestCase;
 use Tests\Support\Data\Dto\Database\Dvd\Filters\FilmFilterDtoCase;
 use Tests\Support\Data\Dto\Pagination\PaginatorDtoCase;
