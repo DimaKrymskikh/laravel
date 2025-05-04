@@ -2,24 +2,26 @@
 
 namespace App\Services\Database\Person;
 
-use App\Repositories\Person\UserRepositoryInterface;
+use App\Modifiers\Person\Users\UserModifiersInterface;
+use App\Queries\Person\Users\UserQueriesInterface;
 
 final class UserService
 {
     public function __construct(
-        private UserRepositoryInterface $userRepository
+            private UserModifiersInterface $userModifiers,
+            private UserQueriesInterface $userQueries
     ) {
     }
     
     public function assignAdmin(int $userId): void
     {
-        $user = $this->userRepository->getById($userId);
-        $this->userRepository->saveField($user, 'is_admin', true);
+        $user = $this->userQueries->getById($userId);
+        $this->userModifiers->saveField($user, 'is_admin', true);
     }
     
     public function depriveAdmin(int $userId): void
     {
-        $user = $this->userRepository->getById($userId);
-        $this->userRepository->saveField($user, 'is_admin', false);
+        $user = $this->userQueries->getById($userId);
+        $this->userModifiers->saveField($user, 'is_admin', false);
     }
 }

@@ -7,7 +7,7 @@ use App\Models\Dvd\Film;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
-class AdminFilmsListForPageQueries extends BaseFilmsListForPageQueries
+final class AdminFilmsListForPageQueries extends BaseFilmsListForPageQueries
 {
     protected function queryList(FilmFilterDto $dto, int|null $userId = null): Builder
     {

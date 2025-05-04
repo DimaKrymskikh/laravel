@@ -5,7 +5,7 @@ namespace App\Services\Database\Thesaurus;
 use App\Models\Logs\OpenWeatherWeather;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
-use App\Repositories\Thesaurus\TimezoneRepositoryInterface;
+use App\Queries\Thesaurus\Timezones\TimezoneQueriesInterface;
 use App\Services\CarbonService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
@@ -13,13 +13,13 @@ use Illuminate\Support\Collection as SupportCollection;
 final class TimezoneService
 {
     public function __construct(
-            private TimezoneRepositoryInterface $timezoneRepository
+            private TimezoneQueriesInterface $timezoneQueries
     ) {
     }
     
     public function getAllTimezonesList(string $name): Collection
     {
-        return $this->timezoneRepository->getList($name);
+        return $this->timezoneQueries->getList($name);
     }
     
     /**

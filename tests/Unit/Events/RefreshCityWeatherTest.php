@@ -5,10 +5,11 @@ namespace Tests\Unit\Events;
 use App\Events\RefreshCityWeather;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
-use App\Repositories\OpenWeather\WeatherRepositoryInterface;
-use App\Repositories\Person\UserRepositoryInterface;
-use App\Repositories\Thesaurus\CityRepositoryInterface;
-use App\Repositories\Thesaurus\TimezoneRepositoryInterface;
+use App\Modifiers\OpenWeather\Weather\WeatherModifiersInterface;
+use App\Modifiers\Thesaurus\Cities\CityModifiersInterface;
+use App\Queries\Person\Users\UserQueriesInterface;
+use App\Queries\Thesaurus\Cities\CityQueriesInterface;
+use App\Queries\Thesaurus\Timezones\TimezoneQueriesInterface;
 use App\Services\Database\OpenWeather\WeatherService;
 use App\Services\Database\Thesaurus\CityService;
 use App\Services\Database\Thesaurus\TimezoneService;
@@ -18,10 +19,11 @@ use PHPUnit\Framework\TestCase;
 class RefreshCityWeatherTest extends TestCase
 {
     private RefreshCityWeather $refreshCityWeather;
-    private WeatherRepositoryInterface $weatherRepository;
-    private UserRepositoryInterface $userRepository;
-    private CityRepositoryInterface $cityRepository;
-    private TimezoneRepositoryInterface $timezoneRepository;
+    private WeatherModifiersInterface $weatherModifiers;
+    private CityModifiersInterface $cityModifiers;
+    private UserQueriesInterface $userQueries;
+    private CityQueriesInterface $cityQueries;
+    private TimezoneQueriesInterface $timezoneQueries;
     private WeatherService $weatherService;
     private CityService $cityService;
     private TimezoneService $timezoneService;
@@ -34,7 +36,7 @@ class RefreshCityWeatherTest extends TestCase
         $city->weather = new Weather();
         $city->weather->created_at = new CarbonImmutable();
         
-        $this->cityRepository->expects($this->once())
+        $this->cityQueries->expects($this->once())
                 ->method('getById')
                 ->with($this->cityId)
                 ->willReturn($city);
@@ -49,16 +51,17 @@ class RefreshCityWeatherTest extends TestCase
     
     protected function setUp(): void
     {
-        $this->weatherRepository = $this->createMock(WeatherRepositoryInterface::class);
-        $this->userRepository = $this->createMock(UserRepositoryInterface::class);
+        $this->weatherModifiers = $this->createMock(WeatherModifiersInterface::class);
+        $this->userQueries = $this->createMock(UserQueriesInterface::class);
         
-        $this->cityRepository = $this->createMock(CityRepositoryInterface::class);
-        $this->cityService = new CityService($this->cityRepository);
+        $this->cityModifiers = $this->createMock(CityModifiersInterface::class);
+        $this->cityQueries = $this->createMock(CityQueriesInterface::class);
+        $this->cityService = new CityService($this->cityModifiers, $this->cityQueries);
         
-        $this->timezoneRepository = $this->createMock(TimezoneRepositoryInterface::class);
-        $this->timezoneService = new TimezoneService($this->timezoneRepository);
+        $this->timezoneQueries = $this->createMock(TimezoneQueriesInterface::class);
+        $this->timezoneService = new TimezoneService($this->timezoneQueries);
         
-        $this->weatherService = new WeatherService($this->weatherRepository, $this->userRepository, $this->cityRepository, $this->timezoneService);
+        $this->weatherService = new WeatherService($this->weatherModifiers, $this->userQueries, $this->cityQueries, $this->timezoneService);
          
         $this->refreshCityWeather = new RefreshCityWeather($this->cityId, $this->userId, $this->weatherService, $this->cityService);
     }

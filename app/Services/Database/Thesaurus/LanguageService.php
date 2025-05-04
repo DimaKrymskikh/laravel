@@ -5,36 +5,36 @@ namespace App\Services\Database\Thesaurus;
 use App\Exceptions\DatabaseException;
 use App\DataTransferObjects\Database\Thesaurus\Filters\LanguageFilterDto;
 use App\Models\Thesaurus\Language;
+use App\Modifiers\Thesaurus\Languages\LanguageModifiersInterface;
 use App\Queries\Thesaurus\Languages\LanguageQueriesInterface;
-use App\Repositories\Thesaurus\LanguageRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 final class LanguageService
 {
     public function __construct(
+            private LanguageModifiersInterface $languageModifiers,
             private LanguageQueriesInterface $languageQueries,
-            private LanguageRepositoryInterface $languageRepository,
     ) {
     }
     
     public function create(string $name): void
     {
-        $this->languageRepository->save(new Language(), $name);
+        $this->languageModifiers->save(new Language(), $name);
     }
     
     public function update(string $name, int $id): void
     {
-        $language = $this->languageRepository->getById($id);
-        $this->languageRepository->save($language, $name);
+        $language = $this->languageQueries->getById($id);
+        $this->languageModifiers->save($language, $name);
     }
     
     public function delete(int $id): void
     {
-        if(!$this->languageRepository->exists($id)) {
+        if(!$this->languageQueries->exists($id)) {
             throw new DatabaseException("В таблице 'thesaurus.languages' нет записи с id=$id");
         }
         
-        $this->languageRepository->delete($id);
+        $this->languageModifiers->delete($id);
     }
     
     public function getAllLanguagesList(LanguageFilterDto $languageDto): Collection

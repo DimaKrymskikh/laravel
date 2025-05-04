@@ -4,52 +4,47 @@ namespace App\Services\Database\Dvd;
 
 use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use App\DataTransferObjects\Database\Dvd\ActorDto;
-use App\DataTransferObjects\Pagination\PaginatorDto;
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Actor;
-use App\Repositories\Dvd\ActorRepositoryInterface;
+use App\Modifiers\Dvd\Actors\ActorModifiersInterface;
+use App\Queries\Dvd\Actors\ActorQueriesInterface;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 final class ActorService
 {
     public function __construct(
-            private ActorRepositoryInterface $actorRepository,
+            private ActorModifiersInterface $actorModifiers,
+            private ActorQueriesInterface $actorQueries,
     ) {
     }
     
     public function create(ActorDto $dto): Actor
     {
         $actor = new Actor();
-        $this->actorRepository->save($actor, $dto);
+        $this->actorModifiers->save($actor, $dto);
         
         return $actor;
     }
     
     public function update(ActorDto $dto, int $actorId): Actor
     {
-        $actor = $this->actorRepository->getById($actorId);
-        $this->actorRepository->save($actor, $dto);
+        $actor = $this->actorQueries->getById($actorId);
+        $this->actorModifiers->save($actor, $dto);
         
         return $actor;
     }
     
     public function delete(int $actorId): void
     {
-        if(!$this->actorRepository->exists($actorId)) {
+        if(!$this->actorQueries->exists($actorId)) {
             throw new DatabaseException("В таблице 'dvd.actors' нет записи с id=$actorId");
         }
         
-        $this->actorRepository->delete($actorId);
+        $this->actorModifiers->delete($actorId);
     }
     
     public function getAllActorsList(ActorFilterDto $actorFilterDto): Collection
     {
-        return $this->actorRepository->getList($actorFilterDto);
-    }
-    
-    public function getActorsListForPage(PaginatorDto $paginatorDto, ActorFilterDto $actorFilterDto): LengthAwarePaginator
-    {
-        return $this->actorRepository->getListForPage($paginatorDto, $actorFilterDto);
+        return $this->actorQueries->getList($actorFilterDto);
     }
 }

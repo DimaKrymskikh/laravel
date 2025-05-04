@@ -4,14 +4,16 @@ namespace Tests\Unit\Services\Database\Thesaurus;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
-use App\Repositories\Thesaurus\CityRepositoryInterface;
+use App\Modifiers\Thesaurus\Cities\CityModifiersInterface;
+use App\Queries\Thesaurus\Cities\CityQueriesInterface;
 use App\Services\Database\Thesaurus\CityService;
 use Illuminate\Database\Eloquent\Collection;
 use PHPUnit\Framework\TestCase;
 
 class CityServiceTest extends TestCase
 {
-    private CityRepositoryInterface $cityRepository;
+    private CityModifiersInterface $cityModifiers;
+    private CityQueriesInterface $cityQueries;
     private CityService $cityService;
     private int $cityId = 3;
     private string $name = 'TestCity';
@@ -19,7 +21,7 @@ class CityServiceTest extends TestCase
 
     public function test_success_create(): void
     {
-        $this->cityRepository->expects($this->once())
+        $this->cityModifiers->expects($this->once())
                 ->method('save')
                 ->with(new City, $this->name, $this->openWeatherId);
         
@@ -30,12 +32,12 @@ class CityServiceTest extends TestCase
     {
         $city = new City();
         
-        $this->cityRepository->expects($this->once())
+        $this->cityQueries->expects($this->once())
                 ->method('getById')
                 ->with($this->identicalTo($this->cityId))
                 ->willReturn($city);
         
-        $this->cityRepository->expects($this->once())
+        $this->cityModifiers->expects($this->once())
                 ->method('saveField')
                 ->with($this->identicalTo($city), 'name', $this->name);
         
@@ -46,12 +48,12 @@ class CityServiceTest extends TestCase
     {
         $city = new City();
         
-        $this->cityRepository->expects($this->once())
+        $this->cityQueries->expects($this->once())
                 ->method('getById')
                 ->with($this->identicalTo($this->cityId))
                 ->willReturn($city);
         
-        $this->cityRepository->expects($this->once())
+        $this->cityModifiers->expects($this->once())
                 ->method('saveField')
                 ->with($this->identicalTo($city), 'timezone_id', null);
         
@@ -62,10 +64,10 @@ class CityServiceTest extends TestCase
     {
         $this->expectException(DatabaseException::class);
         
-        $this->cityRepository->expects($this->never())
+        $this->cityQueries->expects($this->never())
                 ->method('getById');
         
-        $this->cityRepository->expects($this->never())
+        $this->cityModifiers->expects($this->never())
                 ->method('saveField');
         
         $this->cityService->update($this->cityId, 'open_weather_id', '77');
@@ -73,12 +75,12 @@ class CityServiceTest extends TestCase
 
     public function test_success_delete(): void
     {
-        $this->cityRepository->expects($this->once())
+        $this->cityQueries->expects($this->once())
                 ->method('exists')
                 ->with($this->identicalTo($this->cityId))
                 ->willReturn(true);
         
-        $this->cityRepository->expects($this->once())
+        $this->cityModifiers->expects($this->once())
                 ->method('delete')
                 ->with($this->identicalTo($this->cityId));
         
@@ -87,12 +89,12 @@ class CityServiceTest extends TestCase
 
     public function test_fail_delete(): void
     {
-        $this->cityRepository->expects($this->once())
+        $this->cityQueries->expects($this->once())
                 ->method('exists')
                 ->with($this->identicalTo($this->cityId))
                 ->willReturn(false);
         
-        $this->cityRepository->expects($this->never())
+        $this->cityModifiers->expects($this->never())
                 ->method('delete')
                 ->with($this->identicalTo($this->cityId));
         
@@ -105,7 +107,7 @@ class CityServiceTest extends TestCase
     {
         $city = new City();
         
-        $this->cityRepository->expects($this->once())
+        $this->cityQueries->expects($this->once())
                 ->method('getById')
                 ->with($this->identicalTo($this->cityId))
                 ->willReturn($city);
@@ -115,7 +117,7 @@ class CityServiceTest extends TestCase
 
     public function test_success_get_all_cities_list(): void
     {
-        $this->cityRepository->expects($this->once())
+        $this->cityQueries->expects($this->once())
                 ->method('getList');
         
         $this->assertInstanceOf(Collection::class, $this->cityService->getAllCitiesList());
@@ -125,7 +127,7 @@ class CityServiceTest extends TestCase
     {
         $userId = 8;
         
-        $this->cityRepository->expects($this->once())
+        $this->cityQueries->expects($this->once())
                 ->method('getListWithAvailableByUserId')
                 ->with($this->identicalTo($userId));
         
@@ -136,7 +138,7 @@ class CityServiceTest extends TestCase
     {
         $city = new City();
         
-        $this->cityRepository->expects($this->once())
+        $this->cityQueries->expects($this->once())
                 ->method('getByOpenWeatherId')
                 ->with($this->identicalTo($this->openWeatherId))
                 ->willReturn($city);
@@ -148,7 +150,7 @@ class CityServiceTest extends TestCase
     {
         $this->expectException(DatabaseException::class);
         
-        $this->cityRepository->expects($this->once())
+        $this->cityQueries->expects($this->once())
                 ->method('getByOpenWeatherId')
                 ->with($this->identicalTo($this->openWeatherId))
                 ->willReturn(null);
@@ -158,8 +160,9 @@ class CityServiceTest extends TestCase
     
     protected function setUp(): void
     {
-        $this->cityRepository = $this->createMock(CityRepositoryInterface::class);
+        $this->cityModifiers = $this->createMock(CityModifiersInterface::class);
+        $this->cityQueries = $this->createMock(CityQueriesInterface::class);
         
-        $this->cityService = new CityService($this->cityRepository);
+        $this->cityService = new CityService($this->cityModifiers, $this->cityQueries);
     }
 }

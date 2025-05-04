@@ -4,22 +4,24 @@ namespace Tests\Unit\Services\Database\Person;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Person\UserFilm;
+use App\Modifiers\Person\UsersFilms\UserFilmModifiersInterface;
 use App\Queries\Dvd\Films\FilmQueriesInterface;
-use App\Repositories\Person\UserFilmRepositoryInterface;
+use App\Queries\Person\UsersFilms\UserFilmQueriesInterface;
 use App\Services\Database\Person\UserFilmService;
 use PHPUnit\Framework\TestCase;
 
 class UserFilmServiceTest extends TestCase
 {
+    private UserFilmModifiersInterface $userFilmModifiers;
     private FilmQueriesInterface $filmQueries;
-    private UserFilmRepositoryInterface $userFilmRepository;
+    private UserFilmQueriesInterface $userFilmQueries;
     private UserFilmService $userFilmService;
     private int $userId = 3;
     private int $filmId = 12;
 
     public function test_success_create(): void
     {
-        $this->userFilmRepository->expects($this->once())
+        $this->userFilmQueries->expects($this->once())
                 ->method('exists')
                 ->with($this->identicalTo($this->userId), $this->identicalTo($this->filmId))
                 ->willReturn(false);
@@ -27,7 +29,7 @@ class UserFilmServiceTest extends TestCase
         $this->filmQueries->expects($this->never())
                 ->method('getById');
         
-        $this->userFilmRepository->expects($this->once())
+        $this->userFilmModifiers->expects($this->once())
                 ->method('save')
                 ->with(new UserFilm(), $this->identicalTo($this->userId), $this->identicalTo($this->filmId));
         
@@ -36,7 +38,7 @@ class UserFilmServiceTest extends TestCase
 
     public function test_fail_create(): void
     {
-        $this->userFilmRepository->expects($this->once())
+        $this->userFilmQueries->expects($this->once())
                 ->method('exists')
                 ->with($this->identicalTo($this->userId), $this->identicalTo($this->filmId))
                 ->willReturn(true);
@@ -45,7 +47,7 @@ class UserFilmServiceTest extends TestCase
                 ->method('getById')
                 ->with($this->identicalTo($this->filmId));
         
-        $this->userFilmRepository->expects($this->never())
+        $this->userFilmModifiers->expects($this->never())
                 ->method('save');
         
         $this->expectException(DatabaseException::class);
@@ -55,7 +57,7 @@ class UserFilmServiceTest extends TestCase
 
     public function test_success_delete(): void
     {
-        $this->userFilmRepository->expects($this->once())
+        $this->userFilmQueries->expects($this->once())
                 ->method('exists')
                 ->with($this->identicalTo($this->userId), $this->identicalTo($this->filmId))
                 ->willReturn(true);
@@ -63,7 +65,7 @@ class UserFilmServiceTest extends TestCase
         $this->filmQueries->expects($this->never())
                 ->method('getById');
         
-        $this->userFilmRepository->expects($this->once())
+        $this->userFilmModifiers->expects($this->once())
                 ->method('delete')
                 ->with($this->identicalTo($this->userId), $this->identicalTo($this->filmId));
         
@@ -72,7 +74,7 @@ class UserFilmServiceTest extends TestCase
 
     public function test_fail_delete(): void
     {
-        $this->userFilmRepository->expects($this->once())
+        $this->userFilmQueries->expects($this->once())
                 ->method('exists')
                 ->with($this->identicalTo($this->userId), $this->identicalTo($this->filmId))
                 ->willReturn(false);
@@ -81,7 +83,7 @@ class UserFilmServiceTest extends TestCase
                 ->method('getById')
                 ->with($this->identicalTo($this->filmId));
         
-        $this->userFilmRepository->expects($this->never())
+        $this->userFilmModifiers->expects($this->never())
                 ->method('delete');
         
         $this->expectException(DatabaseException::class);
@@ -91,9 +93,10 @@ class UserFilmServiceTest extends TestCase
     
     protected function setUp(): void
     {
+        $this->userFilmModifiers = $this->createMock(UserFilmModifiersInterface::class);
         $this->filmQueries = $this->createMock(FilmQueriesInterface::class);
-        $this->userFilmRepository = $this->createMock(UserFilmRepositoryInterface::class);
+        $this->userFilmQueries = $this->createMock(UserFilmQueriesInterface::class);
         
-        $this->userFilmService = new UserFilmService($this->filmQueries, $this->userFilmRepository);
+        $this->userFilmService = new UserFilmService($this->userFilmModifiers, $this->filmQueries, $this->userFilmQueries);
     }
 }

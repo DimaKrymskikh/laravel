@@ -4,7 +4,8 @@ namespace App\Services\Database\Thesaurus;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
-use App\Repositories\Thesaurus\CityRepositoryInterface;
+use App\Modifiers\Thesaurus\Cities\CityModifiersInterface;
+use App\Queries\Thesaurus\Cities\CityQueriesInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 final class CityService
@@ -12,13 +13,14 @@ final class CityService
     const VARIABLE_TABLE_FIELDS = ['name', 'timezone_id'];
     
     public function __construct(
-        private CityRepositoryInterface $cityRepository,
+        private CityModifiersInterface $cityModifiers,
+        private CityQueriesInterface $cityQueries,
     ) {
     }
     
     public function create(string $name, int $openWeatherId): void
     {
-        $this->cityRepository->save(new City(), $name, $openWeatherId);
+        $this->cityModifiers->save(new City(), $name, $openWeatherId);
     }
     
     public function update(int $cityId, string $field, mixed $value): void
@@ -32,32 +34,32 @@ final class CityService
             default => $value
         };
         
-        $city = $this->cityRepository->getById($cityId);
-        $this->cityRepository->saveField($city, $field, $fieldValue);
+        $city = $this->cityQueries->getById($cityId);
+        $this->cityModifiers->saveField($city, $field, $fieldValue);
     }
     
     public function delete(int $cityId): void
     {
-        if (!$this->cityRepository->exists($cityId)) {
+        if (!$this->cityQueries->exists($cityId)) {
             throw new DatabaseException("В таблице 'thesaurus.cities' нет записи с id=$cityId");
         }
         
-        $this->cityRepository->delete($cityId);
+        $this->cityModifiers->delete($cityId);
     }
     
     public function getCityById(int $cityId): City
     {
-        return $this->cityRepository->getById($cityId);
+        return $this->cityQueries->getById($cityId);
     }
     
     public function getAllCitiesList(): Collection
     {
-        return $this->cityRepository->getList();
+        return $this->cityQueries->getList();
     }
     
     public function getListWithAvailableByUserId(int $userId): Collection
     {
-        return $this->cityRepository->getListWithAvailableByUserId($userId);
+        return $this->cityQueries->getListWithAvailableByUserId($userId);
     }
     
     /**
@@ -68,7 +70,7 @@ final class CityService
      */
     public function findCityByOpenWeatherId($openWeatherId): City
     {
-        $city = $this->cityRepository->getByOpenWeatherId($openWeatherId);
+        $city = $this->cityQueries->getByOpenWeatherId($openWeatherId);
         
         return $city ?? throw new DatabaseException("В таблице 'thesaurus.cities' нет городов с полем open_weather_id = $openWeatherId");
     }

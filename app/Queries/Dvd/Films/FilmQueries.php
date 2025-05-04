@@ -4,12 +4,12 @@ namespace App\Queries\Dvd\Films;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\Models\Dvd\Film;
-use App\Providers\BindingInterfaces\RepositoriesProvider;
+use App\Providers\BindingInterfaces\QueriesProvider;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
-class FilmQueries implements FilmQueriesInterface
+final class FilmQueries implements FilmQueriesInterface
 {
     public function exists(int $id): bool
     {
@@ -42,7 +42,7 @@ class FilmQueries implements FilmQueriesInterface
                 ->select('id', 'title', 'description', 'language_id', 'release_year')
                 ->filter($dto)
                 ->orderBy('title')
-                ->limit(RepositoriesProvider::DEFAULT_LIMIT)
+                ->limit(QueriesProvider::DEFAULT_LIMIT)
                 ->get();
     }
     

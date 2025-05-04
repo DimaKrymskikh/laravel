@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Project\Admin\Content;
 
+use App\CommandHandlers\Database\Dvd\Actors\ActorsListForPageCommandHandler;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dvd\Filters\ActorFilterRequest;
 use App\Http\Requests\Dvd\ActorRequest;
@@ -15,8 +16,9 @@ use Inertia\Response;
 class ActorController extends Controller
 {
     public function __construct(
-        private ActorService $actorService,
-        private ActorUrls $actorUrls,
+            private ActorsListForPageCommandHandler $actorsHandler,
+            private ActorService $actorService,
+            private ActorUrls $actorUrls,
     ) {
         $this->middleware('check.password')->only('destroy');
     }
@@ -30,7 +32,7 @@ class ActorController extends Controller
     public function index(ActorFilterRequest $request): Response
     {
         return Inertia::render('Admin/Actors', [
-            'actors' => $this->actorService->getActorsListForPage($request->getPaginatorDto(), $request->getActorFilterDto())
+            'actors' => $this->actorsHandler->handle($request->getPaginatorDto(), $request->getActorFilterDto())
         ]);
     }
 

@@ -7,7 +7,7 @@ use App\Models\Dvd\Film;
 use App\Models\Dvd\FilmActor;
 use Illuminate\Support\Facades\DB;
 
-class FilmModifiers implements FilmModifiersInterface
+final class FilmModifiers implements FilmModifiersInterface
 {
     public function save(Film $film, FilmDto $dto): void
     {

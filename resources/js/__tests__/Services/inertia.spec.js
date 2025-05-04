@@ -15,7 +15,7 @@ const inertiaStart = new Event('inertia:start');
 const inertiaFinish = new Event('inertia:finish');
 
 describe("@/Services/inertia", () => {
-    it("Проверка событий 'inertia:start' и 'inertia:finish'", async () => {
+    it("Проверка событий 'inertia:start' и 'inertia:finish'", () => {
         const wrapper = mount(TestComponent, {});
         // В начальный момент
         expect(wrapper.vm.isGlobalRequest).toBe(false);
@@ -29,7 +29,7 @@ describe("@/Services/inertia", () => {
         expect(wrapper.vm.isGlobalRequest).toBe(false);
     });
     
-    it("Размонтирование компоненты снимает события 'inertia:start' и 'inertia:finish' с document", async () => {
+    it("Размонтирование компоненты снимает события 'inertia:start' и 'inertia:finish' с document", () => {
         const wrapper = mount(TestComponent, {});
         // В начальный момент
         expect(wrapper.vm.isGlobalRequest).toBe(false);

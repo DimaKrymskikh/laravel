@@ -4,14 +4,16 @@ namespace Tests\Unit\Events;
 
 use App\Events\AddCityInWeatherList;
 use App\Models\Thesaurus\City;
-use App\Repositories\Thesaurus\CityRepositoryInterface;
+use App\Modifiers\Thesaurus\Cities\CityModifiersInterface;
+use App\Queries\Thesaurus\Cities\CityQueriesInterface;
 use App\Services\Database\Thesaurus\CityService;
 use PHPUnit\Framework\TestCase;
 
 class AddCityInWeatherListTest extends TestCase
 {
     private AddCityInWeatherList $addCityInWeatherList;
-    private CityRepositoryInterface $cityRepository;
+    private CityModifiersInterface $cityModifiers;
+    private CityQueriesInterface $cityQueries;
     private CityService $cityService;
     private int $cityId = 7;
     private int $userId = 51;
@@ -21,7 +23,7 @@ class AddCityInWeatherListTest extends TestCase
         $city = new City();
         $city->name = 'TestName';
         
-        $this->cityRepository->expects($this->once())
+        $this->cityQueries->expects($this->once())
                 ->method('getById')
                 ->with($this->identicalTo($this->cityId))
                 ->willReturn($city);
@@ -37,8 +39,9 @@ class AddCityInWeatherListTest extends TestCase
     
     protected function setUp(): void
     {
-        $this->cityRepository = $this->createMock(CityRepositoryInterface::class);
-        $this->cityService = new CityService($this->cityRepository);
+        $this->cityModifiers = $this->createMock(CityModifiersInterface::class);
+        $this->cityQueries = $this->createMock(CityQueriesInterface::class);
+        $this->cityService = new CityService($this->cityModifiers, $this->cityQueries, );
          
         $this->addCityInWeatherList = new AddCityInWeatherList($this->userId, $this->cityId, $this->cityService);
     }

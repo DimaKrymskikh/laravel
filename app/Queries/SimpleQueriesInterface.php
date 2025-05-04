@@ -2,7 +2,6 @@
 
 namespace App\Queries;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 interface SimpleQueriesInterface
@@ -22,12 +21,4 @@ interface SimpleQueriesInterface
      * @return Model
      */
     public function getById(int $id): Model;
-    
-    /**
-     * При заданной сортировке возвращает коллекцию, в которой id и порядковый номер n,
-     * определяемый сортировкой
-     * 
-     * @return Collection
-     */
-    public function getRowNumbers(): Collection;
 }

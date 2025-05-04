@@ -4,7 +4,7 @@ namespace Tests\Unit\Services\Database\Thesaurus;
 
 use App\Models\Thesaurus\City;
 use App\Models\Thesaurus\Timezone;
-use App\Repositories\Thesaurus\TimezoneRepositoryInterface;
+use App\Queries\Thesaurus\Timezones\TimezoneQueriesInterface;
 use App\Services\Database\Thesaurus\TimezoneService;
 use App\Services\CarbonService;
 use Illuminate\Database\Eloquent\Collection;
@@ -12,13 +12,13 @@ use PHPUnit\Framework\TestCase;
 
 class TimezoneServiceTest extends TestCase
 {
-    private TimezoneRepositoryInterface $timezoneRepository;
+    private TimezoneQueriesInterface $timezoneQueries;
     private TimezoneService $timezoneService;
     private string $filterName = 'TestFilter';
     
     public function test_success_get_all_timezones_list(): void
     {
-        $this->timezoneRepository->expects($this->once())
+        $this->timezoneQueries->expects($this->once())
                 ->method('getList')
                 ->with($this->filterName);
         
@@ -44,8 +44,8 @@ class TimezoneServiceTest extends TestCase
     
     protected function setUp(): void
     {
-        $this->timezoneRepository = $this->createMock(TimezoneRepositoryInterface::class);
+        $this->timezoneQueries = $this->createMock(TimezoneQueriesInterface::class);
         
-        $this->timezoneService = new TimezoneService($this->timezoneRepository);
+        $this->timezoneService = new TimezoneService($this->timezoneQueries);
     }
 }

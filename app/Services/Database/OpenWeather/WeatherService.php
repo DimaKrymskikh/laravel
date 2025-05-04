@@ -4,18 +4,18 @@ namespace App\Services\Database\OpenWeather;
 
 use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Models\OpenWeather\Weather;
-use App\Repositories\OpenWeather\WeatherRepositoryInterface;
-use App\Repositories\Person\UserRepositoryInterface;
-use App\Repositories\Thesaurus\CityRepositoryInterface;
+use App\Modifiers\OpenWeather\Weather\WeatherModifiersInterface;
+use App\Queries\Person\Users\UserQueriesInterface;
+use App\Queries\Thesaurus\Cities\CityQueriesInterface;
 use App\Services\Database\Thesaurus\TimezoneService;
 use Illuminate\Database\Eloquent\Collection;
 
 final class WeatherService
 {
     public function __construct(
-            private WeatherRepositoryInterface $weatherRepository,
-            private UserRepositoryInterface $userRepository,
-            private CityRepositoryInterface $cityRepository,
+            private WeatherModifiersInterface $weatherModifiers,
+            private UserQueriesInterface $userQueries,
+            private CityQueriesInterface $cityQueries,
             private TimezoneService $timezoneService,
     ) {
     }
@@ -24,15 +24,15 @@ final class WeatherService
     {
         $weather = new Weather();
         
-        $this->weatherRepository->save($weather, $dto);
+        $this->weatherModifiers->save($weather, $dto);
         
         return $weather;
     }
     
     public function getWeatherInCitiesForAuthUserByUserId(int $userId): Collection
     {
-        $user = $this->userRepository->getById($userId);
-        $cities = $this->cityRepository->getByUserWithWeather($user);
+        $user = $this->userQueries->getById($userId);
+        $cities = $this->cityQueries->getByUserWithWeather($user);
         
         // Устанавливаем в данных погоды часовой пояс города
         $this->timezoneService->setTimezoneOfCitiesForWeatherData($cities);
@@ -49,7 +49,7 @@ final class WeatherService
      */
     public function getLatestWeatherForOneCityByCityId(int $cityId): Weather
     {
-        $city = $this->cityRepository->getById($cityId);
+        $city = $this->cityQueries->getById($cityId);
         
         $this->timezoneService->setCityTimezoneForWeatherData($city, $city->weather);
         

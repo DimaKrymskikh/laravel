@@ -8,6 +8,16 @@ use Illuminate\Database\Eloquent\Collection;
 
 final class LanguageQueries implements LanguageQueriesInterface
 {
+    public function exists(int $id): bool
+    {
+        return Language::where('id', $id)->exists();
+    }
+    
+    public function getById(int $id): Language
+    {
+        return Language::find($id);
+    }
+    
     public function getList(LanguageFilterDto $dto): Collection
     {
         return Language::select('id', 'name')
