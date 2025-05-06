@@ -109,7 +109,7 @@ describe("@/Components/Modal/Request/UpdateCityModal.vue", () => {
         const app = useAppStore();
         
         const wrapper = getWrapper(app);
-        
+      
         expect(hideUpdateCityModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerUpdateCity();
         
@@ -117,7 +117,7 @@ describe("@/Components/Modal/Request/UpdateCityModal.vue", () => {
         expect(hideUpdateCityModal).toHaveBeenCalledWith();
     });
     
-    it("Проверка функции onErrorForHandlerUpdateCity", async () => {
+    it("Проверка функции onErrorForHandlerUpdateCity (валидация данных)", async () => {
         const app = useAppStore();
         
         const wrapper = getWrapper(app);
@@ -126,6 +126,16 @@ describe("@/Components/Modal/Request/UpdateCityModal.vue", () => {
         wrapper.vm.onErrorForHandlerUpdateCity({name: 'ErrorName'});
         
         expect(wrapper.vm.errorsName).toBe('ErrorName');
+    });
+    
+    it("Проверка функции onErrorForHandlerUpdateCity (ошибка сервера с message)", async () => {
+        const app = useAppStore();
+        
+        const wrapper = getWrapper(app);
+
+        expect(hideUpdateCityModal).toHaveBeenCalledTimes(0);
+        wrapper.vm.onErrorForHandlerUpdateCity({ message: 'В таблице thesaurus.cities нет записи с id=13' });
+        expect(hideUpdateCityModal).toHaveBeenCalledTimes(1);
     });
     
     it("Проверка функции onFinishForHandlerUpdateCity", async () => {

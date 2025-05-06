@@ -21,7 +21,13 @@ const onBeforeForHandlerUpdateCity = () => {
 
 const onSuccessForHandlerUpdateCity = () => { hideUpdateCityModal(); };
 
-const onErrorForHandlerUpdateCity = errors => { errorsName.value = errors.name; };
+const onErrorForHandlerUpdateCity = errors => {
+            errorsName.value = errors.name;
+            app.errorRequest(errors);
+            if(errors.message) {
+                hideUpdateCityModal();
+            }
+        };
 
 const onFinishForHandlerUpdateCity = () => { app.isRequest = false; };
 

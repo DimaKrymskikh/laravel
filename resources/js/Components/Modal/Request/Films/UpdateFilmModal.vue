@@ -27,7 +27,13 @@ const onSuccessForHandlerUpdateFilm = res => {
     props.hideUpdateFilmModal();
 };
 
-const onErrorForHandlerUpdateFilm = errors => { errorsField.value = errors[props.field]; };
+const onErrorForHandlerUpdateFilm = errors => {
+    errorsField.value = errors[props.field];
+    app.errorRequest(errors);
+    if(errors.message) {
+        props.hideUpdateFilmModal();
+    }
+};
 
 const onFinishForHandlerUpdateFilm = () => { app.isRequest = false; };
 

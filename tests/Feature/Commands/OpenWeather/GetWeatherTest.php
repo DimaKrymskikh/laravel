@@ -6,6 +6,7 @@ use App\Events\RefreshCityWeather;
 use App\Models\Logs\OpenWeatherWeather;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
+use App\Queries\Thesaurus\Cities\CityQueriesInterface;
 use App\Services\Database\Logs\OpenWeatherWeatherService;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -70,7 +71,7 @@ class GetWeatherTest extends TestCase
         $openWeatherId = 13;
         $this
             ->artisan("get:weather $openWeatherId")
-            ->expectsOutput("В таблице 'thesaurus.cities' нет городов с полем open_weather_id = $openWeatherId")
+            ->expectsOutput(sprintf(CityQueriesInterface::NOT_RECORD_WITH_OPEN_WEATHER_ID, $openWeatherId))
             ->assertExitCode(0);
         // Нет данных погоды
         $this->assertEquals(0, Weather::all()->count());

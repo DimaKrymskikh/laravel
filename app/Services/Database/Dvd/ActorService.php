@@ -37,7 +37,7 @@ final class ActorService
     public function delete(int $actorId): void
     {
         if(!$this->actorQueries->exists($actorId)) {
-            throw new DatabaseException("В таблице 'dvd.actors' нет записи с id=$actorId");
+            throw new DatabaseException(sprintf(ActorQueriesInterface::NOT_RECORD_WITH_ID, $actorId));
         }
         
         $this->actorModifiers->delete($actorId);

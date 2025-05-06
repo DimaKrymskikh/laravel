@@ -70,8 +70,6 @@ final class CityService
      */
     public function findCityByOpenWeatherId($openWeatherId): City
     {
-        $city = $this->cityQueries->getByOpenWeatherId($openWeatherId);
-        
-        return $city ?? throw new DatabaseException("В таблице 'thesaurus.cities' нет городов с полем open_weather_id = $openWeatherId");
+        return $this->cityQueries->getByOpenWeatherId($openWeatherId);
     }
 }

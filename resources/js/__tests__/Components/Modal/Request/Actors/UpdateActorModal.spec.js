@@ -140,7 +140,7 @@ describe("@/Components/Modal/Request/Actors/UpdateActorModal.vue", () => {
         expect(actors.current_page).toBe(2);
     });
     
-    it("Проверка функции onErrorForHandlerUpdateActor", async () => {
+    it("Проверка функции onErrorForHandlerUpdateActor (валидация данных)", async () => {
         const app = useAppStore();
         const actorsList = useActorsListStore();
         
@@ -152,6 +152,17 @@ describe("@/Components/Modal/Request/Actors/UpdateActorModal.vue", () => {
         
         expect(wrapper.vm.errorsFirstName).toBe('ErrorFirstName');
         expect(wrapper.vm.errorsLastName).toBe('ErrorLastName');
+    });
+    
+    it("Проверка функции onErrorForHandlerUpdateActor (ошибка сервера с message)", async () => {
+        const app = useAppStore();
+        const actorsList = useActorsListStore();
+        
+        const wrapper = getWrapper(app, actorsList);
+        
+        expect(hideUpdateActorModal).toHaveBeenCalledTimes(0);
+        wrapper.vm.onErrorForHandlerUpdateActor({ message: 'В таблице dvd.actors нет записи с id=13' });
+        expect(hideUpdateActorModal).toHaveBeenCalledTimes(1);
     });
     
     it("Проверка функции onFinishForHandlerUpdateActor", async () => {

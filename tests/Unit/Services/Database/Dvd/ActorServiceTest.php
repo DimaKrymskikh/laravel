@@ -17,25 +17,19 @@ class ActorServiceTest extends TestCase
     private ActorModifiersInterface $actorModifiers;
     private ActorQueriesInterface $actorQueries;
     private ActorService $actorService;
+    private ActorDto $actorDto;
     private int $actorId = 12;
     
     public function test_success_create(): void
     {
-        $firstName = PersonName::create('Testfirstname', 'first_name', 'Имя актёра должно начинаться с заглавной буквы. Остальные буквы должны быть строчными.');
-        $lastName = PersonName::create('Testlastname', 'last_name', 'Фамилия актёра должна начинаться с заглавной буквы. Остальные буквы должны быть строчными.');
-        $actorDto = new ActorDto($firstName, $lastName);
-        
         $this->actorModifiers->expects($this->once())
                 ->method('save');
         
-        $this->actorService->create($actorDto);
+        $this->actorService->create($this->actorDto);
     }
     
     public function test_success_update(): void
     {
-        $firstName = PersonName::create('Testfirstname', 'first_name', 'Имя актёра должно начинаться с заглавной буквы. Остальные буквы должны быть строчными.');
-        $lastName = PersonName::create('Testlastname', 'last_name', 'Фамилия актёра должна начинаться с заглавной буквы. Остальные буквы должны быть строчными.');
-        $actorDto = new ActorDto($firstName, $lastName);
         $actor = new Actor();
         
         $this->actorQueries->expects($this->once())
@@ -45,9 +39,24 @@ class ActorServiceTest extends TestCase
         
         $this->actorModifiers->expects($this->once())
                 ->method('save')
-                ->with($actor, $actorDto);
+                ->with($actor, $this->actorDto);
         
-        $this->actorService->update($actorDto, $this->actorId);
+        $this->actorService->update($this->actorDto, $this->actorId);
+    }
+    
+    public function test_fail_update(): void
+    {
+        $this->expectException(DatabaseException::class);
+
+        $this->actorQueries->expects($this->once())
+                ->method('getById')
+                ->with($this->identicalTo($this->actorId))
+                ->willThrowException(new DatabaseException(sprintf(ActorQueriesInterface::NOT_RECORD_WITH_ID, $this->actorId)));
+        
+        $this->actorModifiers->expects($this->never())
+                ->method('save');
+        
+        $this->actorService->update($this->actorDto, $this->actorId);
     }
     
     public function test_success_delete(): void
@@ -93,6 +102,10 @@ class ActorServiceTest extends TestCase
     
     protected function setUp(): void
     {
+        $firstName = PersonName::create('Testfirstname', 'first_name', 'Имя актёра должно начинаться с заглавной буквы. Остальные буквы должны быть строчными.');
+        $lastName = PersonName::create('Testlastname', 'last_name', 'Фамилия актёра должна начинаться с заглавной буквы. Остальные буквы должны быть строчными.');
+        $this->actorDto = new ActorDto($firstName, $lastName);
+
         $this->actorModifiers = $this->createMock(ActorModifiersInterface::class);
         $this->actorQueries = $this->createMock(ActorQueriesInterface::class);
         

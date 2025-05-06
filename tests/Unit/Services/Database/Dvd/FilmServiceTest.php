@@ -49,6 +49,21 @@ class FilmServiceTest extends TestCase
         $this->assertInstanceOf(Film::class, $this->filmService->update('test_field', 'testValue', $this->filmId));
     }
     
+    public function test_fail_update(): void
+    {
+        $this->expectException(DatabaseException::class);
+
+        $this->filmQueries->expects($this->once())
+                ->method('getById')
+                ->with($this->identicalTo($this->filmId))
+                ->willThrowException(new DatabaseException(sprintf(FilmQueriesInterface::NOT_RECORD_WITH_ID, $this->filmId)));
+        
+        $this->filmModifiers->expects($this->never())
+                ->method('saveField');
+        
+        $this->filmService->update('test_field', 'testValue', $this->filmId);
+    }
+    
     public function test_success_delete(): void
     {
         $this->filmQueries->expects($this->once())

@@ -21,7 +21,13 @@ const onBeforeForHandlerUpdateLanguage = () => {
 
 const onSuccessForHandlerUpdateLanguage = () => { props.hideUpdateLanguageModal(); };
 
-const onErrorForHandlerUpdateLanguage = errors => { errorsName.value = errors.name; };
+const onErrorForHandlerUpdateLanguage = errors => {
+    errorsName.value = errors.name;
+    app.errorRequest(errors);
+    if(errors.message) {
+        props.hideUpdateLanguageModal();
+    }
+};
 
 const onFinishForHandlerUpdateLanguage = () => { app.isRequest = false; };
 

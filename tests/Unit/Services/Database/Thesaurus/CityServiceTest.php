@@ -153,7 +153,7 @@ class CityServiceTest extends TestCase
         $this->cityQueries->expects($this->once())
                 ->method('getByOpenWeatherId')
                 ->with($this->identicalTo($this->openWeatherId))
-                ->willReturn(null);
+                ->willThrowException(new DatabaseException(sprintf(CityQueriesInterface::NOT_RECORD_WITH_ID, $this->cityId)));
         
         $this->cityService->findCityByOpenWeatherId($this->openWeatherId);
     }

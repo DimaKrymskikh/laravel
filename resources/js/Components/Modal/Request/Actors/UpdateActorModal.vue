@@ -34,6 +34,10 @@ const onSuccessForHandlerUpdateActor = res => {
 const onErrorForHandlerUpdateActor = errors => {
             errorsFirstName.value = errors.first_name;
             errorsLastName.value = errors.last_name;
+            app.errorRequest(errors);
+            if(errors.message) {
+                props.hideUpdateActorModal();
+            }
         };
 
 const onFinishForHandlerUpdateActor = () => { app.isRequest = false; };

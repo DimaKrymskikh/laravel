@@ -4,6 +4,7 @@ namespace Tests\Feature\Controllers\Project\Admin\Content;
 
 use App\Models\Dvd\Actor;
 use App\Providers\RouteServiceProvider;
+use App\Queries\Dvd\Actors\ActorQueriesInterface;
 use Database\Seeders\Tests\Dvd\ActorSeeder;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -195,6 +196,26 @@ class ActorTest extends TestCase
         $response
             ->assertStatus(302)
             ->assertRedirect(RouteServiceProvider::URL_ADMIN_ACTORS.'?page=1&number=20&name=');
+    }
+    
+    public function test_admin_can_not_update_actor_if_the_actor_is_not_in_the_table(): void
+    {
+        $this->seedActors();
+        
+        $this->seedUsers();
+        $acting = $this->actingAs($this->getUser('AdminTestLogin'));
+        $response = $acting->withHeaders([
+            'X-Inertia' => true,
+        ])->put(RouteServiceProvider::URL_ADMIN_ACTORS.'/'.ActorSeeder::ID_NOT, [
+            'first_name' => 'Андрей',
+            'last_name' => 'Миронов',
+        ]);
+
+        $response
+            ->assertInvalid([
+                'message' => sprintf(ActorQueriesInterface::NOT_RECORD_WITH_ID, ActorSeeder::ID_NOT),
+            ])
+            ->assertStatus(303);
     }
     
     public function test_admin_can_not_update_actor_if_the_first_name_or_the_last_name_starts_with_a_small_letter(): void

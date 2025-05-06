@@ -3,6 +3,7 @@
 namespace App\Queries\Dvd\Films;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
+use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
 use App\Providers\BindingInterfaces\QueriesProvider;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -18,7 +19,7 @@ final class FilmQueries implements FilmQueriesInterface
     
     public function getById(int $id): Film
     {
-        return Film::find($id);
+        return Film::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
     }
     
     public function getRowNumbers(): Collection

@@ -8,5 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface LanguageQueriesInterface extends SimpleQueriesInterface
 {
+    const NOT_RECORD_WITH_ID = "В таблице 'thesaurus.languages' нет записи с id=%d";
+
     public function getList(LanguageFilterDto $dto): Collection;
 }

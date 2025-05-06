@@ -37,7 +37,7 @@ final class FilmService
     public function delete(int $filmId): void
     {
         if (!$this->filmQueries->exists($filmId)) {
-            throw new DatabaseException("В таблице 'dvd.films' нет записи с id=$filmId.");
+            throw new DatabaseException(sprintf(FilmQueriesInterface::NOT_RECORD_WITH_ID, $filmId));
         }
         
         $this->filmModifiers->delete($filmId);

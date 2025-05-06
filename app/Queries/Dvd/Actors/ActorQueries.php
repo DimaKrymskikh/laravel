@@ -3,6 +3,7 @@
 namespace App\Queries\Dvd\Actors;
 
 use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
+use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Actor;
 use App\Providers\BindingInterfaces\QueriesProvider;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,7 +18,7 @@ final class ActorQueries implements ActorQueriesInterface
     
     public function getById(int $id): Actor
     {
-        return Actor::find($id);
+        return Actor::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
     }
     
     public function count(ActorFilterDto $dto): int

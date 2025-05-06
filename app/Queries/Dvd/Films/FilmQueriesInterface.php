@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface FilmQueriesInterface extends SimpleQueriesInterface
 {
+    const NOT_RECORD_WITH_ID = "В таблице 'dvd.films' нет записи с id=%d";
+    
     /**
      * При заданном фильтре возвращает число элементов в таблице dvd.films
      * 

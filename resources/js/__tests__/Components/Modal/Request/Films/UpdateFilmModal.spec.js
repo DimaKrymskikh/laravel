@@ -168,7 +168,7 @@ describe("@/Components/Modal/Request/Films/UpdateFilmModal.vue", () => {
         expect(hideUpdateFilmModal).toHaveBeenCalledWith();
     });
     
-    it("Проверка функции onErrorForHandlerUpdateFilm", async () => {
+    it("Проверка функции onErrorForHandlerUpdateFilm (валидация данных)", async () => {
         const app = useAppStore();
         const filmsAdmin = useFilmsAdminStore();
         
@@ -179,6 +179,17 @@ describe("@/Components/Modal/Request/Films/UpdateFilmModal.vue", () => {
         wrapper.vm.onErrorForHandlerUpdateFilm({title: 'ErrorTitle'});
         
         expect(wrapper.vm.errorsField).toBe('ErrorTitle');
+    });
+    
+    it("Проверка функции onErrorForHandlerUpdateFilm (ошибка сервера с message)", async () => {
+        const app = useAppStore();
+        const filmsAdmin = useFilmsAdminStore();
+        
+        const wrapper = getWrapper(app, filmsAdmin, 'title');
+        
+        expect(hideUpdateFilmModal).toHaveBeenCalledTimes(0);
+        wrapper.vm.onErrorForHandlerUpdateFilm({ message: 'В таблице dvd.films нет записи с id=13' });
+        expect(hideUpdateFilmModal).toHaveBeenCalledTimes(1);
     });
     
     it("Проверка функции onFinishForHandlerUpdateFilm", async () => {

@@ -115,7 +115,7 @@ describe("@/Components/Modal/Request/Languages/UpdateLanguageModal.vue", () => {
         expect(hideUpdateLanguageModal).toHaveBeenCalledWith();
     });
     
-    it("Проверка функции onErrorForHandlerUpdateLanguage", async () => {
+    it("Проверка функции onErrorForHandlerUpdateLanguage (валидация данных)", async () => {
         const app = useAppStore();
         
         const wrapper = getWrapper(app);
@@ -124,6 +124,16 @@ describe("@/Components/Modal/Request/Languages/UpdateLanguageModal.vue", () => {
         wrapper.vm.onErrorForHandlerUpdateLanguage({name: 'ErrorName'});
         
         expect(wrapper.vm.errorsName).toBe('ErrorName');
+    });
+    
+    it("Проверка функции onErrorForHandlerUpdateLanguage (ошибка сервера с message)", async () => {
+        const app = useAppStore();
+        
+        const wrapper = getWrapper(app);
+        
+        expect(hideUpdateLanguageModal).toHaveBeenCalledTimes(0);
+        wrapper.vm.onErrorForHandlerUpdateLanguage({ message: 'В таблице thesaurus.languages нет записи с id=13' });
+        expect(hideUpdateLanguageModal).toHaveBeenCalledTimes(1);
     });
     
     it("Проверка функции onFinishForHandlerUpdateLanguage", async () => {

@@ -2,6 +2,7 @@
 
 namespace App\Queries\Thesaurus\Cities;
 
+use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
 use App\Models\User;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -17,12 +18,13 @@ final class CityQueries implements CityQueriesInterface
     
     public function getById(int $id): City
     {
-        return City::find($id);
+        return City::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
     }
     
-    public function getByOpenWeatherId($openWeatherId): City|null
+    public function getByOpenWeatherId($openWeatherId): City
     {
-        return City::where('open_weather_id', $openWeatherId)->first();
+        return City::where('open_weather_id', $openWeatherId)->first()
+                ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_OPEN_WEATHER_ID, $openWeatherId));
     }
     
     public function getList(): Collection

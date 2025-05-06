@@ -3,6 +3,7 @@
 namespace App\Queries\Thesaurus\Languages;
 
 use App\DataTransferObjects\Database\Thesaurus\Filters\LanguageFilterDto;
+use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\Language;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -15,7 +16,7 @@ final class LanguageQueries implements LanguageQueriesInterface
     
     public function getById(int $id): Language
     {
-        return Language::find($id);
+        return Language::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
     }
     
     public function getList(LanguageFilterDto $dto): Collection

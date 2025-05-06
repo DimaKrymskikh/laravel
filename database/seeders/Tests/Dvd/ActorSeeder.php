@@ -18,6 +18,8 @@ class ActorSeeder extends Seeder implements SequencesInterface
     const ID_JENNIFER_DAVIS = 4;
     const ID_JOHNNY_LOLLOBRIGIDA = 5;
     
+    const ID_NOT = 13;
+    
     /**
      * Run the database seeds.
      */
