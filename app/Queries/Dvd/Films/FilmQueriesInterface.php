@@ -36,11 +36,5 @@ interface FilmQueriesInterface extends SimpleQueriesInterface
      */
     public function getByIdWithActors(int $id): Film;
     
-    /**
-     * При заданной сортировке возвращает коллекцию, в которой id и порядковый номер n,
-     * определяемый сортировкой
-     * 
-     * @return Collection
-     */
-    public function getRowNumbers(): Collection;
+    public function getNumberInTableByIdWithOrderByTitle(int $id): int|null;
 }

@@ -39,8 +39,7 @@ final class FilmUrls
      */
     public function getUrlWithPaginationOptionsAfterCreatingOrUpdatingFilm(string $url, PaginatorDto $dto, int $filmId): string
     {
-        $film = $this->filmQueries->getRowNumbers()->find($filmId);
-        $itemNumber = $film ? $film->n : Paginator::PAGINATOR_DEFAULT_ITEM_NUMBER;
+        $itemNumber = $this->filmQueries->getNumberInTableByIdWithOrderByTitle($filmId) ?? Paginator::PAGINATOR_DEFAULT_ITEM_NUMBER;
         
         return $this->baseFilmUrls->getUrlAfterCreatingOrUpdatingFilm($url, $dto, $itemNumber);
     }

@@ -14,11 +14,5 @@ interface ActorQueriesInterface extends SimpleQueriesInterface
     
     public function getList(ActorFilterDto $actorFilterDto): Collection;
     
-    /**
-     * При заданной сортировке возвращает коллекцию, в которой id и порядковый номер n,
-     * определяемый сортировкой
-     * 
-     * @return Collection
-     */
-    public function getRowNumbers(): Collection;
+    public function getNumberInTableByIdWithOrderByFirstNameAndLastName(int $id): int|null;
 }

@@ -41,19 +41,10 @@ class FilmUrlsTest extends TestCase
 
     public function test_getUrlWithPaginationOptionsAfterCreatingOrUpdatingFilm_if_film_exists_in_collection(): void
     {
-        $film1 = new Film();
-        $film1->id = 5;
-        $film1->n = 1;
-        // Этот фильм на второй странице (проверяем 'page=2')
-        $film2 = new Film();
-        $film2->id = $this->filmId;
-        $film2->n = 22;
-        
-        $collection = new Collection([$film1, $film2]);
-        
         $this->filmQueries->expects($this->once())
-                ->method('getRowNumbers')
-                ->willReturn($collection);
+                ->method('getNumberInTableByIdWithOrderByTitle')
+                // Этот фильм на второй странице (проверяем 'page=2')
+                ->willReturn(22);
         
         $this->assertStringContainsString(
                 'page=2',
@@ -63,11 +54,9 @@ class FilmUrlsTest extends TestCase
 
     public function test_getUrlWithPaginationOptionsAfterCreatingOrUpdatingFilm_if_film_is_missing_from_collection(): void
     {
-        $collection = new Collection([]);
-        
         $this->filmQueries->expects($this->once())
-                ->method('getRowNumbers')
-                ->willReturn($collection);
+                ->method('getNumberInTableByIdWithOrderByTitle')
+                ->willReturn(null);
         
         $this->assertStringContainsString(
                 'page='.Paginator::PAGINATOR_DEFAULT_ITEM_NUMBER,

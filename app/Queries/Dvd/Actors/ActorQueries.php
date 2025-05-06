@@ -26,15 +26,20 @@ final class ActorQueries implements ActorQueriesInterface
         return Actor::filter($dto)->count();
     }
     
-    public function getRowNumbers(): Collection
+    public function getNumberInTableByIdWithOrderByFirstNameAndLastName(int $id): int|null
     {
-        return Actor::select(
-                'id',
-                DB::raw('row_number() OVER(ORDER BY first_name, last_name) AS n')
-            )
-            ->orderBy('first_name')
-            ->orderBy('last_name')
-            ->get();
+        return DB::scalar(<<<SQL
+                    SELECT 
+                        n
+                    FROM (
+                        SELECT
+                            id,
+                            row_number() OVER(ORDER BY first_name, last_name) AS n
+                        FROM dvd.actors
+                        ORDER BY first_name, last_name 
+                    )_
+                    WHERE id = :id
+                SQL, ['id' => $id]);
     }
     
     public function getList(ActorFilterDto $dto): Collection

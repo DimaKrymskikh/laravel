@@ -17,9 +17,7 @@ final class ActorUrls
     
     public function getUrlWithPaginationOptionsAfterCreatingOrUpdatingActor(string $url, PaginatorDto $dto, int $actorId): string
     {
-        $actor = $this->actorQueries->getRowNumbers()->find($actorId);
-        
-        $itemNumber = $actor ? $actor->n : Paginator::PAGINATOR_DEFAULT_SERIAL_NUMBER;
+        $itemNumber = $this->actorQueries->getNumberInTableByIdWithOrderByFirstNameAndLastName($actorId) ?? Paginator::PAGINATOR_DEFAULT_SERIAL_NUMBER;
         
         return $url.'?'.http_build_query([
             'page' => $this->paginator->getPageOfItem($itemNumber, $dto->perPage->value),

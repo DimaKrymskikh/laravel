@@ -22,14 +22,20 @@ final class FilmQueries implements FilmQueriesInterface
         return Film::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
     }
     
-    public function getRowNumbers(): Collection
+    public function getNumberInTableByIdWithOrderByTitle(int $id): int|null
     {
-        return Film::select(
-                'id',
-                DB::raw('row_number() OVER(ORDER BY title) AS n')
-            )
-            ->orderBy('title')
-            ->get();
+        return DB::scalar(<<<SQL
+                    SELECT 
+                        n
+                    FROM (
+                        SELECT
+                            id,
+                            row_number() OVER(ORDER BY title) AS n
+                        FROM dvd.films
+                        ORDER BY title
+                    )_
+                    WHERE id = :id
+                SQL, ['id' => $id]);
     }
     
     public function count(FilmFilterDto $dto): int
