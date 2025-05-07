@@ -22,6 +22,7 @@ const filmsList = inject('filmsList');
         <ul
             class="absolute whitespace-nowrap top-9 border-x border-b"
             v-if="isShowContent"
+            @click="toggleContent"
         >
             <li class="tabs-li">
                 <Link
