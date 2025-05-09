@@ -3,9 +3,9 @@ import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
+import { updateFilm } from '@/Services/films';
 
 const props = defineProps({
-    updateFilm: Object,
     removeActor: Object,
     hideRemoveActorFromFilmModal: Function
 });
@@ -40,7 +40,7 @@ const handlerRemoveActorFromFilm = function(e) {
     router.delete(filmsAdmin.getUrl(`/admin/films/actors/${props.removeActor.id}`), {
         preserveScroll: true,
         data: {
-            film_id: props.updateFilm.id,
+            film_id: updateFilm.id,
             password: inputPassword.value
         },
         onBefore: onBeforeForHandlerRemoveActorFromFilm,

@@ -3,9 +3,9 @@ import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
+import { updateFilm } from '@/Services/films';
 
 const props = defineProps({
-    removeFilm: Object,
     hideRemoveFilmModal: Function
 });
 
@@ -44,7 +44,7 @@ const handlerRemoveFilm = function(e) {
         return;
     }
     
-    router.delete(filmsAdmin.getUrl(`/admin/films/${props.removeFilm.id}`), {
+    router.delete(filmsAdmin.getUrl(`/admin/films/${updateFilm.id}`), {
         preserveScroll: true,
         data: {
             password: inputPassword.value
@@ -66,7 +66,7 @@ const handlerRemoveFilm = function(e) {
         <template v-slot:body>
             <div class="mb-2">
                 Вы действительно хотите удалить фильм
-                <span>{{ removeFilm.title }}</span> ?
+                <span>{{ updateFilm.title }}</span> ?
             </div>
             <form @submit.prevent autocomplete="off">
                 <div class="mb-3">

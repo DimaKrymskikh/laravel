@@ -5,6 +5,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import UpdateFilmLanguageModal from '@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue';
 import { useAppStore } from '@/Stores/app';
 import { useFilmsAdminStore } from '@/Stores/films';
+import { updateFilm } from '@/Services/films';
 
 import { languages } from '@/__tests__/data/languages';
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
@@ -14,17 +15,16 @@ import { eventTargetClassListContainsFalseAndGetAttribute8 } from '@/__tests__/f
 vi.mock('@inertiajs/vue3');
         
 const hideUpdateFilmLanguageModal = vi.fn();
-const updateFilm = {
-    id: 19,
-    title: 'Бриллиантовая рука',
-    fieldValue: ''
+
+function setUpdateFilm() {
+    updateFilm.id = 19;
+    updateFilm.title = 'Бриллиантовая рука';
 };
 
 const getWrapper = function(app) {
     return mount(UpdateFilmLanguageModal, {
             props: {
                 hideUpdateFilmLanguageModal,
-                updateFilm
             },
             global: {
                 provide: {
@@ -172,13 +172,15 @@ describe("@/Components/Modal/Request/Films/UpdateFilmLanguageModal.vue", () => {
             onError: expect.anything(),
             onFinish: expect.anything()
         };
+        
+        setUpdateFilm();
 
         const wrapper = getWrapper(app);
         
         wrapper.vm.handlerUpdateFilmLanguage(eventTargetClassListContainsFalseAndGetAttribute8);
         
         expect(router.put).toHaveBeenCalledTimes(1);
-        expect(router.put).toHaveBeenCalledWith(wrapper.vm.filmsAdmin.getUrl(`/admin/films/${wrapper.vm.props.updateFilm.id}`), {
+        expect(router.put).toHaveBeenCalledWith(wrapper.vm.filmsAdmin.getUrl(`/admin/films/${updateFilm.id}`), {
                 field: 'language_id',
                 language_id: eventTargetClassListContainsFalseAndGetAttribute8.target.getAttribute('data-id')
             }, options);

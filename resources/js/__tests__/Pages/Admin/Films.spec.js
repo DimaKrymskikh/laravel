@@ -303,7 +303,7 @@ describe("@/Pages/Admin/Films.vue", () => {
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(false);
         await pencilTitle.trigger('click');
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(true);
-        expect(wrapper.vm.field).toBe('title');
+        expect(wrapper.vm.updateFilm.field).toBe('title');
         // Закрываем вручную модальное окно
         wrapper.vm.isShowUpdateFilmModal = false;
         await flushPromises();
@@ -311,7 +311,7 @@ describe("@/Pages/Admin/Films.vue", () => {
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(false);
         await pencilDescription.trigger('click');
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(true);
-        expect(wrapper.vm.field).toBe('description');
+        expect(wrapper.vm.updateFilm.field).toBe('description');
         // Закрываем вручную модальное окно
         wrapper.vm.isShowUpdateFilmModal = false;
         await flushPromises();
@@ -333,7 +333,7 @@ describe("@/Pages/Admin/Films.vue", () => {
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(false);
         await pencilReleaseYear.trigger('click');
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(true);
-        expect(wrapper.vm.field).toBe('release_year');
+        expect(wrapper.vm.updateFilm.field).toBe('release_year');
         // Закрываем вручную модальное окно
         wrapper.vm.isShowUpdateFilmModal = false;
         await flushPromises();

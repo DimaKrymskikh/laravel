@@ -4,7 +4,6 @@ import UpdateFilmActorsModal from '@/Components/Modal/Request/Films/UpdateFilmAc
 import RemoveActorFromFilmModal from '@/Components/Modal/Request/Films/RemoveActorFromFilmModal.vue';
 
 const props = defineProps({
-    updateFilm: Object,
     isShowUpdateFilmActorsModal: Boolean,
     hideUpdateFilmActorsModal: Function
 });
@@ -30,14 +29,12 @@ const hideRemoveActorFromFilmModal = function() {
 
 <template>
         <UpdateFilmActorsModal
-            :updateFilm="updateFilm"
             :hideUpdateFilmActorsModal="hideUpdateFilmActorsModal"
             :showRemoveActorFromFilmModal="showRemoveActorFromFilmModal"
             v-if="isShowUpdateFilmActorsModal"
         />
 
         <RemoveActorFromFilmModal
-            :updateFilm="updateFilm"
             :removeActor="removeActor"
             :hideRemoveActorFromFilmModal="hideRemoveActorFromFilmModal"
             v-if="isRemoveActorFromFilmModal"

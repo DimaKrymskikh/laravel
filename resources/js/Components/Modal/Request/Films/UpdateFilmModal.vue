@@ -3,17 +3,16 @@ import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
+import { updateFilm } from '@/Services/films';
 
 const props = defineProps({
-    field: String,
-    updateFilm: Object,
     hideUpdateFilmModal: Function
 });
 
 const app = inject('app');
 const filmsAdmin = inject('filmsAdmin');
 
-const fieldValue = ref(props.updateFilm.fieldValue);
+const fieldValue = ref(updateFilm.fieldValue);
 const errorsField = ref('');
 
 const onBeforeForHandlerUpdateFilm = () => {
@@ -28,7 +27,7 @@ const onSuccessForHandlerUpdateFilm = res => {
 };
 
 const onErrorForHandlerUpdateFilm = errors => {
-    errorsField.value = errors[props.field];
+    errorsField.value = errors[updateFilm.field];
     app.errorRequest(errors);
     if(errors.message) {
         props.hideUpdateFilmModal();
@@ -43,9 +42,9 @@ const handlerUpdateFilm = function(e) {
         return;
     }
     
-    router.put(filmsAdmin.getUrl(`/admin/films/${props.updateFilm.id}`), {
-            field: props.field,
-            [props.field]: fieldValue.value
+    router.put(filmsAdmin.getUrl(`/admin/films/${updateFilm.id}`), {
+            field: updateFilm.field,
+            [updateFilm.field]: fieldValue.value
         }, {
         onBefore: onBeforeForHandlerUpdateFilm,
         onSuccess: onSuccessForHandlerUpdateFilm,
@@ -57,17 +56,17 @@ const handlerUpdateFilm = function(e) {
 let headerTitle = '';
 let titleText = '';
 
-switch(props.field) {
+switch(updateFilm.field) {
     case 'title': 
-        headerTitle = `Изменение названия фильма ${props.updateFilm.title}`;
+        headerTitle = `Изменение названия фильма ${updateFilm.title}`;
         titleText = 'Название фильма:';
         break;
     case 'description': 
-        headerTitle = `Изменение описания фильма ${props.updateFilm.title}`;
+        headerTitle = `Изменение описания фильма ${updateFilm.title}`;
         titleText = 'Описание фильма:';
         break;
     case 'release_year': 
-        headerTitle = `Изменение года выхода фильма ${props.updateFilm.title}`;
+        headerTitle = `Изменение года выхода фильма ${updateFilm.title}`;
         titleText = 'Год выхода фильма:';
         break;
 }

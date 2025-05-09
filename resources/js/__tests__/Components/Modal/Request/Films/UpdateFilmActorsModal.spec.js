@@ -6,6 +6,7 @@ import UpdateFilmActorsModal from '@/Components/Modal/Request/Films/UpdateFilmAc
 import Spinner from '@/components/Svg/Spinner.vue';
 import { useAppStore } from '@/Stores/app';
 import { useFilmsAdminStore } from '@/Stores/films';
+import { updateFilm } from '@/Services/films';
 
 import { json_film_actors, json_film_actors_0, json_free_actors, json_free_actors_0 } from '@/__tests__/data/actors';
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
@@ -17,10 +18,9 @@ vi.mock('@inertiajs/vue3');
 const hideUpdateFilmActorsModal = vi.fn();
 const showRemoveActorFromFilmModal = vi.fn();
 
-const updateFilm = {
-    id: 19,
-    title: 'Бриллиантовая рука',
-    fieldValue: ''
+function setUpdateFilm() {
+    updateFilm.id = 15;
+    updateFilm.title = 'Бриллиантовая рука';
 };
 
 const getWrapper = function(app) {
@@ -28,7 +28,6 @@ const getWrapper = function(app) {
             props: {
                 hideUpdateFilmActorsModal,
                 showRemoveActorFromFilmModal,
-                updateFilm
             },
             global: {
                 provide: {
@@ -211,6 +210,8 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
             onSuccess: expect.anything(),
             onFinish: expect.anything()
         };
+        
+        setUpdateFilm();
 
         const wrapper = getWrapper(app);
         
@@ -218,7 +219,7 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
         
         expect(router.post).toHaveBeenCalledTimes(1);
         expect(router.post).toHaveBeenCalledWith(wrapper.vm.filmsAdmin.getUrl('/admin/films/actors'), {
-                film_id: wrapper.vm.props.updateFilm.id,
+                film_id: updateFilm.id,
                 actor_id: eventTargetClassListContainsFalseAndGetAttribute8.target.getAttribute('data-id')
             }, options);
     });

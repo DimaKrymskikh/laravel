@@ -16,6 +16,7 @@ import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 import PencilSvg from '@/Components/Svg/PencilSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
+import { updateFilm } from '@/Services/films';
 
 const { films } = defineProps({
     films: Object,
@@ -60,12 +61,6 @@ const putFilms = function(e) {
     }, 2000);
 };
 
-const updateFilm = reactive({
-    id: 0,
-    title: '',
-    fieldValue: ''
-});
-
 const isShowUpdateFilmModal = ref(false);
 const hideUpdateFilmModal = function() {
     isShowUpdateFilmModal.value = false;
@@ -75,8 +70,6 @@ const isShowRemoveFilmModal = ref(false);
 const hideRemoveFilmModal = function() {
     isShowRemoveFilmModal.value = false;
 };
-
-const field = ref('');
 
 const isShowUpdateFilmActorsModal = ref(false);
 const hideUpdateFilmActorsModal = function() {
@@ -95,7 +88,7 @@ const handlerTableChange = function(e) {
         updateFilm.id = td.getAttribute('data-film_id');
         updateFilm.title = td.getAttribute('data-film_title');
         updateFilm.fieldValue = td.getAttribute('data-field_value');
-        field.value = td.getAttribute('data-field');
+        updateFilm.field = td.getAttribute('data-field');
         isShowUpdateFilmModal.value = true;
     }
     
@@ -208,26 +201,21 @@ watch([languageName, releaseYear], () => {
         <Buttons :links="films.links" v-if="films.total > 0" />
         
         <UpdateFilmModal
-            :updateFilm="updateFilm"
-            :field="field"
             :hideUpdateFilmModal="hideUpdateFilmModal"
             v-if="isShowUpdateFilmModal"
         />
         
         <UpdateFilmActorsBlock
-            :updateFilm="updateFilm"
             :hideUpdateFilmActorsModal="hideUpdateFilmActorsModal"
             :isShowUpdateFilmActorsModal="isShowUpdateFilmActorsModal"
         />
         
         <UpdateFilmLanguageModal
-            :updateFilm="updateFilm"
             :hideUpdateFilmLanguageModal="hideUpdateFilmLanguageModal"
             v-if="isShowUpdateFilmLanguageModal"
         />
         
         <RemoveFilmModal
-            :removeFilm="updateFilm"
             :hideRemoveFilmModal="hideRemoveFilmModal"
             v-if="isShowRemoveFilmModal"
         />

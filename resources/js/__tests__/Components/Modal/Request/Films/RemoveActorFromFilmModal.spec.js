@@ -5,6 +5,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import RemoveActorFromFilmModal from '@/Components/Modal/Request/Films/RemoveActorFromFilmModal.vue';
 import { useAppStore } from '@/Stores/app';
 import { useFilmsAdminStore } from '@/Stores/films';
+import { updateFilm } from '@/Services/films';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
@@ -13,26 +14,24 @@ import { eventCurrentTargetClassListContainsFalse } from '@/__tests__/fake/Event
 vi.mock('@inertiajs/vue3');
         
 const hideRemoveActorFromFilmModal = vi.fn();
-const updateFilm = {
-    id: 19,
-    title: 'Бриллиантовая рука',
-    fieldValue: ''
-};
+
 const removeActor = {
     id: 7,
     first_name: 'Андрей',
     last_name: 'Миронов'
 };
 
-const getWrapper = function(app, filmsAdmin) {
+const getWrapper = function(app) {
     return mount(RemoveActorFromFilmModal, {
             props: {
                 hideRemoveActorFromFilmModal,
-                updateFilm,
                 removeActor
             },
             global: {
-                provide: { app, filmsAdmin }
+                provide: {
+                    app,
+                    filmsAdmin: useFilmsAdminStore()
+                }
             }
         });
 };
@@ -56,9 +55,8 @@ describe("@/Components/Modal/Request/Films/RemoveActorFromFilmModal.vue", () => 
     
     it("Монтирование компоненты RemoveActorFromFilmModal (isRequest: false)", async () => {
         const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
 
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         
         checkContent(wrapper);
         
@@ -73,9 +71,8 @@ describe("@/Components/Modal/Request/Films/RemoveActorFromFilmModal.vue", () => 
     it("Монтирование компоненты RemoveActorFromFilmModal (isRequest: true)", async () => {
         const app = useAppStore();
         app.isRequest = true;
-        const filmsAdmin = useFilmsAdminStore();
 
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         
         checkContent(wrapper);
         
@@ -89,13 +86,12 @@ describe("@/Components/Modal/Request/Films/RemoveActorFromFilmModal.vue", () => 
     
     it("Функция handlerRemoveActorFromFilm вызывает router.delete с нужными параметрами", () => {
         const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
 
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         const options = {
             data: {
                 password: wrapper.vm.inputPassword,
-                film_id: wrapper.vm.props.updateFilm.id
+                film_id: updateFilm.id
             },
             preserveScroll: true,
             onBefore: expect.anything(),
@@ -107,16 +103,15 @@ describe("@/Components/Modal/Request/Films/RemoveActorFromFilmModal.vue", () => 
         wrapper.vm.handlerRemoveActorFromFilm(eventCurrentTargetClassListContainsFalse);
         
         expect(router.delete).toHaveBeenCalledTimes(1);
-        expect(router.delete).toHaveBeenCalledWith(filmsAdmin.getUrl(`/admin/films/actors/${wrapper.vm.props.removeActor.id}`), options);
+        expect(router.delete).toHaveBeenCalledWith(wrapper.vm.filmsAdmin.getUrl(`/admin/films/actors/${wrapper.vm.props.removeActor.id}`), options);
     });
     
     it("Проверка функции onBeforeForHandlerRemoveActorFromFilm", () => {
         const app = useAppStore();
         // По умолчанию
         expect(app.isRequest).toBe(false);
-        const filmsAdmin = useFilmsAdminStore();
         
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         wrapper.vm.errorsPassword = 'ErrorPassword';
         wrapper.vm.onBeforeForHandlerRemoveActorFromFilm();
         
@@ -126,9 +121,8 @@ describe("@/Components/Modal/Request/Films/RemoveActorFromFilmModal.vue", () => 
     
     it("Проверка функции onSuccessForHandlerRemoveActorFromFilm", async () => {
         const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
         
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         
         expect(hideRemoveActorFromFilmModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerRemoveActorFromFilm();
@@ -139,9 +133,8 @@ describe("@/Components/Modal/Request/Films/RemoveActorFromFilmModal.vue", () => 
     
     it("Проверка функции onErrorForHandlerRemoveActorFromFilm", async () => {
         const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
         
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         
         expect(wrapper.vm.errorsPassword).toBe('');
         wrapper.vm.onErrorForHandlerRemoveActorFromFilm({password: 'ErrorPassword'});
@@ -152,9 +145,8 @@ describe("@/Components/Modal/Request/Films/RemoveActorFromFilmModal.vue", () => 
     it("Проверка функции onFinishForHandlerRemoveActorFromFilm", async () => {
         const app = useAppStore();
         app.isRequest = true;
-        const filmsAdmin = useFilmsAdminStore();
         
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper(app);
         wrapper.vm.onFinishForHandlerRemoveActorFromFilm();
         
         expect(app.isRequest).toBe(false);

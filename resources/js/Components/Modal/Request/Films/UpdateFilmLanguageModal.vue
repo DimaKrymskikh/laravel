@@ -3,16 +3,16 @@ import { inject, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
+import { updateFilm } from '@/Services/films';
 
 const props = defineProps({
-    updateFilm: Object,
     hideUpdateFilmLanguageModal: Function
 });
 
 const app = inject('app');
 const filmsAdmin = inject('filmsAdmin');
 
-const headerTitle = `Изменение языка фильма ${props.updateFilm.title}`;
+const headerTitle = `Изменение языка фильма ${updateFilm.title}`;
 
 const filmLanguage = ref('');
 
@@ -44,7 +44,7 @@ const handlerUpdateFilmLanguage = function(e) {
     
     const language_id = e.target.getAttribute('data-id');
     
-    router.put(filmsAdmin.getUrl(`/admin/films/${props.updateFilm.id}`), {
+    router.put(filmsAdmin.getUrl(`/admin/films/${updateFilm.id}`), {
         field: 'language_id',
         language_id
     }, {

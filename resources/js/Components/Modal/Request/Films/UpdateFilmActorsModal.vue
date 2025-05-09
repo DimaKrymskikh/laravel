@@ -4,9 +4,9 @@ import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
+import { updateFilm } from '@/Services/films';
 
 const props = defineProps({
-    updateFilm: Object,
     hideUpdateFilmActorsModal: Function,
     showRemoveActorFromFilmModal: Function
 });
@@ -14,21 +14,21 @@ const props = defineProps({
 const app = inject('app');
 const filmsAdmin = inject('filmsAdmin');
 
-const headerTitle = `Изменение списка актёров фильма ${props.updateFilm.title}`;
+const headerTitle = `Изменение списка актёров фильма ${updateFilm.title}`;
 
 const actorName = ref('');
 const filmActors = ref(null);
 const actors = ref(null);
 
 const handlerActorName = async function() {
-    actors.value = await app.request(`/admin/films/actors?name=${actorName.value}&film_id=${props.updateFilm.id}`, 'GET');
+    actors.value = await app.request(`/admin/films/actors?name=${actorName.value}&film_id=${updateFilm.id}`, 'GET');
 };
 
 (async function() {
     // Получаем общий список актёров без актёров фильма
     await handlerActorName();
     // Актёры фильма
-    filmActors.value = await app.request(`/admin/films/getActorsList/${props.updateFilm.id}`, 'GET');
+    filmActors.value = await app.request(`/admin/films/getActorsList/${updateFilm.id}`, 'GET');
 })();
 
 const onBeforeForHandlerAddActorInFilm = () => { app.isRequest = true; };
@@ -41,7 +41,7 @@ const handlerAddActorInFilm = function(e) {
     const actor_id = e.target.getAttribute('data-id');
     
     router.post(filmsAdmin.getUrl('/admin/films/actors'), {
-        film_id: props.updateFilm.id,
+        film_id: updateFilm.id,
         actor_id
     }, {
         preserveScroll: true,
