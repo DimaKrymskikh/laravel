@@ -1,16 +1,11 @@
 <script setup>
 import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
+import { film, removeActor } from '@/Services/Content/films';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
-import { updateFilm } from '@/Services/films';
 
-const props = defineProps({
-    removeActor: Object,
-    hideRemoveActorFromFilmModal: Function
-});
-
-const app = inject('app');
 const filmsAdmin = inject('filmsAdmin');
 
 // Величина поля для пароля
@@ -20,12 +15,16 @@ const inputPassword = ref('');
 // при последующем открытии модального окна этого сообщения об ошибке не было.
 const errorsPassword = ref('');
 
+const hideModal = function() {
+    removeActor.hideRemoveActorFromFilmModal();
+}
+
 const onBeforeForHandlerRemoveActorFromFilm = () => {
     app.isRequest = true;
     errorsPassword.value = '';
 };
 
-const onSuccessForHandlerRemoveActorFromFilm = () => { props.hideRemoveActorFromFilmModal(); };
+const onSuccessForHandlerRemoveActorFromFilm = () => { removeActor.hideRemoveActorFromFilmModal(); };
 
 const onErrorForHandlerRemoveActorFromFilm = errors => { errorsPassword.value = errors.password; };
 
@@ -37,10 +36,10 @@ const handlerRemoveActorFromFilm = function(e) {
         return;
     }
     
-    router.delete(filmsAdmin.getUrl(`/admin/films/actors/${props.removeActor.id}`), {
+    router.delete(filmsAdmin.getUrl(`/admin/films/actors/${removeActor.id}`), {
         preserveScroll: true,
         data: {
-            film_id: updateFilm.id,
+            film_id: film.id,
             password: inputPassword.value
         },
         onBefore: onBeforeForHandlerRemoveActorFromFilm,
@@ -54,14 +53,14 @@ const handlerRemoveActorFromFilm = function(e) {
 <template>
     <BaseModal
         headerTitle="Подтверждение удаления актёра из фильма"
-        :hideModal="hideRemoveActorFromFilmModal"
+        :hideModal="hideModal"
         :handlerSubmit="handlerRemoveActorFromFilm"
     >
         <template v-slot:body>
             <div class="mb-2">
                 Вы действительно хотите удалить актёра
-                <span>{{ removeActor.first_name }} {{ removeActor.last_name }}</span>
-                из фильма <span>{{ updateFilm.title }}</span>?
+                <span>{{ removeActor.firstName }} {{ removeActor.lastName }}</span>
+                из фильма <span>{{ film.title }}</span>?
             </div>
             <div class="mb-3">
                 <InputField

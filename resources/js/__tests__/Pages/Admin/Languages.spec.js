@@ -141,20 +141,4 @@ describe("@/Pages/Admin/Languages.vue", () => {
         // После клика появляется модальное окно
         expect(wrapper.findComponent(UpdateLanguageModal).exists()).toBe(true);
     });
-    
-    it("Функция hideRemoveLanguageModal изменяет isShowRemoveLanguageModal с true на false", () => {
-        const wrapper = getWrapper();
-        
-        wrapper.vm.isShowRemoveLanguageModal = true;
-        wrapper.vm.hideRemoveLanguageModal();
-        expect(wrapper.vm.isShowRemoveLanguageModal).toBe(false);
-    });
-    
-    it("Функция hideUpdateLanguageModal изменяет isShowUpdateLanguageModal с true на false", () => {
-        const wrapper = getWrapper();
-        
-        wrapper.vm.isShowUpdateLanguageModal = true;
-        wrapper.vm.hideUpdateLanguageModal();
-        expect(wrapper.vm.isShowUpdateLanguageModal).toBe(false);
-    });
 });

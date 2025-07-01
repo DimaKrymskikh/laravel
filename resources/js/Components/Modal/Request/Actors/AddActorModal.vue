@@ -1,20 +1,21 @@
 <script setup lang="ts">
 import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { actor } from '@/Services/Content/actors';
+import { app } from '@/Services/app';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 
-const { hideAddActorModal } = defineProps({
-    hideAddActorModal: Function
-});
-
-const app = inject('app');
 const actorsList = inject('actorsList');
 
-const firstName = ref('');
-const lastName = ref('');
+const firstName = ref(actor.firstName);
+const lastName = ref(actor.lastName);
 const errorsFirstName = ref('');
 const errorsLastName = ref('');
+
+const hideModal = function() {
+    actor.hideAddActorModal();
+};
 
 const onBeforeForHandlerAddActor = () => {
             app.isRequest = true;
@@ -23,7 +24,7 @@ const onBeforeForHandlerAddActor = () => {
         };
 
 const onSuccessForHandlerAddActor = res => {
-            hideAddActorModal();
+            actor.hideAddActorModal();
             // При добавлении актёра сбрасываем фильтр поиска
             actorsList.name = '';
             // Запоминаем активную страницу пагинации
@@ -59,7 +60,7 @@ const handlerAddActor = function(e) {
 <template>
     <BaseModal
         headerTitle="Добавление актёра"
-        :hideModal="hideAddActorModal"
+        :hideModal="hideModal"
         :handlerSubmit="handlerAddActor"
     >
         <template v-slot:body>

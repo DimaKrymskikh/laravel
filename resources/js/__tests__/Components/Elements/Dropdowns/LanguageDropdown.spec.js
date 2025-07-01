@@ -2,8 +2,10 @@ import { mount } from "@vue/test-utils";
 
 import { setActivePinia, createPinia } from 'pinia';
 import LangugeDropdown from '@/Components/Elements/Dropdowns/LanguageDropdown.vue';
-import { useAppStore } from '@/Stores/app';
 import { useLanguagesListStore } from '@/Stores/languages';
+import { app } from '@/Services/app';
+
+app.request = vi.fn();
 
 const languages = [
     {id:1, name: "Английский"},
@@ -12,9 +14,6 @@ const languages = [
 ];
 
 const getWrapper = function(languageName) {
-    const app = useAppStore();
-    app.request = vi.fn();
-    
     return mount(LangugeDropdown, {
             props: {
                 languageName,
@@ -22,7 +21,6 @@ const getWrapper = function(languageName) {
             },
             global: {
                 provide: { 
-                    app,
                     languagesList: useLanguagesListStore()
                 }
              }
@@ -38,8 +36,8 @@ describe("@/Components/Elements/Dropdowns/LanguageDropdown.vue", () => {
     it("Монтирование компоненты, выпадение/сокрытие списка", async () => {
         const wrapper = getWrapper('');
         
-        wrapper.vm.app.request.mockReturnValue(languages);
-        expect(wrapper.vm.app.request).not.toHaveBeenCalled();
+        app.request.mockReturnValue(languages);
+        expect(app.request).not.toHaveBeenCalled();
         
         const button = wrapper.get('button');
         expect(button.text()).toBe('все');
@@ -49,7 +47,7 @@ describe("@/Components/Elements/Dropdowns/LanguageDropdown.vue", () => {
         // Кликаем по кнопке первый раз
         await button.trigger('click');
         // Выполнен запрос
-        expect(wrapper.vm.app.request).toHaveBeenCalledTimes(1);
+        expect(app.request).toHaveBeenCalledTimes(1);
         // Появился список из 4 вариантов
         const ul =  wrapper.find('ul');
         expect(ul.exists()).toBe(true);
@@ -71,14 +69,14 @@ describe("@/Components/Elements/Dropdowns/LanguageDropdown.vue", () => {
         // Второй раз кликаем по кнопке
         await button.trigger('click');
         // Запрос не выполняется (по-прежнему, вызов один раз)
-        expect(wrapper.vm.app.request).toHaveBeenCalledTimes(1);
+        expect(app.request).toHaveBeenCalledTimes(1);
         // Список исчезает
         expect(wrapper.find('ul').exists()).toBe(false);
         
         // Кликаем по кнопке третий раз
         await button.trigger('click');
         // Запрос не выполняется (по-прежнему, вызов один раз)
-        expect(wrapper.vm.app.request).toHaveBeenCalledTimes(1);
+        expect(app.request).toHaveBeenCalledTimes(1);
         // Появился список языков
         expect(wrapper.find('ul').exists()).toBe(true);
     });
@@ -86,7 +84,7 @@ describe("@/Components/Elements/Dropdowns/LanguageDropdown.vue", () => {
     it("Изменение языка", async () => {
         const wrapper = getWrapper('Английский');
         
-        wrapper.vm.app.request.mockReturnValue(languages);
+        app.request.mockReturnValue(languages);
         
         const button = wrapper.get('button');
         // На кнопке язык, который задан в начальный момент

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive, inject, onUpdated } from 'vue';
 import { Head, Link } from '@inertiajs/vue3'
+import { app } from '@/Services/app';
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
 import EyeSvg from '@/Components/Svg/EyeSvg.vue';
@@ -15,7 +16,6 @@ const props = defineProps({
     errors: Object | null
 });
 
-const app = inject('app');
 const weatherPageAuth = inject('weatherPageAuth');
 // Сбрасываем активную страницу пагинации для страницы погоды, 
 // чтобы при смене города попасть на существующую страницу

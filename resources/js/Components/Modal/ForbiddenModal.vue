@@ -1,7 +1,5 @@
 <script setup>
-import { inject } from 'vue';
-
-const app = inject('app');
+import { app } from '@/Services/app';
 
 const hideModal = function() {
     app.isShowForbiddenModal = false;

@@ -1,12 +1,10 @@
 <script setup>
-import { inject } from 'vue';
 import Spinner from '@/components/Svg/Spinner.vue';
+import { app } from '@/Services/app';
 
 defineProps({
     text: String
 });
-
-const app = inject('app');
 </script>
 
 <template>

@@ -3,12 +3,11 @@ import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
+import { app } from '@/Services/app';
 
 const { hideAccountRemoveModal } = defineProps({
     hideAccountRemoveModal: Function
 });
-
-const app = inject('app');
 
 const inputPassword = ref('');
 const errorsPassword = ref('');

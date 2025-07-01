@@ -1,8 +1,7 @@
 import { mount } from "@vue/test-utils";
 
-import { setActivePinia, createPinia } from 'pinia';
+import { paginatorPerPageList } from '@/Services/globalConsts';
 import Dropdown from "@/components/Elements/Dropdown.vue";
-import { useGlobalConstsStore } from '@/Stores/globalConsts';
 
 const getWrapper = function(changeNumber) {
     return mount(Dropdown, {
@@ -10,18 +9,11 @@ const getWrapper = function(changeNumber) {
                 buttonName: 'Текст кнопки',
                 itemsNumberOnPage: 50,
                 changeNumber
-            },
-            global: {
-                provide: { globalConsts: useGlobalConstsStore() }
-             }
+            }
         });
 };
 
 describe("@/components/Elements/Dropdown.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Монтирование компоненты, выпадение/сокрытие списка", async () => {
         const wrapper = getWrapper(vi.fn());
 

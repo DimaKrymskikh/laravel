@@ -7,15 +7,12 @@ import HouseSvg from '@/Components/Svg/HouseSvg.vue';
 import GlobalModal from '@/components/Modal/GlobalModal.vue';
 import AuthContentTabs from '@/components/Tabs/AuthContentTabs.vue';
 import * as mod from '@/Services/inertia';
-import { useAppStore } from '@/Stores/app';
 import { useFilmsListStore, useFilmsAccountStore } from '@/Stores/films';
+import { app } from '@/Services/app';
 
 vi.spyOn(mod, 'useGlobalRequest');
 
-const getWrapper = function(pageComponent, isRequest = false, is_admin = false) {
-    const app = useAppStore();
-    app.isRequest = isRequest;
-    
+const getWrapper = function(pageComponent, is_admin = false) {
     return mount(AuthLayout, {
             props: {
                 errors: null,
@@ -33,7 +30,6 @@ const getWrapper = function(pageComponent, isRequest = false, is_admin = false) 
                     }
                 },
                 provide: {
-                    app,
                     filmsList: useFilmsListStore(),
                     filmsAccount: useFilmsAccountStore()
                 }
@@ -50,6 +46,7 @@ const forbiddenModalExists = function(wrapper) {
 describe("@/Layouts/AuthLayout.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
+        app.isRequest = false;
     });
     
     it("Монтирование шаблона AuthLayout для не админа", () => {
@@ -91,7 +88,7 @@ describe("@/Layouts/AuthLayout.vue", () => {
     });
     
     it("Монтирование шаблона AuthLayout для админа", () => {
-        const wrapper = getWrapper('Auth/Account/UserFilms', false, true);
+        const wrapper = getWrapper('Auth/Account/UserFilms', true);
         
         // Присутствует компонента AuthContentTabs
         expect(wrapper.getComponent(AuthContentTabs).isVisible()).toBe(true);
@@ -140,6 +137,7 @@ describe("@/Layouts/AuthLayout.vue", () => {
     
     it("Компонента GlobalModal не видна, т.к. app.isRequest = true", async () => {
         mod.useGlobalRequest.mockReturnValue(true);
+        app.isRequest = true;
         const wrapper = getWrapper('Auth/Account/UserFilms', true);
 
         expect(wrapper.findComponent(GlobalModal).exists()).toBe(false);

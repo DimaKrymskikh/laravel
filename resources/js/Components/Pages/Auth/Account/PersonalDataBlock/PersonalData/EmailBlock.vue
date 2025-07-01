@@ -3,12 +3,12 @@ import { inject } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import CheckSvg from '@/Components/Svg/CheckSvg.vue';
 import FormButton from '@/Components/Elements/FormButton.vue';
+import { app } from '@/Services/app';
     
 defineProps({
     user: Object | null
 });
 
-const app = inject('app');
 const form = useForm({});
 
 const onBeforeForHandlerVerifyEmail = () => { app.isRequest = true; };

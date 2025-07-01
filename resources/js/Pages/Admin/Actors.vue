@@ -1,6 +1,7 @@
 <script setup>
 import { inject, ref, reactive } from 'vue';
 import { Head, router } from '@inertiajs/vue3'
+import { actor } from '@/Services/Content/actors';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import AddActorBlock from '@/Components/Pages/Admin/Actors/AddActorBlock.vue';
 import RemoveActorModal from '@/Components/Modal/Request/Actors/RemoveActorModal.vue';
@@ -33,26 +34,6 @@ const getActorName = function(actor) {
     return actor.first_name + ' ' + actor.last_name;
 };
 
-const updateActor = reactive({
-    id: 0,
-    first_name: '',
-    last_name: ''
-});
-const isShowUpdateActorModal = ref(false);
-const hideUpdateActorModal = function() {
-    isShowUpdateActorModal.value = false;
-};
-
-const removeActor = reactive({
-    id: 0,
-    first_name: '',
-    last_name: ''
-});
-const isShowRemoveActorModal = ref(false);
-const hideRemoveActorModal = function() {
-    isShowRemoveActorModal.value = false;
-};
-
 // Изменяет число актёров на странице
 const changeNumberOfActorsOnPage = function(newNumber) {
     actorsList.page = 1;
@@ -73,17 +54,17 @@ const handlerTableChange = function(e) {
     let td = e.target.closest('td');
     
     if (td && td.classList.contains('update-actor')) {
-        updateActor.id = td.getAttribute('data-actor_id');
-        updateActor.first_name = td.getAttribute('data-actor_first_name');
-        updateActor.last_name = td.getAttribute('data-actor_last_name');
-        isShowUpdateActorModal.value = true;
+        actor.id = td.getAttribute('data-actor_id');
+        actor.firstName = td.getAttribute('data-actor_first_name');
+        actor.lastName = td.getAttribute('data-actor_last_name');
+        actor.showUpdateActorModal();
     }
     
     if (td && td.classList.contains('remove-actor')) {
-        removeActor.id = td.getAttribute('data-actor_id');
-        removeActor.first_name = td.getAttribute('data-actor_first_name');
-        removeActor.last_name = td.getAttribute('data-actor_last_name');
-        isShowRemoveActorModal.value = true;
+        actor.id = td.getAttribute('data-actor_id');
+        actor.firstName = td.getAttribute('data-actor_first_name');
+        actor.lastName = td.getAttribute('data-actor_last_name');
+        actor.showRemoveActorModal();
     }
 };
 </script>
@@ -147,15 +128,11 @@ const handlerTableChange = function(e) {
         </div>
         
         <RemoveActorModal
-            :removeActor="removeActor"
-            :hideRemoveActorModal="hideRemoveActorModal"
-            v-if="isShowRemoveActorModal"
+            v-if="actor.isShowRemoveActorModal"
         />
         
         <UpdateActorModal
-            :updateActor="updateActor"
-            :hideUpdateActorModal="hideUpdateActorModal"
-            v-if="isShowUpdateActorModal"
+            v-if="actor.isShowUpdateActorModal"
         />
     </AdminLayout>
 </template>

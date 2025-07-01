@@ -8,9 +8,7 @@ import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
-import { useAppStore } from '@/Stores/app';
 import { useFilmsListStore } from '@/Stores/films';
-import { useGlobalConstsStore } from '@/Stores/globalConsts';
 import { useLanguagesListStore } from '@/Stores/languages';
 
 import { films_0, films_10 } from '@/__tests__/data/films';
@@ -39,9 +37,7 @@ const getWrapper = function(films) {
                     GuestLayout: GuestLayoutStub
                 },
                 provide: {
-                    app: useAppStore(),
                     filmsList: useFilmsListStore(),
-                    globalConsts: useGlobalConstsStore(),
                     languagesList: useLanguagesListStore()
                 }
             }

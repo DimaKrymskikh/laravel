@@ -14,9 +14,7 @@ import EyeSvg from '@/Components/Svg/EyeSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import FilmRemoveModal from '@/Components/Modal/Request/FilmRemoveModal.vue';
 import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
-import { useAppStore } from '@/Stores/app';
 import { useFilmsAccountStore } from '@/Stores/films';
-import { useGlobalConstsStore } from '@/Stores/globalConsts';
 import { useLanguagesListStore } from '@/Stores/languages';
 
 import { films_10_user, films_0 } from '@/__tests__/data/films';
@@ -53,9 +51,7 @@ const getWrapper = function(films) {
                     FilmRemoveModal: true
                 },
                 provide: {
-                    app: useAppStore(),
                     filmsAccount: useFilmsAccountStore(),
-                    globalConsts: useGlobalConstsStore(),
                     languagesList: useLanguagesListStore()
                 }
             }

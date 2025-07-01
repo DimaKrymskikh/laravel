@@ -1,6 +1,7 @@
 <script setup>
-import { ref, reactive, inject, watch } from 'vue';
+import { inject } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3'
+import { app } from '@/Services/app';
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
@@ -18,7 +19,6 @@ const props = defineProps({
     errors: Object | null
 });
 
-const app = inject('app');
 const weatherPageAuth = inject('weatherPageAuth');
 
 const titlePage = 'История погоды в городе ' + props.city.name;

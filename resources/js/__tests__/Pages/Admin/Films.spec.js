@@ -2,6 +2,7 @@ import { mount, flushPromises } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 import { setActivePinia, createPinia } from 'pinia';
 
+import { film } from '@/Services/Content/films';
 import Films from "@/Pages/Admin/Films.vue";
 import AddFilmBlock from '@/Components/Pages/Admin/Films/AddFilmBlock.vue';
 import RemoveFilmModal from '@/Components/Modal/Request/Films/RemoveFilmModal.vue';
@@ -15,9 +16,7 @@ import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 import PencilSvg from '@/Components/Svg/PencilSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
-import { useAppStore } from '@/Stores/app';
 import { useFilmsAdminStore } from '@/Stores/films';
-import { useGlobalConstsStore } from '@/Stores/globalConsts';
 import { useLanguagesListStore } from '@/Stores/languages';
 
 import { films_10, films_0 } from '@/__tests__/data/films';
@@ -53,9 +52,7 @@ const getWrapper = function(films, perPage = 20) {
                     UpdateFilmActorsModal: true
                 },
                 provide: {
-                    app: useAppStore(),
                     filmsAdmin,
-                    globalConsts: useGlobalConstsStore(),
                     languagesList: useLanguagesListStore()
                 }
             }
@@ -303,79 +300,47 @@ describe("@/Pages/Admin/Films.vue", () => {
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(false);
         await pencilTitle.trigger('click');
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(true);
-        expect(wrapper.vm.updateFilm.field).toBe('title');
+        expect(film.field).toBe('title');
         // Закрываем вручную модальное окно
-        wrapper.vm.isShowUpdateFilmModal = false;
+        film.isShowUpdateFilmModal = false;
         await flushPromises();
         
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(false);
         await pencilDescription.trigger('click');
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(true);
-        expect(wrapper.vm.updateFilm.field).toBe('description');
+        expect(film.field).toBe('description');
         // Закрываем вручную модальное окно
-        wrapper.vm.isShowUpdateFilmModal = false;
+        film.isShowUpdateFilmModal = false;
         await flushPromises();
         
         expect(wrapper.findComponent(UpdateFilmActorsModal).exists()).toBe(false);
         await pencilActorsList.trigger('click');
         expect(wrapper.findComponent(UpdateFilmActorsModal).exists()).toBe(true);
         // Закрываем вручную модальное окно
-        wrapper.vm.isShowUpdateFilmActorsModal = false;
+        film.isShowUpdateFilmActorsModal = false;
         await flushPromises();
         
         expect(wrapper.findComponent(UpdateFilmLanguageModal).exists()).toBe(false);
         await pencilLanguage.trigger('click');
         expect(wrapper.findComponent(UpdateFilmLanguageModal).exists()).toBe(true);
         // Закрываем вручную модальное окно
-        wrapper.vm.isShowUpdateFilmLanguageModal = false;
+        film.isShowUpdateFilmLanguageModal = false;
         await flushPromises();
         
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(false);
         await pencilReleaseYear.trigger('click');
         expect(wrapper.findComponent(UpdateFilmModal).exists()).toBe(true);
-        expect(wrapper.vm.updateFilm.field).toBe('release_year');
+        expect(film.field).toBe('release_year');
         // Закрываем вручную модальное окно
-        wrapper.vm.isShowUpdateFilmModal = false;
+        film.isShowUpdateFilmModal = false;
         await flushPromises();
         
         expect(wrapper.findComponent(RemoveFilmModal).exists()).toBe(false);
         await trashSvg.trigger('click');
         expect(wrapper.findComponent(RemoveFilmModal).exists()).toBe(true);
         // Закрываем вручную модальное окно
-        wrapper.vm.isShowRemoveFilmModal = false;
+        film.isShowRemoveFilmModal = false;
         await flushPromises();
-    });
-    
-    it("Функция hideUpdateFilmModal изменяет isShowUpdateFilmModal с true на false", () => {
-        const wrapper = getWrapper(films_10);
-        
-        wrapper.vm.isShowUpdateFilmModal = true;
-        wrapper.vm.hideUpdateFilmModal();
-        expect(wrapper.vm.isShowUpdateFilmModal).toBe(false);
-    });
-    
-    it("Функция hideRemoveFilmModal изменяет isShowRemoveFilmModal с true на false", () => {
-        const wrapper = getWrapper(films_10);
-        
-        wrapper.vm.isShowRemoveFilmModal = true;
-        wrapper.vm.hideRemoveFilmModal();
-        expect(wrapper.vm.isShowRemoveFilmModal).toBe(false);
-    });
-    
-    it("Функция hideUpdateFilmActorsModal изменяет isShowUpdateFilmActorsModal с true на false", () => {
-        const wrapper = getWrapper(films_10);
-        
-        wrapper.vm.isShowUpdateFilmActorsModal = true;
-        wrapper.vm.hideUpdateFilmActorsModal();
-        expect(wrapper.vm.isShowUpdateFilmActorsModal).toBe(false);
-    });
-    
-    it("Функция hideUpdateFilmLanguageModal изменяет isShowUpdateFilmLanguageModal с true на false", () => {
-        const wrapper = getWrapper(films_10);
-        
-        wrapper.vm.isShowUpdateFilmLanguageModal = true;
-        wrapper.vm.hideUpdateFilmLanguageModal();
-        expect(wrapper.vm.isShowUpdateFilmLanguageModal).toBe(false);
     });
     
     it("Функция setNewLanguageName изменяет languageName", async () => {

@@ -1,12 +1,11 @@
 import { mount, flushPromises } from "@vue/test-utils";
 
-import { setActivePinia, createPinia } from 'pinia';
 import Register from "@/Pages/Guest/Register.vue";
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import Checkbox from '@/components/Elements/Form/Checkbox.vue';
 import InputField from '@/components/Elements/InputField.vue';
-import { useAppStore } from '@/Stores/app';
+import { app } from '@/Services/app';
 
 import * as testCheckbox from '@/__tests__/methods/Checkbox/checkbox';
 import { checkFormButton } from '@/__tests__/methods/checkFormButton';
@@ -21,7 +20,7 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(app) {
+const getWrapper = function() {
     return mount(Register, {
             props: {
                 errors: {}
@@ -29,8 +28,7 @@ const getWrapper = function(app) {
             global: {
                 stubs: {
                     GuestLayout: GuestLayoutStub
-                },
-                provide: { app }
+                }
             }
         });
 };
@@ -64,13 +62,11 @@ const checkBreadCrumb = function(wrapper) {
 
 describe("@/Pages/Guest/Register.vue", () => {
     beforeEach(() => {
-        setActivePinia(createPinia());
+        app.isRequest = false;
     });
     
     it("Отрисовка формы регистрации (isRequest: false)", () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -111,11 +107,10 @@ describe("@/Pages/Guest/Register.vue", () => {
     });
     
     it("Отрисовка формы регистрации (isRequest: true)", async () => {
-        const app = useAppStore();
         // Выполняется запрос
         app.isRequest = true;
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -150,13 +145,12 @@ describe("@/Pages/Guest/Register.vue", () => {
     });
     
     it("Функция handlerRegister вызывает form.post с нужными параметрами", () => {
-        const app = useAppStore();
         const options = {
             onBefore: expect.anything(),
             onFinish: expect.anything()
         };
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -167,20 +161,14 @@ describe("@/Pages/Guest/Register.vue", () => {
     });
     
     it("Проверка функции onBeforeForHandlerRegister", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.onBeforeForHandlerRegister();
-        
         expect(app.isRequest).toBe(true);
     });
     
     it("Проверка функции onFinishForHandlerRegister", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         // На странице две компоненты InputField
         const inputField = wrapper.findAllComponents(InputField);

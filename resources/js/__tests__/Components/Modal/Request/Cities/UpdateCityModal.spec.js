@@ -2,9 +2,9 @@ import { mount } from "@vue/test-utils";
 
 import { router } from '@inertiajs/vue3';
 
-import { setActivePinia, createPinia } from 'pinia';
+import { app } from '@/Services/app';
+import { city } from '@/Services/Content/cities';
 import UpdateCityModal from '@/Components/Modal/Request/Cities/UpdateCityModal.vue';
-import { useAppStore } from '@/Stores/app';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
@@ -12,26 +12,15 @@ import { eventCurrentTargetClassListContainsFalse } from '@/__tests__/fake/Event
 
 vi.mock('@inertiajs/vue3');
         
-const hideUpdateCityModal = vi.fn();
+const hideModal = vi.spyOn(city, 'hideUpdateCityModal');
 
-const getWrapper = function(app) {
-    return mount(UpdateCityModal, {
-            props: {
-                hideUpdateCityModal,
-                updateCity: {
-                    id: '5',
-                    name: 'Город'
-                }
-            },
-            global: {
-                provide: { app }
-            }
-        });
+const getWrapper = function(isRequest = false) {
+    return mount(UpdateCityModal);
 };
 
 const checkContent = function(wrapper) {
     // Проверка равенства переменных ref начальным данным
-    expect(wrapper.vm.cityName).toBe('Город');
+    expect(wrapper.vm.cityName).toBe(city.name);
     expect(wrapper.vm.errorsName).toBe('');
 
     // Заголовок модального окна задаётся
@@ -39,14 +28,8 @@ const checkContent = function(wrapper) {
 };
 
 describe("@/Components/Modal/Request/UpdateCityModal.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Монтирование компоненты UpdateCityModal (isRequest: false)", async () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         checkContent(wrapper);
         
@@ -54,15 +37,13 @@ describe("@/Components/Modal/Request/UpdateCityModal.vue", () => {
         checkInputField.checkPropsInputField(inputFields[0], 'Имя города:', 'text', wrapper.vm.errorsName, wrapper.vm.cityName, true);
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.cityName, 'Имя нового города');
         
-        await checkBaseModal.hideBaseModal(wrapper, hideUpdateCityModal);
+        await checkBaseModal.hideBaseModal(wrapper, hideModal);
         await checkBaseModal.submitRequestInBaseModal(wrapper, router.put);
     });
     
     it("Монтирование компоненты UpdateCityModal (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         checkContent(wrapper);
         
@@ -70,12 +51,13 @@ describe("@/Components/Modal/Request/UpdateCityModal.vue", () => {
         checkInputField.checkPropsInputField(inputFields[0], 'Имя города:', 'text', wrapper.vm.errorsName, wrapper.vm.cityName, true);
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[0], wrapper.vm.cityName, 'Имя нового города');
         
-        await checkBaseModal.notHideBaseModal(wrapper, hideUpdateCityModal);
+        await checkBaseModal.notHideBaseModal(wrapper, hideModal);
         await checkBaseModal.notSubmitRequestInBaseModal(wrapper, router.put);
     });
     
     it("Функция handlerUpdateCity вызывает router.put с нужными параметрами", () => {
-        const app = useAppStore();
+        const wrapper = getWrapper();
+        
         const options = {
             preserveScroll: true,
             onBefore: expect.anything(),
@@ -84,20 +66,15 @@ describe("@/Components/Modal/Request/UpdateCityModal.vue", () => {
             onFinish: expect.anything()
         };
 
-        const wrapper = getWrapper(app);
-        
         wrapper.vm.handlerUpdateCity(eventCurrentTargetClassListContainsFalse);
         
         expect(router.put).toHaveBeenCalledTimes(1);
-        expect(router.put).toHaveBeenCalledWith(`cities/${wrapper.vm.updateCity.id}`, { name: wrapper.vm.cityName }, options);
+        expect(router.put).toHaveBeenCalledWith(`cities/${city.id}`, { name: wrapper.vm.cityName }, options);
     });
     
     it("Проверка функции onBeforeForHandlerUpdateCity", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.errorsName = 'ErrorName';
         wrapper.vm.onBeforeForHandlerUpdateCity();
         
@@ -106,21 +83,17 @@ describe("@/Components/Modal/Request/UpdateCityModal.vue", () => {
     });
     
     it("Проверка функции onSuccessForHandlerUpdateCity", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
       
-        expect(hideUpdateCityModal).not.toHaveBeenCalled();
+        expect(hideModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerUpdateCity();
         
-        expect(hideUpdateCityModal).toHaveBeenCalledTimes(1);
-        expect(hideUpdateCityModal).toHaveBeenCalledWith();
+        expect(hideModal).toHaveBeenCalledTimes(1);
+        expect(hideModal).toHaveBeenCalledWith();
     });
     
     it("Проверка функции onErrorForHandlerUpdateCity (валидация данных)", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         expect(wrapper.vm.errorsName).toBe('');
         wrapper.vm.onErrorForHandlerUpdateCity({name: 'ErrorName'});
@@ -129,22 +102,18 @@ describe("@/Components/Modal/Request/UpdateCityModal.vue", () => {
     });
     
     it("Проверка функции onErrorForHandlerUpdateCity (ошибка сервера с message)", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
 
-        expect(hideUpdateCityModal).toHaveBeenCalledTimes(0);
+        expect(hideModal).toHaveBeenCalledTimes(0);
         wrapper.vm.onErrorForHandlerUpdateCity({ message: 'В таблице thesaurus.cities нет записи с id=13' });
-        expect(hideUpdateCityModal).toHaveBeenCalledTimes(1);
+        expect(hideModal).toHaveBeenCalledTimes(1);
     });
     
     it("Проверка функции onFinishForHandlerUpdateCity", async () => {
-        const app = useAppStore();
         app.isRequest = true;
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.onFinishForHandlerUpdateCity();
-        
         expect(app.isRequest).toBe(false);
     });
 });

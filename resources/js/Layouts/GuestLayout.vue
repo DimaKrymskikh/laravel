@@ -1,13 +1,11 @@
 <script setup>
-import { inject, onMounted, onUnmounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
 import { useGlobalRequest } from '@/Services/inertia';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
 import GlobalModal from '@/components/Modal/GlobalModal.vue';
 import GuestContentTabs from '@/components/Tabs/GuestContentTabs.vue';
-
-const app = inject('app');
 
 const isGlobalRequest = useGlobalRequest();
 </script>

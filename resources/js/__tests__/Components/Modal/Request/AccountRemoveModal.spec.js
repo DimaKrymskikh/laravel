@@ -2,9 +2,8 @@ import { mount } from "@vue/test-utils";
 
 import { router } from '@inertiajs/vue3';
 
-import { setActivePinia, createPinia } from 'pinia';
 import AccountRemoveModal from '@/Components/Modal/Request/AccountRemoveModal.vue';
-import { useAppStore } from '@/Stores/app';
+import { app } from '@/Services/app';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
@@ -14,13 +13,10 @@ vi.mock('@inertiajs/vue3');
         
 const hideAccountRemoveModal = vi.fn();
 
-const getWrapper = function(app) {
+const getWrapper = function() {
     return mount(AccountRemoveModal, {
             props: {
                 hideAccountRemoveModal
-            },
-            global: {
-                provide: { app }
             }
         });
 };
@@ -37,14 +33,8 @@ const checkContent = function(wrapper) {
 };
         
 describe("@/Components/Modal/Request/AccountRemoveModal.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Монтирование компоненты AccountRemoveModal (isRequest: false)", async () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         checkContent(wrapper);
         
@@ -58,10 +48,8 @@ describe("@/Components/Modal/Request/AccountRemoveModal.vue", () => {
     });
     
     it("Монтирование компоненты AccountRemoveModal (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         checkContent(wrapper);
         
@@ -75,9 +63,8 @@ describe("@/Components/Modal/Request/AccountRemoveModal.vue", () => {
     });
     
     it("Функция handlerRemoveAccount вызывает router.delete с нужными параметрами", () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
+        
         const options = {
             data: {
                 password: wrapper.vm.inputPassword
@@ -95,11 +82,8 @@ describe("@/Components/Modal/Request/AccountRemoveModal.vue", () => {
     });
     
     it("Проверка функции onBeforeForHandlerRemoveAccount", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
+        
         wrapper.vm.errorsPassword = 'ErrorPassword';
         wrapper.vm.onBeforeForHandlerRemoveAccount();
         
@@ -108,9 +92,7 @@ describe("@/Components/Modal/Request/AccountRemoveModal.vue", () => {
     });
     
     it("Проверка функции onSuccessForHandlerRemoveAccount", async () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         expect(hideAccountRemoveModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerRemoveAccount();
@@ -120,9 +102,7 @@ describe("@/Components/Modal/Request/AccountRemoveModal.vue", () => {
     });
     
     it("Проверка функции onErrorForHandlerRemoveAccount", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         expect(wrapper.vm.errorsPassword).toBe('');
         wrapper.vm.onErrorForHandlerRemoveAccount({ password: 'ErrorPassword' });
@@ -131,9 +111,7 @@ describe("@/Components/Modal/Request/AccountRemoveModal.vue", () => {
     });
     
     it("Проверка функции onFinishForHandlerRemoveAccount", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        
         const wrapper = getWrapper(app);
         
         wrapper.vm.inputPassword = 'TestPassword';

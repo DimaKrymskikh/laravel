@@ -2,9 +2,9 @@ import { mount, flushPromises } from "@vue/test-utils";
 
 import { router } from '@inertiajs/vue3';
 
-import { setActivePinia, createPinia } from 'pinia';
+import { app } from '@/Services/app';
+import { city } from '@/Services/Content/cities';
 import UpdateTimeZoneModal from '@/Components/Modal/Request/UpdateTimeZoneModal.vue';
-import { useAppStore } from '@/Stores/app';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
@@ -12,22 +12,12 @@ import { eventTargetClassListContainsFalseAndGetAttribute8 } from '@/__tests__/f
 import { timezones_nov } from '@/__tests__/data/timezones';
 
 vi.mock('@inertiajs/vue3');
-        
-const hideUpdateTimeZoneModal = vi.fn();
 
-const getWrapper = function(app) {
-    return mount(UpdateTimeZoneModal, {
-            props: {
-                updateCity: {
-                    id: 17,
-                    name: 'Город'
-                },
-                hideUpdateTimeZoneModal
-            },
-            global: {
-                provide: { app }
-            }
-        });
+app.request = vi.fn();
+const hideModal = vi.spyOn(city, 'hideUpdateTimeZoneModal');
+
+const getWrapper = function() {
+    return mount(UpdateTimeZoneModal);
 };
 
 const checkContent = function(wrapper) {
@@ -70,33 +60,31 @@ const renderTimeZonesList = function(wrapper) {
         
 describe("@/Components/Modal/Request/UpdateTimeZoneModal.vue", () => {
     beforeEach(() => {
-        setActivePinia(createPinia());
+        app.isRequest = false;
     });
     
     it("Монтирование компоненты UpdateTimeZoneModal (isRequest: false)", async () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
+        await flushPromises();
         
         checkContent(wrapper);
         
         const inputFields = checkInputField.findNumberOfInputFieldOnPage(wrapper, 1);
         checkInputField.checkPropsInputField(inputFields[0], 'Временной пояс города:', 'text', wrapper.vm.errorsName, wrapper.vm.cityTimeZone, true);
-        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.cityTimeZone, 'asia');
+        checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], city.timeZone, 'asia');
         
         const baseModal = checkBaseModal.getBaseModal(wrapper);
         checkBaseModal.checkPropsBaseModal(
-                baseModal, `Изменение временного пояса города ${wrapper.vm.updateCity.name}`, hideUpdateTimeZoneModal
+                baseModal, `Изменение временного пояса города ${city.name}`, wrapper.vm.hideModal
             );
         checkBaseModal.absenceOfHandlerSubmit(baseModal);
-        await checkBaseModal.hideBaseModal(baseModal, hideUpdateTimeZoneModal);
+        await checkBaseModal.hideBaseModal(baseModal, hideModal);
     });
     
     it("Монтирование компоненты UpdateTimeZoneModal (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
+        await flushPromises();
         
         checkContent(wrapper);
         
@@ -106,18 +94,16 @@ describe("@/Components/Modal/Request/UpdateTimeZoneModal.vue", () => {
         
         const baseModal = checkBaseModal.getBaseModal(wrapper);
         checkBaseModal.checkPropsBaseModal(
-                baseModal, `Изменение временного пояса города ${wrapper.vm.updateCity.name}`, hideUpdateTimeZoneModal
+                baseModal, `Изменение временного пояса города ${city.name}`, wrapper.vm.hideModal
             );
         checkBaseModal.absenceOfHandlerSubmit(baseModal);
-        await checkBaseModal.notHideBaseModal(baseModal, hideUpdateTimeZoneModal);
+        await checkBaseModal.notHideBaseModal(baseModal, hideModal);
     });
     
     it("Получение списка временных поясов", async () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
-        
         const appRequest = vi.spyOn(app, 'request');
+        
+        const wrapper = getWrapper();
         
         checkContent(wrapper);
         
@@ -161,11 +147,9 @@ describe("@/Components/Modal/Request/UpdateTimeZoneModal.vue", () => {
     });
     
     it("Список временных поясов: []" , async () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
-        
         const appRequest = vi.spyOn(app, 'request').mockResolvedValue([]);
+        
+        const wrapper = getWrapper();
         
         const inputFields = checkInputField.findNumberOfInputFieldOnPage(wrapper, 1);
         
@@ -182,11 +166,9 @@ describe("@/Components/Modal/Request/UpdateTimeZoneModal.vue", () => {
     });
     
     it("Список временных поясов: timezones_nov; запрос на изменение временного пояса" , async () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
-        
         const appRequest = vi.spyOn(app, 'request').mockResolvedValue(timezones_nov);
+        
+        const wrapper = getWrapper();
         
         const inputFields = checkInputField.findNumberOfInputFieldOnPage(wrapper, 1);
         
@@ -208,11 +190,9 @@ describe("@/Components/Modal/Request/UpdateTimeZoneModal.vue", () => {
     });
     
     it("Блокировка запроса на изменение временного пояса (isRequst: true)" , async () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
-        
         const appRequest = vi.spyOn(app, 'request').mockResolvedValue(timezones_nov);
+        
+        const wrapper = getWrapper();
         
         const inputFields = checkInputField.findNumberOfInputFieldOnPage(wrapper, 1);
         
@@ -238,7 +218,8 @@ describe("@/Components/Modal/Request/UpdateTimeZoneModal.vue", () => {
     });
     
     it("Функция handlerUpdateTimeZone вызывает router.put с нужными параметрами", () => {
-        const app = useAppStore();
+        const wrapper = getWrapper();
+        
         const options = {
             preserveScroll: true,
             onBefore: expect.anything(),
@@ -247,45 +228,36 @@ describe("@/Components/Modal/Request/UpdateTimeZoneModal.vue", () => {
             onFinish: expect.anything()
         };
 
-        const wrapper = getWrapper(app);
-        
         wrapper.vm.handlerUpdateTimeZone(eventTargetClassListContainsFalseAndGetAttribute8);
         
         expect(router.put).toHaveBeenCalledTimes(1);
-        expect(router.put).toHaveBeenCalledWith(`cities/${wrapper.vm.updateCity.id}/timezone/${eventTargetClassListContainsFalseAndGetAttribute8.target.getAttribute('data-id')}`, {
-                timezone_id: wrapper.vm.cityTimeZone
+        expect(router.put).toHaveBeenCalledWith(`cities/${city.id}/timezone/${eventTargetClassListContainsFalseAndGetAttribute8.target.getAttribute('data-id')}`, {
+                timezone_id: city.timeZone
             }, options);
     });
     
     it("Проверка функции onBeforeForHandlerUpdateTimeZone", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.errorsName = 'ErrorName';
         wrapper.vm.onBeforeForHandlerUpdateTimeZone();
         
-        expect(app.isRequest).toBe(true);
+        expect(wrapper.vm.app.isRequest).toBe(true);
         expect(wrapper.vm.errorsName).toBe('');
     });
     
     it("Проверка функции onSuccessForHandlerUpdateTimeZone", async () => {
-        const app = useAppStore();
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
-        
-        expect(hideUpdateTimeZoneModal).not.toHaveBeenCalled();
+        expect(hideModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerUpdateTimeZone();
         
-        expect(hideUpdateTimeZoneModal).toHaveBeenCalledTimes(1);
-        expect(hideUpdateTimeZoneModal).toHaveBeenCalledWith();
+        expect(hideModal).toHaveBeenCalledTimes(1);
+        expect(hideModal).toHaveBeenCalledWith();
     });
     
     it("Проверка функции onErrorForHandlerUpdateTimeZone", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         expect(wrapper.vm.errorsName).toBe('');
         wrapper.vm.onErrorForHandlerUpdateTimeZone({ name: 'ErrorName' });
@@ -294,10 +266,9 @@ describe("@/Components/Modal/Request/UpdateTimeZoneModal.vue", () => {
     });
     
     it("Проверка функции onFinishForHandlerUpdateTimeZone", async () => {
-        const app = useAppStore();
         app.isRequest = true;
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.onFinishForHandlerUpdateTimeZone();
         
         expect(app.isRequest).toBe(false);

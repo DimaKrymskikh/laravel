@@ -1,31 +1,30 @@
 <script setup>
-import { inject, ref } from 'vue';
+import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
+import { language } from '@/Services/Content/languages';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 
-const props = defineProps({
-    updateLanguage: Object,
-    hideUpdateLanguageModal: Function
-});
-
-const app = inject('app');
-
-const languageName = ref(props.updateLanguage.name);
+const languageName = ref(language.name);
 const errorsName = ref('');
+
+const hideModal = function() {
+    language.hideUpdateLanguageModal();
+};
 
 const onBeforeForHandlerUpdateLanguage = () => {
     app.isRequest = true;
     errorsName.value = '';
 };
 
-const onSuccessForHandlerUpdateLanguage = () => { props.hideUpdateLanguageModal(); };
+const onSuccessForHandlerUpdateLanguage = () => { language.hideUpdateLanguageModal(); };
 
 const onErrorForHandlerUpdateLanguage = errors => {
     errorsName.value = errors.name;
     app.errorRequest(errors);
     if(errors.message) {
-        props.hideUpdateLanguageModal();
+        language.hideUpdateLanguageModal();
     }
 };
 
@@ -42,7 +41,7 @@ const handlerUpdateLanguage = function(e) {
         return;
     }
     
-    router.put(`/admin/languages/${props.updateLanguage.id}`, {
+    router.put(`/admin/languages/${language.id}`, {
         name: languageName.value
     }, {
         preserveScroll: true,
@@ -57,7 +56,7 @@ const handlerUpdateLanguage = function(e) {
 <template>
     <BaseModal
         headerTitle="Изменение названия языка"
-        :hideModal="hideUpdateLanguageModal"
+        :hideModal="hideModal"
         :handlerSubmit="handlerUpdateLanguage"
     >
         <template v-slot:body>

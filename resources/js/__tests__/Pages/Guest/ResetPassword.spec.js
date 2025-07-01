@@ -1,11 +1,10 @@
 import { mount, flushPromises } from "@vue/test-utils";
 
-import { setActivePinia, createPinia } from 'pinia';
 import ResetPassword from "@/Pages/Guest/ResetPassword.vue";
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import InputField from '@/components/Elements/InputField.vue';
-import { useAppStore } from '@/Stores/app';
+import { app } from '@/Services/app';
 
 import { checkFormButton } from '@/__tests__/methods/checkFormButton';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
@@ -19,7 +18,7 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(app, status = null) {
+const getWrapper = function(status = null) {
     return mount(ResetPassword, {
             props: {
                 email: 'test@example.com',
@@ -30,8 +29,7 @@ const getWrapper = function(app, status = null) {
             global: {
                 stubs: {
                     GuestLayout: GuestLayoutStub
-                },
-                provide: { app }
+                }
             }
         });
 };
@@ -65,13 +63,11 @@ const checkBreadCrumb = function(wrapper) {
 
 describe("@/Pages/Guest/ResetPassword.vue", () => {
     beforeEach(() => {
-        setActivePinia(createPinia());
+        app.isRequest = false;
     });
     
     it("Отрисовка формы сброса пароля (isRequest: false)", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -107,11 +103,10 @@ describe("@/Pages/Guest/ResetPassword.vue", () => {
     });
     
     it("Отрисовка формы сброса пароля (isRequest: true)", async () => {
-        const app = useAppStore();
         // Выполняется запрос
         app.isRequest = true;
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -141,9 +136,7 @@ describe("@/Pages/Guest/ResetPassword.vue", () => {
     });
     
     it("Отрисовка статуса", () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app, 'Некоторый статус');
+        const wrapper = getWrapper('Некоторый статус');
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -159,14 +152,13 @@ describe("@/Pages/Guest/ResetPassword.vue", () => {
     });
     
     it("Функция handlerResetPassword вызывает form.post с нужными параметрами", () => {
-        const app = useAppStore();
         const options = {
             onBefore: expect.anything(),
             onError: expect.anything(),
             onFinish: expect.anything()
         };
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -177,20 +169,14 @@ describe("@/Pages/Guest/ResetPassword.vue", () => {
     });
     
     it("Проверка функции onBeforeForHandlerResetPassword", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.onBeforeForHandlerResetPassword();
-        
         expect(app.isRequest).toBe(true);
     });
     
     it("Проверка функции onFinishForHandlerResetPassword", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         // На странице две компоненты InputField
         const inputField = wrapper.findAllComponents(InputField);
@@ -231,12 +217,11 @@ describe("@/Pages/Guest/ResetPassword.vue", () => {
     });
     
     it("Проверка функции onErrorForHandlerResetPassword", async () => {
-        const app = useAppStore();
         // Значения по умолчанию
         expect(app.isShowForbiddenModal).toBe(false);
         expect(app.errorMessage).toBe('');
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         wrapper.vm.onErrorForHandlerResetPassword({message: "Токен сброса пароля недействителен."});
         
         await flushPromises();

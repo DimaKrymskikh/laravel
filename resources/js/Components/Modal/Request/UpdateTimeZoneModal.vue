@@ -1,23 +1,22 @@
 <script setup>
 import { ref, watch, inject } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
+import { city } from '@/Services/Content/cities';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 
-const { updateCity, hideUpdateTimeZoneModal } = defineProps({
-    updateCity: Object,
-    hideUpdateTimeZoneModal: Function
-});
+const headerTitle = `Изменение временного пояса города ${city.name}`;
 
-const app = inject('app');
-
-const headerTitle = `Изменение временного пояса города ${updateCity.name}`;
-
-const cityTimeZone = ref('');
+const cityTimeZone = ref(city.timeZone);
 
 const errorsName = ref('');
 
 const timezones = ref(null);
+
+const hideModal = function() {
+    city.hideUpdateTimeZoneModal();
+};
 
 const handlerTimeZoneName = async function() {
     if(cityTimeZone.value.length < 3) {
@@ -32,7 +31,7 @@ const onBeforeForHandlerUpdateTimeZone = () => {
             errorsName.value = '';
         };
 
-const onSuccessForHandlerUpdateTimeZone = () => { hideUpdateTimeZoneModal(); };
+const onSuccessForHandlerUpdateTimeZone = () => { city.hideUpdateTimeZoneModal(); };
 
 const onErrorForHandlerUpdateTimeZone = errors => {
             errorsName.value = errors.name;
@@ -53,7 +52,7 @@ const handlerUpdateTimeZone = function(e) {
     
     const timezone_id = e.target.getAttribute('data-id');
     
-    router.put(`cities/${updateCity.id}/timezone/${timezone_id}`, {
+    router.put(`cities/${city.id}/timezone/${timezone_id}`, {
         timezone_id: cityTimeZone.value
     }, {
         preserveScroll: true,
@@ -70,7 +69,7 @@ watch(cityTimeZone, handlerTimeZoneName);
 <template>
     <BaseModal
         :headerTitle=headerTitle
-        :hideModal="hideUpdateTimeZoneModal"
+        :hideModal="hideModal"
     >
         <template v-slot:body>
             <div class="mb-3">

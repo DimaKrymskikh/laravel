@@ -3,13 +3,12 @@ import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
+import { app } from '@/Services/app';
 import UserLogsWeather from "@/Pages/Auth/Account/UserLogsWeather.vue";
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import WeatherFilterByDateBlock from '@/Components/Pages/Auth/Account/WeatherFilterByDateBlock.vue';
-import { useAppStore } from '@/Stores/app';
-import { useGlobalConstsStore } from '@/Stores/globalConsts';
 import { useWeatherPageAuthStore } from '@/Stores/weather';
 
 import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
@@ -29,7 +28,7 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(app, weatherPageAuth, globalConsts) {
+const getWrapper = function() {
     return mount(UserLogsWeather, {
             props: {
                 errors: {},
@@ -41,7 +40,9 @@ const getWrapper = function(app, weatherPageAuth, globalConsts) {
                 stubs: {
                     AccountLayout: AuthAccountLayoutStub
                 },
-                provide: { app, weatherPageAuth, globalConsts }
+                provide: { 
+                    weatherPageAuth: useWeatherPageAuthStore()
+                }
             }
         });
 };
@@ -49,14 +50,11 @@ const getWrapper = function(app, weatherPageAuth, globalConsts) {
 describe("@/Pages/Auth/Account/UserLogsWeather.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
+        app.isRequest = false;
     });
     
     it("Отрисовка UserLogsWeather", () => {
-        const app = useAppStore();
-        const weatherPageAuth = useWeatherPageAuthStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(app, weatherPageAuth, globalConsts);
+        const wrapper = getWrapper();
         
         const accountLayout = wrapper.getComponent(AccountLayout);
         expect(accountLayout.props('user')).toStrictEqual(userAuth);
@@ -113,11 +111,7 @@ describe("@/Pages/Auth/Account/UserLogsWeather.vue", () => {
     });
     
     it("Функция changeNumberOfWeatherOnPage отправляет запрос на изменение числа записей погоды на странице", () => {
-        const app = useAppStore();
-        const weatherPageAuth = useWeatherPageAuthStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(app, weatherPageAuth, globalConsts);
+        const wrapper = getWrapper();
         
         // Запрос не отправлен
         expect(router.get).not.toHaveBeenCalled();

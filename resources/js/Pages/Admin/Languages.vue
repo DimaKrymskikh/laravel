@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import { Head } from '@inertiajs/vue3'
+import { language } from '@/Services/Content/languages';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import AddLanguageBlock from '@/Components/Pages/Admin/Languages/AddLanguageBlock.vue';
 import RemoveLanguageModal from '@/Components/Modal/Request/Languages/RemoveLanguageModal.vue';
@@ -23,38 +24,20 @@ const linksList = [{
         }, {
             text: titlePage
         }];
-    
-const updateLanguage = reactive({
-    id: 0,
-    name: ''
-});
-const isShowUpdateLanguageModal = ref(false);
-const hideUpdateLanguageModal = function() {
-    isShowUpdateLanguageModal.value = false;
-};
-    
-const removeLanguage = reactive({
-    id: 0,
-    name: ''
-});
-const isShowRemoveLanguageModal = ref(false);
-const hideRemoveLanguageModal = function() {
-    isShowRemoveLanguageModal.value = false;
-};
 
 const handlerTableChange = function(e) {
     let td = e.target.closest('td');
     
     if (td && td.classList.contains('update-language')) {
-        updateLanguage.id = td.getAttribute('data-language_id');
-        updateLanguage.name = td.getAttribute('data-language_name');
-        isShowUpdateLanguageModal.value = true;
+        language.id = td.getAttribute('data-language_id');
+        language.name = td.getAttribute('data-language_name');
+        language.showUpdateLanguageModal();
     }
     
     if (td && td.classList.contains('remove-language')) {
-        removeLanguage.id = td.getAttribute('data-language_id');
-        removeLanguage.name = td.getAttribute('data-language_name');
-        isShowRemoveLanguageModal.value = true;
+        language.id = td.getAttribute('data-language_id');
+        language.name = td.getAttribute('data-language_name');
+        language.showRemoveLanguageModal();
     }
 };
 </script>
@@ -100,15 +83,11 @@ const handlerTableChange = function(e) {
         </div>
         
         <UpdateLanguageModal
-            :updateLanguage="updateLanguage"
-            :hideUpdateLanguageModal="hideUpdateLanguageModal"
-            v-if="isShowUpdateLanguageModal"
+            v-if="language.isShowUpdateLanguageModal"
         />
         
         <RemoveLanguageModal
-            :removeLanguage="removeLanguage"
-            :hideRemoveLanguageModal="hideRemoveLanguageModal"
-            v-if="isShowRemoveLanguageModal"
+            v-if="language.isShowRemoveLanguageModal"
         />
     </AdminLayout>
 </template>

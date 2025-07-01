@@ -2,11 +2,11 @@ import { flushPromises, mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
+import { app } from '@/Services/app';
+import { film, removeActor } from '@/Services/Content/films';
 import UpdateFilmActorsModal from '@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
-import { useAppStore } from '@/Stores/app';
 import { useFilmsAdminStore } from '@/Stores/films';
-import { updateFilm } from '@/Services/films';
 
 import { json_film_actors, json_film_actors_0, json_free_actors, json_free_actors_0 } from '@/__tests__/data/actors';
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
@@ -15,23 +15,13 @@ import { eventTargetClassListContainsFalseAndGetAttribute8 } from '@/__tests__/f
 
 vi.mock('@inertiajs/vue3');
         
-const hideUpdateFilmActorsModal = vi.fn();
-const showRemoveActorFromFilmModal = vi.fn();
+const hideModal = vi.spyOn(film, 'hideUpdateFilmActorsModal');
+const showModal = vi.spyOn(removeActor, 'showRemoveActorFromFilmModal');
 
-function setUpdateFilm() {
-    updateFilm.id = 15;
-    updateFilm.title = 'Бриллиантовая рука';
-};
-
-const getWrapper = function(app) {
+const getWrapper = function() {
     return mount(UpdateFilmActorsModal, {
-            props: {
-                hideUpdateFilmActorsModal,
-                showRemoveActorFromFilmModal,
-            },
             global: {
                 provide: {
-                    app,
                     filmsAdmin: useFilmsAdminStore()
                 }
             }
@@ -41,8 +31,8 @@ const getWrapper = function(app) {
 const checkContent = function(wrapper) {
     // Проверка равенства переменных ref начальным данным
     expect(wrapper.vm.actorName).toBe('');
-    expect(wrapper.vm.filmActors).toBe(null);
-    expect(wrapper.vm.actors).toBe(null);
+    expect(wrapper.vm.filmActors).toStrictEqual(json_film_actors);
+    expect(wrapper.vm.actors).toStrictEqual(json_free_actors);
 
     // Заголовок модального окна задаётся
     expect(wrapper.text()).toContain(wrapper.vm.headerTitle);
@@ -51,12 +41,16 @@ const checkContent = function(wrapper) {
 describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
+        app.isRequest = false;
     });
     
     it("Монтирование компоненты UpdateFilmActorsModal (isRequest: false)", async () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
+        app.request = vi.fn()
+            .mockImplementationOnce(() => json_free_actors)
+            .mockImplementationOnce(() => json_film_actors);
+    
+        const wrapper = getWrapper();
+        await flushPromises();
         
         checkContent(wrapper);
         
@@ -66,20 +60,20 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
         
         const baseModal = checkBaseModal.getBaseModal(wrapper);
         checkBaseModal.checkPropsBaseModal(
-                baseModal, wrapper.vm.headerTitle, hideUpdateFilmActorsModal
+                baseModal, wrapper.vm.headerTitle, wrapper.vm.hideModal
             );
         checkBaseModal.absenceOfHandlerSubmit(baseModal);
-        await checkBaseModal.hideBaseModal(baseModal, hideUpdateFilmActorsModal);
+        await checkBaseModal.hideBaseModal(baseModal, film.hideUpdateFilmActorsModal);
     });
     
     it("Монтирование компоненты UpdateFilmActorsModal (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        // Метод app.request выполняется при монтировании компоненты и устанавливает app.isRequest = false,
-        // поэтому применяем мок-функцию
-        app.request = vi.fn();
-
-        const wrapper = getWrapper(app);
+        app.request = vi.fn()
+            .mockImplementationOnce(() => json_free_actors)
+            .mockImplementationOnce(() => json_film_actors);
+    
+        const wrapper = getWrapper();
+        await flushPromises();
         
         checkContent(wrapper);
         
@@ -89,20 +83,18 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
         
         const baseModal = checkBaseModal.getBaseModal(wrapper);
         checkBaseModal.checkPropsBaseModal(
-                baseModal, wrapper.vm.headerTitle, hideUpdateFilmActorsModal
+                baseModal, wrapper.vm.headerTitle, wrapper.vm.hideModal
             );
         checkBaseModal.absenceOfHandlerSubmit(baseModal);
-        await checkBaseModal.notHideBaseModal(baseModal, hideUpdateFilmActorsModal);
+        await checkBaseModal.notHideBaseModal(baseModal, film.hideUpdateFilmActorsModal);
     });
     
     it("Проверка событий при клике по актёрам", async () => {
-        const app = useAppStore();
-
         app.request = vi.fn()
             .mockImplementationOnce(() => json_free_actors)
             .mockImplementationOnce(() => json_film_actors);
-
-        const wrapper = getWrapper(app);
+    
+        const wrapper = getWrapper();
         await flushPromises();
         
         const uls = wrapper.findAll('ul');
@@ -112,9 +104,9 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
         const filmActorsLis = filmActorsUl.findAll('li');
         expect(filmActorsLis.length).toBe(json_film_actors.actors.length);
         // Открывается модальное окно для удаления актёра из фильма
-        expect(showRemoveActorFromFilmModal).not.toHaveBeenCalled();
+        expect(showModal).not.toHaveBeenCalled();
         await filmActorsLis[1].trigger('click');
-        expect(showRemoveActorFromFilmModal).toHaveBeenCalledTimes(1);
+        expect(showModal).toHaveBeenCalledTimes(1);
         
         const actorsUl = uls[1];
         const actorsLis = actorsUl.findAll('li');
@@ -126,13 +118,11 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
     });
     
     it("Если список актёров пуст, появляются нужные записи", async () => {
-        const app = useAppStore();
-
         app.request = vi.fn()
             .mockImplementationOnce(() => json_free_actors_0)
             .mockImplementationOnce(() => json_film_actors_0);
-
-        const wrapper = getWrapper(app);
+    
+        const wrapper = getWrapper();
         await flushPromises();
         
         expect(wrapper.text()).toContain('Актёры не добавлены');
@@ -140,13 +130,11 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
     });
     
     it("Если список актёров null, появляются нужные записи", async () => {
-        const app = useAppStore();
-
         app.request = vi.fn()
             .mockImplementationOnce(() => null)
             .mockImplementationOnce(() => null);
-
-        const wrapper = getWrapper(app);
+    
+        const wrapper = getWrapper(false, null, null);
         await flushPromises();
         
         expect(wrapper.text()).toContain('Актёры не добавлены');
@@ -154,15 +142,13 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
     });
     
     it("Во время запроса отсутствует список актёров", async () => {
-        const app = useAppStore();
         // Компонента монтируется с условием, что запрос на сервер отправлен
         app.isRequest = true;
-
         app.request = vi.fn()
             .mockImplementationOnce(() => json_free_actors)
             .mockImplementationOnce(() => json_film_actors);
-
-        const wrapper = getWrapper(app);
+    
+        const wrapper = getWrapper();
         await flushPromises();
         
         const inputFields = checkInputField.findNumberOfInputFieldOnPage(wrapper, 1);
@@ -178,15 +164,17 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
     it("Заполнение поля поиска актёров input отправляет запрос на сервер (проверка watch)", async () => {
         vi.useFakeTimers();
         
-        const app = useAppStore();
+        app.request = vi.fn()
+            .mockImplementationOnce(() => json_free_actors)
+            .mockImplementationOnce(() => json_film_actors);
         const appRequest = vi.spyOn(app, 'request');
-
-        const wrapper = getWrapper(app);
-        // При сборке компоненты app.request вызывается дважды: общий список актёров и список актёров фильма
+    
+        const wrapper = getWrapper();
         await flushPromises();
-        expect(appRequest).toHaveBeenCalledTimes(2);
-        // Очищаем вызовы
-        appRequest.mockClear();
+        // При монтировании компоненты app.request вызывается дважды.
+        // В данном тесте это не проверяем.
+        app.request.mockClear();
+        
         expect(appRequest).not.toHaveBeenCalled();
         // Нажимаем три клавиши, запрос отправляется один раз
         const inputFields = checkInputField.findNumberOfInputFieldOnPage(wrapper, 1);
@@ -202,58 +190,67 @@ describe("@/Components/Modal/Request/Films/UpdateFilmActorsModal.vue", () => {
         expect(appRequest).toHaveBeenCalledTimes(1);
     });
     
-    it("Функция handlerAddActorInFilm вызывает router.post с нужными параметрами", () => {
-        const app = useAppStore();
+    it("Функция handlerAddActorInFilm вызывает router.post с нужными параметрами", async () => {
         const options = {
             preserveScroll: true,
             onBefore: expect.anything(),
             onSuccess: expect.anything(),
             onFinish: expect.anything()
         };
-        
-        setUpdateFilm();
 
-        const wrapper = getWrapper(app);
+        app.request = vi.fn()
+            .mockImplementationOnce(() => json_free_actors)
+            .mockImplementationOnce(() => json_film_actors);
+    
+        const wrapper = getWrapper();
+        await flushPromises();
         
         wrapper.vm.handlerAddActorInFilm(eventTargetClassListContainsFalseAndGetAttribute8);
         
         expect(router.post).toHaveBeenCalledTimes(1);
         expect(router.post).toHaveBeenCalledWith(wrapper.vm.filmsAdmin.getUrl('/admin/films/actors'), {
-                film_id: updateFilm.id,
+                film_id: film.id,
                 actor_id: eventTargetClassListContainsFalseAndGetAttribute8.target.getAttribute('data-id')
             }, options);
     });
     
-    it("Проверка функции onBeforeForHandlerAddActorInFilm", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
+    it("Проверка функции onBeforeForHandlerAddActorInFilm", async () => {
+        app.request = vi.fn()
+            .mockImplementationOnce(() => json_free_actors)
+            .mockImplementationOnce(() => json_film_actors);
+    
+        const wrapper = getWrapper();
+        await flushPromises();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.onBeforeForHandlerAddActorInFilm();
-        
-        expect(app.isRequest).toBe(true);
+        expect(wrapper.vm.app.isRequest).toBe(true);
     });
     
     it("Проверка функции onSuccessForHandlerAddActorInFilm", async () => {
-        const app = useAppStore();
+        app.request = vi.fn()
+            .mockImplementationOnce(() => json_free_actors)
+            .mockImplementationOnce(() => json_film_actors);
+    
+        const wrapper = getWrapper();
+        await flushPromises();
         
-        const wrapper = getWrapper(app);
-        
-        expect(hideUpdateFilmActorsModal).not.toHaveBeenCalled();
+        expect(hideModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerAddActorInFilm();
         
-        expect(hideUpdateFilmActorsModal).toHaveBeenCalledTimes(1);
-        expect(hideUpdateFilmActorsModal).toHaveBeenCalledWith();
+        expect(hideModal).toHaveBeenCalledTimes(1);
+        expect(hideModal).toHaveBeenCalledWith();
     });
     
     it("Проверка функции onFinishForHandlerAddActorInFilm", async () => {
-        const app = useAppStore();
         app.isRequest = true;
+        app.request = vi.fn()
+            .mockImplementationOnce(() => json_free_actors)
+            .mockImplementationOnce(() => json_film_actors);
+    
+        const wrapper = getWrapper();
+        await flushPromises();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.onFinishForHandlerAddActorInFilm();
-        
         expect(app.isRequest).toBe(false);
     });
 });

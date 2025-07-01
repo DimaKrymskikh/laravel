@@ -1,6 +1,7 @@
 <script setup>
-import { inject, onMounted, onUnmounted } from 'vue';
+import { inject } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
 import { useGlobalRequest } from '@/Services/inertia';
 import HouseSvg from '@/Components/Svg/HouseSvg.vue';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
@@ -13,7 +14,6 @@ defineProps({
 });
 
 const filmsAccount = inject('filmsAccount');
-const app = inject('app');
 
 const form = useForm({});
 

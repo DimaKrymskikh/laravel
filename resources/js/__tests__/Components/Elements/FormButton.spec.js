@@ -1,30 +1,20 @@
 import { mount } from "@vue/test-utils";
 
-import { setActivePinia, createPinia } from 'pinia';
 import FormButton from '@/Components/Elements/FormButton.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
-import { useAppStore } from '@/Stores/app';
+import { app } from '@/Services/app';
 
-const getWrapper = function(app) {
+const getWrapper = function() {
     return mount(FormButton, {
             props: {
                 text: 'Текст кнопки'
-            },
-            global: {
-                provide: { app }
             }
         });
 };
 
 describe("@/Components/Elements/FormButton.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Отрисовка кнопки формы (isRequest: false)", () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         // Текст кнопки присутствует, спиннер отсутствует
         const button = wrapper.get('button');
@@ -35,10 +25,9 @@ describe("@/Components/Elements/FormButton.vue", () => {
     });
     
     it("Отрисовка кнопки формы (isRequest: true)", () => {
-        const app = useAppStore();
         app.isRequest = true;
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         // Текст кнопки отсутствует, спиннер присутствует
         const button = wrapper.get('button');

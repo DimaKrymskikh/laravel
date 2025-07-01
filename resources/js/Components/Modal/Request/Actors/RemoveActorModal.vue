@@ -1,15 +1,11 @@
 <script setup>
 import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { actor } from '@/Services/Content/actors';
+import { app } from '@/Services/app';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 
-const props = defineProps({
-    removeActor: Object,
-    hideRemoveActorModal: Function
-});
-
-const app = inject('app');
 const actorsList = inject('actorsList');
 
 // Величина поля для пароля
@@ -19,15 +15,19 @@ const inputPassword = ref('');
 // при последующем открытии модального окна этого сообщения об ошибке не было.
 const errorsPassword = ref('');
 
+const hideModal = function() {
+    actor.hideRemoveActorModal();
+};
+
 const onBeforeForHandlerRemoveActor = () => {
             app.isRequest = true;
             errorsPassword.value = '';
         };
 
-const onSuccessForHandlerRemoveActor = () => { props.hideRemoveActorModal(); };
+const onSuccessForHandlerRemoveActor = () => { actor.hideRemoveActorModal(); };
 
 const onErrorForHandlerRemoveActor = errors => {
-            !!errors.password ? errorsPassword.value = errors.password : props.hideRemoveActorModal();
+            !!errors.password ? errorsPassword.value = errors.password : actor.hideRemoveActorModal();
             app.errorRequest(errors);
         };
 
@@ -44,7 +44,7 @@ const handlerRemoveActor = function(e) {
         return;
     }
     
-    router.delete(actorsList.getUrl(props.removeActor.id), {
+    router.delete(actorsList.getUrl(actor.id), {
         preserveScroll: true,
         data: {
             password: inputPassword.value
@@ -60,13 +60,13 @@ const handlerRemoveActor = function(e) {
 <template>
     <BaseModal
         headerTitle="Подтверждение удаления актёра"
-        :hideModal="hideRemoveActorModal"
+        :hideModal="hideModal"
         :handlerSubmit="handlerRemoveActor"
     >
         <template v-slot:body>
             <div class="mb-2">
                 Вы действительно хотите удалить актёра
-                <span>{{ removeActor.first_name }} {{ removeActor.last_name }}</span> ?
+                <span>{{ actor.firstName }} {{ actor.lastName }}</span> ?
             </div>
             <div class="mb-3">
                 <InputField

@@ -1,10 +1,8 @@
 import { mount } from "@vue/test-utils";
-
 import { router } from '@inertiajs/vue3';
 
-import { setActivePinia, createPinia } from 'pinia';
 import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
-import { useAppStore } from '@/Stores/app';
+import { app } from '@/Services/app';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
@@ -22,7 +20,7 @@ vi.mock('@inertiajs/vue3', async () => {
         
 const hideRemoveCityModal = vi.fn();
 
-const getWrapper = function(app) {
+const getWrapper = function() {
     return mount(RemoveCityFromListOfWeatherModal, {
             props: {
                 hideRemoveCityModal,
@@ -30,9 +28,6 @@ const getWrapper = function(app) {
                     id: 7,
                     name: 'Некоторый город'
                 }
-            },
-            global: {
-                provide: { app }
             }
         });
 };
@@ -50,14 +45,8 @@ const checkContent = function(wrapper) {
 };
 
 describe("@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Монтирование компоненты RemoveCityModal (isRequest: false)", async () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         checkContent(wrapper);
         
@@ -70,10 +59,8 @@ describe("@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeathe
     });
     
     it("Монтирование компоненты RemoveCityModal (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         checkContent(wrapper);
         
@@ -86,9 +73,8 @@ describe("@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeathe
     });
     
     it("Функция handlerRemoveCity вызывает router.delete с нужными параметрами", () => {
-        const app = useAppStore();
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         const options = {
             preserveScroll: true,
             data: {
@@ -107,11 +93,8 @@ describe("@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeathe
     });
     
     it("Проверка функции onBeforeForHandlerRemoveCity", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.errorsPassword = 'TestPassword';
         wrapper.vm.onBeforeForHandlerRemoveCity();
         
@@ -120,9 +103,7 @@ describe("@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeathe
     });
     
     it("Проверка функции onSuccessForHandlerRemoveCity", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         expect(hideRemoveCityModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerRemoveCity();
@@ -132,9 +113,7 @@ describe("@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeathe
     });
     
     it("Проверка функции onErrorForHandlerRemoveCity", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         expect(wrapper.vm.errorsPassword).toBe('');
         wrapper.vm.onErrorForHandlerRemoveCity({password: 'ErrorPassword'});
@@ -143,12 +122,10 @@ describe("@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeathe
     });
     
     it("Проверка функции onFinishForHandlerRemoveCity", async () => {
-        const app = useAppStore();
         app.isRequest = true;
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.onFinishForHandlerRemoveCity();
-        
         expect(app.isRequest).toBe(false);
     });
 });

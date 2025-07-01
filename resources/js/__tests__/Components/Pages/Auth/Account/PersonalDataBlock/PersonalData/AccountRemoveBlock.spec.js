@@ -4,25 +4,14 @@ import { setActivePinia, createPinia } from 'pinia';
 import AccountRemoveBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/AccountRemoveBlock.vue';
 import DangerButton from '@/Components/Buttons/Variants/DangerButton.vue';
 import AccountRemoveModal from '@/Components/Modal/Request/AccountRemoveModal.vue';
-import { useAppStore } from '@/Stores/app';
 
 const getWrapper = function(app) {
-    return mount(AccountRemoveBlock, {
-            global: {
-                provide: { app }
-            }
-        });
+    return mount(AccountRemoveBlock);
 };
 
 describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/AccountRemoveBlock.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Отрисовка AccountRemoveBlock. Показ/Сокрытие AccountRemoveModal", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const dangerButton = wrapper.getComponent(DangerButton);
         expect(dangerButton.props('buttonText')).toBe('Удалить аккаунт');

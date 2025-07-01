@@ -1,13 +1,11 @@
 <script setup>
-import { inject } from 'vue';
+import { app } from '@/Services/app';
 
 const { hideModal } = defineProps({
     headerTitle: String,
     hideModal: Function,
     handlerSubmit: Function | undefined
 });
-
-const app = inject('app');
 
 const hideBaseModal = function(e) {
     if(e.currentTarget.classList.contains('disabled') || e.currentTarget.classList.contains('stop-event')) {

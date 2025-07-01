@@ -2,8 +2,8 @@
 import { inject } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import FormButton from '@/Components/Elements/FormButton.vue';
+import { app } from '@/Services/app';
 
-const app = inject('app');
 const form = useForm({});
 
 const onBeforeForHandlerGettingToken = () => { app.isRequest = true; };

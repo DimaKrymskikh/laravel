@@ -1,6 +1,7 @@
 <script setup>
 import { ref, inject, watch } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import LangugeDropdown from '@/Components/Elements/Dropdowns/LanguageDropdown.vue';
@@ -18,8 +19,6 @@ const { films } = defineProps({
     user: Object,
     errors: Object
 });
-
-const app = inject('app');
 
 const filmsList = inject('filmsList');
 filmsList.setOptions(films);

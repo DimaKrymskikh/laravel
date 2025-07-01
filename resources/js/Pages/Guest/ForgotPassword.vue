@@ -1,17 +1,16 @@
 <script setup>
-import { inject, ref } from 'vue';
+import { ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import FormButton from '@/Components/Elements/FormButton.vue';
 import InputField from '@/components/Elements/InputField.vue';
+import { app } from '@/Services/app';
 
 defineProps({
     errors: Object,
     status: String | null
 });
-
-const app = inject('app');
 
 const form = useForm({
     email: null

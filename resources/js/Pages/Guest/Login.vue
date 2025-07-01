@@ -6,13 +6,12 @@ import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import FormButton from '@/Components/Elements/FormButton.vue';
 import Checkbox from '@/components/Elements/Form/Checkbox.vue';
 import InputField from '@/components/Elements/InputField.vue';
+import { app } from '@/Services/app';
 
 defineProps({
     errors: Object,
     status: String | null
 });
-
-const app = inject('app');
 
 const form = useForm({
     login: '',

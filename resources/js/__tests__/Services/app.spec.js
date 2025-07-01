@@ -1,7 +1,6 @@
 import '@/bootstrap';
-import { setActivePinia, createPinia } from 'pinia';
 
-import { useAppStore } from '@/Stores/app';
+import { app } from '@/Services/app';
 import { cities_user } from '@/__tests__/data/cities';
 
 vi.mock('axios');
@@ -20,13 +19,14 @@ const dataWithError = {
 };
 
 describe("@/Stores/app", () => {
+    // В начале каждого теста устанавливаем дефолтные значения
     beforeEach(() => {
-        setActivePinia(createPinia());
+        app.isRequest = false;
+        app.isShowForbiddenModal = false;
+        app.errorMessage = '';
     });
     
     it("axios получает правильные параметры при вызове app.request", async () => {
-        const app = useAppStore();
-        
         await app.request('/films', 'GET');
         expect(axios).toHaveBeenCalledTimes(1);
         expect(axios).toHaveBeenCalledWith('/films', {
@@ -49,7 +49,6 @@ describe("@/Stores/app", () => {
     });
     
     it("axios возвращает ответ с данными errors = {}", async () => {
-        const app = useAppStore();
         axios.mockResolvedValueOnce(dataWithoutError);
         
         const result = await app.request('/films', 'GET');
@@ -62,7 +61,6 @@ describe("@/Stores/app", () => {
     });
     
     it("axios возвращает ответ с данными message = 'Ошибка'", async () => {
-        const app = useAppStore();
         axios.mockResolvedValueOnce(dataWithError);
         
         const result = await app.request('/films', 'GET');
@@ -75,7 +73,6 @@ describe("@/Stores/app", () => {
     });
     
     it("axios отклоняет ответ", async () => {
-        const app = useAppStore();
         axios.mockRejectedValueOnce(new Error('Фатальная ошибка'));
         
         const result = await app.request('/films', 'GET');
@@ -89,8 +86,6 @@ describe("@/Stores/app", () => {
     });
     
     it("errorRequest изменяет объект app", async () => {
-        const app = useAppStore();
-        
         app.errorRequest(dataWithoutError.data);
         expect(app.isShowForbiddenModal).toBe(false);
         expect(app.errorMessage).toBe('');

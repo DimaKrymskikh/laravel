@@ -1,29 +1,18 @@
 import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
-import { setActivePinia, createPinia } from 'pinia';
 import TokenBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/TokenBlock.vue';
-import { useAppStore } from '@/Stores/app';
+import { app } from '@/Services/app';
 
 import { checkFormButton } from '@/__tests__/methods/checkFormButton';
 
-const getWrapper = function(app) {
-    return mount(TokenBlock, {
-            global: {
-                provide: { app }
-            }
-        });
+const getWrapper = function() {
+    return mount(TokenBlock);
 };
 
 describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/TokenBlockBlock.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Отрисовка блока токена (isRequest: false)", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -36,10 +25,9 @@ describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/TokenBlockBlock.vu
     });
     
     it("Отрисовка блока токена (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -52,13 +40,12 @@ describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/TokenBlockBlock.vu
     });
     
     it("Функция handlerGettingToken вызывает form.post с нужными параметрами", () => {
-        const app = useAppStore();
         const options = {
             onBefore: expect.anything(),
             onFinish: expect.anything()
         };
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -69,21 +56,18 @@ describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/TokenBlockBlock.vu
     });
     
     it("Проверка функции onBeforeForHandlerGettingToken", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.onBeforeForHandlerGettingToken();
         
         expect(app.isRequest).toBe(true);
     });
     
     it("Проверка функции onFinishForHandlerGettingToken", async () => {
-        const app = useAppStore();
         app.isRequest = true;
         
         const wrapper = getWrapper(app);
+        
         wrapper.vm.onFinishForHandlerGettingToken();
         
         expect(app.isRequest).toBe(false);

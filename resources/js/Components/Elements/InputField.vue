@@ -1,6 +1,7 @@
 <script setup>
-import { inject, ref, onMounted, onUpdated } from 'vue';
+import { ref, onMounted, onUpdated } from 'vue';
 import Spinner from '@/components/Svg/Spinner.vue';
+import { app } from '@/Services/app';
 
 const props = defineProps({
     titleText: String,
@@ -8,10 +9,8 @@ const props = defineProps({
     isInputDisabled: Boolean | undefined,
     isInputAutofocus: Boolean | undefined,
     errorsMessage: String | undefined,
-    modelValue: String
+    modelValue: String | Number
 });
-
-const app = inject('app');
 
 defineEmits(['update:modelValue']);
 

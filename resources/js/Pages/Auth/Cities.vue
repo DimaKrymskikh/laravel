@@ -1,6 +1,7 @@
 <script setup>
-import { ref, inject } from 'vue';
+import { ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import CheckCircleSvg from '@/Components/Svg/CheckCircleSvg.vue';
@@ -13,8 +14,6 @@ const { films } = defineProps({
     user: Object,
     errors: Object 
 });
-
-const app = inject('app');
 
 const titlePage = 'Города';
 

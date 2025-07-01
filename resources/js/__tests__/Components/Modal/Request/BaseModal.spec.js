@@ -2,32 +2,23 @@ import { mount } from "@vue/test-utils";
 
 import { setActivePinia, createPinia } from 'pinia';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
-import { useAppStore } from '@/Stores/app';
+import { app } from '@/Services/app';
 
-const getWrapper = function(app, hideModal) {
+const getWrapper = function(hideModal) {
     return mount(BaseModal, {
             props: {
                 headerTitle: 'Заголовок модального окна',
                 hideModal,
                 handlerSubmit: vi.fn()
-            },
-            global: {
-                provide: { app }
             }
         });
 };
 
 describe("@/components/Modal/Request/BaseModal.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Монтирование компоненты BaseModal (isRequest: false)", async () => {
-        const app = useAppStore();
-        
         const hideModal = vi.fn();
         
-        const wrapper = getWrapper(app, hideModal);
+        const wrapper = getWrapper(hideModal);
 
         // Заголовок модального окна задаётся
         expect(wrapper.text()).toContain('Заголовок модального окна');
@@ -60,13 +51,12 @@ describe("@/components/Modal/Request/BaseModal.vue", () => {
     });
     
     it("Монтирование компоненты BaseModal (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
         
         const hideModal = vi.fn();
         const handlerSubmit = vi.fn();
         
-        const wrapper = getWrapper(app, hideModal);
+        const wrapper = getWrapper(hideModal);
 
         // Заголовок модального окна задаётся
         expect(wrapper.text()).toContain('Заголовок модального окна');

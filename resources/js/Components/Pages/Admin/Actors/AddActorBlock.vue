@@ -1,25 +1,20 @@
 <script setup>
 import { ref } from 'vue';
+import { actor } from '@/Services/Content/actors';
 import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
 import AddActorModal from '@/Components/Modal/Request/Actors/AddActorModal.vue';
 
-const isShowAddActorModal = ref(false);
-
-const showAddActorModal = function() {
-    isShowAddActorModal.value = true;
-};
-const hideAddActorModal = function() {
-    isShowAddActorModal.value = false;
+const showModal = function() {
+    actor.showAddActorModal();
 };
 </script>
 
 <template>
     <PrimaryButton
         buttonText="Добавить актёра"
-        :handler="showAddActorModal"
+        :handler="showModal"
     />
     <AddActorModal
-        :hideAddActorModal="hideAddActorModal"
-        v-if="isShowAddActorModal"
+        v-if="actor.isShowAddActorModal"
     />
 </template>

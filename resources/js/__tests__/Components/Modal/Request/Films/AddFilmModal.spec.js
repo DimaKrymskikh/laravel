@@ -1,9 +1,10 @@
-import { mount } from "@vue/test-utils";
+import { mount, flushPromises } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
+import { app } from '@/Services/app';
+import { film } from '@/Services/Content/films';
 import AddFilmModal from '@/Components/Modal/Request/Films/AddFilmModal.vue';
-import { useAppStore } from '@/Stores/app';
 import { useFilmsAdminStore } from '@/Stores/films';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
@@ -13,23 +14,22 @@ import { eventCurrentTargetClassListContainsFalse } from '@/__tests__/fake/Event
 
 vi.mock('@inertiajs/vue3');
         
-const hideAddFilmModal = vi.fn();
+const hideModal = vi.spyOn(film, 'hideAddFilmModal');
 
-const getWrapper = function(app, filmsAdmin) {
+const getWrapper = function() {
     return mount(AddFilmModal, {
-            props: {
-                hideAddFilmModal
-            },
             global: {
-                provide: { app, filmsAdmin }
+                provide: {
+                    filmsAdmin: useFilmsAdminStore()
+                }
             }
         });
 };
 
 const checkContent = function(wrapper) {
     // Проверка равенства переменных ref начальным данным
-    expect(wrapper.vm.title).toBe('');
-    expect(wrapper.vm.description).toBe('');
+    expect(wrapper.vm.title).toBe(film.title);
+    expect(wrapper.vm.description).toBe(film.description);
     expect(wrapper.vm.errorsTitle).toBe('');
     expect(wrapper.vm.errorsDescription).toBe('');
 
@@ -43,10 +43,7 @@ describe("@/Components/Modal/Request/Films/AddFilmModal.vue", () => {
     });
     
     it("Монтирование компоненты AddFilmModal (isRequest: false)", async () => {
-        const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
-
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper();
         
         checkContent (wrapper);
         
@@ -57,16 +54,14 @@ describe("@/Components/Modal/Request/Films/AddFilmModal.vue", () => {
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.title, 'Имя фильма');
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[1], wrapper.vm.description, 'Некоторое описание фильма');
         
-        await checkBaseModal.hideBaseModal(wrapper, hideAddFilmModal);
+        await checkBaseModal.hideBaseModal(wrapper, hideModal);
         await checkBaseModal.submitRequestInBaseModal(wrapper, router.post);
     });
     
     it("Монтирование компоненты AddFilmModal (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        const filmsAdmin = useFilmsAdminStore();
-
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper();
+        await flushPromises();
         
         checkContent (wrapper);
         
@@ -77,13 +72,13 @@ describe("@/Components/Modal/Request/Films/AddFilmModal.vue", () => {
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[0], wrapper.vm.title, 'Имя фильма');
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[1], wrapper.vm.description, 'Некоторое описание фильма');
         
-        await checkBaseModal.notHideBaseModal(wrapper, hideAddFilmModal);
+        await checkBaseModal.notHideBaseModal(wrapper, hideModal);
         await checkBaseModal.notSubmitRequestInBaseModal(wrapper, router.post);
     });
     
     it("Функция handlerAddFilm вызывает router.post с нужными параметрами", () => {
-        const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
+        const wrapper = getWrapper();
+        
         const options = {
             onBefore: expect.anything(),
             onSuccess: expect.anything(),
@@ -91,24 +86,18 @@ describe("@/Components/Modal/Request/Films/AddFilmModal.vue", () => {
             onFinish: expect.anything()
         };
 
-        const wrapper = getWrapper(app, filmsAdmin);
-        
         wrapper.vm.handlerAddFilm(eventCurrentTargetClassListContainsFalse);
         
         expect(router.post).toHaveBeenCalledTimes(1);
-        expect(router.post).toHaveBeenCalledWith(filmsAdmin.getUrl('/admin/films'), {
+        expect(router.post).toHaveBeenCalledWith(wrapper.vm.filmsAdmin.getUrl('/admin/films'), {
             title: wrapper.vm.title,
             description: wrapper.vm.description
         }, options);
     });
     
     it("Проверка функции onBeforeForHandlerAddFilm", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
-        const filmsAdmin = useFilmsAdminStore();
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app, filmsAdmin);
         wrapper.vm.errorsTitle = 'ErrorTitle';
         wrapper.vm.errorsDescription = 'ErrorDescription';
         wrapper.vm.onBeforeForHandlerAddFilm();
@@ -119,35 +108,31 @@ describe("@/Components/Modal/Request/Films/AddFilmModal.vue", () => {
     });
     
     it("Проверка функции onSuccessForHandlerAddFilm", async () => {
-        const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
-        filmsAdmin.title = 'Title';
-        filmsAdmin.description = 'Description';
-        filmsAdmin.release_year = 2001;
-        expect(filmsAdmin.page).toBe(1);
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app, filmsAdmin);
+        wrapper.vm.filmsAdmin.title = 'Title';
+        wrapper.vm.filmsAdmin.description = 'Description';
+        wrapper.vm.filmsAdmin.release_year = 2001;
+        expect(wrapper.vm.filmsAdmin.page).toBe(1);
+        await flushPromises();
         
-        expect(hideAddFilmModal).not.toHaveBeenCalled();
+        expect(hideModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerAddFilm({
             props: {
                 films: films_10
             }
         });
         
-        expect(hideAddFilmModal).toHaveBeenCalledTimes(1);
-        expect(hideAddFilmModal).toHaveBeenCalledWith();
-        expect(filmsAdmin.title).toBe('');
-        expect(filmsAdmin.description).toBe('');
-        expect(filmsAdmin.releaseYear).toBe('');
-        expect(filmsAdmin.page).toBe(films_10.current_page);
+        expect(hideModal).toHaveBeenCalledTimes(1);
+        expect(hideModal).toHaveBeenCalledWith();
+        expect(wrapper.vm.filmsAdmin.title).toBe('');
+        expect(wrapper.vm.filmsAdmin.description).toBe('');
+        expect(wrapper.vm.filmsAdmin.releaseYear).toBe('');
+        expect(wrapper.vm.filmsAdmin.page).toBe(films_10.current_page);
     });
     
     it("Проверка функции onErrorForHandlerAddFilm", async () => {
-        const app = useAppStore();
-        const filmsAdmin = useFilmsAdminStore();
-        
-        const wrapper = getWrapper(app, filmsAdmin);
+        const wrapper = getWrapper();
         
         expect(wrapper.vm.errorsTitle).toBe('');
         expect(wrapper.vm.errorsDescription).toBe('');
@@ -158,13 +143,11 @@ describe("@/Components/Modal/Request/Films/AddFilmModal.vue", () => {
     });
     
     it("Проверка функции onFinishForHandlerAddFilm", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        const filmsAdmin = useFilmsAdminStore();
+        const wrapper = getWrapper();
+        await flushPromises();
         
-        const wrapper = getWrapper(app, filmsAdmin);
         wrapper.vm.onFinishForHandlerAddFilm();
-        
         expect(app.isRequest).toBe(false);
     });
 });

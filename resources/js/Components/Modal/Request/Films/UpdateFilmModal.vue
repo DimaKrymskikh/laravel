@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
+import { film } from '@/Services/Content/films';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
-import { updateFilm } from '@/Services/films';
 
-const props = defineProps({
-    hideUpdateFilmModal: Function
-});
-
-const app = inject('app');
 const filmsAdmin = inject('filmsAdmin');
 
-const fieldValue = ref(updateFilm.fieldValue);
+const fieldValue = ref(film.fieldValue);
 const errorsField = ref('');
+
+const hideModal = function() {
+    film.hideUpdateFilmModal();
+};
 
 const onBeforeForHandlerUpdateFilm = () => {
     app.isRequest = true;
@@ -23,14 +23,14 @@ const onBeforeForHandlerUpdateFilm = () => {
 const onSuccessForHandlerUpdateFilm = res => {
     // Если было изменено название фильма, то текущая страница пагинации может измениться
     filmsAdmin.page = res.props.films.current_page;
-    props.hideUpdateFilmModal();
+    film.hideUpdateFilmModal();
 };
 
 const onErrorForHandlerUpdateFilm = errors => {
-    errorsField.value = errors[updateFilm.field];
+    errorsField.value = errors[film.field];
     app.errorRequest(errors);
     if(errors.message) {
-        props.hideUpdateFilmModal();
+        film.hideUpdateFilmModal();
     }
 };
 
@@ -42,9 +42,9 @@ const handlerUpdateFilm = function(e) {
         return;
     }
     
-    router.put(filmsAdmin.getUrl(`/admin/films/${updateFilm.id}`), {
-            field: updateFilm.field,
-            [updateFilm.field]: fieldValue.value
+    router.put(filmsAdmin.getUrl(`/admin/films/${film.id}`), {
+            field: film.field,
+            [film.field]: fieldValue.value
         }, {
         onBefore: onBeforeForHandlerUpdateFilm,
         onSuccess: onSuccessForHandlerUpdateFilm,
@@ -56,17 +56,17 @@ const handlerUpdateFilm = function(e) {
 let headerTitle = '';
 let titleText = '';
 
-switch(updateFilm.field) {
+switch(film.field) {
     case 'title': 
-        headerTitle = `Изменение названия фильма ${updateFilm.title}`;
+        headerTitle = `Изменение названия фильма ${film.title}`;
         titleText = 'Название фильма:';
         break;
     case 'description': 
-        headerTitle = `Изменение описания фильма ${updateFilm.title}`;
+        headerTitle = `Изменение описания фильма ${film.title}`;
         titleText = 'Описание фильма:';
         break;
     case 'release_year': 
-        headerTitle = `Изменение года выхода фильма ${updateFilm.title}`;
+        headerTitle = `Изменение года выхода фильма ${film.title}`;
         titleText = 'Год выхода фильма:';
         break;
 }
@@ -76,7 +76,7 @@ switch(updateFilm.field) {
 <template>
     <BaseModal
         :headerTitle="headerTitle"
-        :hideModal="hideUpdateFilmModal"
+        :hideModal="hideModal"
         :handlerSubmit="handlerUpdateFilm"
     >
         <template v-slot:body>

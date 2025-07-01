@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue';
+import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
+import { city } from '@/Services/Content/cities';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 
-const { hideAddCityModal } = defineProps({
-    hideAddCityModal: Function
-});
-
-const app = inject('app');
-
-const cityName = ref('');
-const openWeatherId = ref('');
+const cityName = ref(city.name);
+const openWeatherId = ref(city.openWeatherId);
 const errorsName = ref('');
 const errorsOpenWeatherId = ref('');
+
+const hideModal = function() {
+    city.hideAddCityModal();
+};
 
 const onBeforeForHandlerAddCity = () => {
             app.isRequest = true;
@@ -21,7 +21,7 @@ const onBeforeForHandlerAddCity = () => {
             errorsOpenWeatherId.value = '';
         };
 
-const onSuccessForHandlerAddCity = () => { hideAddCityModal(); };
+const onSuccessForHandlerAddCity = () => { city.hideAddCityModal(); };
 
 const onErrorForHandlerAddCity = errors => {
             errorsName.value = errors.name;
@@ -52,7 +52,7 @@ const handlerAddCity = function(e) {
 <template>
     <BaseModal
         headerTitle="Добавление города"
-        :hideModal="hideAddCityModal"
+        :hideModal="hideModal"
         :handlerSubmit="handlerAddCity"
     >
         <template v-slot:body>

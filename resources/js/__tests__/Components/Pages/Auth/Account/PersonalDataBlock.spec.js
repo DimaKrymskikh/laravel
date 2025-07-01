@@ -4,16 +4,9 @@ import { setActivePinia, createPinia } from 'pinia';
 import Bars3 from '@/Components/Svg/Bars3.vue';
 import PersonalDataBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock.vue';
 import PersonalData from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData.vue';
-import { useAppStore } from '@/Stores/app';
 
 describe("@/Pages/Auth/Account/PersonalDataBlock.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Отрисовка PersonalDataBlock. Показ/Скрытие PersonalData", async () => {
-        const app = useAppStore();
-        
         const wrapper = mount(PersonalDataBlock, {
             props: {
                 user: {
@@ -23,9 +16,6 @@ describe("@/Pages/Auth/Account/PersonalDataBlock.vue", () => {
                     email: 'test@example.com',
                     email_verified_at: null
                 }
-            },
-            global: {
-                provide: { app }
             }
         });
         

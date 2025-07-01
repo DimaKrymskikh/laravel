@@ -3,13 +3,13 @@ import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
+import { app } from '@/Services/app';
 import UserWeather from "@/Pages/Auth/Account/UserWeather.vue";
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
 import ArrowPathSvg from '@/Components/Svg/ArrowPathSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
-import { useAppStore } from '@/Stores/app';
 import { useWeatherPageAuthStore } from '@/Stores/weather';
 
 import {  cities_with_weather } from '@/__tests__/data/cities';
@@ -31,7 +31,7 @@ const user = {
             login: 'TestLogin'
         };
 
-const getWrapper = function(app, weatherPageAuth) {
+const getWrapper = function() {
     return mount(UserWeather, {
             props: {
                 errors: null,
@@ -43,7 +43,9 @@ const getWrapper = function(app, weatherPageAuth) {
                     AccountLayout: AuthAccountLayoutStub,
                     RemoveCityFromListOfWeatherModal: true
                 },
-                provide: { app, weatherPageAuth }
+                provide: {
+                    weatherPageAuth: useWeatherPageAuthStore()
+                }
             }
         });
 };
@@ -51,13 +53,11 @@ const getWrapper = function(app, weatherPageAuth) {
 describe("@/Pages/Auth/Account/UserWeather.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
+        app.isRequest = false;
     });
     
     it("Отрисовка UserWeather", () => {
-        const app = useAppStore();
-        const weatherPageAuth = useWeatherPageAuthStore();
-        
-        const wrapper = getWrapper(app, weatherPageAuth);
+        const wrapper = getWrapper();
         
         const accountLayout = wrapper.getComponent(AccountLayout);
         expect(accountLayout.props('user')).toStrictEqual(user);
@@ -92,10 +92,7 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
     });
     
     it("Клик по TrashSvg показывает модальное окно для удаления фильма из просмотра погоды", async () => {
-        const app = useAppStore();
-        const weatherPageAuth = useWeatherPageAuthStore();
-        
-        const wrapper = getWrapper(app, weatherPageAuth);
+        const wrapper = getWrapper();
         
         const flexes = wrapper.findAll('div.flex.justify-between.border-b');
         expect(flexes.length).toBe(4);
@@ -110,10 +107,7 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
     });
     
     it("Функция hideRemoveCityFromListOfWeatherModal изменяет isShowRemoveCityFromListOfWeatherModal с true на false", () => {
-        const app = useAppStore();
-        const weatherPageAuth = useWeatherPageAuthStore();
-        
-        const wrapper = getWrapper(app, weatherPageAuth);
+        const wrapper = getWrapper();
         
         wrapper.vm.isShowRemoveCityFromListOfWeatherModal = true;
         wrapper.vm.hideRemoveCityFromListOfWeatherModal();
@@ -121,12 +115,9 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
     });
     
     it("Клик по ArrowPathSvg отправляет запрос на сервер", async () => {
-        const app = useAppStore();
-        const weatherPageAuth = useWeatherPageAuthStore();
-        
         const appRequest = vi.spyOn(app, 'request');
         
-        const wrapper = getWrapper(app, weatherPageAuth);
+        const wrapper = getWrapper();
         
         const flexes = wrapper.findAll('div.flex.justify-between.border-b');
         expect(flexes.length).toBe(4);
@@ -140,10 +131,7 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
     });
     
     it("refreshCityWeather", async () => {
-        const app = useAppStore();
-        const weatherPageAuth = useWeatherPageAuthStore();
-        
-        const wrapper = getWrapper(app, weatherPageAuth);
+        const wrapper = getWrapper();
         
         wrapper.vm.cities.forEach( city => {
             expect(city.weather).not.toStrictEqual(weatherForOneCity);

@@ -3,6 +3,7 @@ import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
+import { app } from '@/Services/app';
 
 const { films, removeFilmId, hideFilmRemoveModal } = defineProps({
     films: Object,
@@ -11,7 +12,6 @@ const { films, removeFilmId, hideFilmRemoveModal } = defineProps({
     hideFilmRemoveModal: Function
 });
 
-const app = inject('app');
 const filmsAccount = inject('filmsAccount');
 
 // Величина поля для пароля

@@ -1,13 +1,12 @@
 import { mount } from "@vue/test-utils";
 
-import { setActivePinia, createPinia } from 'pinia';
 import EmailBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue';
 import CheckSvg from '@/Components/Svg/CheckSvg.vue';
-import { useAppStore } from '@/Stores/app';
+import { app } from '@/Services/app';
 
 import { checkFormButton } from '@/__tests__/methods/checkFormButton';
 
-const getWrapper = function(app, email_verified_at = null) {
+const getWrapper = function(email_verified_at = null) {
     return mount(EmailBlock, {
             props: {
                 user: {
@@ -17,22 +16,13 @@ const getWrapper = function(app, email_verified_at = null) {
                     email: 'test@example.com',
                     email_verified_at
                 }
-            },
-            global: {
-                provide: { app }
             }
         });
 };
 
 describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Отрисовка блока почты (isRequest: false, почта не подтверждена)", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -49,10 +39,9 @@ describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue", (
     });
     
     it("Отрисовка блока почты (isRequest: true, почта не подтверждена)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -69,9 +58,7 @@ describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue", (
     });
     
     it("Отрисовка блока почты (почта подтверждена)", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app, "2023-05-16T17:11:39.000000Z");
+        const wrapper = getWrapper("2023-05-16T17:11:39.000000Z");
         
         // Проверяем блок эл. почты
         expect(wrapper.text()).toContain('Эл. почта:');
@@ -84,13 +71,12 @@ describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue", (
     });
     
     it("Функция handlerVerifyEmail вызывает form.post с нужными параметрами", () => {
-        const app = useAppStore();
         const options = {
             onBefore: expect.anything(),
             onFinish: expect.anything()
         };
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -101,21 +87,18 @@ describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue", (
     });
     
     it("Проверка функции onBeforeForHandlerVerifyEmail", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.onBeforeForHandlerVerifyEmail();
         
         expect(app.isRequest).toBe(true);
     });
     
     it("Проверка функции onFinishForHandlerVerifyEmail", async () => {
-        const app = useAppStore();
         app.isRequest = true;
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
+        
         wrapper.vm.onFinishForHandlerVerifyEmail();
         
         expect(app.isRequest).toBe(false);

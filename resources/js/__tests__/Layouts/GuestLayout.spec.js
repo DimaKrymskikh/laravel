@@ -7,15 +7,12 @@ import HouseSvg from '@/Components/Svg/HouseSvg.vue';
 import GlobalModal from '@/components/Modal/GlobalModal.vue';
 import GuestContentTabs from '@/components/Tabs/GuestContentTabs.vue';
 import * as mod from '@/Services/inertia';
-import { useAppStore } from '@/Stores/app';
 import { useFilmsListStore } from '@/Stores/films';
+import { app } from '@/Services/app';
 
 vi.spyOn(mod, 'useGlobalRequest');
 
-const getWrapper = function(isRequest = false) {
-    const app = useAppStore();
-    app.isRequest = isRequest;
-    
+const getWrapper = function() {
     return mount(GuestLayout, {
             global: {
                 stubs: {
@@ -27,7 +24,6 @@ const getWrapper = function(isRequest = false) {
                     }
                 },
                 provide: { 
-                    app: useAppStore(),
                     filmsList: useFilmsListStore()
                 }
             }
@@ -37,6 +33,7 @@ const getWrapper = function(isRequest = false) {
 describe("@/Layouts/GuestLayout.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
+        app.isRequest = false;
     });
     
     it("Монтирование шаблона GuestLayout", () => {
@@ -81,6 +78,7 @@ describe("@/Layouts/GuestLayout.vue", () => {
     
     it("Компонента GlobalModal не видна, т.к. app.isRequest = true", async () => {
         mod.useGlobalRequest.mockReturnValue(true);
+        app.isRequest = true;
         const wrapper = getWrapper(true);
 
         expect(wrapper.findComponent(GlobalModal).exists()).toBe(false);

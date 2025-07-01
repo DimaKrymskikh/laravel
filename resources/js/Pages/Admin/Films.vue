@@ -2,6 +2,7 @@
 import { inject, reactive, ref, watch } from 'vue';
 import { Head } from '@inertiajs/vue3'
 import { router } from '@inertiajs/vue3';
+import { film } from '@/Services/Content/films';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import AddFilmBlock from '@/Components/Pages/Admin/Films/AddFilmBlock.vue';
 import RemoveFilmModal from '@/Components/Modal/Request/Films/RemoveFilmModal.vue';
@@ -16,7 +17,6 @@ import Buttons from '@/Components/Pagination/Buttons.vue';
 import Info from '@/Components/Pagination/Info.vue';
 import PencilSvg from '@/Components/Svg/PencilSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
-import { updateFilm } from '@/Services/films';
 
 const { films } = defineProps({
     films: Object,
@@ -61,53 +61,33 @@ const putFilms = function(e) {
     }, 2000);
 };
 
-const isShowUpdateFilmModal = ref(false);
-const hideUpdateFilmModal = function() {
-    isShowUpdateFilmModal.value = false;
-};
-
-const isShowRemoveFilmModal = ref(false);
-const hideRemoveFilmModal = function() {
-    isShowRemoveFilmModal.value = false;
-};
-
-const isShowUpdateFilmActorsModal = ref(false);
-const hideUpdateFilmActorsModal = function() {
-    isShowUpdateFilmActorsModal.value = false;
-};
-
-const isShowUpdateFilmLanguageModal = ref(false);
-const hideUpdateFilmLanguageModal = function() {
-    isShowUpdateFilmLanguageModal.value = false;
-};
-
 const handlerTableChange = function(e) {
     let td = e.target.closest('td');
     
     if (td && td.classList.contains('update-film-field')) {
-        updateFilm.id = td.getAttribute('data-film_id');
-        updateFilm.title = td.getAttribute('data-film_title');
-        updateFilm.fieldValue = td.getAttribute('data-field_value');
-        updateFilm.field = td.getAttribute('data-field');
-        isShowUpdateFilmModal.value = true;
+        film.id = td.getAttribute('data-film_id');
+        film.title = td.getAttribute('data-film_title');
+        film.fieldValue = td.getAttribute('data-field_value');
+        film.field = td.getAttribute('data-field');
+        film.showUpdateFilmModal();
     }
     
     if (td && td.classList.contains('update-film-actors')) {
-        updateFilm.id = td.getAttribute('data-film_id');
-        updateFilm.title = td.getAttribute('data-film_title');
-        isShowUpdateFilmActorsModal.value = true;
+        film.id = td.getAttribute('data-film_id');
+        film.title = td.getAttribute('data-film_title');
+        film.showUpdateFilmActorsModal();
     }
     
     if (td && td.classList.contains('update-film-language')) {
-        updateFilm.id = td.getAttribute('data-film_id');
-        updateFilm.title = td.getAttribute('data-film_title');
-        isShowUpdateFilmLanguageModal.value = true;
+        film.id = td.getAttribute('data-film_id');
+        film.title = td.getAttribute('data-film_title');
+        film.showUpdateFilmLanguageModal();
     }
     
     if (td && td.classList.contains('remove-film')) {
-        updateFilm.id = td.getAttribute('data-film_id');
-        updateFilm.title = td.getAttribute('data-film_title');
-        isShowRemoveFilmModal.value = true;
+        film.id = td.getAttribute('data-film_id');
+        film.title = td.getAttribute('data-film_title');
+        film.showRemoveFilmModal();
     }
 };
 
@@ -201,23 +181,17 @@ watch([languageName, releaseYear], () => {
         <Buttons :links="films.links" v-if="films.total > 0" />
         
         <UpdateFilmModal
-            :hideUpdateFilmModal="hideUpdateFilmModal"
-            v-if="isShowUpdateFilmModal"
+            v-if="film.isShowUpdateFilmModal"
         />
         
-        <UpdateFilmActorsBlock
-            :hideUpdateFilmActorsModal="hideUpdateFilmActorsModal"
-            :isShowUpdateFilmActorsModal="isShowUpdateFilmActorsModal"
-        />
+        <UpdateFilmActorsBlock />
         
         <UpdateFilmLanguageModal
-            :hideUpdateFilmLanguageModal="hideUpdateFilmLanguageModal"
-            v-if="isShowUpdateFilmLanguageModal"
+            v-if="film.isShowUpdateFilmLanguageModal"
         />
         
         <RemoveFilmModal
-            :hideRemoveFilmModal="hideRemoveFilmModal"
-            v-if="isShowRemoveFilmModal"
+            v-if="film.isShowRemoveFilmModal"
         />
     </AdminLayout>
 </template>

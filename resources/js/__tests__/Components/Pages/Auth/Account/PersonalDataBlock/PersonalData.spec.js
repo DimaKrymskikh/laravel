@@ -6,17 +6,13 @@ import AccountRemoveBlock from '@/Components/Pages/Auth/Account/PersonalDataBloc
 import AdminBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/AdminBlock.vue';
 import EmailBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/EmailBlock.vue';
 import TokenBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/TokenBlock.vue';
-import { useAppStore } from '@/Stores/app';
 
 import { userAuth } from '@/__tests__/data/users';
 
-const getWrapper = function(app) {
+const getWrapper = function() {
     return mount(PersonalData, {
             props: {
                 user: userAuth
-            },
-            global: {
-                provide: { app }
             }
         });
 };
@@ -27,9 +23,7 @@ describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData.vue", () => {
     });
     
     it("Отрисовка личных данных в ЛК", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         // Проверяем наличие компонент
         expect(wrapper.findComponent(EmailBlock).props('user')).toStrictEqual(userAuth);

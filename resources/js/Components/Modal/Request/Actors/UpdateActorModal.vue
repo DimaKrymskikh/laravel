@@ -1,21 +1,21 @@
 <script setup>
 import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { actor } from '@/Services/Content/actors';
+import { app } from '@/Services/app';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 
-const props = defineProps({
-    updateActor: Object,
-    hideUpdateActorModal: Function
-});
-
-const app = inject('app');
 const actorsList = inject('actorsList');
 
-const actorFirstName = ref(props.updateActor.first_name);
-const actorLastName = ref(props.updateActor.last_name);
+const actorFirstName = ref(actor.firstName);
+const actorLastName = ref(actor.lastName);
 const errorsFirstName = ref('');
 const errorsLastName = ref('');
+
+const hideModal = function() {
+    actor.hideUpdateActorModal();
+};
 
 const onBeforeForHandlerUpdateActor = () => {
             app.isRequest = true;
@@ -28,7 +28,7 @@ const onSuccessForHandlerUpdateActor = res => {
             actorsList.page = res.props.actors.current_page;
             // При изменении актёра сбрасываем фильтр поиска
             actorsList.name = '';
-            props.hideUpdateActorModal();
+            actor.hideUpdateActorModal();
         };
 
 const onErrorForHandlerUpdateActor = errors => {
@@ -36,7 +36,7 @@ const onErrorForHandlerUpdateActor = errors => {
             errorsLastName.value = errors.last_name;
             app.errorRequest(errors);
             if(errors.message) {
-                props.hideUpdateActorModal();
+                actor.hideUpdateActorModal();
             }
         };
 
@@ -53,7 +53,7 @@ const handlerUpdateActor = function(e) {
         return;
     }
     
-    router.put(actorsList.getUrl(props.updateActor.id), {
+    router.put(actorsList.getUrl(actor.id), {
         first_name: actorFirstName.value,
         last_name: actorLastName.value
     }, {
@@ -69,7 +69,7 @@ const handlerUpdateActor = function(e) {
 <template>
     <BaseModal
         headerTitle="Изменение полного имени актёра"
-        :hideModal="hideUpdateActorModal"
+        :hideModal="hideModal"
         :handlerSubmit="handlerUpdateActor"
     >
         <template v-slot:body>

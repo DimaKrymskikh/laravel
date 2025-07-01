@@ -1,13 +1,13 @@
 <script setup>
 import { inject, ref } from 'vue';
 import Spinner from '@/components/Svg/Spinner.vue';
+import { app } from '@/Services/app';
 
 const props = defineProps({
     languageName: String,
     setNewLanguageName: Function
 });
 
-const app = inject('app');
 const languagesList = inject('languagesList');
 
 // Нужно ли показывать выпадающий список. При монтировании компоненты список скрыт

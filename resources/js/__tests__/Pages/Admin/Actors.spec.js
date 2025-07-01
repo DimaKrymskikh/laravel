@@ -2,6 +2,7 @@ import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 import { setActivePinia, createPinia } from 'pinia';
 
+import { actor } from '@/Services/Content/actors';
 import Actors from "@/Pages/Admin/Actors.vue";
 import AddActorBlock from '@/Components/Pages/Admin/Actors/AddActorBlock.vue';
 import RemoveActorModal from '@/Components/Modal/Request/Actors/RemoveActorModal.vue';
@@ -12,7 +13,6 @@ import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import PencilSvg from '@/Components/Svg/PencilSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import { useActorsListStore } from '@/Stores/actors';
-import { useGlobalConstsStore } from '@/Stores/globalConsts';
 
 import { actors, actors_0 } from '@/__tests__/data/actors';
 import { AdminLayoutStub } from '@/__tests__/stubs/layout';
@@ -29,7 +29,10 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(actors, actorsList, globalConsts) {
+const getWrapper = function(actors, perPage = 20) {
+    const actorsList = useActorsListStore();
+    actorsList.perPage = perPage;
+    
     return mount(Actors, {
             props: {
                 errors: {},
@@ -41,7 +44,9 @@ const getWrapper = function(actors, actorsList, globalConsts) {
                     RemoveActorModal: true,
                     UpdateActorModal: true
                 },
-                provide: { actorsList, globalConsts }
+                provide: {
+                    actorsList
+                }
             }
         });
 };
@@ -79,10 +84,7 @@ describe("@/Pages/Admin/Actors.vue", () => {
     });
     
     it("Отрисовка страницы 'Актёры' при наличии актёров", () => {
-        const actorsList = useActorsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(actors, actorsList, globalConsts);
+        const wrapper = getWrapper(actors);
         
         // Проверяем заголовок
         checkH1(wrapper);
@@ -137,10 +139,7 @@ describe("@/Pages/Admin/Actors.vue", () => {
     });
     
     it("Отрисовка страницы 'Актёры' без актёров", () => {
-        const actorsList = useActorsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(actors_0, actorsList, globalConsts);
+        const wrapper = getWrapper(actors_0);
         
         // Проверяем заголовок
         checkH1(wrapper);
@@ -167,13 +166,7 @@ describe("@/Pages/Admin/Actors.vue", () => {
     });
     
     it("Проверка работы фильтров", async () => {
-        const actorsList = useActorsListStore();
-        // actors.per_page не равен дефолтному actorsList.perPage
-        actorsList.perPage = actors.per_page;
-        
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(actors, actorsList, globalConsts);
+        const wrapper = getWrapper(actors, actors.per_page);
         
         // Запрос не отправлен
         expect(router.get).not.toHaveBeenCalled();
@@ -199,12 +192,7 @@ describe("@/Pages/Admin/Actors.vue", () => {
     });
     
     it("Изменение числа актёров на странице", async () => {
-        const actorsList = useActorsListStore();
-        actorsList.perPage = actors.per_page;
-        
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(actors, actorsList, globalConsts);
+        const wrapper = getWrapper(actors, actors.per_page);
         
         expect(wrapper.vm.actorsList.page).toBe(2);
         expect(wrapper.vm.actorsList.perPage).toBe(10);
@@ -246,10 +234,7 @@ describe("@/Pages/Admin/Actors.vue", () => {
     });
     
     it("Проверка появления модальных окон", async () => {
-        const actorsList = useActorsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(actors, actorsList, globalConsts);
+        const wrapper = getWrapper(actors);
         
         // Находим таблицу
         const table = wrapper.get('table');
@@ -278,27 +263,5 @@ describe("@/Pages/Admin/Actors.vue", () => {
         await cityPencilSvg.trigger('click');
         // После клика появляется модальное окно
         expect(wrapper.findComponent(UpdateActorModal).exists()).toBe(true);
-    });
-    
-    it("Функция hideRemoveActorModal изменяет isShowRemoveActorModal с true на false", () => {
-        const actorsList = useActorsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(actors, actorsList, globalConsts);
-        
-        wrapper.vm.isShowRemoveActorModal = true;
-        wrapper.vm.hideRemoveActorModal();
-        expect(wrapper.vm.isShowRemoveActorModal).toBe(false);
-    });
-    
-    it("Функция hideUpdateActorModal изменяет isShowUpdateActorModal с true на false", () => {
-        const actorsList = useActorsListStore();
-        const globalConsts = useGlobalConstsStore();
-        
-        const wrapper = getWrapper(actors, actorsList, globalConsts);
-        
-        wrapper.vm.isShowUpdateActorModal = true;
-        wrapper.vm.hideUpdateActorModal();
-        expect(wrapper.vm.isShowUpdateActorModal).toBe(false);
     });
 });

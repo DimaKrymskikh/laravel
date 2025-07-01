@@ -1,9 +1,9 @@
 import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
-import { setActivePinia, createPinia } from 'pinia';
+import { app } from '@/Services/app';
+import { language } from '@/Services/Content/languages';
 import UpdateLanguageModal from '@/Components/Modal/Request/Languages/UpdateLanguageModal.vue';
-import { useAppStore } from '@/Stores/app';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
@@ -11,26 +11,15 @@ import { eventCurrentTargetClassListContainsFalse } from '@/__tests__/fake/Event
 
 vi.mock('@inertiajs/vue3');
         
-const hideUpdateLanguageModal = vi.fn();
+const hideModal = vi.spyOn(language, 'hideUpdateLanguageModal');
 
-const getWrapper = function(app) {
-    return mount(UpdateLanguageModal, {
-            props: {
-                hideUpdateLanguageModal,
-                updateLanguage: {
-                    id: '1',
-                    name: 'Русский'
-                }
-            },
-            global: {
-                provide: { app }
-            }
-        });
+const getWrapper = function() {
+    return mount(UpdateLanguageModal);
 };
 
 const checkContent = function(wrapper) {
     // Проверка равенства переменных ref начальным данным
-    expect(wrapper.vm.languageName).toBe('Русский');
+    expect(wrapper.vm.languageName).toBe('');
     expect(wrapper.vm.errorsName).toBe('');
 
     // Заголовок модального окна задаётся
@@ -38,14 +27,8 @@ const checkContent = function(wrapper) {
 };
 
 describe("@/Components/Modal/Request/Languages/UpdateLanguageModal.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Монтирование компоненты UpdateLanguageModal (isRequest: false)", async () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         checkContent(wrapper);
         
@@ -53,15 +36,13 @@ describe("@/Components/Modal/Request/Languages/UpdateLanguageModal.vue", () => {
         checkInputField.checkPropsInputField(inputFields[0], 'Имя языка:', 'text', wrapper.vm.errorsName, wrapper.vm.languageName, true);
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.languageName, 'Английский');
         
-        await checkBaseModal.hideBaseModal(wrapper, hideUpdateLanguageModal);
+        await checkBaseModal.hideBaseModal(wrapper, hideModal);
         await checkBaseModal.submitRequestInBaseModal(wrapper, router.put);
     });
     
     it("Монтирование компоненты UpdateLanguageModal (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper(true);
         
         checkContent(wrapper);
         
@@ -69,12 +50,11 @@ describe("@/Components/Modal/Request/Languages/UpdateLanguageModal.vue", () => {
         checkInputField.checkPropsInputField(inputFields[0], 'Имя языка:', 'text', wrapper.vm.errorsName, wrapper.vm.languageName, true);
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[0], wrapper.vm.languageName, 'Английский');
         
-        await checkBaseModal.notHideBaseModal(wrapper, hideUpdateLanguageModal);
+        await checkBaseModal.notHideBaseModal(wrapper, hideModal);
         await checkBaseModal.notSubmitRequestInBaseModal(wrapper, router.put);
     });
     
     it("Функция handlerUpdateLanguage вызывает router.put с нужными параметрами", () => {
-        const app = useAppStore();
         const options = {
             preserveScroll: true,
             onBefore: expect.anything(),
@@ -83,19 +63,15 @@ describe("@/Components/Modal/Request/Languages/UpdateLanguageModal.vue", () => {
             onFinish: expect.anything()
         };
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         wrapper.vm.handlerUpdateLanguage(eventCurrentTargetClassListContainsFalse);
         
         expect(router.put).toHaveBeenCalledTimes(1);
-        expect(router.put).toHaveBeenCalledWith(`/admin/languages/${wrapper.vm.props.updateLanguage.id}`, { name: wrapper.vm.languageName }, options);
+        expect(router.put).toHaveBeenCalledWith(`/admin/languages/${language.id}`, { name: wrapper.vm.languageName }, options);
     });
     
     it("Проверка функции onBeforeForHandlerUpdateLanguage", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         wrapper.vm.errorsName = 'TestName';
         wrapper.vm.onBeforeForHandlerUpdateLanguage();
         
@@ -104,21 +80,17 @@ describe("@/Components/Modal/Request/Languages/UpdateLanguageModal.vue", () => {
     });
     
     it("Проверка функции onSuccessForHandlerUpdateLanguage", async () => {
-        const app = useAppStore();
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
-        
-        expect(hideUpdateLanguageModal).not.toHaveBeenCalled();
+        expect(hideModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerUpdateLanguage();
         
-        expect(hideUpdateLanguageModal).toHaveBeenCalledTimes(1);
-        expect(hideUpdateLanguageModal).toHaveBeenCalledWith();
+        expect(hideModal).toHaveBeenCalledTimes(1);
+        expect(hideModal).toHaveBeenCalledWith();
     });
     
     it("Проверка функции onErrorForHandlerUpdateLanguage (валидация данных)", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         expect(wrapper.vm.errorsName).toBe('');
         wrapper.vm.onErrorForHandlerUpdateLanguage({name: 'ErrorName'});
@@ -127,22 +99,18 @@ describe("@/Components/Modal/Request/Languages/UpdateLanguageModal.vue", () => {
     });
     
     it("Проверка функции onErrorForHandlerUpdateLanguage (ошибка сервера с message)", async () => {
-        const app = useAppStore();
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
-        
-        expect(hideUpdateLanguageModal).toHaveBeenCalledTimes(0);
+        expect(hideModal).toHaveBeenCalledTimes(0);
         wrapper.vm.onErrorForHandlerUpdateLanguage({ message: 'В таблице thesaurus.languages нет записи с id=13' });
-        expect(hideUpdateLanguageModal).toHaveBeenCalledTimes(1);
+        expect(hideModal).toHaveBeenCalledTimes(1);
     });
     
     it("Проверка функции onFinishForHandlerUpdateLanguage", async () => {
-        const app = useAppStore();
         app.isRequest = true;
+        const wrapper = getWrapper(true);
         
-        const wrapper = getWrapper(app);
         wrapper.vm.onFinishForHandlerUpdateLanguage();
-        
         expect(app.isRequest).toBe(false);
     });
 });

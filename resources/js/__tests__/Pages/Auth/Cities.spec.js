@@ -2,7 +2,7 @@ import '@/bootstrap';
 import { mount, flushPromises } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
-import { setActivePinia, createPinia } from 'pinia';
+import { app } from '@/Services/app';
 import Cities from "@/Pages/Auth/Cities.vue";
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
@@ -10,7 +10,6 @@ import CheckCircleSvg from '@/Components/Svg/CheckCircleSvg.vue';
 import PlusCircleSvg from '@/Components/Svg/PlusCircleSvg.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
 import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
-import { useAppStore } from '@/Stores/app';
 
 import { cities_user } from '@/__tests__/data/cities';
 import { AuthLayoutStub } from '@/__tests__/stubs/layout';
@@ -32,7 +31,7 @@ const user = {
             is_admin: false
         };
 
-const getWrapper = function(app, cities = []) {
+const getWrapper = function(cities = []) {
     return mount(Cities, {
             props: {
                 errors: {},
@@ -42,21 +41,18 @@ const getWrapper = function(app, cities = []) {
             global: {
                 stubs: {
                     AuthLayout: AuthLayoutStub
-                },
-                provide: { app }
+                }
             }
         });
 };
 
 describe("@/Pages/Auth/Cities.vue", () => {
     beforeEach(() => {
-        setActivePinia(createPinia());
+        app.isRequest = false;
     });
     
     it("Отрисовка страницы Cities для auth", () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app, cities_user);
+        const wrapper = getWrapper(cities_user);
         
         const authLayout = wrapper.findComponent(AuthLayout);
         expect(authLayout.props('user')).toStrictEqual(user);
@@ -113,9 +109,7 @@ describe("@/Pages/Auth/Cities.vue", () => {
     });
     
     it("Отрисовка страницы Cities для auth (без городов)", () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const authLayout = wrapper.findComponent(AuthLayout);
         expect(authLayout.props('user')).toStrictEqual(user);
@@ -137,9 +131,7 @@ describe("@/Pages/Auth/Cities.vue", () => {
     });
     
     it("Добавление города в коллекцию пользователя", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app, cities_user);
+        const wrapper = getWrapper(cities_user);
         
         // Тело таблицы состоит из рядов с данными фильмов
         const table = wrapper.get('table');
@@ -181,10 +173,8 @@ describe("@/Pages/Auth/Cities.vue", () => {
     });
     
     it("Нельзя отправить запрос на добавление города, если app.isRequest = true", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        
-        const wrapper = getWrapper(app, cities_user);
+        const wrapper = getWrapper(cities_user);
         
         // Тело таблицы состоит из рядов с данными фильмов
         const table = wrapper.get('table');
@@ -203,11 +193,9 @@ describe("@/Pages/Auth/Cities.vue", () => {
     });
     
     it("Проверка появления спинера", async () => {
-        const app = useAppStore();
+        const wrapper = getWrapper(cities_user);
         
-        const wrapper = getWrapper(app, cities_user);
-        
-        expect(wrapper.vm.app.isRequest).toBe(false);
+        expect(app.isRequest).toBe(false);
         
         const tbody = wrapper.get('table').get('tbody');
         const tbodyTr = tbody.findAll('tr');
@@ -226,7 +214,7 @@ describe("@/Pages/Auth/Cities.vue", () => {
         // Правильно находиться id города
         expect(wrapper.vm.cityId).toBe(String(cities_user[0].id));
         // В router.post должен измениться app.isRequest
-        wrapper.vm.app.isRequest = true;
+        app.isRequest = true;
         
         await flushPromises();
         
@@ -237,23 +225,17 @@ describe("@/Pages/Auth/Cities.vue", () => {
     });
     
     it("Проверка функции onBeforeForAddCity", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
+        const wrapper = getWrapper(cities_user);
         
-        const wrapper = getWrapper(app, cities_user);
         wrapper.vm.onBeforeForAddCity();
-        
         expect(app.isRequest).toBe(true);
     });
     
     it("Проверка функции onFinishForAddCity", async () => {
-        const app = useAppStore();
         app.isRequest = true;
+        const wrapper = getWrapper(cities_user);
         
-        const wrapper = getWrapper(app, cities_user);
         wrapper.vm.onFinishForAddCity();
-        
         expect(app.isRequest).toBe(false);
     });
 });

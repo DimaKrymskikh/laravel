@@ -1,10 +1,11 @@
 <script setup>
-import { inject, ref } from 'vue';
+import { ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import FormButton from '@/Components/Elements/FormButton.vue';
 import InputField from '@/components/Elements/InputField.vue';
+import { app } from '@/Services/app';
 
 const props = defineProps({
     email: String,
@@ -12,8 +13,6 @@ const props = defineProps({
     status: String | null,
     errors: Object
 });
-
-const app = inject('app');
 
 const form = useForm({
     token: props.token,

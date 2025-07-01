@@ -2,8 +2,9 @@ import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 import { setActivePinia, createPinia } from 'pinia';
 
+import { actor } from '@/Services/Content/actors';
+import { app } from '@/Services/app';
 import RemoveActorModal from '@/Components/Modal/Request/Actors/RemoveActorModal.vue';
-import { useAppStore } from '@/Stores/app';
 import { useActorsListStore } from '@/Stores/actors';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
@@ -12,20 +13,14 @@ import { eventCurrentTargetClassListContainsFalse } from '@/__tests__/fake/Event
 
 vi.mock('@inertiajs/vue3');
         
-const hideRemoveActorModal = vi.fn();
+const hideModal = vi.spyOn(actor, 'hideRemoveActorModal');
 
-const getWrapper = function(app, actorsList) {
+const getWrapper = function() {
     return mount(RemoveActorModal, {
-            props: {
-                hideRemoveActorModal,
-                removeActor: {
-                    id: '5',
-                    first_name: 'Имя',
-                    last_name: 'Фамилия'
-                }
-            },
             global: {
-                provide: { app, actorsList }
+                provide: {
+                    actorsList: useActorsListStore()
+                }
             }
         });
 };
@@ -39,7 +34,6 @@ const checkContent = function(wrapper) {
     expect(wrapper.text()).toContain('Подтверждение удаления актёра');
     // Содержится вопрос модального окна с нужными параметрами
     expect(wrapper.text()).toContain('Вы действительно хотите удалить актёра');
-    expect(wrapper.text()).toContain('Имя Фамилия');
 };
 
 describe("@/Components/Modal/Request/Actors/RemoveActorModal.vue", () => {
@@ -48,10 +42,7 @@ describe("@/Components/Modal/Request/Actors/RemoveActorModal.vue", () => {
     });
     
     it("Монтирование компоненты RemoveActorModal (isRequest: false)", async () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
-
-        const wrapper = getWrapper(app, actorsList);
+        const wrapper = getWrapper();
         
         checkContent(wrapper);
         
@@ -59,32 +50,26 @@ describe("@/Components/Modal/Request/Actors/RemoveActorModal.vue", () => {
         checkInputField.checkPropsInputField(inputFields[0], 'Введите пароль:', 'password', wrapper.vm.errorsPassword, wrapper.vm.inputPassword, true);
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.inputPassword, 'TestPassword');
         
-        await checkBaseModal.hideBaseModal(wrapper, hideRemoveActorModal);
+        await checkBaseModal.hideBaseModal(wrapper, hideModal);
         await checkBaseModal.submitRequestInBaseModal(wrapper, router.delete);
     });
     
     it("Монтирование компоненты RemoveActorModal (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        const actorsList = useActorsListStore();
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
-        checkContent(wrapper, actorsList);
+        checkContent(wrapper);
         
         const inputFields = checkInputField.findNumberOfInputFieldOnPage(wrapper, 1);
         checkInputField.checkPropsInputField(inputFields[0], 'Введите пароль:', 'password', wrapper.vm.errorsPassword, wrapper.vm.inputPassword, true);
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[0], wrapper.vm.inputPassword, 'TestPassword');
         
-        await checkBaseModal.notHideBaseModal(wrapper, hideRemoveActorModal);
+        await checkBaseModal.notHideBaseModal(wrapper, hideModal);
         await checkBaseModal.notSubmitRequestInBaseModal(wrapper, router.delete);
     });
     
     it("Функция handlerRemoveActor вызывает router.delete с нужными параметрами", () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
-
-        const wrapper = getWrapper(app, actorsList);
+        const wrapper = getWrapper();
         const options = {
             data: {
                 password: wrapper.vm.inputPassword
@@ -99,16 +84,12 @@ describe("@/Components/Modal/Request/Actors/RemoveActorModal.vue", () => {
         wrapper.vm.handlerRemoveActor(eventCurrentTargetClassListContainsFalse);
         
         expect(router.delete).toHaveBeenCalledTimes(1);
-        expect(router.delete).toHaveBeenCalledWith(actorsList.getUrl(wrapper.vm.props.removeActor.id), options);
+        expect(router.delete).toHaveBeenCalledWith(wrapper.vm.actorsList.getUrl(actor.id), options);
     });
     
     it("Проверка функции onBeforeForHandlerRemoveActor", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
-        const actorsList = useActorsListStore();
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app, actorsList);
         wrapper.vm.errorsPassword = 'ErrorPassword';
         wrapper.vm.onBeforeForHandlerRemoveActor();
         
@@ -117,23 +98,17 @@ describe("@/Components/Modal/Request/Actors/RemoveActorModal.vue", () => {
     });
     
     it("Проверка функции onSuccessForHandlerRemoveActor", async () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app, actorsList);
-        
-        expect(hideRemoveActorModal).not.toHaveBeenCalled();
+        expect(hideModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerRemoveActor();
         
-        expect(hideRemoveActorModal).toHaveBeenCalledTimes(1);
-        expect(hideRemoveActorModal).toHaveBeenCalledWith();
+        expect(hideModal).toHaveBeenCalledTimes(1);
+        expect(hideModal).toHaveBeenCalledWith();
     });
     
     it("Проверка функции onErrorForHandlerRemoveActor ({ password: 'ErrorPassword' })", async () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
-        
-        const wrapper = getWrapper(app, actorsList);
+        const wrapper = getWrapper();
         
         expect(wrapper.vm.errorsPassword).toBe('');
         expect(app.isShowForbiddenModal).toBe(false);
@@ -146,10 +121,7 @@ describe("@/Components/Modal/Request/Actors/RemoveActorModal.vue", () => {
     });
     
     it("Проверка функции onErrorForHandlerRemoveActor ({ message: 'ServerError' })", async () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
-        
-        const wrapper = getWrapper(app, actorsList);
+        const wrapper = getWrapper();
         
         expect(wrapper.vm.errorsPassword).toBe('');
         expect(app.isShowForbiddenModal).toBe(false);
@@ -162,13 +134,10 @@ describe("@/Components/Modal/Request/Actors/RemoveActorModal.vue", () => {
     });
     
     it("Проверка функции onFinishForHandlerRemoveActor", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        const actorsList = useActorsListStore();
+        const wrapper = getWrapper(true);
         
-        const wrapper = getWrapper(app, actorsList);
         wrapper.vm.onFinishForHandlerRemoveActor();
-        
         expect(app.isRequest).toBe(false);
     });
 });

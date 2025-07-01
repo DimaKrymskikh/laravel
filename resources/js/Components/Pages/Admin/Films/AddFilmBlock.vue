@@ -1,25 +1,20 @@
 <script setup>
 import { ref } from 'vue';
+import { film } from '@/Services/Content/films';
 import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
 import AddFilmModal from '@/Components/Modal/Request/Films/AddFilmModal.vue';
 
-const isShowAddFilmModal = ref(false);
-
-const showAddFilmModal = function() {
-    isShowAddFilmModal.value = true;
-};
-const hideAddFilmModal = function() {
-    isShowAddFilmModal.value = false;
+const showModal = function() {
+    film.showAddFilmModal();
 };
 </script>
 
 <template>
     <PrimaryButton
         buttonText="Добавить фильм"
-        :handler="showAddFilmModal"
+        :handler="showModal"
     />
     <AddFilmModal
-        :hideAddFilmModal="hideAddFilmModal"
-        v-if="isShowAddFilmModal"
+        v-if="film.isShowAddFilmModal"
     />
 </template>

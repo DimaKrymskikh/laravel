@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import { Head } from '@inertiajs/vue3'
+import { city } from '@/Services/Content/cities';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import AddCityBlock from '@/Components/Pages/Admin/Cities/AddCityBlock.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
@@ -25,57 +26,30 @@ const linksList = [{
             text: titlePage
         }];
 
-// При загрузке страницы модальное окно для удаления фильма отсутствует.
-const isShowRemoveCityModal = ref(false);
-// Удаляемый город.
-// Задаётся в handlerTableChange.
-const removeCity = reactive({
-    id: 0,
-    name: '',
-    open_weather_id: 0
-});
-const hideRemoveCityModal = function() {
-    isShowRemoveCityModal.value = false;
-};
-
-const isShowUpdateCityModal = ref(false);
-const updateCity = reactive({
-    id: 0,
-    name: ''
-});
-const hideUpdateCityModal = function() {
-    isShowUpdateCityModal.value = false;
-};
-
-const isShowUpdateTimeZoneModal = ref(false);
-const hideUpdateTimeZoneModal = function() {
-    isShowUpdateTimeZoneModal.value = false;
-};
-
 const handlerTableChange = function(e) {
     let td = e.target.closest('td');
     
     // Показывает модальное окно для удаления города
     // Находятся поля удаляемого города
     if (td && td.classList.contains('remove-city')) {
-        removeCity.id = td.getAttribute('data-city_id');
-        removeCity.name = td.getAttribute('data-city_name');
-        removeCity.open_weather_id = td.getAttribute('data-city_open_weather_id');
-        isShowRemoveCityModal.value = true;
+        city.id = td.getAttribute('data-city_id');
+        city.name = td.getAttribute('data-city_name');
+        city.openWeatherId = td.getAttribute('data-city_open_weather_id');
+        city.showRemoveCityModal();
     }
     
     // Показывает модальное окно для изменения имени города
     if (td && td.classList.contains('update-city')) {
-        updateCity.id = td.getAttribute('data-city_id');
-        updateCity.name = td.getAttribute('data-city_name');
-        isShowUpdateCityModal.value = true;
+        city.id = td.getAttribute('data-city_id');
+        city.name = td.getAttribute('data-city_name');
+        city.showUpdateCityModal();
     }
     
     // Показывает модальное окно для изменения временного пояса города
     if (td && td.classList.contains('update-timezone')) {
-        updateCity.id = td.getAttribute('data-city_id');
-        updateCity.name = td.getAttribute('data-city_name');
-        isShowUpdateTimeZoneModal.value = true;
+        city.id = td.getAttribute('data-city_id');
+        city.name = td.getAttribute('data-city_name');
+        city.showUpdateTimeZoneModal();
     }
 };
 
@@ -132,21 +106,15 @@ const handlerTableChange = function(e) {
         </div>
         
         <RemoveCityModal
-            :removeCity="removeCity"
-            :hideRemoveCityModal="hideRemoveCityModal"
-            v-if="isShowRemoveCityModal"
+            v-if="city.isShowRemoveCityModal"
         />
         
         <UpdateCityModal
-            :updateCity="updateCity"
-            :hideUpdateCityModal="hideUpdateCityModal"
-            v-if="isShowUpdateCityModal"
+            v-if="city.isShowUpdateCityModal"
         />
         
         <UpdateTimeZoneModal
-            :updateCity="updateCity"
-            :hideUpdateTimeZoneModal="hideUpdateTimeZoneModal"
-            v-if="isShowUpdateTimeZoneModal"
+            v-if="city.isShowUpdateTimeZoneModal"
         />
     </AdminLayout>
 </template>

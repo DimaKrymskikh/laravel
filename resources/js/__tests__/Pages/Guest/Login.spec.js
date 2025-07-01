@@ -6,7 +6,7 @@ import GuestLayout from '@/Layouts/GuestLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import Checkbox from '@/components/Elements/Form/Checkbox.vue';
 import InputField from '@/components/Elements/InputField.vue';
-import { useAppStore } from '@/Stores/app';
+import { app } from '@/Services/app';
 
 import * as testCheckbox from '@/__tests__/methods/Checkbox/checkbox';
 import { checkFormButton } from '@/__tests__/methods/checkFormButton';
@@ -21,7 +21,7 @@ vi.mock('@inertiajs/vue3', async () => {
     };
 });
 
-const getWrapper = function(app, status = null) {
+const getWrapper = function(status = null) {
     return mount(Login, {
             props: {
                 errors: {},
@@ -30,8 +30,7 @@ const getWrapper = function(app, status = null) {
             global: {
                 stubs: {
                     GuestLayout: GuestLayoutStub
-                },
-                provide: { app }
+                }
             }
         });
 };
@@ -61,13 +60,11 @@ const checkBreadCrumb = function(wrapper) {
 
 describe("@/Pages/Guest/Login.vue", () => {
     beforeEach(() => {
-        setActivePinia(createPinia());
+        app.isRequest = false;
     });
     
     it("Отрисовка формы входа (isRequest: false)", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -110,11 +107,10 @@ describe("@/Pages/Guest/Login.vue", () => {
     });
     
     it("Отрисовка формы входа (isRequest: true)", async () => {
-        const app = useAppStore();
         // Выполняется запрос
         app.isRequest = true;
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
@@ -143,9 +139,7 @@ describe("@/Pages/Guest/Login.vue", () => {
     });
     
     it("Отрисовка статуса", () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app, 'Некоторый статус');
+        const wrapper = getWrapper('Некоторый статус');
         
         expect(wrapper.findComponent(GuestLayout).exists()).toBe(true);
         
@@ -159,37 +153,29 @@ describe("@/Pages/Guest/Login.vue", () => {
     });
     
     it("Функция handlerLogin вызывает form.post с нужными параметрами", () => {
-        const app = useAppStore();
         const options = {
             onBefore: expect.anything(),
             onFinish: expect.anything()
         };
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         const formPost = vi.spyOn(wrapper.vm.form, 'post').mockResolvedValue();
         
         wrapper.vm.handlerLogin();
-        
         expect(formPost).toHaveBeenCalledTimes(1);
         expect(formPost).toHaveBeenCalledWith('/login', options);
     });
     
     it("Проверка функции onBeforeForHandlerLogin", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.onBeforeForHandlerLogin();
-        
         expect(app.isRequest).toBe(true);
     });
     
     it("Проверка функции onFinishForHandlerLogin", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         // На странице две компоненты InputField
         const inputField = wrapper.findAllComponents(InputField);

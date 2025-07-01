@@ -2,8 +2,9 @@ import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
+import { actor } from '@/Services/Content/actors';
+import { app } from '@/Services/app';
 import UpdateActorModal from '@/Components/Modal/Request/Actors/UpdateActorModal.vue';
-import { useAppStore } from '@/Stores/app';
 import { useActorsListStore } from '@/Stores/actors';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
@@ -13,28 +14,22 @@ import { actors } from '@/__tests__/data/actors';
 
 vi.mock('@inertiajs/vue3');
         
-const hideUpdateActorModal = vi.fn();
+const hideModal = vi.spyOn(actor, 'hideUpdateActorModal');
 
-const getWrapper = function(app, actorsList) {
+const getWrapper = function() {
     return mount(UpdateActorModal, {
-            props: {
-                hideUpdateActorModal,
-                updateActor: {
-                    id: '5',
-                    first_name: 'Имя',
-                    last_name: 'Фамилия'
-                }
-            },
             global: {
-                provide: { app, actorsList }
+                provide: {
+                    actorsList: useActorsListStore()
+                }
             }
         });
 };
 
 const checkContent = function(wrapper) {
     // Проверка равенства переменных ref начальным данным
-    expect(wrapper.vm.actorFirstName).toBe('Имя');
-    expect(wrapper.vm.actorLastName).toBe('Фамилия');
+    expect(wrapper.vm.actorFirstName).toBe(actor.firstName);
+    expect(wrapper.vm.actorLastName).toBe(actor.lastName);
     expect(wrapper.vm.errorsFirstName).toBe('');
     expect(wrapper.vm.errorsLastName).toBe('');
 
@@ -48,10 +43,7 @@ describe("@/Components/Modal/Request/Actors/UpdateActorModal.vue", () => {
     });
     
     it("Монтирование компоненты UpdateActorModal (isRequest: false)", async () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
-
-        const wrapper = getWrapper(app, actorsList);
+        const wrapper = getWrapper();
         
         checkContent(wrapper);
         
@@ -62,16 +54,13 @@ describe("@/Components/Modal/Request/Actors/UpdateActorModal.vue", () => {
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.actorFirstName, 'Андрей');
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[1], wrapper.vm.actorLastName, 'Миронов');
         
-        await checkBaseModal.hideBaseModal(wrapper, hideUpdateActorModal);
+        await checkBaseModal.hideBaseModal(wrapper, hideModal);
         await checkBaseModal.submitRequestInBaseModal(wrapper, router.put);
     });
     
     it("Монтирование компоненты UpdateActorModal (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        const actorsList = useActorsListStore();
-
-        const wrapper = getWrapper(app, actorsList);
+        const wrapper = getWrapper(true);
         
         checkContent(wrapper);
         
@@ -82,13 +71,12 @@ describe("@/Components/Modal/Request/Actors/UpdateActorModal.vue", () => {
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[0], wrapper.vm.actorFirstName, 'Андрей');
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[1], wrapper.vm.actorLastName, 'Миронов');
         
-        await checkBaseModal.notHideBaseModal(wrapper, hideUpdateActorModal);
+        await checkBaseModal.notHideBaseModal(wrapper, hideModal);
         await checkBaseModal.notSubmitRequestInBaseModal(wrapper, router.put);
     });
     
     it("Функция handlerUpdateActor вызывает router.put с нужными параметрами", () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
+        const wrapper = getWrapper();
         const options = {
             preserveScroll: true,
             onBefore: expect.anything(),
@@ -96,25 +84,19 @@ describe("@/Components/Modal/Request/Actors/UpdateActorModal.vue", () => {
             onError: expect.anything(),
             onFinish: expect.anything()
         };
-
-        const wrapper = getWrapper(app, actorsList);
         
         wrapper.vm.handlerUpdateActor(eventCurrentTargetClassListContainsFalse);
         
         expect(router.put).toHaveBeenCalledTimes(1);
-        expect(router.put).toHaveBeenCalledWith(actorsList.getUrl(wrapper.vm.props.updateActor.id), {
+        expect(router.put).toHaveBeenCalledWith(wrapper.vm.actorsList.getUrl(actor.id), {
                 first_name: wrapper.vm.actorFirstName,
                 last_name: wrapper.vm.actorLastName
             }, options);
     });
     
     it("Проверка функции onBeforeForHandlerUpdateActor", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
-        const actorsList = useActorsListStore();
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app, actorsList);
         wrapper.vm.errorsFirstName = 'ErrorFirstName';
         wrapper.vm.errorsLastName = 'ErrorLastName';
         wrapper.vm.onBeforeForHandlerUpdateActor();
@@ -125,26 +107,20 @@ describe("@/Components/Modal/Request/Actors/UpdateActorModal.vue", () => {
     });
     
     it("Проверка функции onSuccessForHandlerUpdateActor", async () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
-        expect(actorsList.page).toBe(1);
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app, actorsList);
-        
-        expect(hideUpdateActorModal).not.toHaveBeenCalled();
+        expect(wrapper.vm.actorsList.page).toBe(1);
+        expect(hideModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerUpdateActor({props: {actors}});
         
-        expect(hideUpdateActorModal).toHaveBeenCalledTimes(1);
-        expect(hideUpdateActorModal).toHaveBeenCalledWith();
-        expect(actorsList.page).toBe(actors.current_page);
+        expect(hideModal).toHaveBeenCalledTimes(1);
+        expect(hideModal).toHaveBeenCalledWith();
+        expect(wrapper.vm.actorsList.page).toBe(actors.current_page);
         expect(actors.current_page).toBe(2);
     });
     
     it("Проверка функции onErrorForHandlerUpdateActor (валидация данных)", async () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
-        
-        const wrapper = getWrapper(app, actorsList);
+        const wrapper = getWrapper();
         
         expect(wrapper.vm.errorsFirstName).toBe('');
         expect(wrapper.vm.errorsLastName).toBe('');
@@ -155,24 +131,18 @@ describe("@/Components/Modal/Request/Actors/UpdateActorModal.vue", () => {
     });
     
     it("Проверка функции onErrorForHandlerUpdateActor (ошибка сервера с message)", async () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app, actorsList);
-        
-        expect(hideUpdateActorModal).toHaveBeenCalledTimes(0);
+        expect(hideModal).toHaveBeenCalledTimes(0);
         wrapper.vm.onErrorForHandlerUpdateActor({ message: 'В таблице dvd.actors нет записи с id=13' });
-        expect(hideUpdateActorModal).toHaveBeenCalledTimes(1);
+        expect(hideModal).toHaveBeenCalledTimes(1);
     });
     
     it("Проверка функции onFinishForHandlerUpdateActor", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        const actorsList = useActorsListStore();
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app, actorsList);
         wrapper.vm.onFinishForHandlerUpdateActor();
-        
         expect(app.isRequest).toBe(false);
     });
 });

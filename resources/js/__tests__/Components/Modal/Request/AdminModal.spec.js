@@ -4,8 +4,8 @@ import { router } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
 import AdminModal from '@/Components/Modal/Request/AdminModal.vue';
-import { useAppStore } from '@/Stores/app';
 import { useFilmsAccountStore } from '@/Stores/films';
+import { app } from '@/Services/app';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
@@ -15,14 +15,14 @@ vi.mock('@inertiajs/vue3');
         
 const hideAdminModal = vi.fn();
 
-const getWrapper = function(app, filmsAccount, admin = false) {
+const getWrapper = function(filmsAccount, admin = false) {
     return mount(AdminModal, {
             props: {
                 hideAdminModal,
                 admin
             },
             global: {
-                provide: { app, filmsAccount }
+                provide: { filmsAccount }
             }
         });
 };
@@ -55,10 +55,9 @@ describe("@/Components/Modal/Request/AdminModal.vue", () => {
     });
     
     it("Монтирование компоненты AdminModal (isRequest: false, admin: false)", async () => {
-        const app = useAppStore();
         const filmsAccount = useFilmsAccountStore();
 
-        const wrapper = getWrapper(app, filmsAccount);
+        const wrapper = getWrapper(filmsAccount);
         
         checkContentForNotAdmin(wrapper);
         
@@ -71,12 +70,10 @@ describe("@/Components/Modal/Request/AdminModal.vue", () => {
     });
     
     it("Монтирование компоненты AdminModal (isRequest: true, admin: false)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        
         const filmsAccount = useFilmsAccountStore();
 
-        const wrapper = getWrapper(app, filmsAccount);
+        const wrapper = getWrapper(filmsAccount);
         
         checkContentForNotAdmin(wrapper);
         
@@ -89,10 +86,10 @@ describe("@/Components/Modal/Request/AdminModal.vue", () => {
     });
     
     it("Монтирование компоненты AdminModal (isRequest: false, admin: true)", async () => {
-        const app = useAppStore();
+        app.isRequest = false;
         const filmsAccount = useFilmsAccountStore();
 
-        const wrapper = getWrapper(app, filmsAccount, true);
+        const wrapper = getWrapper(filmsAccount, true);
         
         checkContentForAdmin(wrapper);
         
@@ -105,12 +102,11 @@ describe("@/Components/Modal/Request/AdminModal.vue", () => {
     });
     
     it("Монтирование компоненты AdminModal (isRequest: true, admin: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
         
         const filmsAccount = useFilmsAccountStore();
 
-        const wrapper = getWrapper(app, filmsAccount, true);
+        const wrapper = getWrapper(filmsAccount, true);
         
         checkContentForAdmin(wrapper);
         
@@ -123,10 +119,9 @@ describe("@/Components/Modal/Request/AdminModal.vue", () => {
     });
     
     it("Функция handlerSubmit вызывает router.post с нужными параметрами (admin: false)", () => {
-        const app = useAppStore();
         const filmsAccount = useFilmsAccountStore();
 
-        const wrapper = getWrapper(app, filmsAccount, false);
+        const wrapper = getWrapper(filmsAccount, false);
         const options = {
             onBefore: expect.anything(),
             onSuccess: expect.anything(),
@@ -143,10 +138,9 @@ describe("@/Components/Modal/Request/AdminModal.vue", () => {
     });
     
     it("Функция handlerSubmit вызывает router.post с нужными параметрами (admin: true)", () => {
-        const app = useAppStore();
         const filmsAccount = useFilmsAccountStore();
 
-        const wrapper = getWrapper(app, filmsAccount, true);
+        const wrapper = getWrapper(filmsAccount, true);
         const options = {
             onBefore: expect.anything(),
             onSuccess: expect.anything(),
@@ -163,12 +157,10 @@ describe("@/Components/Modal/Request/AdminModal.vue", () => {
     });
     
     it("Проверка функции onBeforeForHandlerSubmit", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
         const filmsAccount = useFilmsAccountStore();
 
-        const wrapper = getWrapper(app, filmsAccount, false);
+        const wrapper = getWrapper(filmsAccount, false);
+        
         wrapper.vm.errorsPassword = 'ErrorPassword';
         wrapper.vm.onBeforeForHandlerSubmit();
         
@@ -177,10 +169,9 @@ describe("@/Components/Modal/Request/AdminModal.vue", () => {
     });
     
     it("Проверка функции onSuccessForHandlerSubmit", async () => {
-        const app = useAppStore();
         const filmsAccount = useFilmsAccountStore();
 
-        const wrapper = getWrapper(app, filmsAccount, true);
+        const wrapper = getWrapper(filmsAccount, true);
         
         expect(hideAdminModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerSubmit();
@@ -190,10 +181,9 @@ describe("@/Components/Modal/Request/AdminModal.vue", () => {
     });
     
     it("Проверка функции onErrorForHandlerSubmit", async () => {
-        const app = useAppStore();
         const filmsAccount = useFilmsAccountStore();
         
-        const wrapper = getWrapper(app, filmsAccount, false);
+        const wrapper = getWrapper(filmsAccount, false);
         
         expect(wrapper.vm.errorsPassword).toBe('');
         wrapper.vm.onErrorForHandlerSubmit({ password: 'ErrorPassword' });
@@ -202,11 +192,11 @@ describe("@/Components/Modal/Request/AdminModal.vue", () => {
     });
     
     it("Проверка функции onFinishForHandlerSubmit", async () => {
-        const app = useAppStore();
         app.isRequest = true;
         const filmsAccount = useFilmsAccountStore();
         
-        const wrapper = getWrapper(app, filmsAccount);
+        const wrapper = getWrapper(filmsAccount);
+        
         wrapper.vm.onFinishForHandlerSubmit();
         
         expect(app.isRequest).toBe(false);

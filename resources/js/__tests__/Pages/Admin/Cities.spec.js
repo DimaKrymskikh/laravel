@@ -1,5 +1,6 @@
 import { mount } from "@vue/test-utils";
 
+import { city } from '@/Services/Content/cities';
 import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
 import Cities from "@/Pages/Admin/Cities.vue";
 import AddCityBlock from '@/Components/Pages/Admin/Cities/AddCityBlock.vue';
@@ -189,29 +190,5 @@ describe("@/Pages/Admin/Cities.vue", () => {
         await timezonePencilSvg.trigger('click');
         // После клика появляется модальное окно
         expect(wrapper.findComponent(UpdateTimeZoneModal).exists()).toBe(true);
-    });
-    
-    it("Функция hideRemoveCityModal изменяет isShowRemoveCityModal с true на false", () => {
-        const wrapper = getWrapper();
-        
-        wrapper.vm.isShowRemoveCityModal = true;
-        wrapper.vm.hideRemoveCityModal();
-        expect(wrapper.vm.isShowRemoveCityModal).toBe(false);
-    });
-    
-    it("Функция hideUpdateCityModal изменяет isShowUpdateCityModal с true на false", () => {
-        const wrapper = getWrapper();
-        
-        wrapper.vm.isShowUpdateCityModal = true;
-        wrapper.vm.hideUpdateCityModal();
-        expect(wrapper.vm.isShowUpdateCityModal).toBe(false);
-    });
-    
-    it("Функция hideUpdateTimeZoneModal изменяет isShowUpdateTimeZoneModal с true на false", () => {
-        const wrapper = getWrapper();
-        
-        wrapper.vm.isShowUpdateTimeZoneModal = true;
-        wrapper.vm.hideUpdateTimeZoneModal();
-        expect(wrapper.vm.isShowUpdateTimeZoneModal).toBe(false);
     });
 });

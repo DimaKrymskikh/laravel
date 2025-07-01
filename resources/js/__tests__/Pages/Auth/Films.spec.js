@@ -3,6 +3,7 @@ import { mount, flushPromises } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
+import { app } from '@/Services/app';
 import Films from "@/Pages/Auth/Films.vue";
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
@@ -13,9 +14,7 @@ import CheckCircleSvg from '@/Components/Svg/CheckCircleSvg.vue';
 import PlusCircleSvg from '@/Components/Svg/PlusCircleSvg.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
 import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
-import { useAppStore } from '@/Stores/app';
 import { useFilmsListStore } from '@/Stores/films';
-import { useGlobalConstsStore } from '@/Stores/globalConsts';
 import { useLanguagesListStore } from '@/Stores/languages';
 
 import { films_0, films_10_user } from '@/__tests__/data/films';
@@ -39,10 +38,7 @@ const user = {
             is_admin: false
         };
 
-const getWrapper = function(films, isRequest = false) {
-    const app = useAppStore();
-    app.isRequest = isRequest;
-    
+const getWrapper = function(films) {
     return mount(Films, {
             props: {
                 errors: {},
@@ -54,9 +50,7 @@ const getWrapper = function(films, isRequest = false) {
                     AuthLayout: AuthLayoutStub
                 },
                 provide: {
-                    app: useAppStore(),
                     filmsList: useFilmsListStore(),
-                    globalConsts: useGlobalConstsStore(),
                     languagesList: useLanguagesListStore()
                 }
             }
@@ -94,6 +88,7 @@ const checkTableHead = function(table) {
 describe("@/Pages/Auth/Films.vue", () => {
     beforeEach(() => {
         setActivePinia(createPinia());
+        app.isRequest = false;
     });
     
     it("Отрисовка каталога фильмов (залогиненный пользователь)", () => {
@@ -339,7 +334,8 @@ describe("@/Pages/Auth/Films.vue", () => {
     });
     
     it("Нельзя отправить запрос на добавление фильма, если app.isRequest = true", async () => {
-        const wrapper = getWrapper(films_10_user, true);
+        app.isRequest = true;
+        const wrapper = getWrapper(films_10_user);
         
         // В таблице находим фильм с "+"
         const table = wrapper.get('table.container');
@@ -359,7 +355,7 @@ describe("@/Pages/Auth/Films.vue", () => {
     it("Проверка появления спинера", async () => {
         const wrapper = getWrapper(films_10_user);
         
-        expect(wrapper.vm.app.isRequest).toBe(false);
+        expect(app.isRequest).toBe(false);
         
         const tbody = wrapper.get('table').get('tbody');
         const tbodyTr = tbody.findAll('tr');
@@ -378,7 +374,7 @@ describe("@/Pages/Auth/Films.vue", () => {
         // Правильно находиться id фильма
         expect(wrapper.vm.filmId).toBe(String(films_10_user.data[3].id));
         // В router.post должен измениться app.isRequest
-        wrapper.vm.app.isRequest = true;
+        app.isRequest = true;
         
         await flushPromises();
         
@@ -389,53 +385,35 @@ describe("@/Pages/Auth/Films.vue", () => {
     });
     
     it("Проверка функции onBeforeForAddFilm", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
+        const wrapper = getWrapper(films_10_user);
         
-        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
         wrapper.vm.onBeforeForAddFilm();
-        
         expect(app.isRequest).toBe(true);
     });
     
     it("Проверка функции onErrorForAddFilm ({})", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
+        const wrapper = getWrapper(films_10_user);
         
-        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
         wrapper.vm.onErrorForAddFilm({});
-        
         expect(app.errorMessage).toBe('');
         expect(app.isShowForbiddenModal).toBe(false);
     });
     
     it("Проверка функции onErrorForAddFilm ({ message: 'ServerError' })", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
+        const wrapper = getWrapper(films_10_user);
         
-        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
         wrapper.vm.onErrorForAddFilm({ message: 'ServerError' });
-        
         expect(app.errorMessage).toBe('ServerError');
         expect(app.isShowForbiddenModal).toBe(true);
     });
     
     it("Проверка функции onFinishForAddFilm", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        const filmsList = useFilmsListStore();
-        const globalConsts = useGlobalConstsStore();
+        const wrapper = getWrapper(films_10_user);
         
-        const wrapper = getWrapper(app, filmsList, films_10_user, globalConsts);
         wrapper.vm.onFinishForAddFilm();
-        
         expect(app.isRequest).toBe(false);
     });
     

@@ -1,39 +1,46 @@
 <script setup>
 import { inject, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
+import { film, removeActor } from '@/Services/Content/films';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
-import { updateFilm } from '@/Services/films';
 
-const props = defineProps({
-    hideUpdateFilmActorsModal: Function,
-    showRemoveActorFromFilmModal: Function
-});
-
-const app = inject('app');
 const filmsAdmin = inject('filmsAdmin');
 
-const headerTitle = `Изменение списка актёров фильма ${updateFilm.title}`;
+const headerTitle = `Изменение списка актёров фильма ${film.title}`;
 
 const actorName = ref('');
 const filmActors = ref(null);
 const actors = ref(null);
 
+const hideModal = function() {
+    film.hideUpdateFilmActorsModal();
+};
+
 const handlerActorName = async function() {
-    actors.value = await app.request(`/admin/films/actors?name=${actorName.value}&film_id=${updateFilm.id}`, 'GET');
+    actors.value = await app.request(`/admin/films/actors?name=${actorName.value}&film_id=${film.id}`, 'GET');
+};
+
+const handlerRemoveActorFromFilmModal = function(e) {
+    film.hideUpdateFilmActorsModal();
+    removeActor.showRemoveActorFromFilmModal();
+    removeActor.id = e.target.getAttribute('data-id');
+    removeActor.firstName = e.target.getAttribute('data-first_name');
+    removeActor.lastName = e.target.getAttribute('data-last_name');
 };
 
 (async function() {
     // Получаем общий список актёров без актёров фильма
     await handlerActorName();
     // Актёры фильма
-    filmActors.value = await app.request(`/admin/films/getActorsList/${updateFilm.id}`, 'GET');
+    filmActors.value = await app.request(`/admin/films/getActorsList/${film.id}`, 'GET');
 })();
 
 const onBeforeForHandlerAddActorInFilm = () => { app.isRequest = true; };
 
-const onSuccessForHandlerAddActorInFilm = () => { props.hideUpdateFilmActorsModal(); };
+const onSuccessForHandlerAddActorInFilm = () => { film.hideUpdateFilmActorsModal(); };
 
 const onFinishForHandlerAddActorInFilm = () => { app.isRequest = false; };
 
@@ -41,7 +48,7 @@ const handlerAddActorInFilm = function(e) {
     const actor_id = e.target.getAttribute('data-id');
     
     router.post(filmsAdmin.getUrl('/admin/films/actors'), {
-        film_id: updateFilm.id,
+        film_id: film.id,
         actor_id
     }, {
         preserveScroll: true,
@@ -69,7 +76,7 @@ watch(actorName, function() {
 <template>
     <BaseModal
         :headerTitle=headerTitle
-        :hideModal="hideUpdateFilmActorsModal"
+        :hideModal="hideModal"
     >
         <template v-slot:body>
             <h3 class="text-orange-900">Существующие актёры</h3>
@@ -80,7 +87,7 @@ watch(actorName, function() {
                             Актёры не добавлены
                         </div>
                         <ul 
-                            @click="showRemoveActorFromFilmModal"
+                            @click="handlerRemoveActorFromFilmModal"
                             v-if="filmActors && filmActors.actors.length"
                         >
                             <li

@@ -1,15 +1,11 @@
 <script setup>
 import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
+import { film } from '@/Services/Content/films';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
-import { updateFilm } from '@/Services/films';
 
-const props = defineProps({
-    hideRemoveFilmModal: Function
-});
-
-const app = inject('app');
 const filmsAdmin = inject('filmsAdmin');
 
 // Величина поля для пароля
@@ -19,15 +15,19 @@ const inputPassword = ref('');
 // при последующем открытии модального окна этого сообщения об ошибке не было.
 const errorsPassword = ref('');
 
+const hideModal = function() {
+    film.hideRemoveFilmModal();
+};
+
 const onBeforeForHandlerRemoveFilm = () => {
     app.isRequest = true;
     errorsPassword.value = '';
 };
 
-const onSuccessForHandlerRemoveFilm = () => { props.hideRemoveFilmModal(); };
+const onSuccessForHandlerRemoveFilm = () => { film.hideRemoveFilmModal(); };
 
 const onErrorForHandlerRemoveFilm = errors => {
-            errors.password ? errorsPassword.value = errors.password : props.hideRemoveFilmModal();
+            errors.password ? errorsPassword.value = errors.password : film.hideRemoveFilmModal();
             app.errorRequest(errors);
         };
 
@@ -44,7 +44,7 @@ const handlerRemoveFilm = function(e) {
         return;
     }
     
-    router.delete(filmsAdmin.getUrl(`/admin/films/${updateFilm.id}`), {
+    router.delete(filmsAdmin.getUrl(`/admin/films/${film.id}`), {
         preserveScroll: true,
         data: {
             password: inputPassword.value
@@ -60,13 +60,13 @@ const handlerRemoveFilm = function(e) {
 <template>
     <BaseModal
         headerTitle="Подтверждение удаления фильма"
-        :hideModal="hideRemoveFilmModal"
+        :hideModal="hideModal"
         :handlerSubmit="handlerRemoveFilm"
     >
         <template v-slot:body>
             <div class="mb-2">
                 Вы действительно хотите удалить фильм
-                <span>{{ updateFilm.title }}</span> ?
+                <span>{{ film.title }}</span> ?
             </div>
             <form @submit.prevent autocomplete="off">
                 <div class="mb-3">

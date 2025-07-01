@@ -2,8 +2,9 @@ import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
+import { app } from '@/Services/app';
+import { language } from '@/Services/Content/languages';
 import RemoveLanguageModal from '@/Components/Modal/Request/Languages/RemoveLanguageModal.vue';
-import { useAppStore } from '@/Stores/app';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
@@ -11,21 +12,10 @@ import { eventCurrentTargetClassListContainsFalse } from '@/__tests__/fake/Event
 
 vi.mock('@inertiajs/vue3');
         
-const hideRemoveLanguageModal = vi.fn();
+const hideModal = vi.spyOn(language, 'hideRemoveLanguageModal');
 
-const getWrapper = function(app) {
-    return mount(RemoveLanguageModal, {
-            props: {
-                hideRemoveLanguageModal,
-                removeLanguage: {
-                    id: 1,
-                    name: 'Русский'
-                }
-            },
-            global: {
-                provide: { app }
-            }
-        });
+const getWrapper = function() {
+    return mount(RemoveLanguageModal);
 };
 
 const checkContent = function(wrapper) {
@@ -36,7 +26,7 @@ const checkContent = function(wrapper) {
     // Заголовок модального окна задаётся
     expect(wrapper.text()).toContain('Подтверждение удаления языка');
     // Содержится вопрос модального окна
-    expect(wrapper.text()).toContain('Вы действительно хотите удалить Русский язык?');
+    expect(wrapper.text()).toContain('Вы действительно хотите удалить  язык?');
 };
 
 describe("@/Components/Modal/Request/Languages/RemoveLanguageModal.vue", () => {
@@ -45,9 +35,7 @@ describe("@/Components/Modal/Request/Languages/RemoveLanguageModal.vue", () => {
     });
     
     it("Монтирование компоненты RemoveLanguageModal (isRequest: false)", async () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         checkContent(wrapper);
         
@@ -55,15 +43,13 @@ describe("@/Components/Modal/Request/Languages/RemoveLanguageModal.vue", () => {
         checkInputField.checkPropsInputField(inputFields[0], 'Введите пароль:', 'password', wrapper.vm.errorsPassword, wrapper.vm.inputPassword, true);
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.inputPassword, 'TestPassword');
         
-        await checkBaseModal.hideBaseModal(wrapper, hideRemoveLanguageModal);
+        await checkBaseModal.hideBaseModal(wrapper, hideModal);
         await checkBaseModal.submitRequestInBaseModal(wrapper, router.delete);
     });
     
     it("Монтирование компоненты RemoveLanguageModal (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper(true);
         
         checkContent(wrapper);
         
@@ -71,14 +57,12 @@ describe("@/Components/Modal/Request/Languages/RemoveLanguageModal.vue", () => {
         checkInputField.checkPropsInputField(inputFields[0], 'Введите пароль:', 'password', wrapper.vm.errorsPassword, wrapper.vm.inputPassword, true);
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[0], wrapper.vm.inputPassword, 'TestPassword');
         
-        await checkBaseModal.notHideBaseModal(wrapper, hideRemoveLanguageModal);
+        await checkBaseModal.notHideBaseModal(wrapper, hideModal);
         await checkBaseModal.notSubmitRequestInBaseModal(wrapper, router.delete);
     });
     
     it("Функция handlerRemoveLanguage вызывает router.delete с нужными параметрами", () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         const options = {
             preserveScroll: true,
             data: {
@@ -93,15 +77,11 @@ describe("@/Components/Modal/Request/Languages/RemoveLanguageModal.vue", () => {
         wrapper.vm.handlerRemoveLanguage(eventCurrentTargetClassListContainsFalse);
         
         expect(router.delete).toHaveBeenCalledTimes(1);
-        expect(router.delete).toHaveBeenCalledWith(`/admin/languages/${wrapper.vm.props.removeLanguage.id}`, options);
+        expect(router.delete).toHaveBeenCalledWith(`/admin/languages/${language.id}`, options);
     });
     
     it("Проверка функции onBeforeForHandlerRemoveLanguage", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         wrapper.vm.errorsPassword = 'TestPassword';
         wrapper.vm.onBeforeForHandlerRemoveLanguage();
         
@@ -110,21 +90,17 @@ describe("@/Components/Modal/Request/Languages/RemoveLanguageModal.vue", () => {
     });
     
     it("Проверка функции onSuccessForHandlerRemoveLanguage", async () => {
-        const app = useAppStore();
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
-        
-        expect(hideRemoveLanguageModal).not.toHaveBeenCalled();
+        expect(hideModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerRemoveLanguage();
         
-        expect(hideRemoveLanguageModal).toHaveBeenCalledTimes(1);
-        expect(hideRemoveLanguageModal).toHaveBeenCalledWith();
+        expect(hideModal).toHaveBeenCalledTimes(1);
+        expect(hideModal).toHaveBeenCalledWith();
     });
     
     it("Проверка функции onErrorForHandlerRemoveLanguage ({password: 'ErrorPassword'})", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         expect(wrapper.vm.errorsPassword).toBe('');
         expect(app.isShowForbiddenModal).toBe(false);
@@ -137,9 +113,7 @@ describe("@/Components/Modal/Request/Languages/RemoveLanguageModal.vue", () => {
     });
     
     it("Проверка функции onErrorForHandlerRemoveLanguage ({ message: 'ServerError' })", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         expect(wrapper.vm.errorsPassword).toBe('');
         expect(app.isShowForbiddenModal).toBe(false);
@@ -152,12 +126,10 @@ describe("@/Components/Modal/Request/Languages/RemoveLanguageModal.vue", () => {
     });
     
     it("Проверка функции onFinishForHandlerRemoveLanguage", async () => {
-        const app = useAppStore();
         app.isRequest = true;
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.onFinishForHandlerRemoveLanguage();
-        
         expect(app.isRequest).toBe(false);
     });
 });

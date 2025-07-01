@@ -4,20 +4,19 @@ import { setActivePinia, createPinia } from 'pinia';
 import AdminBlock from '@/Components/Pages/Auth/Account/PersonalDataBlock/PersonalData/AdminBlock.vue';
 import AdminModal from '@/Components/Modal/Request/AdminModal.vue';
 import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
-import { useAppStore } from '@/Stores/app';
 import { useFilmsAccountStore } from '@/Stores/films';
 
 import { userAuth, userAdmin } from '@/__tests__/data/users';
 import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
 
-const getWrapper = function(user, app, filmsAccount) {
+const getWrapper = function(user, filmsAccount) {
         return mount(AdminBlock, {
             props: { user },
             global: {
                 stubs: {
                     AccountLayout: AuthAccountLayoutStub
                 },
-                provide: { app, filmsAccount }
+                provide: { filmsAccount }
             }
         });
     };
@@ -31,10 +30,9 @@ describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/AdminBlock.vue", (
     });
     
     it("Отрисовка AdminBlock. Показ/Сокрытие AdminModal (is_admin: false)", async () => {
-        const app = useAppStore();
         const filmsAccount = useFilmsAccountStore();
         
-        const wrapper = getWrapper(userAuth, app, filmsAccount);
+        const wrapper = getWrapper(userAuth, filmsAccount);
         
         expect(wrapper.text()).toContain(textForAuth);
         expect(wrapper.text()).not.toContain(textForAdmin);
@@ -56,10 +54,9 @@ describe("@/Pages/Auth/Account/PersonalDataBlock/PersonalData/AdminBlock.vue", (
     });
     
     it("Отрисовка AdminBlock. Показ/Сокрытие AdminModal (is_admin: true)", async () => {
-        const app = useAppStore();
         const filmsAccount = useFilmsAccountStore();
         
-        const wrapper = getWrapper(userAdmin, app, filmsAccount);
+        const wrapper = getWrapper(userAdmin, filmsAccount);
         
         expect(wrapper.text()).not.toContain(textForAuth);
         expect(wrapper.text()).toContain(textForAdmin);

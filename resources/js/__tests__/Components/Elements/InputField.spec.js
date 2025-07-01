@@ -3,9 +3,9 @@ import { mount } from "@vue/test-utils";
 import { setActivePinia, createPinia } from 'pinia';
 import InputField from '@/components/Elements/InputField.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
-import { useAppStore } from '@/Stores/app';
+import { app } from '@/Services/app';
 
-const getWrapper = function(app, errorsMessage = '') {
+const getWrapper = function(errorsMessage = '') {
     return mount(InputField, {
             props: {
                 titleText: 'Поле ввода',
@@ -14,22 +14,13 @@ const getWrapper = function(app, errorsMessage = '') {
                 isInputAutofocus: false,
                 errorsMessage,
                 modelValue: ''
-            },
-            global: {
-                provide: { app }
             }
         });
 };
 
 describe("@/components/Elements/InputField", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Монтирование компоненты InputField (isRequest: false)", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
 
         // Метка поля содержит нужный текст
         const label = wrapper.get('label');
@@ -60,10 +51,9 @@ describe("@/components/Elements/InputField", () => {
     });
     
     it("Монтирование компоненты InputField (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
         
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
 
         // Метка поля содержит нужный текст
         const label = wrapper.get('label');
@@ -88,9 +78,7 @@ describe("@/components/Elements/InputField", () => {
     });
     
     it("Отрисовка ошибки", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app, 'Некоторая ошибка');
+        const wrapper = getWrapper('Некоторая ошибка');
         
         // Отрисовывается сообщение об ошибке
         const error = wrapper.find('.error');

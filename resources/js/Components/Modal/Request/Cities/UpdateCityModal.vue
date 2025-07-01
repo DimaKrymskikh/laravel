@@ -1,31 +1,30 @@
 <script setup>
-import { inject, ref } from 'vue';
+import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
+import { city } from '@/Services/Content/cities';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 
-const { updateCity, hideUpdateCityModal } = defineProps({
-    updateCity: Object,
-    hideUpdateCityModal: Function
-});
-
-const app = inject('app');
-
-const cityName = ref(updateCity.name);
+const cityName = ref(city.name);
 const errorsName = ref('');
+
+const hideModal = function() {
+    city.hideUpdateCityModal();
+};
 
 const onBeforeForHandlerUpdateCity = () => {
             app.isRequest = true;
             errorsName.value = '';
         };
 
-const onSuccessForHandlerUpdateCity = () => { hideUpdateCityModal(); };
+const onSuccessForHandlerUpdateCity = () => { city.hideUpdateCityModal(); };
 
 const onErrorForHandlerUpdateCity = errors => {
             errorsName.value = errors.name;
             app.errorRequest(errors);
             if(errors.message) {
-                hideUpdateCityModal();
+                city.hideUpdateCityModal();
             }
         };
 
@@ -42,7 +41,7 @@ const handlerUpdateCity = function(e) {
         return;
     }
     
-    router.put(`cities/${updateCity.id}`, {
+    router.put(`cities/${city.id}`, {
         name: cityName.value
     }, {
         preserveScroll: true,
@@ -57,7 +56,7 @@ const handlerUpdateCity = function(e) {
 <template>
     <BaseModal
         headerTitle="Изменение названия города"
-        :hideModal="hideUpdateCityModal"
+        :hideModal="hideModal"
         :handlerSubmit="handlerUpdateCity"
     >
         <template v-slot:body>

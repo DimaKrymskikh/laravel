@@ -1,24 +1,24 @@
 <script setup>
 import { inject, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
+import { film } from '@/Services/Content/films';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
-import { updateFilm } from '@/Services/films';
 
-const props = defineProps({
-    hideUpdateFilmLanguageModal: Function
-});
-
-const app = inject('app');
 const filmsAdmin = inject('filmsAdmin');
 
-const headerTitle = `Изменение языка фильма ${updateFilm.title}`;
+const headerTitle = `Изменение языка фильма ${film.title}`;
 
 const filmLanguage = ref('');
 
 const errorsName = ref('');
 
 const languages = ref(null);
+
+const hideModal = function() {
+    film.hideUpdateFilmLanguageModal();
+};
 
 const handlerLanguageName = async function() {
     languages.value = await app.request(`/languages/getJson?name_filter=${filmLanguage.value}`, 'GET');
@@ -30,7 +30,7 @@ const onBeforeForHandlerUpdateFilmLanguage = () => {
     errorsName.value = '';
 };
 
-const onSuccessForHandlerUpdateFilmLanguage = () => { props.hideUpdateFilmLanguageModal(); };
+const onSuccessForHandlerUpdateFilmLanguage = () => { film.hideUpdateFilmLanguageModal(); };
 
 const onErrorForHandlerUpdateFilmLanguage = errors => { errorsName.value = errors.name; };
 
@@ -44,7 +44,7 @@ const handlerUpdateFilmLanguage = function(e) {
     
     const language_id = e.target.getAttribute('data-id');
     
-    router.put(filmsAdmin.getUrl(`/admin/films/${updateFilm.id}`), {
+    router.put(filmsAdmin.getUrl(`/admin/films/${film.id}`), {
         field: 'language_id',
         language_id
     }, {
@@ -74,7 +74,7 @@ watch(filmLanguage, function() {
 <template>
     <BaseModal
         :headerTitle=headerTitle
-        :hideModal="hideUpdateFilmLanguageModal"
+        :hideModal="hideModal"
     >
         <template v-slot:body>
             <div class="mb-3">

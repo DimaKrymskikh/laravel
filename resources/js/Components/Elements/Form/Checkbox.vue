@@ -1,5 +1,5 @@
 <script setup>
-import { inject } from 'vue';
+import { app } from '@/Services/app';
     
 const props = defineProps({
     titleText: String,
@@ -7,9 +7,6 @@ const props = defineProps({
 });
 
 defineEmits(['update:modelValue']);
-
-const app = inject('app');
-
 </script>
 
 <template>

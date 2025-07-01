@@ -3,13 +3,12 @@ import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
+import { app } from '@/Services/app';
 
 const { removeCity, hideRemoveCityModal } = defineProps({
     removeCity: Object,
     hideRemoveCityModal: Function
 });
-
-const app = inject('app');
 
 // Значение поля пароля
 const inputPassword = ref('');

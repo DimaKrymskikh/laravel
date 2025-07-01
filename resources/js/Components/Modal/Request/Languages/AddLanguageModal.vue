@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue';
+import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
+import { language } from '@/Services/Content/languages';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 
-const { hideAddLanguageModal } = defineProps({
-    hideAddLanguageModal: Function
-});
-
-const app = inject('app');
-
-const languageName = ref('');
+const languageName = ref(language.name);
 const errorsName = ref('');
+
+const hideModal = function() {
+    language.hideAddLanguageModal();
+};
 
 const onBeforeForHandlerAddLanguage = () => {
     app.isRequest = true;
     errorsName.value = '';
 };
 
-const onSuccessForHandlerAddLanguage = () => { hideAddLanguageModal(); };
+const onSuccessForHandlerAddLanguage = () => { language.hideAddLanguageModal(); };
 
 const onErrorForHandlerAddLanguage = errors => { errorsName.value = errors.name; };
 
@@ -45,7 +45,7 @@ const handlerAddLanguage = function(e) {
 <template>
     <BaseModal
         headerTitle="Добавление языка"
-        :hideModal="hideAddLanguageModal"
+        :hideModal="hideModal"
         :handlerSubmit="handlerAddLanguage"
     >
         <template v-slot:body>

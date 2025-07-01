@@ -2,9 +2,9 @@ import { mount } from "@vue/test-utils";
 
 import { router } from '@inertiajs/vue3';
 
-import { setActivePinia, createPinia } from 'pinia';
+import { app } from '@/Services/app';
+import { city } from '@/Services/Content/cities';
 import AddCityModal from '@/Components/Modal/Request/Cities/AddCityModal.vue';
-import { useAppStore } from '@/Stores/app';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
 import { checkInputField } from '@/__tests__/methods/checkInputField';
@@ -12,23 +12,16 @@ import { eventCurrentTargetClassListContainsFalse } from '@/__tests__/fake/Event
 
 vi.mock('@inertiajs/vue3');
         
-const hideAddCityModal = vi.fn();
+const hideModal = vi.spyOn(city, 'hideAddCityModal');
 
-const getWrapper = function(app) {
-    return mount(AddCityModal, {
-            props: {
-                hideAddCityModal
-            },
-            global: {
-                provide: { app }
-            }
-        });
+const getWrapper = function() {
+    return mount(AddCityModal);
 };
 
 const checkContent = function(wrapper) {
     // Проверка равенства переменных ref начальным данным
-    expect(wrapper.vm.cityName).toBe('');
-    expect(wrapper.vm.openWeatherId).toBe('');
+    expect(wrapper.vm.cityName).toBe(city.name);
+    expect(wrapper.vm.openWeatherId).toBe(city.openWeatherId);
     expect(wrapper.vm.errorsName).toBe('');
     expect(wrapper.vm.errorsOpenWeatherId).toBe('');
 
@@ -37,14 +30,8 @@ const checkContent = function(wrapper) {
 };
         
 describe("@/Components/Modal/Request/AddCityModal.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Монтирование компоненты AddCityModal (isRequest: false)", async () => {
-        const app = useAppStore();
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         checkContent (wrapper);
         
@@ -55,15 +42,13 @@ describe("@/Components/Modal/Request/AddCityModal.vue", () => {
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.cityName, 'Имя города');
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[1], wrapper.vm.openWeatherId, '7777');
         
-        await checkBaseModal.hideBaseModal(wrapper, hideAddCityModal);
+        await checkBaseModal.hideBaseModal(wrapper, hideModal);
         await checkBaseModal.submitRequestInBaseModal(wrapper, router.post);
     });
     
     it("Монтирование компоненты AddCityModal (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         checkContent (wrapper);
         
@@ -74,12 +59,13 @@ describe("@/Components/Modal/Request/AddCityModal.vue", () => {
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[0], wrapper.vm.cityName, 'Имя города');
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[1], wrapper.vm.openWeatherId, '7777');
         
-        await checkBaseModal.notHideBaseModal(wrapper, hideAddCityModal);
+        await checkBaseModal.notHideBaseModal(wrapper, hideModal);
         await checkBaseModal.notSubmitRequestInBaseModal(wrapper, router.post);
     });
     
     it("Функция handlerAddCity вызывает router.post с нужными параметрами", () => {
-        const app = useAppStore();
+        const wrapper = getWrapper();
+        
         const options = {
             onBefore: expect.anything(),
             onSuccess: expect.anything(),
@@ -87,8 +73,6 @@ describe("@/Components/Modal/Request/AddCityModal.vue", () => {
             onFinish: expect.anything()
         };
 
-        const wrapper = getWrapper(app);
-        
         wrapper.vm.handlerAddCity(eventCurrentTargetClassListContainsFalse);
         
         expect(router.post).toHaveBeenCalledTimes(1);
@@ -99,11 +83,8 @@ describe("@/Components/Modal/Request/AddCityModal.vue", () => {
     });
     
     it("Проверка функции onBeforeForHandlerAddCity", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.errorsName = 'ErrorName';
         wrapper.vm.errorsOpenWeatherId = 'ErrorOpenWeatherId';
         wrapper.vm.onBeforeForHandlerAddCity();
@@ -114,21 +95,17 @@ describe("@/Components/Modal/Request/AddCityModal.vue", () => {
     });
     
     it("Проверка функции onSuccessForHandlerAddCity", async () => {
-        const app = useAppStore();
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
-        
-        expect(hideAddCityModal).not.toHaveBeenCalled();
+        expect(hideModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerAddCity();
         
-        expect(hideAddCityModal).toHaveBeenCalledTimes(1);
-        expect(hideAddCityModal).toHaveBeenCalledWith();
+        expect(hideModal).toHaveBeenCalledTimes(1);
+        expect(hideModal).toHaveBeenCalledWith();
     });
     
     it("Проверка функции onErrorForHandlerAddCity", async () => {
-        const app = useAppStore();
-        
-        const wrapper = getWrapper(app);
+        const wrapper = getWrapper();
         
         expect(wrapper.vm.errorsName).toBe('');
         expect(wrapper.vm.errorsOpenWeatherId).toBe('');
@@ -139,12 +116,10 @@ describe("@/Components/Modal/Request/AddCityModal.vue", () => {
     });
     
     it("Проверка функции onFinishForHandlerAddCity", async () => {
-        const app = useAppStore();
         app.isRequest = true;
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app);
         wrapper.vm.onFinishForHandlerAddCity();
-        
         expect(app.isRequest).toBe(false);
     });
 });

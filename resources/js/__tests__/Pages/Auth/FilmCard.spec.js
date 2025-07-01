@@ -6,7 +6,6 @@ import { setActivePinia, createPinia } from 'pinia';
 import FilmCard from "@/Pages/Auth/FilmCard.vue";
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
-import { useAppStore } from '@/Stores/app';
 import { useFilmsAccountStore } from '@/Stores/films';
 
 import { filmCard } from '@/__tests__/data/films';
@@ -27,7 +26,6 @@ describe("@/Pages/Auth/FilmCard.vue", () => {
     });
     
     it("Отрисовка карточки фильма", () => {
-        const app = useAppStore();
         const filmsAccount = useFilmsAccountStore();
         
         const user = {
@@ -45,7 +43,7 @@ describe("@/Pages/Auth/FilmCard.vue", () => {
                 stubs: {
                     AuthLayout: AuthLayoutStub
                 },
-                provide: { app, filmsAccount }
+                provide: { filmsAccount }
             }
         });
         

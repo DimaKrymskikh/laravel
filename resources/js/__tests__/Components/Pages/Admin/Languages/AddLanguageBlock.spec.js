@@ -4,7 +4,6 @@ import { setActivePinia, createPinia } from 'pinia';
 import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
 import AddLanguageBlock from '@/Components/Pages/Admin/Languages/AddLanguageBlock.vue';
 import AddLanguageModal from '@/Components/Modal/Request/Languages/AddLanguageModal.vue';
-import { useAppStore } from '@/Stores/app';
 
 describe("@/Pages/Admin/Cities/AddCityBlock.vue", () => {
     beforeEach(() => {
@@ -12,18 +11,12 @@ describe("@/Pages/Admin/Cities/AddCityBlock.vue", () => {
     });
     
     it("Отрисовка блока AddLanguageBlock", async () => {
-        const app = useAppStore();
-        
-        const wrapper = mount(AddLanguageBlock, {
-            global: {
-                provide: { app }
-            }
-        });
+        const wrapper = mount(AddLanguageBlock);
         
         // Присутствует кнопка PrimaryButton
         const primaryButton = wrapper.getComponent(PrimaryButton);
         expect(primaryButton.props('buttonText')).toBe('Добавить язык');
-        expect(primaryButton.props('handler')).toBe(wrapper.vm.showAddLanguageModal);
+        expect(primaryButton.props('handler')).toBe(wrapper.vm.showModal);
         
         // Модальное окно отсутствует
         expect(wrapper.findComponent(AddLanguageModal).exists()).toBe(false);

@@ -1,13 +1,12 @@
 <script setup>
-import { inject, ref } from 'vue';
+import { ref } from 'vue';
+import { paginatorPerPageList } from '@/Services/globalConsts';
 
 const props = defineProps({
     buttonName: String,         /* Текст кнопки */
     itemsNumberOnPage: Number,  /* Выбранное число в списке */
     changeNumber: Function      /* Изменяет число элементов на странице */
 });
-
-const globalConsts = inject('globalConsts');
 
 // Нужно ли показывать выпадающий список. При монтировании компоненты список скрыт
 const isShowList = ref(false);
@@ -46,7 +45,7 @@ const handlerSelect = function(e) {
             <li
                 class="text-center border-b"
                 :class="n === itemsNumberOnPage ? 'select bg-orange-100 cursor-not-allowed' : 'cursor-pointer'"
-                v-for="n in globalConsts.paginatorPerPageList"
+                v-for="n in paginatorPerPageList"
                 :data-number="n"
             >
                 {{ n }}

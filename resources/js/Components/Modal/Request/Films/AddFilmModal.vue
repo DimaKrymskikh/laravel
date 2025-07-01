@@ -1,20 +1,21 @@
 <script setup lang="ts">
 import { inject, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
+import { film } from '@/Services/Content/films';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
 
-const props = defineProps({
-    hideAddFilmModal: Function
-});
-
-const app = inject('app');
 const filmsAdmin = inject('filmsAdmin');
 
-const title = ref('');
-const description = ref('');
+const title = ref(film.title);
+const description = ref(film.description);
 const errorsTitle = ref('');
 const errorsDescription = ref('');
+
+const hideModal = function() {
+    film.hideAddFilmModal();
+};
 
 const onBeforeForHandlerAddFilm = () => {
     app.isRequest = true;
@@ -23,7 +24,7 @@ const onBeforeForHandlerAddFilm = () => {
 };
 
 const onSuccessForHandlerAddFilm = res => { 
-            props.hideAddFilmModal();
+            film.hideAddFilmModal();
             // При добавлении фильма сбрасываем фильтр поиска
             filmsAdmin.resetSearchFilter();
             // Запоминаем активную страницу пагинации
@@ -59,7 +60,7 @@ const handlerAddFilm = function(e) {
 <template>
     <BaseModal
         headerTitle="Добавление фильма"
-        :hideModal="hideAddFilmModal"
+        :hideModal="hideModal"
         :handlerSubmit="handlerAddFilm"
     >
         <template v-slot:body>

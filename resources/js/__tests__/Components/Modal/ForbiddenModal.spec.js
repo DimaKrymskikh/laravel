@@ -1,24 +1,19 @@
 import { mount } from "@vue/test-utils";
 
-import { setActivePinia, createPinia } from 'pinia';
 import ForbiddenModal from '@/components/Modal/ForbiddenModal.vue';
-import { useAppStore } from '@/Stores/app';
+import { app } from '@/Services/app';
 
 describe("@/components/Modal/ForbiddenModal.vue", () => {
     beforeEach(() => {
-        setActivePinia(createPinia());
+        app.isShowForbiddenModal = false;
+        app.errorMessage = '';
     });
     
     it("Монтирование компоненты ForbiddenModal", async () => {
-        const app = useAppStore();
         app.isShowForbiddenModal = true;
         app.errorMessage = 'Некоторая ошибка';
         
-        const wrapper = mount(ForbiddenModal, {
-            global: {
-                provide: { app }
-            }
-        });
+        const wrapper = mount(ForbiddenModal);
 
         // Модальное окно компоненты ForbiddenModal присутствует
         const forbiddenModal = wrapper.get('#forbidden-modal');
@@ -39,13 +34,7 @@ describe("@/components/Modal/ForbiddenModal.vue", () => {
     });
     
     it("ForbiddenModal отсутствует, если нет ошибки", async () => {
-        const app = useAppStore();
-        
-        const wrapper = mount(ForbiddenModal, {
-            global: {
-                provide: { app }
-            }
-        });
+        const wrapper = mount(ForbiddenModal);
 
         // Модальное окно компоненты ForbiddenModal отсутствует
         const forbiddenModal = wrapper.find('#forbidden-modal');

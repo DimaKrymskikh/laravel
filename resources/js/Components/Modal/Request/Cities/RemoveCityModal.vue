@@ -1,15 +1,10 @@
 <script setup>
-import { inject, ref } from 'vue';
+import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
+import { city } from '@/Services/Content/cities';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
-
-const { removeCity, hideRemoveCityModal } = defineProps({
-    removeCity: Object,
-    hideRemoveCityModal: Function
-});
-
-const app = inject('app');
 
 // Величина поля для пароля
 const inputPassword = ref('');
@@ -18,15 +13,19 @@ const inputPassword = ref('');
 // при последующем открытии модального окна этого сообщения об ошибке не было.
 const errorsPassword = ref('');
 
+const hideModal = function() {
+    city.hideRemoveCityModal();
+};
+
 const onBeforeForHandlerRemoveCity = () => {
             app.isRequest = true;
             errorsPassword.value = '';
         };
 
-const onSuccessForHandlerRemoveCity = () => { hideRemoveCityModal(); };
+const onSuccessForHandlerRemoveCity = () => { city.hideRemoveCityModal(); };
 
 const onErrorForHandlerRemoveCity = errors => {
-            !!errors.password ? errorsPassword.value = errors.password : hideRemoveCityModal();
+            !!errors.password ? errorsPassword.value = errors.password : city.hideRemoveCityModal();
             app.errorRequest(errors);
         };
 
@@ -43,7 +42,7 @@ const handlerRemoveCity = function(e) {
         return;
     }
     
-    router.delete(`cities/${removeCity.id}`, {
+    router.delete(`cities/${city.id}`, {
         preserveScroll: true,
         data: {
             password: inputPassword.value
@@ -59,13 +58,13 @@ const handlerRemoveCity = function(e) {
 <template>
     <BaseModal
         headerTitle="Подтверждение удаления города"
-        :hideModal="hideRemoveCityModal"
+        :hideModal="hideModal"
         :handlerSubmit="handlerRemoveCity"
     >
         <template v-slot:body>
             <div class="mb-2">
                 Вы действительно хотите удалить город
-                <span>{{ removeCity.name }}</span> [<span class="font-sans">{{ removeCity.open_weather_id }}</span>] ?
+                <span>{{ city.name }}</span> [<span class="font-sans">{{ city.openWeatherId }}</span>] ?
             </div>
             <div class="mb-3">
                 <InputField

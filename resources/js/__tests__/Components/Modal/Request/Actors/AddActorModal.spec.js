@@ -2,8 +2,9 @@ import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
 import { setActivePinia, createPinia } from 'pinia';
+import { actor } from '@/Services/Content/actors';
+import { app } from '@/Services/app';
 import AddActorModal from '@/Components/Modal/Request/Actors/AddActorModal.vue';
-import { useAppStore } from '@/Stores/app';
 import { useActorsListStore } from '@/Stores/actors';
 
 import { checkBaseModal } from '@/__tests__/methods/checkBaseModal';
@@ -13,15 +14,14 @@ import { actors } from '@/__tests__/data/actors';
 
 vi.mock('@inertiajs/vue3');
         
-const hideAddActorModal = vi.fn();
+const hideModal = vi.spyOn(actor, 'hideAddActorModal');
 
-const getWrapper = function(app, actorsList) {
+const getWrapper = function() {
     return mount(AddActorModal, {
-            props: {
-                hideAddActorModal
-            },
             global: {
-                provide: { app, actorsList }
+                provide: {
+                    actorsList: useActorsListStore()
+                }
             }
         });
 };
@@ -43,10 +43,7 @@ describe("@/Components/Modal/Request/Actors/AddActorModal.vue", () => {
     });
     
     it("Монтирование компоненты AddCityModal (isRequest: false)", async () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
-
-        const wrapper = getWrapper(app, actorsList);
+        const wrapper = getWrapper();
         
         checkContent (wrapper);
         
@@ -57,16 +54,13 @@ describe("@/Components/Modal/Request/Actors/AddActorModal.vue", () => {
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[0], wrapper.vm.firstName, 'Имя');
         checkInputField.checkInputFieldWhenThereIsNoRequest(inputFields[1], wrapper.vm.lastName, 'Фамилия');
         
-        await checkBaseModal.hideBaseModal(wrapper, hideAddActorModal);
+        await checkBaseModal.hideBaseModal(wrapper, hideModal);
         await checkBaseModal.submitRequestInBaseModal(wrapper, router.post);
     });
     
     it("Монтирование компоненты AddCityModal (isRequest: true)", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        const actorsList = useActorsListStore();
-
-        const wrapper = getWrapper(app, actorsList);
+        const wrapper = getWrapper();
         
         checkContent (wrapper);
         
@@ -77,38 +71,31 @@ describe("@/Components/Modal/Request/Actors/AddActorModal.vue", () => {
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[0], wrapper.vm.firstName, 'Имя');
         checkInputField.checkInputFieldWhenRequestIsMade(inputFields[1], wrapper.vm.lastName, 'Фамилия');
         
-        await checkBaseModal.notHideBaseModal(wrapper, hideAddActorModal);
+        await checkBaseModal.notHideBaseModal(wrapper, hideModal);
         await checkBaseModal.notSubmitRequestInBaseModal(wrapper, router.post);
     });
     
     it("Функция handlerAddActor вызывает router.post с нужными параметрами", () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
+        const wrapper = getWrapper();
         const options = {
             onBefore: expect.anything(),
             onSuccess: expect.anything(),
             onError: expect.anything(),
             onFinish: expect.anything()
         };
-
-        const wrapper = getWrapper(app, actorsList);
         
         wrapper.vm.handlerAddActor(eventCurrentTargetClassListContainsFalse);
         
         expect(router.post).toHaveBeenCalledTimes(1);
-        expect(router.post).toHaveBeenCalledWith(actorsList.getUrl(), {
+        expect(router.post).toHaveBeenCalledWith(wrapper.vm.actorsList.getUrl(), {
             first_name: wrapper.vm.firstName,
             last_name: wrapper.vm.lastName
         }, options);
     });
     
     it("Проверка функции onBeforeForHandlerAddActor", () => {
-        const app = useAppStore();
-        // По умолчанию
-        expect(app.isRequest).toBe(false);
-        const actorsList = useActorsListStore();
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app, actorsList);
         wrapper.vm.errorsFirstName = 'ErrorFirstName';
         wrapper.vm.errorsLastName = 'ErrorLastName';
         wrapper.vm.onBeforeForHandlerAddActor();
@@ -119,26 +106,20 @@ describe("@/Components/Modal/Request/Actors/AddActorModal.vue", () => {
     });
     
     it("Проверка функции onSuccessForHandlerAddActor", async () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
-        expect(actorsList.page).toBe(1);
+        const wrapper = getWrapper();
         
-        const wrapper = getWrapper(app, actorsList);
-        
-        expect(hideAddActorModal).not.toHaveBeenCalled();
+        expect(wrapper.vm.actorsList.page).toBe(1);
+        expect(hideModal).not.toHaveBeenCalled();
         wrapper.vm.onSuccessForHandlerAddActor({props: {actors}});
         
-        expect(hideAddActorModal).toHaveBeenCalledTimes(1);
-        expect(hideAddActorModal).toHaveBeenCalledWith();
-        expect(actorsList.page).toBe(actors.current_page);
+        expect(hideModal).toHaveBeenCalledTimes(1);
+        expect(hideModal).toHaveBeenCalledWith();
+        expect(wrapper.vm.actorsList.page).toBe(actors.current_page);
         expect(actors.current_page).toBe(2);
     });
     
     it("Проверка функции onErrorForHandlerAddActor", async () => {
-        const app = useAppStore();
-        const actorsList = useActorsListStore();
-        
-        const wrapper = getWrapper(app, actorsList);
+        const wrapper = getWrapper();
         
         expect(wrapper.vm.errorsFirstName).toBe('');
         expect(wrapper.vm.errorsLastName).toBe('');
@@ -149,13 +130,10 @@ describe("@/Components/Modal/Request/Actors/AddActorModal.vue", () => {
     });
     
     it("Проверка функции onFinishForHandlerAddActor", async () => {
-        const app = useAppStore();
         app.isRequest = true;
-        const actorsList = useActorsListStore();
+        const wrapper = getWrapper(true);
         
-        const wrapper = getWrapper(app, actorsList);
         wrapper.vm.onFinishForHandlerAddActor();
-        
         expect(app.isRequest).toBe(false);
     });
 });

@@ -1,15 +1,10 @@
 <script setup>
-import { inject, ref } from 'vue';
+import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { app } from '@/Services/app';
+import { language } from '@/Services/Content/languages';
 import InputField from '@/components/Elements/InputField.vue';
 import BaseModal from '@/components/Modal/Request/BaseModal.vue';
-
-const props = defineProps({
-    removeLanguage: Object,
-    hideRemoveLanguageModal: Function
-});
-
-const app = inject('app');
 
 // Величина поля для пароля
 const inputPassword = ref('');
@@ -18,15 +13,19 @@ const inputPassword = ref('');
 // при последующем открытии модального окна этого сообщения об ошибке не было.
 const errorsPassword = ref('');
 
+const hideModal = function() {
+    language.hideRemoveLanguageModal();
+};
+
 const onBeforeForHandlerRemoveLanguage = () => {
     app.isRequest = true;
     errorsPassword.value = '';
 };
 
-const onSuccessForHandlerRemoveLanguage = () => { props.hideRemoveLanguageModal(); };
+const onSuccessForHandlerRemoveLanguage = () => { language.hideRemoveLanguageModal(); };
 
 const onErrorForHandlerRemoveLanguage = errors => {
-            !!errors.password ? errorsPassword.value = errors.password : props.hideRemoveLanguageModal();
+            !!errors.password ? errorsPassword.value = errors.password : language.hideRemoveLanguageModal();
             app.errorRequest(errors);
         };
 
@@ -43,7 +42,7 @@ const handlerRemoveLanguage = function(e) {
         return;
     }
     
-    router.delete(`/admin/languages/${props.removeLanguage.id}`, {
+    router.delete(`/admin/languages/${language.id}`, {
         preserveScroll: true,
         data: {
             password: inputPassword.value,
@@ -59,12 +58,12 @@ const handlerRemoveLanguage = function(e) {
 <template>
     <BaseModal
         headerTitle="Подтверждение удаления языка"
-        :hideModal="hideRemoveLanguageModal"
+        :hideModal="hideModal"
         :handlerSubmit="handlerRemoveLanguage"
     >
         <template v-slot:body>
             <div class="mb-2">
-                Вы действительно хотите удалить <span>{{ removeLanguage.name }}</span> язык?
+                Вы действительно хотите удалить <span>{{ language.name }}</span> язык?
             </div>
             <div class="mb-3">
                 <InputField
