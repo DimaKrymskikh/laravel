@@ -84,6 +84,9 @@ class UserWeatherTest extends TestCase
         $acting = $this->actingAs($user);
         $response = $acting->post("userweather/refresh/$city->id");
         
+        // http-запрос был отправлен
+        Http::assertSentCount(1);
+        
         Event::assertDispatched(RefreshCityWeather::class, 1);
         
         $response
@@ -110,6 +113,8 @@ class UserWeatherTest extends TestCase
         $acting = $this->actingAs($user);
         $response = $acting->withoutExceptionHandling()->post("userweather/refresh/$city->id");
         
+        // http-запрос не был отправлен
+        Http::assertSentCount(0);
         // Событие Broadcasting не отправляется
         Event::assertNotDispatched(RefreshCityWeather::class);
         
@@ -134,6 +139,8 @@ class UserWeatherTest extends TestCase
         $acting = $this->actingAs($user);
         $response = $acting->withoutExceptionHandling()->post("userweather/refresh/$city->id");
         
+        // http-запрос был отправлен
+        Http::assertSentCount(1);
         // Событие Broadcasting не отправляется
         Event::assertNotDispatched(RefreshCityWeather::class);
         
