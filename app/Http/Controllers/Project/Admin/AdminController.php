@@ -25,7 +25,7 @@ class AdminController extends Controller
      */
     public function create(FilmFilterRequest $request): RedirectResponse
     {
-        $this->userService->assignAdmin($request->user()->id);
+        $this->userService->assignAdmin($request->user());
         
         return redirect($this->filmUrls->getUrlWithPaginationOptionsByRequest(
                     RouteServiceProvider::URL_AUTH_USERFILMS,
@@ -42,7 +42,7 @@ class AdminController extends Controller
      */
     public function destroy(FilmFilterRequest $request): RedirectResponse
     {
-        $this->userService->depriveAdmin($request->user()->id);
+        $this->userService->depriveAdmin($request->user());
         
         return redirect($this->filmUrls->getUrlWithPaginationOptionsByRequest(
                     RouteServiceProvider::URL_AUTH_USERFILMS,
