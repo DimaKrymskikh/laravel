@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Project\Admin\AdminController;
 use App\Http\Controllers\Project\Admin\HomeController;
+use App\Http\Controllers\Project\Admin\Content\Quizzes\QuizAnswerController;
+use App\Http\Controllers\Project\Admin\Content\Quizzes\QuizController;
+use App\Http\Controllers\Project\Admin\Content\Quizzes\QuizItemController;
 use App\Http\Controllers\Project\Admin\Content\ActorController;
 use App\Http\Controllers\Project\Admin\Content\CityController;
 use App\Http\Controllers\Project\Admin\Content\FilmActorController;
@@ -38,4 +41,22 @@ Route::middleware(['auth', 'all.action'])->group(function () {
     Route::resource(RouteServiceProvider::URL_ADMIN_FILMS.'/actors', FilmActorController::class)->only([
         'index', 'store', 'destroy'
     ]);
+    
+    Route::name('admin.')->group(function () {
+        Route::resource('admin/quizzes', QuizController::class)->only([
+            'index', 'store', 'show', 'update'
+        ]);
+        Route::put('admin/quizzes/{id}/set_status', [QuizController::class, 'setFinalStatus'])->name('quizzes.set_status');
+        Route::put('admin/quizzes/{id}/cancel_status', [QuizController::class, 'cancelFinalStatus'])->name('quizzes.cancel_status');
+        
+        Route::resource('admin/quiz_items', QuizItemController::class)->only([
+            'store', 'show', 'update'
+        ]);
+        Route::put('admin/quiz_items/{id}/set_status', [QuizItemController::class, 'setFinalStatus'])->name('quiz_items.set_status');
+        Route::put('admin/quiz_items/{id}/cancel_status', [QuizItemController::class, 'cancelFinalStatus'])->name('quiz_items.cancel_status');
+        
+        Route::resource('admin/quiz_answers', QuizAnswerController::class)->only([
+            'store', 'show', 'update', 'destroy'
+        ]);
+    });
 });

@@ -16,6 +16,12 @@ use App\Queries\Person\UsersCities\UserCityQueries;
 use App\Queries\Person\UsersCities\UserCityQueriesInterface;
 use App\Queries\Person\UsersFilms\UserFilmQueries;
 use App\Queries\Person\UsersFilms\UserFilmQueriesInterface;
+use App\Queries\Quiz\QuizAnswers\AdminQuizAnswerQueries;
+use App\Queries\Quiz\QuizAnswers\AdminQuizAnswerQueriesInterface;
+use App\Queries\Quiz\QuizItems\AdminQuizItemQueries;
+use App\Queries\Quiz\QuizItems\AdminQuizItemQueriesInterface;
+use App\Queries\Quiz\Quizzes\AdminQuizQueries;
+use App\Queries\Quiz\Quizzes\AdminQuizQueriesInterface;
 use App\Queries\Thesaurus\Cities\CityQueries;
 use App\Queries\Thesaurus\Cities\CityQueriesInterface;
 use App\Queries\Thesaurus\Languages\LanguageQueries;
@@ -43,6 +49,12 @@ final class QueriesProvider extends ServiceProvider
         $this->app->bind(UserCityQueriesInterface::class, UserCityQueries::class);
         
         $this->app->bind(UserFilmQueriesInterface::class, UserFilmQueries::class);
+        
+        $this->app->bind(AdminQuizAnswerQueriesInterface::class, AdminQuizAnswerQueries::class);
+        
+        $this->app->bind(AdminQuizItemQueriesInterface::class, AdminQuizItemQueries::class);
+        
+        $this->app->bind(AdminQuizQueriesInterface::class, AdminQuizQueries::class);
         
         $this->app->bind(CityQueriesInterface::class, CityQueries::class);
         

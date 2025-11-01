@@ -2,6 +2,7 @@
 import { ref, onMounted, onUpdated } from 'vue';
 import Spinner from '@/components/Svg/Spinner.vue';
 import { app } from '@/Services/app';
+import { useAutofocus } from '@/Services/form';
 
 const props = defineProps({
     titleText: String,
@@ -14,21 +15,7 @@ const props = defineProps({
 
 defineEmits(['update:modelValue']);
 
-// Если в форме несколько полей InputField, то
-// autofocus может быть только у одного
-const input = props.isInputAutofocus ? ref(null) : null;
-
-onMounted(() => {
-    if(props.isInputAutofocus && input.value) {
-        input.value.focus();
-    }
-});
-
-onUpdated(() => {
-    if(props.isInputAutofocus && input.value) {
-        input.value.focus();
-    }
-});
+const input = useAutofocus(props.isInputAutofocus);
 </script>
 
 <template>
@@ -41,7 +28,6 @@ onUpdated(() => {
                     class="disabled font-sans"
                     :type="type"
                     :value="modelValue"
-                    @input="$emit('update:modelValue', $event.target.value)"
                     disabled
                 />
             </div>

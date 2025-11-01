@@ -42,7 +42,12 @@ final class ActorQueries implements ActorQueriesInterface
                 SQL, ['id' => $id]);
     }
     
-    public function getList(ActorFilterDto $dto): Collection
+    public function getList(): Collection
+    {
+        return $this->getListWithFilter(new ActorFilterDto(''));
+    }
+    
+    public function getListWithFilter(ActorFilterDto $dto): Collection
     {
         return Actor::select(
                     'id',

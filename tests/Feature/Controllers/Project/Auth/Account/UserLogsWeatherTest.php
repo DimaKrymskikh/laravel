@@ -70,7 +70,7 @@ class UserLogsWeatherTest extends TestCase
         $responseAllParameters->assertOk();
     }
     
-    public function test_assert_redirect_if_request_parameter_is_not_valid(): void
+    public function test_assert_ok_if_request_parameter_is_not_valid(): void
     {
         $this->seedCitiesAndUsersWithLogsWeather();
         

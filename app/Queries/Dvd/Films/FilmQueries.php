@@ -43,7 +43,12 @@ final class FilmQueries implements FilmQueriesInterface
         return Film::filter($dto)->count();
     }
     
-    public function getList(FilmFilterDto $dto): Collection
+    public function getList(): Collection
+    {
+        return $this->getListWithFilter(new FilmFilterDto('', '', '', ''));
+    }
+    
+    public function getListWithFilter(FilmFilterDto $dto): Collection
     {
         return Film::with('language:id,name')
                 ->select('id', 'title', 'description', 'language_id', 'release_year')

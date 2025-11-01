@@ -39,6 +39,6 @@ final class LanguageService
     
     public function getAllLanguagesList(LanguageFilterDto $languageDto): Collection
     {
-        return $this->languageQueries->getList($languageDto);
+        return $this->languageQueries->getListWithFilter($languageDto);
     }
 }

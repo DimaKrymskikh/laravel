@@ -20,6 +20,8 @@ use App\Modifiers\Thesaurus\Cities\CityModifiers;
 use App\Modifiers\Thesaurus\Cities\CityModifiersInterface;
 use App\Modifiers\Thesaurus\Languages\LanguageModifiers;
 use App\Modifiers\Thesaurus\Languages\LanguageModifiersInterface;
+use App\Modifiers\Modifiers;
+use App\Modifiers\ModifiersInterface;
 use Illuminate\Support\ServiceProvider;
 
 final class ModifiersProvider extends ServiceProvider
@@ -43,5 +45,7 @@ final class ModifiersProvider extends ServiceProvider
         $this->app->bind(CityModifiersInterface::class, CityModifiers::class);
         
         $this->app->bind(LanguageModifiersInterface::class, LanguageModifiers::class);
+        
+        $this->app->bind(ModifiersInterface::class, Modifiers::class);
     }
 }

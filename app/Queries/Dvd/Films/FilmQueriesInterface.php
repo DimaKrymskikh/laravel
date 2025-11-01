@@ -4,10 +4,10 @@ namespace App\Queries\Dvd\Films;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\Models\Dvd\Film;
-use App\Queries\SimpleQueriesInterface;
+use App\Queries\QueriesInterface;
 use Illuminate\Database\Eloquent\Collection;
 
-interface FilmQueriesInterface extends SimpleQueriesInterface
+interface FilmQueriesInterface extends QueriesInterface
 {
     const NOT_RECORD_WITH_ID = "В таблице 'dvd.films' нет записи с id=%d";
     
@@ -26,7 +26,7 @@ interface FilmQueriesInterface extends SimpleQueriesInterface
      * @param FilmFilterDto $dto
      * @return Collection
      */
-    public function getList(FilmFilterDto $dto): Collection;
+    public function getListWithFilter(FilmFilterDto $dto): Collection;
     
     /**
      * Жадная загрузка фильмов с актёрами

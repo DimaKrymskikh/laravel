@@ -19,7 +19,12 @@ final class LanguageQueries implements LanguageQueriesInterface
         return Language::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
     }
     
-    public function getList(LanguageFilterDto $dto): Collection
+    public function getList(): Collection
+    {
+        return $this->getListWithFilter(new LanguageFilterDto(''));
+    }
+    
+    public function getListWithFilter(LanguageFilterDto $dto): Collection
     {
         return Language::select('id', 'name')
                     ->filter($dto)

@@ -1,16 +1,10 @@
 import { mount } from "@vue/test-utils";
-import { setActivePinia, createPinia } from 'pinia';
 
-import { city } from '@/Services/Content/cities';
 import PrimaryButton from '@/Components/Buttons/Variants/PrimaryButton.vue';
 import AddCityModal from '@/Components/Modal/Request/Cities/AddCityModal.vue';
 import AddCityBlock from '@/Components/Pages/Admin/Cities/AddCityBlock.vue';
 
-describe("@/Pages/Admin/Cities/AddCityBlock.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
+describe("@/Components/Pages/Admin/Cities/AddCityBlock.vue", () => {
     it("Отрисовка блока AddCityBlock", async () => {
         const wrapper = mount(AddCityBlock);
         

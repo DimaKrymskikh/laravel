@@ -5,4 +5,17 @@
     .spinner {
         @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10;
     }
+    // Классы для статусов опросов и вопросов
+    .status-sky {
+        @apply text-sky-700 bg-sky-200;
+    }
+    .status-green {
+        @apply text-green-700 bg-green-200;
+    }
+    .status-yellow {
+        @apply text-yellow-700 bg-yellow-200;
+    }
+    .status-gray {
+        @apply text-gray-700 bg-gray-200;
+    }
 }

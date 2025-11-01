@@ -22,3 +22,6 @@ yarn-error.log
 
 # Папка анализа покрытия тестами Vitest
 /coverage
+
+# Решил сохранять миграции перед удалением командой sail artisan schema:dump --prune
+/archive

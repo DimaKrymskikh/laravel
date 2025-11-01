@@ -45,10 +45,54 @@ CREATE SCHEMA person;
 
 
 --
+-- Name: quiz; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA quiz;
+
+
+--
 -- Name: thesaurus; Type: SCHEMA; Schema: -; Owner: -
 --
 
 CREATE SCHEMA thesaurus;
+
+
+--
+-- Name: quiz_item_status; Type: TYPE; Schema: quiz; Owner: -
+--
+
+CREATE TYPE quiz.quiz_item_status AS ENUM (
+    'at_work',
+    'ready',
+    'removed'
+);
+
+
+--
+-- Name: TYPE quiz_item_status; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON TYPE quiz.quiz_item_status IS 'Статусы вопросов.';
+
+
+--
+-- Name: quiz_status; Type: TYPE; Schema: quiz; Owner: -
+--
+
+CREATE TYPE quiz.quiz_status AS ENUM (
+    'at_work',
+    'ready',
+    'removed',
+    'approved'
+);
+
+
+--
+-- Name: TYPE quiz_status; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON TYPE quiz.quiz_status IS 'Статусы опросов.';
 
 
 --
@@ -746,6 +790,184 @@ ALTER SEQUENCE public.migrations_id_seq OWNED BY public.migrations.id;
 
 
 --
+-- Name: quiz_answers; Type: TABLE; Schema: quiz; Owner: -
+--
+
+CREATE TABLE quiz.quiz_answers (
+    id bigint NOT NULL,
+    description text NOT NULL,
+    is_correct boolean DEFAULT false NOT NULL,
+    quiz_item_id integer NOT NULL,
+    created_at timestamp(0) with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp(0) with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE quiz_answers; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON TABLE quiz.quiz_answers IS 'Ответы вопросов.';
+
+
+--
+-- Name: COLUMN quiz_answers.description; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.quiz_answers.description IS 'Содержание ответа.';
+
+
+--
+-- Name: COLUMN quiz_answers.is_correct; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.quiz_answers.is_correct IS 'Является ли ответ правильным. true - ответ правильный.';
+
+
+--
+-- Name: quiz_answers_id_seq; Type: SEQUENCE; Schema: quiz; Owner: -
+--
+
+CREATE SEQUENCE quiz.quiz_answers_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: quiz_answers_id_seq; Type: SEQUENCE OWNED BY; Schema: quiz; Owner: -
+--
+
+ALTER SEQUENCE quiz.quiz_answers_id_seq OWNED BY quiz.quiz_answers.id;
+
+
+--
+-- Name: quiz_items; Type: TABLE; Schema: quiz; Owner: -
+--
+
+CREATE TABLE quiz.quiz_items (
+    id bigint NOT NULL,
+    description text NOT NULL,
+    status quiz.quiz_item_status DEFAULT 'at_work'::quiz.quiz_item_status NOT NULL,
+    quiz_id integer,
+    created_at timestamp(0) with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp(0) with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE quiz_items; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON TABLE quiz.quiz_items IS 'Вопросы опроса.';
+
+
+--
+-- Name: COLUMN quiz_items.description; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.quiz_items.description IS 'Содержание вопроса.';
+
+
+--
+-- Name: COLUMN quiz_items.status; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.quiz_items.status IS 'Статус вопроса';
+
+
+--
+-- Name: quiz_items_id_seq; Type: SEQUENCE; Schema: quiz; Owner: -
+--
+
+CREATE SEQUENCE quiz.quiz_items_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: quiz_items_id_seq; Type: SEQUENCE OWNED BY; Schema: quiz; Owner: -
+--
+
+ALTER SEQUENCE quiz.quiz_items_id_seq OWNED BY quiz.quiz_items.id;
+
+
+--
+-- Name: quizzes; Type: TABLE; Schema: quiz; Owner: -
+--
+
+CREATE TABLE quiz.quizzes (
+    id integer NOT NULL,
+    title text NOT NULL,
+    description text,
+    lead_time integer DEFAULT 20 NOT NULL,
+    status quiz.quiz_status DEFAULT 'at_work'::quiz.quiz_status NOT NULL,
+    created_at timestamp(0) with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp(0) with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE quizzes; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON TABLE quiz.quizzes IS 'Опросы.';
+
+
+--
+-- Name: COLUMN quizzes.title; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.quizzes.title IS 'Заголовок опроса.';
+
+
+--
+-- Name: COLUMN quizzes.description; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.quizzes.description IS 'Описание опроса.';
+
+
+--
+-- Name: COLUMN quizzes.lead_time; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.quizzes.lead_time IS 'Время выполнения опроса в минутах.';
+
+
+--
+-- Name: COLUMN quizzes.status; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.quizzes.status IS 'Статус опроса';
+
+
+--
+-- Name: quizzes_id_seq; Type: SEQUENCE; Schema: quiz; Owner: -
+--
+
+CREATE SEQUENCE quiz.quizzes_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: quizzes_id_seq; Type: SEQUENCE OWNED BY; Schema: quiz; Owner: -
+--
+
+ALTER SEQUENCE quiz.quizzes_id_seq OWNED BY quiz.quizzes.id;
+
+
+--
 -- Name: cities; Type: TABLE; Schema: thesaurus; Owner: -
 --
 
@@ -1009,6 +1231,27 @@ ALTER TABLE ONLY public.migrations ALTER COLUMN id SET DEFAULT nextval('public.m
 
 
 --
+-- Name: quiz_answers id; Type: DEFAULT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.quiz_answers ALTER COLUMN id SET DEFAULT nextval('quiz.quiz_answers_id_seq'::regclass);
+
+
+--
+-- Name: quiz_items id; Type: DEFAULT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.quiz_items ALTER COLUMN id SET DEFAULT nextval('quiz.quiz_items_id_seq'::regclass);
+
+
+--
+-- Name: quizzes id; Type: DEFAULT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.quizzes ALTER COLUMN id SET DEFAULT nextval('quiz.quizzes_id_seq'::regclass);
+
+
+--
 -- Name: cities id; Type: DEFAULT; Schema: thesaurus; Owner: -
 --
 
@@ -1149,6 +1392,38 @@ ALTER TABLE ONLY public.migrations
 
 
 --
+-- Name: quiz_answers quiz_answers_pkey; Type: CONSTRAINT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.quiz_answers
+    ADD CONSTRAINT quiz_answers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: quiz_items quiz_items_pkey; Type: CONSTRAINT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.quiz_items
+    ADD CONSTRAINT quiz_items_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: quizzes quizzes_pkey; Type: CONSTRAINT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.quizzes
+    ADD CONSTRAINT quizzes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: quizzes quizzes_title_key; Type: CONSTRAINT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.quizzes
+    ADD CONSTRAINT quizzes_title_key UNIQUE (title);
+
+
+--
 -- Name: cities cities_open_weather_id_key; Type: CONSTRAINT; Schema: thesaurus; Owner: -
 --
 
@@ -1275,6 +1550,27 @@ CREATE TRIGGER last_updated BEFORE UPDATE ON person.users FOR EACH ROW EXECUTE F
 
 
 --
+-- Name: quiz_answers last_updated; Type: TRIGGER; Schema: quiz; Owner: -
+--
+
+CREATE TRIGGER last_updated BEFORE UPDATE ON quiz.quiz_answers FOR EACH ROW EXECUTE FUNCTION thesaurus.last_updated();
+
+
+--
+-- Name: quiz_items last_updated; Type: TRIGGER; Schema: quiz; Owner: -
+--
+
+CREATE TRIGGER last_updated BEFORE UPDATE ON quiz.quiz_items FOR EACH ROW EXECUTE FUNCTION thesaurus.last_updated();
+
+
+--
+-- Name: quizzes last_updated; Type: TRIGGER; Schema: quiz; Owner: -
+--
+
+CREATE TRIGGER last_updated BEFORE UPDATE ON quiz.quizzes FOR EACH ROW EXECUTE FUNCTION thesaurus.last_updated();
+
+
+--
 -- Name: cities last_updated; Type: TRIGGER; Schema: thesaurus; Owner: -
 --
 
@@ -1361,6 +1657,22 @@ ALTER TABLE ONLY person.users_films
 
 
 --
+-- Name: quiz_answers quiz_answers_quiz_item_id_fkey; Type: FK CONSTRAINT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.quiz_answers
+    ADD CONSTRAINT quiz_answers_quiz_item_id_fkey FOREIGN KEY (quiz_item_id) REFERENCES quiz.quiz_items(id);
+
+
+--
+-- Name: quiz_items quiz_items_quiz_id_fkey; Type: FK CONSTRAINT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.quiz_items
+    ADD CONSTRAINT quiz_items_quiz_id_fkey FOREIGN KEY (quiz_id) REFERENCES quiz.quizzes(id);
+
+
+--
 -- Name: cities cities_timezone_id_fkey; Type: FK CONSTRAINT; Schema: thesaurus; Owner: -
 --
 
@@ -1405,6 +1717,9 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 25	2024_03_26_111438_create_logs_trigger_on_table	6
 26	2024_03_30_141820_update_open_weather_weather_table	7
 28	2025_02_19_174211_add_collumn_remember_token_to_table_person_users	9
+29	2025_09_16_190659_create_quiz	10
+30	2025_09_16_193516_add_commit	11
+31	2025_09_17_190851_create_quiz_answers_table	12
 \.
 
 
@@ -1412,7 +1727,7 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 -- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.migrations_id_seq', 28, true);
+SELECT pg_catalog.setval('public.migrations_id_seq', 31, true);
 
 
 --

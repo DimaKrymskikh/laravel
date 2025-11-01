@@ -1,6 +1,6 @@
 import '@/bootstrap';
 
-import { app } from '@/Services/app';
+import { app, modal } from '@/Services/app';
 import { cities_user } from '@/__tests__/data/cities';
 
 vi.mock('axios');
@@ -18,7 +18,7 @@ const dataWithError = {
     }
 };
 
-describe("@/Stores/app", () => {
+describe("@/Services/app", () => {
     // В начале каждого теста устанавливаем дефолтные значения
     beforeEach(() => {
         app.isRequest = false;
@@ -93,5 +93,17 @@ describe("@/Stores/app", () => {
         app.errorRequest(dataWithError.data);
         expect(app.isShowForbiddenModal).toBe(true);
         expect(app.errorMessage).toBe('Ошибка');
+    });
+    
+    it("modal.show()", () => {
+        modal.isShow = false;
+        modal.show();
+        expect(modal.isShow).toBe(true);
+    });
+    
+    it("modal.hide()", () => {
+        modal.isShow = true;
+        modal.hide();
+        expect(modal.isShow).toBe(false);
     });
 });

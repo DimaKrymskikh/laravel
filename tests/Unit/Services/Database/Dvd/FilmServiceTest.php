@@ -107,7 +107,7 @@ class FilmServiceTest extends TestCase
         $filmFilterDto = $this->getBaseCaseFilmFilterDto();
         
         $this->filmQueries->expects($this->once())
-                ->method('getList')
+                ->method('getListWithFilter')
                 ->with($filmFilterDto);
         
         $this->assertInstanceOf(Collection::class, $this->filmService->getFilmsList($filmFilterDto));

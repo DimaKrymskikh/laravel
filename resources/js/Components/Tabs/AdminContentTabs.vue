@@ -61,7 +61,15 @@ const filmsAdmin = inject('filmsAdmin');
                     фильмы
                 </Link>
             </li>
+            <li class="tabs-li">
+                <Link
+                    class="block px-4 py-1"
+                    :class="{ 'tabs-link-active': $page.component === 'Admin/Quizzes/Quizzes' }"
+                    href="/admin/quizzes"
+                >
+                    опросы
+                </Link>
+            </li>
         </ul>
     </li>
 </template>
-

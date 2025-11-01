@@ -55,7 +55,7 @@ final class FilmService
     
     public function getFilmsList(FilmFilterDto $filmFilterDto): Collection
     {
-        return $this->filmQueries->getList($filmFilterDto);
+        return $this->filmQueries->getListWithFilter($filmFilterDto);
     }
     
     public function getActorsList(int $filmId): Film

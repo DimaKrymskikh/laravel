@@ -45,6 +45,6 @@ final class ActorService
     
     public function getAllActorsList(ActorFilterDto $actorFilterDto): Collection
     {
-        return $this->actorQueries->getList($actorFilterDto);
+        return $this->actorQueries->getListWithFilter($actorFilterDto);
     }
 }

@@ -81,7 +81,7 @@ class LanguageServiceTest extends TestCase
         $dto = $this->getBaseCaseLanguageFilterDto();
         
         $this->languageQueries->expects($this->once())
-                ->method('getList')
+                ->method('getListWithFilter')
                 ->with($this->identicalTo($dto));
         
         $this->assertInstanceOf(Collection::class, $this->languageService->getAllLanguagesList($dto));

@@ -1,6 +1,5 @@
 import { mount } from "@vue/test-utils";
 
-import { setActivePinia, createPinia } from 'pinia';
 import InputField from '@/components/Elements/InputField.vue';
 import Spinner from '@/components/Svg/Spinner.vue';
 import { app } from '@/Services/app';

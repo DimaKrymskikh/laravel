@@ -94,7 +94,7 @@ class ActorServiceTest extends TestCase
         $actorFilterDto = new ActorFilterDto('test');
         
         $this->actorQueries->expects($this->once())
-                ->method('getList')
+                ->method('getListWithFilter')
                 ->with($actorFilterDto);
         
         $this->actorService->getAllActorsList($actorFilterDto);

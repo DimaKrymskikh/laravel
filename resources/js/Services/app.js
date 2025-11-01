@@ -39,3 +39,14 @@ export const app = reactive({
         }
     }
 });
+
+// Базовый объект для модальных окон
+export const modal = {
+    isShow: false,
+    show() {
+        this.isShow = true;
+    },
+    hide() {
+        this.isShow = false;
+    }
+};
