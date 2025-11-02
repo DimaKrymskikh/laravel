@@ -1,14 +1,15 @@
 <?php
 
-namespace Tests\Support\Data\Dto\Pagination;
+namespace Tests\Unit;
 
 use App\DataTransferObjects\Pagination\PaginatorDto;
 use App\ValueObjects\Pagination\PageValue;
 use App\ValueObjects\Pagination\PerPageValue;
+use PHPUnit\Framework\TestCase;
 
-trait PaginatorDtoCase
+abstract class UnitTestCase extends TestCase
 {
-    private function getBaseCasePaginatorDto(): PaginatorDto
+    protected function getPaginatorDto(): PaginatorDto
     {
         return new PaginatorDto(PageValue::create('12'), PerPageValue::create('20'));
     }

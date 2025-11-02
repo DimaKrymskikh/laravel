@@ -14,9 +14,9 @@ use App\Services\Database\OpenWeather\WeatherService;
 use App\Services\Database\Thesaurus\TimezoneService;
 use App\ValueObjects\ResponseObjects\OpenWeatherObject;
 use Carbon\CarbonImmutable;
+use Database\Testsupport\OpenWeather\OpenWeatherResponse;
 use Illuminate\Database\Eloquent\Collection;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Data\OpenWeather\OpenWeatherResponse;
 
 class WeatherServiceTest extends TestCase
 {

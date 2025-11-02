@@ -2,14 +2,14 @@
 
 namespace Tests\Feature\Commands\database\OpenWeather;
 
+use Database\Testsupport\Thesaurus\ThesaurusData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
-use Tests\Support\Seeders;
 use Tests\TestCase;
 
 class CopyWeatherTest extends TestCase
 {
-    use RefreshDatabase, Seeders;
+    use RefreshDatabase, ThesaurusData;
     
     public function test_open_weather_weather_table_data_copy_in_database_Copy_OpenWeather_WeatherData(): void
     {

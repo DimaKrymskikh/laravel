@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Support\Data\OpenWeather;
+namespace Database\Testsupport\OpenWeather;
 
 trait OpenWeatherResponse
 {

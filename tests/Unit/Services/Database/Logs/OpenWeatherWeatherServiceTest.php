@@ -6,13 +6,9 @@ use App\Exceptions\OpenWeatherException;
 use App\Queries\Logs\OpenWeatherWeather\OpenWeatherWeatherQueriesInterface;
 use App\Services\Database\Logs\OpenWeatherWeatherService;
 use PHPUnit\Framework\TestCase;
-use Tests\Support\Data\Dto\Database\OpenWeather\Filters\WeatherFilterDtoCase;
-use Tests\Support\Data\Dto\Pagination\PaginatorDtoCase;
 
 class OpenWeatherWeatherServiceTest extends TestCase
 {
-    use WeatherFilterDtoCase, PaginatorDtoCase;
-    
     private OpenWeatherWeatherQueriesInterface $openWeatherWeatherQueries;
     private OpenWeatherWeatherService $openWeatherWeatherService;
     private int $cityId = 18;

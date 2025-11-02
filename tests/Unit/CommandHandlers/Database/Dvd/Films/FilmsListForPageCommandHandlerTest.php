@@ -4,21 +4,17 @@ namespace Tests\Unit\CommandHandlers\Database\Dvd\Films;
 
 use App\CommandHandlers\Database\Dvd\Films\FilmsListForPageCommandHandler;
 use App\Queries\Dvd\Films\FilmsListForPage\FilmsListForPageQueriesInterface;
-use PHPUnit\Framework\TestCase;
-use Tests\Support\Data\Dto\Database\Dvd\Filters\FilmFilterDtoCase;
-use Tests\Support\Data\Dto\Pagination\PaginatorDtoCase;
+use Tests\Unit\TestCase\DvdTestCase;
 
-class FilmsListForPageCommandHandlerTest extends TestCase
+class FilmsListForPageCommandHandlerTest extends DvdTestCase
 {
-    use FilmFilterDtoCase, PaginatorDtoCase;
-    
     private FilmsListForPageCommandHandler $handler;
     private FilmsListForPageQueriesInterface $queries;
     
     public function test_success_handle(): void
     {
-        $filmFilterDto = $this->getBaseCaseFilmFilterDto();
-        $paginatorDto = $this->getBaseCasePaginatorDto();
+        $filmFilterDto = $this->getFilmFilterDto();
+        $paginatorDto = $this->getPaginatorDto();
         $userId = 7;
         
         $this->queries->expects($this->once())
@@ -30,8 +26,8 @@ class FilmsListForPageCommandHandlerTest extends TestCase
     
     public function test_success_handle_without_user(): void
     {
-        $filmFilterDto = $this->getBaseCaseFilmFilterDto();
-        $paginatorDto = $this->getBaseCasePaginatorDto();
+        $filmFilterDto = $this->getFilmFilterDto();
+        $paginatorDto = $this->getPaginatorDto();
         
         $this->queries->expects($this->once())
                 ->method('get')

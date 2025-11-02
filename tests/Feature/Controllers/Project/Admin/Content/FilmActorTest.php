@@ -8,15 +8,15 @@ use App\Models\Dvd\FilmActor;
 use App\Providers\RouteServiceProvider;
 use Database\Seeders\Tests\Dvd\ActorSeeder;
 use Database\Seeders\Tests\Dvd\FilmSeeder;
+use Database\Testsupport\Dvd\DvdData;
+use Database\Testsupport\Authentication;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
-use Tests\Support\Authentication;
-use Tests\Support\Seeders;
 use Tests\TestCase;
 
 class FilmActorTest extends TestCase
 {
-    use RefreshDatabase, Authentication, Seeders;
+    use RefreshDatabase, Authentication, DvdData;
     
     public function test_admin_can_get_actors_list(): void
     {

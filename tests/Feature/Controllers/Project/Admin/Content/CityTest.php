@@ -6,15 +6,15 @@ use App\Models\Thesaurus\City;
 use App\Providers\RouteServiceProvider;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Database\Seeders\Tests\Thesaurus\TimezoneSeeder;
+use Database\Testsupport\Thesaurus\ThesaurusData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
-use Tests\Support\Authentication;
-use Tests\Support\Seeders;
+use Database\Testsupport\Authentication;
 use Tests\TestCase;
 
 class CityTest extends TestCase
 {
-    use RefreshDatabase, Authentication, Seeders;
+    use RefreshDatabase, Authentication, ThesaurusData;
     
     public function test_cities_page_displayed_for_admin_without_cities(): void
     {

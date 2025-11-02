@@ -6,16 +6,16 @@ use App\Models\Dvd\Actor;
 use App\Providers\RouteServiceProvider;
 use App\Queries\Dvd\Actors\ActorQueriesInterface;
 use Database\Seeders\Tests\Dvd\ActorSeeder;
+use Database\Testsupport\Dvd\DvdData;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
-use Tests\Support\Authentication;
-use Tests\Support\Seeders;
+use Database\Testsupport\Authentication;
 use Tests\TestCase;
 
 class ActorTest extends TestCase
 {
-    use RefreshDatabase, Authentication, Seeders;
+    use RefreshDatabase, Authentication, DvdData;
     
     public function test_actors_page_displayed_for_admin_without_actors(): void
     {

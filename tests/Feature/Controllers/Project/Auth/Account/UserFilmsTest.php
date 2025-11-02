@@ -12,13 +12,13 @@ use Database\Seeders\Tests\Person\UserSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
-use Tests\Support\Authentication;
-use Tests\Support\User\Seeders;
+use Database\Testsupport\Authentication;
+use Database\Testsupport\Person\PersonData;
 use Tests\TestCase;
 
 class UserFilmsTest extends TestCase
 {
-    use RefreshDatabase, Authentication, Seeders;
+    use RefreshDatabase, Authentication, PersonData;
     
     public function test_user_films_displayed_for_auth(): void
     {

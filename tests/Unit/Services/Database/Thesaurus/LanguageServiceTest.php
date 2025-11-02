@@ -8,13 +8,10 @@ use App\Modifiers\Thesaurus\Languages\LanguageModifiersInterface;
 use App\Queries\Thesaurus\Languages\LanguageQueriesInterface;
 use App\Services\Database\Thesaurus\LanguageService;
 use Illuminate\Database\Eloquent\Collection;
-use Tests\Support\Data\Dto\Database\Thesaurus\Filters\LanguageFilterDtoCase;
-use PHPUnit\Framework\TestCase;
+use Tests\Unit\TestCase\ThesaurusTestCase;
 
-class LanguageServiceTest extends TestCase
+class LanguageServiceTest extends ThesaurusTestCase
 {
-    use LanguageFilterDtoCase;
-    
     private LanguageModifiersInterface $languageModifiers;
     private LanguageQueriesInterface $languageQueries;
     private LanguageService $languageService;
@@ -78,7 +75,7 @@ class LanguageServiceTest extends TestCase
     
     public function test_success_get_all_languages_list(): void
     {
-        $dto = $this->getBaseCaseLanguageFilterDto();
+        $dto = $this->getLanguageFilterDto();
         
         $this->languageQueries->expects($this->once())
                 ->method('getListWithFilter')

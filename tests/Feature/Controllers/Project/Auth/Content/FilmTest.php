@@ -4,7 +4,7 @@ namespace Tests\Feature\Controllers\Project\Auth\Content;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
-use Tests\Support\Authentication;
+use Database\Testsupport\Authentication;
 use Tests\TestCase;
 
 class FilmTest extends TestCase

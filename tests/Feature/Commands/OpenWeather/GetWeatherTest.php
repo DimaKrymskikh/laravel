@@ -9,16 +9,16 @@ use App\Models\Thesaurus\City;
 use App\Queries\Thesaurus\Cities\CityQueriesInterface;
 use App\Services\Database\Logs\OpenWeatherWeatherService;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
+use Database\Testsupport\OpenWeather\OpenWeatherResponse;
+use Database\Testsupport\Thesaurus\ThesaurusData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
-use Tests\Support\Data\OpenWeather\OpenWeatherResponse;
-use Tests\Support\Seeders;
 use Tests\TestCase;
 
 class GetWeatherTest extends TestCase
 {
-    use RefreshDatabase, OpenWeatherResponse, Seeders;
+    use RefreshDatabase, OpenWeatherResponse, ThesaurusData;
     
     public function test_weather_can_be_get_for_one_city(): void
     {

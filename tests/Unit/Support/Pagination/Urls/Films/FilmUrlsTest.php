@@ -4,20 +4,14 @@ namespace Tests\Unit\Support\Pagination\Urls\Films;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
-use App\Models\Dvd\Film;
 use App\Queries\Dvd\Films\FilmQueriesInterface;
 use App\Support\Pagination\Urls\Films\BaseFilmUrls;
 use App\Support\Pagination\Urls\Films\FilmUrls;
 use App\Support\Pagination\Paginator;
-use Illuminate\Database\Eloquent\Collection;
-use Tests\Support\Data\Dto\Database\Dvd\Filters\FilmFilterDtoCase;
-use Tests\Support\Data\Dto\Pagination\PaginatorDtoCase;
-use PHPUnit\Framework\TestCase;
+use Tests\Unit\TestCase\DvdTestCase;
 
-class FilmUrlsTest extends TestCase
+class FilmUrlsTest extends DvdTestCase
 {
-    use FilmFilterDtoCase, PaginatorDtoCase;
-    
     private FilmQueriesInterface $filmQueries;
     private BaseFilmUrls $baseFilmUrls;
     private FilmUrls $filmUrls;
@@ -68,7 +62,7 @@ class FilmUrlsTest extends TestCase
     {
         $this->filmQueries->expects($this->once())
                 ->method('count')
-                // getBaseCasePaginatorDto: page=12, number=20 (удалённый фильм был на 12 странице)
+                // getPaginatorDto: page=12, number=20 (удалённый фильм был на 12 странице)
                 ->willReturn(11*20);
         
         $this->assertStringContainsString(
@@ -81,7 +75,7 @@ class FilmUrlsTest extends TestCase
     {
         $this->filmQueries->expects($this->once())
                 ->method('count')
-                // getBaseCasePaginatorDto: page=12, number=20 (удалённый фильм был на 12 странице)
+                // getPaginatorDto: page=12, number=20 (удалённый фильм был на 12 странице)
                 ->willReturn(15*20+7);
         
         $this->assertStringContainsString(
@@ -92,8 +86,8 @@ class FilmUrlsTest extends TestCase
     
     protected function setUp(): void
     {
-        $this->filmFilterDto = $this->getBaseCaseFilmFilterDto();
-        $this->paginatorDto = $this->getBaseCasePaginatorDto();
+        $this->filmFilterDto = $this->getFilmFilterDto();
+        $this->paginatorDto = $this->getPaginatorDto();
         
         $this->filmQueries = $this->createMock(FilmQueriesInterface::class);
         $this->paginator = new Paginator();

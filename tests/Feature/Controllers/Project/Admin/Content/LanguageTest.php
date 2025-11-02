@@ -5,16 +5,16 @@ namespace Tests\Feature\Controllers\Project\Admin\Content;
 use App\Models\Thesaurus\Language;
 use App\Providers\RouteServiceProvider;
 use Database\Seeders\Tests\Thesaurus\LanguageSeeder;
+use Database\Testsupport\Thesaurus\ThesaurusData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Inertia\Testing\AssertableInertia as Assert;
-use Tests\Support\Authentication;
-use Tests\Support\Seeders;
+use Database\Testsupport\Authentication;
 use Tests\TestCase;
 
 class LanguageTest extends TestCase
 {
-    use RefreshDatabase, Authentication, Seeders;
+    use RefreshDatabase, Authentication, ThesaurusData;
     
     public function test_languages_page_displayed_for_admin_without_languages(): void
     {

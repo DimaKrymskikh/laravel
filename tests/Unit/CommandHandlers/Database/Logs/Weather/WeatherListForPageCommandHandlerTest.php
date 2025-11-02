@@ -7,15 +7,11 @@ use App\Models\Thesaurus\City;
 use App\Queries\Logs\OpenWeatherWeather\WeatherListForPage\WeatherListForPageQueriesInterface;
 use App\Queries\Thesaurus\Timezones\TimezoneQueriesInterface;
 use App\Services\Database\Thesaurus\TimezoneService;
-use PHPUnit\Framework\TestCase;
-use Tests\Support\Data\Dto\Database\OpenWeather\Filters\WeatherFilterDtoCase;
-use Tests\Support\Data\Dto\Pagination\PaginatorDtoCase;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Tests\Unit\TestCase\WeatherTestCase;
 
-class WeatherListForPageCommandHandlerTest extends TestCase
+class WeatherListForPageCommandHandlerTest extends WeatherTestCase
 {
-    use WeatherFilterDtoCase, PaginatorDtoCase;
-    
     private WeatherListForPageCommandHandler $handler;
     private WeatherListForPageQueriesInterface $queries;
     private TimezoneQueriesInterface $timezoneQueries;
@@ -27,8 +23,8 @@ class WeatherListForPageCommandHandlerTest extends TestCase
         $city = new City();
         $city->id = $this->cityId;
         
-        $weatherFilterDto = $this->getBaseCaseWeatherFilterDto();
-        $paginatorDto = $this->getBaseCasePaginatorDto();
+        $weatherFilterDto = $this->getWeatherFilterDto();
+        $paginatorDto = $this->getPaginatorDto();
         
         $this->queries->expects($this->once())
                 ->method('get')

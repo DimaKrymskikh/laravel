@@ -3,7 +3,7 @@
 namespace Tests\Unit\ValueObjects\ResponseObjects;
 
 use App\ValueObjects\ResponseObjects\OpenWeatherObject;
-use Tests\Support\Data\OpenWeather\OpenWeatherResponse;
+use Database\Testsupport\OpenWeather\OpenWeatherResponse;
 use PHPUnit\Framework\TestCase;
 
 class OpenWeatherObjectTest extends TestCase

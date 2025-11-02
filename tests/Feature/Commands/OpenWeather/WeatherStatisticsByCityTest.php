@@ -5,13 +5,13 @@ namespace Tests\Feature\Commands\OpenWeather;
 use App\Models\Thesaurus\City;
 use App\Queries\Thesaurus\Cities\CityQueriesInterface;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
+use Database\Testsupport\Thesaurus\ThesaurusData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Support\Seeders;
 use Tests\TestCase;
 
 class WeatherStatisticsByCityTest extends TestCase
 {
-    use RefreshDatabase, Seeders;
+    use RefreshDatabase, ThesaurusData;
     
     public function test_statistics_can_be_received_for_one_city_without_weather_data(): void
     {

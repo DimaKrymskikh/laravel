@@ -1,6 +1,6 @@
 <?php
 
-namespace  Tests\Support;
+namespace  Database\Testsupport;
 
 use App\Models\User;
 use Illuminate\Validation\ValidationException;

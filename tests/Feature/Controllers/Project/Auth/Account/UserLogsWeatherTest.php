@@ -6,12 +6,12 @@ use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
-use Tests\Support\Authentication;
-use Tests\Support\User\UserCities;
+use Database\Testsupport\Authentication;
+use Database\Testsupport\Person\PersonData;
 
 class UserLogsWeatherTest extends TestCase
 {
-    use RefreshDatabase, Authentication, UserCities;
+    use RefreshDatabase, Authentication, PersonData;
     
     public function test_auth_can_get_weather_logs_for_one_city(): void
     {

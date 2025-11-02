@@ -2,14 +2,14 @@
 
 namespace Tests\Feature\Commands\database\Dvd;
 
+use Database\Testsupport\Dvd\DvdData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
-use Tests\Support\Seeders;
 use Tests\TestCase;
 
 class CopyFilmsTest extends TestCase
 {
-    use RefreshDatabase, Seeders;
+    use RefreshDatabase, DvdData;
     
     public function test_dvd_films_table_data_copy_in_database_Copy_Dvd_FilmData(): void
     {

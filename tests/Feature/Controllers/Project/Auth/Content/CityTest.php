@@ -11,13 +11,13 @@ use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Inertia\Testing\AssertableInertia as Assert;
-use Tests\Support\Authentication;
-use Tests\Support\User\UserCities;
+use Database\Testsupport\Authentication;
+use Database\Testsupport\Person\PersonData;
 use Tests\TestCase;
 
 class CityTest extends TestCase
 {
-    use RefreshDatabase, Authentication, UserCities;
+    use RefreshDatabase, Authentication, PersonData;
     
     public function test_cities_page_displayed_for_auth_without_cities(): void
     {

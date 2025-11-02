@@ -7,16 +7,16 @@ use App\Providers\RouteServiceProvider;
 use Database\Seeders\Tests\Dvd\ActorSeeder;
 use Database\Seeders\Tests\Dvd\FilmSeeder;
 use Database\Seeders\Tests\Thesaurus\LanguageSeeder;
+use Database\Testsupport\Dvd\DvdData;
+use Database\Testsupport\Authentication;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Inertia\Testing\AssertableInertia as Assert;
-use Tests\Support\Authentication;
-use Tests\Support\Seeders;
 use Tests\TestCase;
 
 class FilmTest extends TestCase
 {
-    use RefreshDatabase, Authentication, Seeders;
+    use RefreshDatabase, Authentication, DvdData;
     
     public function test_films_list_page_displayed_for_admin_without_films(): void
     {

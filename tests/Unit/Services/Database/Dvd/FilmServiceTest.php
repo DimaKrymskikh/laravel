@@ -8,15 +8,10 @@ use App\Modifiers\Dvd\Films\FilmModifiersInterface;
 use App\Queries\Dvd\Films\FilmQueriesInterface;
 use App\Services\Database\Dvd\FilmService;
 use Illuminate\Database\Eloquent\Collection;
-use Tests\Support\Data\Dto\Database\Dvd\Filters\FilmFilterDtoCase;
-use Tests\Support\Data\Dto\Database\Dvd\FilmDtoCase;
-use Tests\Support\Data\Dto\Pagination\PaginatorDtoCase;
-use PHPUnit\Framework\TestCase;
+use Tests\Unit\TestCase\DvdTestCase;
 
-class FilmServiceTest extends TestCase
+class FilmServiceTest extends DvdTestCase
 {
-    use FilmDtoCase, FilmFilterDtoCase, PaginatorDtoCase;
-    
     private FilmQueriesInterface $filmQueries;
     private FilmModifiersInterface $filmModifiers;
     private FilmService $filmService;
@@ -24,7 +19,7 @@ class FilmServiceTest extends TestCase
 
     public function test_success_create(): void
     {
-        $filmDto = $this->getBaseCaseFilmDto();
+        $filmDto = $this->getFilmDto();
         
         $this->filmModifiers->expects($this->once())
                 ->method('save')
@@ -104,7 +99,7 @@ class FilmServiceTest extends TestCase
     
     public function test_success_get_films_list(): void
     {
-        $filmFilterDto = $this->getBaseCaseFilmFilterDto();
+        $filmFilterDto = $this->getFilmFilterDto();
         
         $this->filmQueries->expects($this->once())
                 ->method('getListWithFilter')

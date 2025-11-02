@@ -3,14 +3,14 @@
 namespace Tests\Feature\Controllers\Api;
 
 use App\Models\User;
+use Database\Testsupport\Dvd\DvdData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Tests\Support\Seeders;
 use Tests\TestCase;
 
 class FilmsTest extends TestCase
 {
-    use RefreshDatabase, Seeders;
+    use RefreshDatabase, DvdData;
     
     public function test_films_can_be_retrieved(): void
     {

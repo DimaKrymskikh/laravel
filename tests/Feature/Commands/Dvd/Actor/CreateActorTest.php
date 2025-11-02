@@ -3,13 +3,13 @@
 namespace Tests\Feature\Commands\Dvd\Actor;
 
 use App\Models\Dvd\Actor;
+use Database\Testsupport\Dvd\DvdData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Support\Seeders;
 use Tests\TestCase;
 
 class CreateActorTest extends TestCase
 {
-    use RefreshDatabase, Seeders;
+    use RefreshDatabase, DvdData;
     
     public function test_actor_can_be_create(): void
     {

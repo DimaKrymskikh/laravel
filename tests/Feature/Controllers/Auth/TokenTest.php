@@ -5,7 +5,7 @@ namespace Tests\Feature\Controllers\Auth;
 use App\Providers\RouteServiceProvider;
 use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Support\Authentication;
+use Database\Testsupport\Authentication;
 use Tests\TestCase;
 
 class TokenTest extends TestCase

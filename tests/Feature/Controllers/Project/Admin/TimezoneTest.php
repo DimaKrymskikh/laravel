@@ -5,13 +5,12 @@ namespace Tests\Feature\Controllers\Project\Admin;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
-use Tests\Support\Authentication;
-use Tests\Support\Seeders;
+use Database\Testsupport\Authentication;
 use Tests\TestCase;
 
 class TimezoneTest extends TestCase
 {
-    use RefreshDatabase, Authentication, Seeders;
+    use RefreshDatabase, Authentication;
     
     public function test_admin_can_get_timezone_list(): void
     {

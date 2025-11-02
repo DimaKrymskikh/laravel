@@ -7,13 +7,12 @@ use Database\Seeders\Tests\Quiz\QuizSeeder;
 use Database\Testsupport\Quiz\QuizData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
-use Tests\Support\Authentication;
-use Tests\Support\Seeders;
+use Database\Testsupport\Authentication;
 use Tests\TestCase;
 
 class QuizTest extends TestCase
 {
-    use RefreshDatabase, Authentication, Seeders, QuizData;
+    use RefreshDatabase, Authentication, QuizData;
     
     public function test_success_index(): void
     {

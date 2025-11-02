@@ -10,14 +10,14 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
-use Tests\Support\Authentication;
-use Tests\Support\Data\OpenWeather\OpenWeatherResponse;
-use Tests\Support\User\UserCities;
+use Database\Testsupport\Authentication;
+use Database\Testsupport\OpenWeather\OpenWeatherResponse;
+use Database\Testsupport\Person\PersonData;
 use Tests\TestCase;
 
 class UserWeatherTest extends TestCase
 {
-    use RefreshDatabase, Authentication, UserCities, OpenWeatherResponse;
+    use RefreshDatabase, Authentication, PersonData, OpenWeatherResponse;
     
     public function test_auth_can_get_weather(): void
     {
