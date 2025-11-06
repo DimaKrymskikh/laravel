@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services\Quiz\Admin;
 
 use App\Models\Quiz\QuizAnswer;
-use App\Modifiers\ModifiersInterface;
+use App\Modifiers\Quiz\QuizAnswerModifiersInterface;
 use App\Queries\Quiz\QuizAnswers\AdminQuizAnswerQueriesInterface;
 use App\Queries\Quiz\QuizItems\AdminQuizItemQueriesInterface;
 use App\Services\Quiz\Admin\AdminQuizAnswerService;
@@ -15,7 +15,7 @@ use Tests\Unit\Services\Quiz\QuizTestCase;
 
 final class AdminQuizAnswerServiceTest extends QuizTestCase
 {
-    private ModifiersInterface $modifiers;
+    private QuizAnswerModifiersInterface $quizAnswerModifiers;
     private AdminQuizAnswerQueriesInterface $quizAnswerQueries;
     private AdminQuizItemQueriesInterface $quizItemQueries;
     private AdminQuizAnswerService $quizAnswerService;
@@ -46,7 +46,7 @@ final class AdminQuizAnswerServiceTest extends QuizTestCase
                 ->with($dto->quizItemId)
                 ->willReturn($quizItem);
         
-        $this->modifiers->expects($this->once())
+        $this->quizAnswerModifiers->expects($this->once())
                 ->method('save');
         
         $newQuizAnswer = $this->quizAnswerService->create($dto);
@@ -73,7 +73,7 @@ final class AdminQuizAnswerServiceTest extends QuizTestCase
                 ->with($quizAnswer->quiz_item_id)
                 ->willReturn($quizAnswer->quizItem);
         
-        $this->modifiers->expects($this->once())
+        $this->quizAnswerModifiers->expects($this->once())
                 ->method('save')
                 ->with($quizAnswer);
         
@@ -94,7 +94,7 @@ final class AdminQuizAnswerServiceTest extends QuizTestCase
                 ->with($quizAnswer->quiz_item_id)
                 ->willReturn($quizAnswer->quizItem);
         
-        $this->modifiers->expects($this->once())
+        $this->quizAnswerModifiers->expects($this->once())
                 ->method('remove')
                 ->with($quizAnswer);
         
@@ -103,10 +103,10 @@ final class AdminQuizAnswerServiceTest extends QuizTestCase
 
     protected function setUp(): void
     {
-        $this->modifiers = $this->createMock(ModifiersInterface::class);
+        $this->quizAnswerModifiers = $this->createMock(QuizAnswerModifiersInterface::class);
         $this->quizAnswerQueries = $this->createMock(AdminQuizAnswerQueriesInterface::class);
         $this->quizItemQueries = $this->createMock(AdminQuizItemQueriesInterface::class);
         
-        $this->quizAnswerService = new AdminQuizAnswerService($this->modifiers, $this->quizAnswerQueries, $this->quizItemQueries);
+        $this->quizAnswerService = new AdminQuizAnswerService($this->quizAnswerModifiers, $this->quizAnswerQueries, $this->quizItemQueries);
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Services\Quiz\Admin;
 
 use App\Models\Quiz\QuizAnswer;
-use App\Modifiers\ModifiersInterface;
+use App\Modifiers\Quiz\QuizAnswerModifiersInterface;
 use App\Queries\Quiz\QuizAnswers\AdminQuizAnswerQueriesInterface;
 use App\Queries\Quiz\QuizItems\AdminQuizItemQueriesInterface;
 use App\Services\Quiz\Enums\ValueObjects\QuizItemStatusValue;
@@ -16,7 +16,7 @@ use App\Services\Quiz\Fields\QuizAnswerField;
 final class AdminQuizAnswerService
 {
     public function __construct(
-            private ModifiersInterface $modifiers,
+            private QuizAnswerModifiersInterface $quizAnswerModifiers,
             private AdminQuizAnswerQueriesInterface $adminQuizAnswerQueries,
             private AdminQuizItemQueriesInterface $adminQuizItemQueries,
     ) {
@@ -53,7 +53,7 @@ final class AdminQuizAnswerService
         $quizAnswer->description = $dto->description->value;
         $quizAnswer->is_correct = $dto->isCorrect->value;
         
-        $this->modifiers->save($quizAnswer);
+        $this->quizAnswerModifiers->save($quizAnswer);
         
         return $quizAnswer;
     }
@@ -75,7 +75,7 @@ final class AdminQuizAnswerService
         $field = $quizAnswerField->field;
         $quizAnswer->$field = $quizAnswerField->value;
         
-        $this->modifiers->save($quizAnswer);
+        $this->quizAnswerModifiers->save($quizAnswer);
         
         return $quizAnswer;
     }
@@ -93,7 +93,7 @@ final class AdminQuizAnswerService
         $quizItem = $this->adminQuizItemQueries->getById($quizAnswer->quiz_item_id);
         $this->checkAnswerEditabilityByStatuses($quizItem->quiz->status, $quizItem->status);
         
-        $this->modifiers->remove($quizAnswer);
+        $this->quizAnswerModifiers->remove($quizAnswer);
         
         return $quizAnswer->quiz_item_id;
     }

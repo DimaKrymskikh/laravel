@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Services\Database\Person\Dto\UserCityDto;
 use App\Services\Database\Thesaurus\CityService;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -13,15 +14,18 @@ class RemoveCityFromWeatherList implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    private int $userId;
+    private int $cityId;
+    private CityService $cityService;
+    
     /**
      * Create a new event instance.
      */
-    public function __construct
-    (
-            private int $userId,
-            private int $cityId,
-            private CityService $cityService,
-    ) {
+    public function __construct(UserCityDto $dto, CityService $cityService)
+    {
+        $this->userId = $dto->userId;
+        $this->cityId = $dto->cityId;
+        $this->cityService = $cityService;
     }
 
     /**

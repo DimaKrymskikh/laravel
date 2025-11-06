@@ -3,7 +3,7 @@
 namespace App\Services\Quiz\Admin;
 
 use App\Models\Quiz\QuizItem;
-use App\Modifiers\ModifiersInterface;
+use App\Modifiers\Quiz\QuizItemModifiersInterface;
 use App\Queries\Quiz\QuizItems\AdminQuizItemQueriesInterface;
 use App\Queries\Quiz\Quizzes\AdminQuizQueriesInterface;
 use App\Services\Quiz\Enums\ValueObjects\QuizItemStatusValue;
@@ -17,7 +17,7 @@ use App\ValueObjects\ScalarTypes\SimpleStringValue;
 final class AdminQuizItemService
 {
     public function __construct(
-            private ModifiersInterface $modifiers,
+            private QuizItemModifiersInterface $quizItemModifiers,
             private AdminQuizItemQueriesInterface $adminQuizItemQueries,
             private AdminQuizQueriesInterface $adminQuizQueries,
     ) {
@@ -54,7 +54,7 @@ final class AdminQuizItemService
         $quizItem->quiz_id = $dto->quizId;
         $quizItem->description = $dto->description->value;
         
-        $this->modifiers->save($quizItem);
+        $this->quizItemModifiers->save($quizItem);
         
         return $quizItem;
     }
@@ -73,7 +73,7 @@ final class AdminQuizItemService
         
         $quizItem->description = $description->value;
         
-        $this->modifiers->save($quizItem);
+        $this->quizItemModifiers->save($quizItem);
         
         return $quizItem;
     }
@@ -94,7 +94,7 @@ final class AdminQuizItemService
         
         if ($manager->checkOldAndNewStatusAreNotEqual()) {
             $quizItem->status = $manager->getNewStatusValue();
-            $this->modifiers->save($quizItem);
+            $this->quizItemModifiers->save($quizItem);
         }
         
         return $quizItem;
@@ -116,7 +116,7 @@ final class AdminQuizItemService
         $manager->approveNewStatus($newStatus->status);
         
         $quizItem->status = $manager->getNewStatusValue();
-        $this->modifiers->save($quizItem);
+        $this->quizItemModifiers->save($quizItem);
         
         return $quizItem;
     }
@@ -136,7 +136,7 @@ final class AdminQuizItemService
         $manager->defineNewStatus();
         
         $quizItem->status = $manager->getNewStatusValue();
-        $this->modifiers->save($quizItem);
+        $this->quizItemModifiers->save($quizItem);
         
         return $quizItem;
     }

@@ -20,11 +20,14 @@ class LanguageServiceTest extends ThesaurusTestCase
     
     public function test_success_create(): void
     {
+        $language = new Language();
+        $language->name = $this->name;
+        
         $this->languageModifiers->expects($this->once())
                 ->method('save')
-                ->with(new Language(), $this->name);
+                ->with($language);
         
-        $this->assertNull($this->languageService->create($this->name));
+        $this->assertInstanceOf(Language::class, $this->languageService->create($this->name));
     }
     
     public function test_success_update(): void
@@ -33,26 +36,28 @@ class LanguageServiceTest extends ThesaurusTestCase
         
         $this->languageQueries->expects($this->once())
                 ->method('getById')
-                ->with($this->identicalTo($this->languageId))
+                ->with($this->languageId)
                 ->willReturn($language);
         
         $this->languageModifiers->expects($this->once())
                 ->method('save')
-                ->with($this->identicalTo($language), $this->name);
+                ->with($this->identicalTo($language));
         
-        $this->assertNull($this->languageService->update($this->name, $this->languageId));
+        $this->assertInstanceOf(Language::class, $this->languageService->update($this->name, $this->languageId));
     }
     
     public function test_success_delete(): void
     {
+        $language = new Language();
+        
         $this->languageQueries->expects($this->once())
-                ->method('exists')
-                ->with($this->identicalTo($this->languageId))
-                ->willReturn(true);
+                ->method('getById')
+                ->with($this->languageId)
+                ->willReturn($language);
         
         $this->languageModifiers->expects($this->once())
-                ->method('delete')
-                ->with($this->identicalTo($this->languageId));
+                ->method('remove')
+                ->with($this->identicalTo($language));
         
         $this->assertNull($this->languageService->delete($this->languageId));
     }
@@ -60,16 +65,15 @@ class LanguageServiceTest extends ThesaurusTestCase
     public function test_fail_delete(): void
     {
         $this->languageQueries->expects($this->once())
-                ->method('exists')
-                ->with($this->identicalTo($this->languageId))
-                ->willReturn(false);
+                ->method('getById')
+                ->with($this->languageId)
+                ->willThrowException(new DatabaseException(sprintf(LanguageQueriesInterface::NOT_RECORD_WITH_ID, $this->languageId)));
         
         $this->languageModifiers->expects($this->never())
-                ->method('delete')
-                ->with($this->identicalTo($this->languageId));
+                ->method('remove')
+                ->with($this->languageId);
         
         $this->expectException(DatabaseException::class);
-        
         $this->assertNull($this->languageService->delete($this->languageId));
     }
     

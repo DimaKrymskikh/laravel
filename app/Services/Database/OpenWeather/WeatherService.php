@@ -24,7 +24,7 @@ final class WeatherService
     {
         $weather = new Weather();
         
-        $this->weatherModifiers->save($weather, $dto);
+        $this->weatherModifiers->updateOrCreate($weather, $dto);
         
         return $weather;
     }

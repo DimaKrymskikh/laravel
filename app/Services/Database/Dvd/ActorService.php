@@ -21,7 +21,10 @@ final class ActorService
     public function create(ActorDto $dto): Actor
     {
         $actor = new Actor();
-        $this->actorModifiers->save($actor, $dto);
+        $actor->first_name = $dto->firstName->name;
+        $actor->last_name = $dto->lastName->name;
+
+        $this->actorModifiers->save($actor);
         
         return $actor;
     }
@@ -29,7 +32,10 @@ final class ActorService
     public function update(ActorDto $dto, int $actorId): Actor
     {
         $actor = $this->actorQueries->getById($actorId);
-        $this->actorModifiers->save($actor, $dto);
+        $actor->first_name = $dto->firstName->name;
+        $actor->last_name = $dto->lastName->name;
+        
+        $this->actorModifiers->save($actor);
         
         return $actor;
     }

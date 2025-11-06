@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Project\Auth\Content;
 use App\Events\AddCityInWeatherList;
 use App\Events\RemoveCityFromWeatherList;
 use App\Http\Controllers\Controller;
+use App\Services\Database\Person\Dto\UserCityDto;
 use App\Services\Database\Person\UserCityService;
 use App\Services\Database\Thesaurus\CityService;
 use Illuminate\Http\RedirectResponse;
@@ -43,9 +44,10 @@ class CityController extends Controller
      */
     public function addCity(Request $request, string $cityId): RedirectResponse
     {
-        $this->userCityService->create($request->user()->id, $cityId);
+        $dto = new UserCityDto($request->user()->id, $cityId);
+        $this->userCityService->create($dto);
         
-        event(new AddCityInWeatherList($request->user()->id, $cityId, $this->cityService));
+        event(new AddCityInWeatherList($dto, $this->cityService));
         
         return redirect('cities');
     }
@@ -59,9 +61,10 @@ class CityController extends Controller
      */
     public function removeCity(Request $request, string $cityId): RedirectResponse
     {
-        $this->userCityService->delete($request->user()->id, $cityId);
+        $dto = new UserCityDto($request->user()->id, $cityId);
+        $this->userCityService->delete($dto);
         
-        event(new RemoveCityFromWeatherList($request->user()->id, $cityId, $this->cityService));
+        event(new RemoveCityFromWeatherList($dto, $this->cityService));
         
         return redirect('userweather');
     }

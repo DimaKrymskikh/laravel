@@ -3,8 +3,10 @@
 namespace App\Modifiers\Person\Users;
 
 use App\Models\User;
+use App\Modifiers\ModifiersInterface;
+use App\Services\Database\Person\Dto\RegisterDto;
 
-interface UserModifiersInterface
+interface UserModifiersInterface extends ModifiersInterface
 {
-    public function saveField(User $user, string $field, mixed $value): void;
+    public function create(User $user, RegisterDto $dto): void;
 }

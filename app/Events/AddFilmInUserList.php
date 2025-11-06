@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Services\Database\Dvd\FilmService;
+use App\Services\Database\Person\Dto\UserFilmDto;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -19,10 +20,10 @@ class AddFilmInUserList implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct(int $userId, int $filmId, FilmService $filmService)
+    public function __construct(UserFilmDto $dto, FilmService $filmService)
     {
-        $this->userId = $userId;
-        $this->filmTitle = $filmService->getFilmById($filmId)->title;
+        $this->userId = $dto->userId;
+        $this->filmTitle = $filmService->getFilmById($dto->filmId)->title;
     }
     
     public function getFilmTitle(): string

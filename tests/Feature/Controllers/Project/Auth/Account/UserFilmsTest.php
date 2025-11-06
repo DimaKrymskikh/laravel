@@ -68,9 +68,8 @@ class UserFilmsTest extends TestCase
         Notification::fake();
         
         $this->seedUserFilms();
-        $nFilms = UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count();
-        
         $user = $this->getUser('AuthTestLogin');
+        $nFilms = UserFilm::where('user_id', $user->id)->count();
         $acting = $this->actingAs($user);
         
         $response = $acting->post(RouteServiceProvider::URL_AUTH_USERFILMS.'/addfilm/'.FilmSeeder::ID_RIVER_OUTLAW, [
@@ -97,6 +96,7 @@ class UserFilmsTest extends TestCase
         
         $this->seedUserFilms();
         $user = $this->getUser('AuthTestLogin');
+        $nFilms = UserFilm::where('user_id', $user->id)->count();
         $acting = $this->actingAs($user);
         
         // Попытка добавить в список пользователя уже существующий там фильм
@@ -107,8 +107,8 @@ class UserFilmsTest extends TestCase
             'number' => 100
         ]);
         
-        // У AuthTestLogin по-прежнему 3 фильма
-        $this->assertEquals(3, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
+        // Число фильмов не изменилось
+        $this->assertEquals($nFilms, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
 
         // Оповещение о добавлении фильма не отправляется
         Notification::assertNotSentTo(
@@ -126,9 +126,8 @@ class UserFilmsTest extends TestCase
         Notification::fake();
         
         $this->seedUserFilms();
-        $nFilms = UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count();
-        
         $user = $this->getUser('AuthTestLogin');
+        $nFilms = UserFilm::where('user_id', $user->id)->count();
         $acting = $this->actingAs($user);
         
         $response = $acting->delete(RouteServiceProvider::URL_AUTH_USERFILMS.'/removefilm/'.FilmSeeder::ID_BOILED_DARES, [
@@ -155,9 +154,8 @@ class UserFilmsTest extends TestCase
         Notification::fake();
         
         $this->seedUserFilms();
-        $nFilms = UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count();
-        
         $user = $this->getUser('AuthTestLogin');
+        $nFilms = UserFilm::where('user_id', $user->id)->count();
         $acting = $this->actingAs($user);
         
         // Передаётся id фильма, которого нет в коллекции пользователя AuthTestLogin
@@ -189,6 +187,7 @@ class UserFilmsTest extends TestCase
         
         $this->seedUserFilms();
         $user = $this->getUser('AuthTestLogin');
+        $nFilms = UserFilm::where('user_id', $user->id)->count();
         $acting = $this->actingAs($user);
         
         $response = $acting->delete(RouteServiceProvider::URL_AUTH_USERFILMS.'/removefilm/'.FilmSeeder::ID_BOILED_DARES, [
@@ -197,8 +196,8 @@ class UserFilmsTest extends TestCase
             'number' => 100
         ]);
         
-        // У AuthTestLogin по-прежнему 3 фильма
-        $this->assertEquals(3, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
+        // Число фильмов не изменилось
+        $this->assertEquals($nFilms, UserFilm::where('user_id', UserSeeder::ID_AUTH_TEST_LOGIN)->count());
 
         // Оповещение об удалении фильма не отправляется
         Notification::assertNotSentTo(

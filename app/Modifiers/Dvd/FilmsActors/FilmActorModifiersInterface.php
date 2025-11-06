@@ -2,11 +2,11 @@
 
 namespace App\Modifiers\Dvd\FilmsActors;
 
-use App\Models\Dvd\FilmActor;
+use App\Services\Database\Dvd\Dto\FilmActorDto;
 
 interface FilmActorModifiersInterface
 {
-    public function save(FilmActor $filmActor, int $filmId, int $actorId): void;
+    public function save(FilmActorDto $dto): void;
     
-    public function delete(int $filmId, int $actorId): void;
+    public function remove(FilmActorDto $dto): void;
 }

@@ -3,20 +3,22 @@
 namespace App\Modifiers\Dvd\FilmsActors;
 
 use App\Models\Dvd\FilmActor;
+use App\Services\Database\Dvd\Dto\FilmActorDto;
 
 final class FilmActorModifiers implements FilmActorModifiersInterface
 {
-    public function save(FilmActor $filmActor, int $filmId, int $actorId): void
+    public function save(FilmActorDto $dto): void
     {
-        $filmActor->film_id = $filmId;
-        $filmActor->actor_id = $actorId;
-        $filmActor->save();
+        FilmActor::insert([
+            'film_id' => $dto->filmId,
+            'actor_id' => $dto->actorId,
+        ]);
     }
     
-    public function delete(int $filmId, int $actorId): void
+    public function remove(FilmActorDto $dto): void
     {
-        FilmActor::where('actor_id', $actorId)
-                ->where('film_id', $filmId)
+        FilmActor::where('actor_id', $dto->actorId)
+                ->where('film_id', $dto->filmId)
                 ->delete();
     }
 }

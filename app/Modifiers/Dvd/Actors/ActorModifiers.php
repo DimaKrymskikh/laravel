@@ -2,20 +2,13 @@
 
 namespace App\Modifiers\Dvd\Actors;
 
-use App\DataTransferObjects\Database\Dvd\ActorDto;
 use App\Models\Dvd\Actor;
 use App\Models\Dvd\FilmActor;
+use App\Modifiers\Modifiers;
 use Illuminate\Support\Facades\DB;
 
-final class ActorModifiers implements ActorModifiersInterface
+final class ActorModifiers extends Modifiers implements ActorModifiersInterface
 {
-    public function save(Actor $actor, ActorDto $dto): void
-    {
-        $actor->first_name = $dto->firstName->name;
-        $actor->last_name = $dto->lastName->name;
-        $actor->save();
-    }
-    
     public function delete(int $id): void
     {
         DB::transaction(function () use ($id) {

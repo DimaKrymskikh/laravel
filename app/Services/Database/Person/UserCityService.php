@@ -3,10 +3,10 @@
 namespace App\Services\Database\Person;
 
 use App\Exceptions\DatabaseException;
-use App\Models\Person\UserCity;
 use App\Modifiers\Person\UsersCities\UserCityModifiersInterface;
 use App\Queries\Person\UsersCities\UserCityQueriesInterface;
 use App\Queries\Thesaurus\Cities\CityQueriesInterface;
+use App\Services\Database\Person\Dto\UserCityDto;
 
 final class UserCityService
 {
@@ -17,23 +17,23 @@ final class UserCityService
     ) {
     }
     
-    public function create(int $userId, int $cityId): void
+    public function create(UserCityDto $dto): void
     {
-        if ($this->userCityQueries->exists($userId, $cityId)) {
-            $cityName = $this->cityQueries->getById($cityId)->name;
+        if ($this->userCityQueries->exists($dto)) {
+            $cityName = $this->cityQueries->getById($dto->cityId)->name;
             throw new DatabaseException("Город '$cityName' уже выбран для просмотра погоды.");
         }
         
-        $this->userCityModifiers->save(new UserCity(), $userId, $cityId);
+        $this->userCityModifiers->save($dto);
     }
     
-    public function delete(int $userId, int $cityId): void
+    public function delete(UserCityDto $dto): void
     {
-        if (!$this->userCityQueries->exists($userId, $cityId)) {
-            $cityName = $this->cityQueries->getById($cityId)->name;
+        if (!$this->userCityQueries->exists($dto)) {
+            $cityName = $this->cityQueries->getById($dto->cityId)->name;
             throw new DatabaseException("Города '$cityName' уже нет в списке просмотра погоды.");
         }
         
-        $this->userCityModifiers->delete($userId, $cityId);
+        $this->userCityModifiers->remove($dto);
     }
 }

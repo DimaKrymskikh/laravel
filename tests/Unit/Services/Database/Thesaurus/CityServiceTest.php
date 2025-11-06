@@ -21,11 +21,15 @@ class CityServiceTest extends TestCase
 
     public function test_success_create(): void
     {
+        $city = new City();
+        $city->name = $this->name;
+        $city->open_weather_id = $this->openWeatherId;
+        
         $this->cityModifiers->expects($this->once())
                 ->method('save')
-                ->with(new City, $this->name, $this->openWeatherId);
+                ->with($city);
         
-        $this->cityService->create($this->name, $this->openWeatherId);
+        $this->assertInstanceOf(City::class, $this->cityService->create($this->name, $this->openWeatherId));
     }
 
     public function test_success_update_name(): void
@@ -34,14 +38,14 @@ class CityServiceTest extends TestCase
         
         $this->cityQueries->expects($this->once())
                 ->method('getById')
-                ->with($this->identicalTo($this->cityId))
+                ->with($this->cityId)
                 ->willReturn($city);
         
         $this->cityModifiers->expects($this->once())
-                ->method('saveField')
-                ->with($this->identicalTo($city), 'name', $this->name);
+                ->method('save')
+                ->with($this->identicalTo($city));
         
-        $this->cityService->update($this->cityId, 'name', $this->name);
+        $this->assertInstanceOf(City::class, $this->cityService->update($this->cityId, 'name', $this->name));
     }
 
     public function test_success_update_timezone_id(): void
@@ -50,14 +54,14 @@ class CityServiceTest extends TestCase
         
         $this->cityQueries->expects($this->once())
                 ->method('getById')
-                ->with($this->identicalTo($this->cityId))
+                ->with($this->cityId)
                 ->willReturn($city);
         
         $this->cityModifiers->expects($this->once())
-                ->method('saveField')
-                ->with($this->identicalTo($city), 'timezone_id', null);
+                ->method('save')
+                ->with($this->identicalTo($city));
         
-        $this->cityService->update($this->cityId, 'timezone_id', '');
+        $this->assertInstanceOf(City::class, $this->cityService->update($this->cityId, 'timezone_id', ''));
     }
 
     public function test_fail_update(): void
@@ -68,21 +72,23 @@ class CityServiceTest extends TestCase
                 ->method('getById');
         
         $this->cityModifiers->expects($this->never())
-                ->method('saveField');
+                ->method('save');
         
         $this->cityService->update($this->cityId, 'open_weather_id', '77');
     }
 
     public function test_success_delete(): void
     {
+        $city = new City();
+        
         $this->cityQueries->expects($this->once())
-                ->method('exists')
-                ->with($this->identicalTo($this->cityId))
-                ->willReturn(true);
+                ->method('getById')
+                ->with($this->cityId)
+                ->willReturn($city);
         
         $this->cityModifiers->expects($this->once())
-                ->method('delete')
-                ->with($this->identicalTo($this->cityId));
+                ->method('remove')
+                ->with($this->identicalTo($city));
         
         $this->cityService->delete($this->cityId);
     }
@@ -90,13 +96,12 @@ class CityServiceTest extends TestCase
     public function test_fail_delete(): void
     {
         $this->cityQueries->expects($this->once())
-                ->method('exists')
-                ->with($this->identicalTo($this->cityId))
-                ->willReturn(false);
+                ->method('getById')
+                ->with($this->cityId)
+                ->willThrowException(new DatabaseException(sprintf(CityQueriesInterface::NOT_RECORD_WITH_ID, $this->cityId)));
         
         $this->cityModifiers->expects($this->never())
-                ->method('delete')
-                ->with($this->identicalTo($this->cityId));
+                ->method('remove');
         
         $this->expectException(DatabaseException::class);
         
@@ -109,7 +114,7 @@ class CityServiceTest extends TestCase
         
         $this->cityQueries->expects($this->once())
                 ->method('getById')
-                ->with($this->identicalTo($this->cityId))
+                ->with($this->cityId)
                 ->willReturn($city);
         
         $this->assertSame($city, $this->cityService->getCityById($this->cityId));
@@ -129,7 +134,7 @@ class CityServiceTest extends TestCase
         
         $this->cityQueries->expects($this->once())
                 ->method('getListWithAvailableByUserId')
-                ->with($this->identicalTo($userId));
+                ->with($userId);
         
         $this->assertInstanceOf(Collection::class, $this->cityService->getListWithAvailableByUserId($userId));
     }
@@ -140,7 +145,7 @@ class CityServiceTest extends TestCase
         
         $this->cityQueries->expects($this->once())
                 ->method('getByOpenWeatherId')
-                ->with($this->identicalTo($this->openWeatherId))
+                ->with($this->openWeatherId)
                 ->willReturn($city);
         
         $this->assertSame($city, $this->cityService->findCityByOpenWeatherId($this->openWeatherId));
@@ -152,7 +157,7 @@ class CityServiceTest extends TestCase
         
         $this->cityQueries->expects($this->once())
                 ->method('getByOpenWeatherId')
-                ->with($this->identicalTo($this->openWeatherId))
+                ->with($this->openWeatherId)
                 ->willThrowException(new DatabaseException(sprintf(CityQueriesInterface::NOT_RECORD_WITH_ID, $this->cityId)));
         
         $this->cityService->findCityByOpenWeatherId($this->openWeatherId);

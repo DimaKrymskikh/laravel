@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 interface ModifiersInterface
 {
     /**
-     * Создаёт новую запись в таблице базы данных
+     * Создаёт новую запись или изменяет запись в таблице базы данных
      * 
      * @param Model $model
      * @return void

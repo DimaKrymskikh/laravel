@@ -4,7 +4,7 @@ namespace Tests\Unit\Services\Quiz\Admin;
 
 use App\Exceptions\RuleException;
 use App\Models\Quiz\Quiz;
-use App\Modifiers\ModifiersInterface;
+use App\Modifiers\Quiz\QuizModifiersInterface;
 use App\Queries\Quiz\Quizzes\AdminQuizQueriesInterface;
 use App\Services\Quiz\Admin\AdminQuizService;
 use App\Services\Quiz\Enums\ValueObjects\QuizStatusValue;
@@ -15,7 +15,7 @@ use Tests\Unit\Services\Quiz\QuizTestCase;
 
 final class AdminQuizServiceTest extends QuizTestCase
 {
-    private ModifiersInterface $modifiers;
+    private QuizModifiersInterface $quizModifiers;
     private AdminQuizQueriesInterface $quizQueries;
     private AdminQuizService $quizService;
     private int $quizId = 17;
@@ -59,7 +59,7 @@ final class AdminQuizServiceTest extends QuizTestCase
                 ->with($dto->title)
                 ->willReturn(false);
         
-        $this->modifiers->expects($this->once())
+        $this->quizModifiers->expects($this->once())
                 ->method('save');
         
         $this->assertInstanceOf(Quiz::class, $this->quizService->create($dto));
@@ -76,7 +76,7 @@ final class AdminQuizServiceTest extends QuizTestCase
                 ->with($dto->title)
                 ->willReturn(true);
         
-        $this->modifiers->expects($this->never())
+        $this->quizModifiers->expects($this->never())
                 ->method('save');
         
         $this->quizService->create($dto);
@@ -95,7 +95,7 @@ final class AdminQuizServiceTest extends QuizTestCase
                 ->with($this->quizId)
                 ->willReturn($quiz);
         
-        $this->modifiers->expects($this->once())
+        $this->quizModifiers->expects($this->once())
                 ->method('save')
                 ->with($quiz);
         
@@ -114,7 +114,7 @@ final class AdminQuizServiceTest extends QuizTestCase
                 ->with($this->quizId)
                 ->willReturn($quiz);
         
-        $this->modifiers->expects($this->once())
+        $this->quizModifiers->expects($this->once())
                 ->method('save')
                 ->with($quiz);
         
@@ -133,7 +133,7 @@ final class AdminQuizServiceTest extends QuizTestCase
                 ->with($this->quizId)
                 ->willReturn($quiz);
         
-        $this->modifiers->expects($this->once())
+        $this->quizModifiers->expects($this->once())
                 ->method('save')
                 ->with($quiz);
         
@@ -150,7 +150,7 @@ final class AdminQuizServiceTest extends QuizTestCase
                 ->with($this->quizId)
                 ->willReturn($quiz);
         
-        $this->modifiers->expects($this->once())
+        $this->quizModifiers->expects($this->once())
                 ->method('save')
                 ->with($quiz);
         
@@ -159,9 +159,9 @@ final class AdminQuizServiceTest extends QuizTestCase
     
     protected function setUp(): void
     {
-        $this->modifiers = $this->createMock(ModifiersInterface::class);
+        $this->quizModifiers = $this->createMock(QuizModifiersInterface::class);
         $this->quizQueries = $this->createMock(AdminQuizQueriesInterface::class);
         
-        $this->quizService = new AdminQuizService($this->modifiers, $this->quizQueries);
+        $this->quizService = new AdminQuizService($this->quizModifiers, $this->quizQueries);
     }
 }

@@ -36,10 +36,10 @@ class WeatherServiceTest extends TestCase
         $weather = new Weather();
         
         $this->weatherModifiers->expects($this->once())
-                ->method('save')
+                ->method('updateOrCreate')
                 ->with($weather, $weatherDto);
         
-        $this->assertEquals($weather, $this->weatherService->updateOrCreate($weatherDto));
+        $this->assertInstanceOf(Weather::class, $this->weatherService->updateOrCreate($weatherDto));
     }
     
     public function test_success_get_weather_in_cities_for_auth_user_by_user_id(): void

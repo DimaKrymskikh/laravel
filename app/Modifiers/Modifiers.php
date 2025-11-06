@@ -4,7 +4,7 @@ namespace App\Modifiers;
 
 use Illuminate\Database\Eloquent\Model;
 
-final class Modifiers implements ModifiersInterface
+abstract class Modifiers implements ModifiersInterface
 {
     public function save(Model $model): void
     {

@@ -6,7 +6,7 @@ use App\Rules\Auth\CapitalfirstLogin;
 use App\Rules\Auth\MixedCasePassword;
 use App\Rules\Auth\NumbersPassword;
 use App\Rules\Auth\WLogin;
-
+use App\Services\Database\Person\Dto\RegisterDto;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -48,5 +48,10 @@ class RegisterRequest extends FormRequest
             'password.confirmed' => trans("auth.confirmed.password"),
             'password.min' => trans("auth.min.password"),
         ];
+    }
+    
+    public function getDto(): RegisterDto
+    {
+        return new RegisterDto($this->input('login'), $this->input('email'), $this->input('password'));
     }
 }

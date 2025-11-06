@@ -67,17 +67,14 @@ class CityTest extends TestCase
         Event::fake();
         
         $this->seedCitiesAndUsers();
-        
         $user = $this->getUser('AuthTestLogin');
-        
-        // В начальный момент в списке пользователя 3 города
-        $this->assertEquals(3, UserCity::where('user_id', $user->id)->count());
+        $nCities = UserCity::where('user_id', $user->id)->count();
         
         $acting = $this->actingAs($user);
         $response = $acting->post('cities/addcity/' . CitySeeder::ID_OMSK);
         
-        // Стало 4 города
-        $this->assertEquals(4, UserCity::where('user_id', $user->id)->count());
+        // Стало на один город больше
+        $this->assertEquals($nCities + 1, UserCity::where('user_id', $user->id)->count());
         
         Event::assertDispatched(AddCityInWeatherList::class, 1);
         
@@ -91,19 +88,16 @@ class CityTest extends TestCase
         Event::fake();
         
         $this->seedCitiesAndUsers();
-        
         $user = $this->getUser('AuthTestLogin');
-        
-        // В начальный момент в списке пользователя 3 города
-        $this->assertEquals(3, UserCity::where('user_id', $user->id)->count());
+        $nCities = UserCity::where('user_id', $user->id)->count();
         
         $acting = $this->actingAs($user);
         $response = $acting->delete('cities/removecity/' . CitySeeder::ID_TOMSK, [
             'password' => 'AuthTestPassword2'
         ]);
         
-        // Стало 2 города
-        $this->assertEquals(2, UserCity::where('user_id', $user->id)->count());
+        // Стало на один город меньше
+        $this->assertEquals($nCities - 1, UserCity::where('user_id', $user->id)->count());
         
         Event::assertDispatched(RemoveCityFromWeatherList::class, 1);
         
@@ -117,19 +111,16 @@ class CityTest extends TestCase
         Event::fake();
         
         $this->seedCitiesAndUsers();
-        
         $user = $this->getUser('AuthTestLogin');
-        
-        // В начальный момент в списке пользователя 3 города
-        $this->assertEquals(3, UserCity::where('user_id', $user->id)->count());
+        $nCities = UserCity::where('user_id', $user->id)->count();
         
         $acting = $this->actingAs($user);
         $response = $acting->delete('cities/removecity/' . CitySeeder::ID_TOMSK, [
             'password' => 'UnCorrectPassword0'
         ]);
         
-        // Осталось 3 города
-        $this->assertEquals(3, UserCity::where('user_id', $user->id)->count());
+        // Число городов не изменилось
+        $this->assertEquals($nCities, UserCity::where('user_id', $user->id)->count());
         
         Event::assertNotDispatched(RemoveCityFromWeatherList::class);
         

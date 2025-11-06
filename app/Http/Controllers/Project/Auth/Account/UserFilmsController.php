@@ -11,6 +11,7 @@ use App\Providers\RouteServiceProvider;
 use App\Services\Database\Dvd\FilmService;
 use App\Support\Pagination\Urls\Films\FilmUrls;
 use App\Support\Pagination\Urls\Films\UserFilmUrls;
+use App\Services\Database\Person\Dto\UserFilmDto;
 use App\Services\Database\Person\UserFilmService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -53,9 +54,10 @@ class UserFilmsController extends Controller
     {
         $user = $request->user();
         
-        $this->userFilmService->create($user->id, $filmId);
+        $dto = new UserFilmDto($user->id, $filmId);
+        $this->userFilmService->create($dto);
         // Если запись была успешной, пользователь получает оповещение
-        event(new AddFilmInUserList($user->id, $filmId, $this->filmService));
+        event(new AddFilmInUserList($dto, $this->filmService));
         
         return redirect($this->filmUrls->getUrlWithPaginationOptionsByRequest(
                     RouteServiceProvider::URL_AUTH_FILMS,
@@ -76,9 +78,10 @@ class UserFilmsController extends Controller
         $user = $request->user();
         
         // Удаление фильма с filmId из коллекции пользователя.
-        $this->userFilmService->delete($user->id, $filmId);
+        $dto = new UserFilmDto($user->id, $filmId);
+        $this->userFilmService->delete($dto);
         // При успешном удалении фильма пользователь получает оповещение
-        event(new RemoveFilmFromUserList($user->id, $filmId, $this->filmService));
+        event(new RemoveFilmFromUserList($dto, $this->filmService));
         
         return redirect($this->userFilmUrls->getUrlWithPaginationOptionsAfterRemovingFilm(
                     RouteServiceProvider::URL_AUTH_USERFILMS,

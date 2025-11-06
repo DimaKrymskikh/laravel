@@ -19,13 +19,17 @@ class FilmServiceTest extends DvdTestCase
 
     public function test_success_create(): void
     {
-        $filmDto = $this->getFilmDto();
+        $dto = $this->getFilmDto();
+        $film = new Film();
+        $film->title = $dto->title;
+        $film->description = $dto->description;
+        $film->release_year = $dto->releaseYear->value;
         
         $this->filmModifiers->expects($this->once())
                 ->method('save')
-                ->with(new Film(), $filmDto);
+                ->with($film);
         
-        $this->assertInstanceOf(Film::class, $this->filmService->create($filmDto));
+        $this->assertInstanceOf(Film::class, $this->filmService->create($dto));
     }
     
     public function test_success_update(): void
@@ -34,14 +38,15 @@ class FilmServiceTest extends DvdTestCase
         
         $this->filmQueries->expects($this->once())
                 ->method('getById')
-                ->with($this->identicalTo($this->filmId))
+                ->with($this->filmId)
                 ->willReturn($film);
         
         $this->filmModifiers->expects($this->once())
-                ->method('saveField')
-                ->with($film, 'test_field', 'testValue');
+                ->method('save')
+                ->with($film);
         
         $this->assertInstanceOf(Film::class, $this->filmService->update('test_field', 'testValue', $this->filmId));
+        $this->assertEquals($film->test_field, 'testValue');
     }
     
     public function test_fail_update(): void
@@ -54,7 +59,7 @@ class FilmServiceTest extends DvdTestCase
                 ->willThrowException(new DatabaseException(sprintf(FilmQueriesInterface::NOT_RECORD_WITH_ID, $this->filmId)));
         
         $this->filmModifiers->expects($this->never())
-                ->method('saveField');
+                ->method('save');
         
         $this->filmService->update('test_field', 'testValue', $this->filmId);
     }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Dvd\Filters\ActorFilterRequest;
 use App\Http\Requests\Dvd\Filters\FilmFilterRequest;
 use App\Providers\RouteServiceProvider;
+use App\Services\Database\Dvd\Dto\FilmActorDto;
 use App\Services\Database\Dvd\ActorService;
 use App\Services\Database\Dvd\FilmActorService;
 use App\Support\Pagination\Urls\Films\FilmUrls;
@@ -43,7 +44,8 @@ class FilmActorController extends Controller
      */
     public function store(FilmFilterRequest $request): RedirectResponse
     {
-        $this->filmActorService->create($request->film_id, $request->actor_id);
+        $dto = new FilmActorDto($request->film_id, $request->actor_id);
+        $this->filmActorService->create($dto);
         
         return redirect($this->filmUrls->getUrlWithPaginationOptionsByRequest(
                     RouteServiceProvider::URL_ADMIN_FILMS,
@@ -61,7 +63,8 @@ class FilmActorController extends Controller
      */
     public function destroy(FilmFilterRequest $request, int $actorId): RedirectResponse
     {
-        $this->filmActorService->delete($request->film_id, $actorId);
+        $dto = new FilmActorDto($request->film_id, $actorId);
+        $this->filmActorService->delete($dto);
         
         return redirect($this->filmUrls->getUrlWithPaginationOptionsByRequest(
                     RouteServiceProvider::URL_ADMIN_FILMS,

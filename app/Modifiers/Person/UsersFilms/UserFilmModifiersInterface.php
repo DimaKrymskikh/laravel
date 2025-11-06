@@ -2,11 +2,11 @@
 
 namespace App\Modifiers\Person\UsersFilms;
 
-use App\Models\Person\UserFilm;
+use App\Services\Database\Person\Dto\UserFilmDto;
 
 interface UserFilmModifiersInterface
 {
-    public function save(UserFilm $userFilm, int $userId, int $filmId): void;
+    public function save(UserFilmDto $dto): void;
     
-    public function delete(int $userId, int $filmId): void;
+    public function remove(UserFilmDto $dto): void;
 }

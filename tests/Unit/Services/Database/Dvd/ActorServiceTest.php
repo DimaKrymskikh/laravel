@@ -22,26 +22,33 @@ class ActorServiceTest extends TestCase
     
     public function test_success_create(): void
     {
-        $this->actorModifiers->expects($this->once())
-                ->method('save');
+        $actor = new Actor();
+        $actor->first_name = $this->actorDto->firstName->name;
+        $actor->last_name = $this->actorDto->lastName->name;
         
-        $this->actorService->create($this->actorDto);
+        $this->actorModifiers->expects($this->once())
+                ->method('save')
+                ->with($actor);
+        
+        $this->assertInstanceOf(Actor::class, $this->actorService->create($this->actorDto));
     }
     
     public function test_success_update(): void
     {
         $actor = new Actor();
+        $actor->first_name = $this->actorDto->firstName->name;
+        $actor->last_name = $this->actorDto->lastName->name;
         
         $this->actorQueries->expects($this->once())
                 ->method('getById')
-                ->with($this->identicalTo($this->actorId))
+                ->with($this->actorId)
                 ->willReturn($actor);
         
         $this->actorModifiers->expects($this->once())
                 ->method('save')
-                ->with($actor, $this->actorDto);
+                ->with($actor);
         
-        $this->actorService->update($this->actorDto, $this->actorId);
+        $this->assertInstanceOf(Actor::class, $this->actorService->update($this->actorDto, $this->actorId));
     }
     
     public function test_fail_update(): void

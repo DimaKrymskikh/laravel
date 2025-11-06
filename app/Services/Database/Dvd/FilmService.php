@@ -21,7 +21,11 @@ final class FilmService
     public function create(FilmDto $dto): Film
     {
         $film = new Film();
-        $this->filmModifiers->save($film, $dto);
+        $film->title = $dto->title;
+        $film->description = $dto->description;
+        $film->release_year = $dto->releaseYear->value;
+        
+        $this->filmModifiers->save($film);
         
         return $film;
     }
@@ -29,7 +33,9 @@ final class FilmService
     public function update(string $field, string|null $value, int $filmId): Film
     {
         $film = $this->filmQueries->getById($filmId);
-        $this->filmModifiers->saveField($film, $field, $value);
+        $film->$field = $value;
+        
+        $this->filmModifiers->save($film);
         
         return $film;
     }

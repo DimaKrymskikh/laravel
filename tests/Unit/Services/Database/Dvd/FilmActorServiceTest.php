@@ -3,11 +3,11 @@
 namespace Tests\Unit\Services\Database\Dvd;
 
 use App\Exceptions\DatabaseException;
-use App\Models\Dvd\FilmActor;
 use App\Modifiers\Dvd\FilmsActors\FilmActorModifiersInterface;
 use App\Queries\Dvd\Actors\ActorQueriesInterface;
 use App\Queries\Dvd\Films\FilmQueriesInterface;
 use App\Queries\Dvd\FilmsActors\FilmActorQueriesInterface;
+use App\Services\Database\Dvd\Dto\FilmActorDto;
 use App\Services\Database\Dvd\FilmActorService;
 use PHPUnit\Framework\TestCase;
 
@@ -18,6 +18,7 @@ class FilmActorServiceTest extends TestCase
     private FilmActorQueriesInterface $filmActorQueries;
     private FilmQueriesInterface $filmQueries;
     private FilmActorService $filmActorService;
+    private FilmActorDto $dto;
     private int $filmId = 5;
     private int $actorId = 18;
 
@@ -25,21 +26,21 @@ class FilmActorServiceTest extends TestCase
     {
         $this->filmActorQueries->expects($this->once())
                 ->method('exists')
-                ->with($this->identicalTo($this->filmId), $this->identicalTo($this->actorId))
+                ->with($this->dto)
                 ->willReturn(false);
         
         $this->filmActorModifiers->expects($this->once())
                 ->method('save')
-                ->with(new FilmActor(), $this->identicalTo($this->filmId), $this->identicalTo($this->actorId));
+                ->with($this->identicalTo($this->dto));
         
-        $this->filmActorService->create($this->filmId, $this->actorId);
+        $this->filmActorService->create($this->dto);
     }
 
     public function test_fail_create(): void
     {
         $this->filmActorQueries->expects($this->once())
                 ->method('exists')
-                ->with($this->identicalTo($this->filmId), $this->identicalTo($this->actorId))
+                ->with($this->dto)
                 ->willReturn(true);
         
         $this->expectException(DatabaseException::class);
@@ -47,14 +48,14 @@ class FilmActorServiceTest extends TestCase
         $this->filmActorModifiers->expects($this->never())
                 ->method('save');
         
-        $this->filmActorService->create($this->filmId, $this->actorId);
+        $this->filmActorService->create($this->dto);
     }
 
     public function test_success_get_actors_list_by_film_id(): void
     {
         $this->filmActorQueries->expects($this->once())
                 ->method('getByFilmId')
-                ->with($this->identicalTo($this->filmId));
+                ->with($this->filmId);
         
         $this->filmActorService->getActorsListByFilmId($this->filmId);
     }
@@ -63,34 +64,34 @@ class FilmActorServiceTest extends TestCase
     {
         $this->filmActorQueries->expects($this->once())
                 ->method('exists')
-                ->with($this->identicalTo($this->filmId), $this->identicalTo($this->actorId))
+                ->with($this->dto)
                 ->willReturn(true);
         
         $this->filmActorModifiers->expects($this->once())
-                ->method('delete')
-                ->with($this->identicalTo($this->filmId), $this->identicalTo($this->actorId));
+                ->method('remove')
+                ->with($this->identicalTo($this->dto));
         
-        $this->filmActorService->delete($this->filmId, $this->actorId);
+        $this->filmActorService->delete($this->dto);
     }
 
     public function test_fail_delete(): void
     {
         $this->filmActorQueries->expects($this->once())
                 ->method('exists')
-                ->with($this->identicalTo($this->filmId), $this->identicalTo($this->actorId))
+                ->with($this->dto)
                 ->willReturn(false);
         
         $this->filmActorModifiers->expects($this->never())
-                ->method('delete')
-                ->with($this->identicalTo($this->filmId), $this->identicalTo($this->actorId));
+                ->method('remove');
         
         $this->expectException(DatabaseException::class);
         
-        $this->filmActorService->delete($this->filmId, $this->actorId);
+        $this->filmActorService->delete($this->dto);
     }
     
     protected function setUp(): void
     {
+        $this->dto = new FilmActorDto($this->filmId, $this->actorId);
         $this->actorQueries = $this->createMock(ActorQueriesInterface::class);
         $this->filmActorModifiers = $this->createMock(FilmActorModifiersInterface::class);
         $this->filmActorQueries = $this->createMock(FilmActorQueriesInterface::class);

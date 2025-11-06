@@ -3,12 +3,18 @@
 namespace App\Modifiers\Person\Users;
 
 use App\Models\User;
+use App\Modifiers\Modifiers;
+use App\Services\Database\Person\Dto\RegisterDto;
+use Illuminate\Support\Facades\Hash;
 
-final class UserModifiers implements UserModifiersInterface
+final class UserModifiers extends Modifiers implements UserModifiersInterface
 {
-    public function saveField(User $user, string $field, mixed $value): void
+    public function create(User $user, RegisterDto $dto): void
     {
-        $user->$field = $value;
-        $user->save();
+        $user::create([
+            'login' => $dto->login,
+            'email' => $dto->email,
+            'password' => Hash::make($dto->password),
+        ]);
     }
 }

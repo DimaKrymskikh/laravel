@@ -5,7 +5,7 @@ namespace App\Services\Quiz\Admin;
 use App\Exceptions\RuleException;
 use App\Models\Quiz\Quiz;
 use App\Models\Quiz\QuizItem;
-use App\Modifiers\ModifiersInterface;
+use App\Modifiers\Quiz\QuizModifiersInterface;
 use App\Queries\Quiz\Quizzes\AdminQuizQueriesInterface;
 use App\Services\Quiz\Enums\ValueObjects\QuizStatusValue;
 use App\Services\Quiz\Enums\QuizStatus;
@@ -20,7 +20,7 @@ final class AdminQuizService
     const FAIL_TITLE_MESSAGE = 'Название опроса "%s" уже существует в базе данных. Внесите изменение в название.';
     
     public function __construct(
-            private ModifiersInterface $modifiers,
+            private QuizModifiersInterface $quizModifiers,
             private AdminQuizQueriesInterface $adminQuizQueries,
     ) {
     }
@@ -77,7 +77,7 @@ final class AdminQuizService
         $quiz->description = $dto->description->value;
         $quiz->lead_time = $dto->leadTime->value;
         
-        $this->modifiers->save($quiz);
+        $this->quizModifiers->save($quiz);
         
         return $quiz;
     }
@@ -96,7 +96,7 @@ final class AdminQuizService
         $field = $quizField->field;
         $quiz->$field = $quizField->value;
         
-        $this->modifiers->save($quiz);
+        $this->quizModifiers->save($quiz);
         
         return $quiz;
     }
@@ -115,7 +115,7 @@ final class AdminQuizService
         
         if ($quizStatusManager->checkOldAndNewStatusAreNotEqual()) {
             $quiz->status = $quizStatusManager->getNewStatusValue();
-            $this->modifiers->save($quiz);
+            $this->quizModifiers->save($quiz);
         }
         
         return $quiz;
@@ -135,7 +135,7 @@ final class AdminQuizService
         $quizStatusManager->approveNewStatus($newStatus->status);
         
         $quiz->status = $quizStatusManager->getNewStatusValue();
-        $this->modifiers->save($quiz);
+        $this->quizModifiers->save($quiz);
         
         return $quiz;
     }
@@ -155,7 +155,7 @@ final class AdminQuizService
         $quizStatusManager->defineNewStatus();
         
         $quiz->status = $quizStatusManager->getNewStatusValue();
-        $this->modifiers->save($quiz);
+        $this->quizModifiers->save($quiz);
         
         return $quiz;
     }

@@ -3,20 +3,22 @@
 namespace App\Modifiers\Person\UsersCities;
 
 use App\Models\Person\UserCity;
+use App\Services\Database\Person\Dto\UserCityDto;
 
 final class UserCityModifiers implements UserCityModifiersInterface
 {
-    public function save(UserCity $userCity, int $userId, int $cityId): void
+    public function save(UserCityDto $dto): void
     {
-        $userCity->user_id = $userId;
-        $userCity->city_id = $cityId;
-        $userCity->save();
+        UserCity::insert([
+            'user_id' => $dto->userId,
+            'city_id' => $dto->cityId
+        ]);
     }
     
-    public function delete(int $userId, int $cityId): void
+    public function remove(UserCityDto $dto): void
     {
-        UserCity::where('user_id', $userId)
-                ->where('city_id', $cityId)
+        UserCity::where('user_id', $dto->userId)
+                ->where('city_id', $dto->cityId)
                 ->delete();
     }
 }

@@ -2,9 +2,8 @@
 
 namespace Tests\Feature\Controllers\Auth;
 
-use App\Models\User;
 use App\Providers\RouteServiceProvider;
-
+use Database\Testsupport\Authentication;
 use Inertia\Testing\AssertableInertia as Assert;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,7 +12,7 @@ use Tests\TestCase;
 
 class RegisteredUserTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, Authentication;
 
     public function test_registration_screen_can_be_rendered(): void
     {
@@ -50,14 +49,12 @@ class RegisteredUserTest extends TestCase
     {
         Event::fake();
         
-        $this->seed([
-            \Database\Seeders\Person\BaseTestUserSeeder::class,
-        ]);
+        $this->seedUsers();
         
         // Вводиться существующий логин
         $response = $this->post('register', [
-            'login' => 'BaseTestLogin',
-            'email' => 'testlogin@example.com',
+            'login' => 'AuthTestLogin',
+            'email' => 'newtestlogin@example.com',
             'password' => 'TestPassword7',
             'password_confirmation' => 'TestPassword7',
         ]);
@@ -75,15 +72,12 @@ class RegisteredUserTest extends TestCase
     {
         Event::fake();
         
-        $this->seed([
-            \Database\Seeders\Person\BaseTestUserSeeder::class,
-        ]);
+        $this->seedUsers();
         
         // Вводиться существующая почта
         $response = $this->post('register', [
-            'login' => 'TestLogin',
-            // Задаётся почта пользователя BaseTestLogin
-            'email' => 'basetestlogin@example.com',
+            'login' => 'NewTestLogin',
+            'email' => 'authtestlogin@example.com',
             'password' => 'TestPassword7',
             'password_confirmation' => 'TestPassword7',
         ]);
@@ -179,12 +173,22 @@ class RegisteredUserTest extends TestCase
 
     public function test_user_can_remove_his_account(): void
     {
-        $user = User::factory()->create();
+        $this->seedUsers();
+        $this->seed([
+            \Database\Seeders\Tests\Thesaurus\LanguageSeeder::class,
+            \Database\Seeders\Tests\Dvd\FilmSeeder::class,
+            \Database\Seeders\Tests\Person\UserFilmSeeder::class,
+            \Database\Seeders\Tests\Thesaurus\TimezoneSeeder::class,
+            \Database\Seeders\Tests\Thesaurus\CitySeeder::class,
+            \Database\Seeders\Tests\Person\UserCitySeeder::class,
+        ]);
+        
+        $user = $this->getUser('AuthTestLogin');
         $acting = $this->actingAs($user);
         $this->assertAuthenticated();
         
         $response = $acting->delete('register', [
-            'password' => 'TestPassword7',
+            'password' => 'AuthTestPassword2',
         ]);
 
         $this->assertGuest();
@@ -193,7 +197,8 @@ class RegisteredUserTest extends TestCase
 
     public function test_user_can_not_remove_his_account_with_invalid_password(): void
     {
-        $user = User::factory()->create();
+        $this->seedUsers();
+        $user = $this->getUser('AuthTestLogin');
         $acting = $this->actingAs($user);
         
         $response = $acting->delete('register', [

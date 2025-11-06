@@ -2,7 +2,6 @@
 
 namespace App\Services\Database\Thesaurus;
 
-use App\Exceptions\DatabaseException;
 use App\DataTransferObjects\Database\Thesaurus\Filters\LanguageFilterDto;
 use App\Models\Thesaurus\Language;
 use App\Modifiers\Thesaurus\Languages\LanguageModifiersInterface;
@@ -17,24 +16,30 @@ final class LanguageService
     ) {
     }
     
-    public function create(string $name): void
+    public function create(string $name): Language
     {
-        $this->languageModifiers->save(new Language(), $name);
+        $language = new Language();
+        $language->name = $name;
+        
+        $this->languageModifiers->save($language);
+        
+        return $language;
     }
     
-    public function update(string $name, int $id): void
+    public function update(string $name, int $id): Language
     {
         $language = $this->languageQueries->getById($id);
-        $this->languageModifiers->save($language, $name);
+        $language->name = $name;
+        
+        $this->languageModifiers->save($language);
+        
+        return $language;
     }
     
     public function delete(int $id): void
     {
-        if(!$this->languageQueries->exists($id)) {
-            throw new DatabaseException("В таблице 'thesaurus.languages' нет записи с id=$id");
-        }
-        
-        $this->languageModifiers->delete($id);
+        $language = $this->languageQueries->getById($id);
+        $this->languageModifiers->remove($language);
     }
     
     public function getAllLanguagesList(LanguageFilterDto $languageDto): Collection

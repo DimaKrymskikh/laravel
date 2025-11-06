@@ -16,12 +16,16 @@ use App\Modifiers\Person\UsersCities\UserCityModifiers;
 use App\Modifiers\Person\UsersCities\UserCityModifiersInterface;
 use App\Modifiers\Person\UsersFilms\UserFilmModifiers;
 use App\Modifiers\Person\UsersFilms\UserFilmModifiersInterface;
+use App\Modifiers\Quiz\QuizAnswerModifiers;
+use App\Modifiers\Quiz\QuizAnswerModifiersInterface;
+use App\Modifiers\Quiz\QuizItemModifiers;
+use App\Modifiers\Quiz\QuizItemModifiersInterface;
+use App\Modifiers\Quiz\QuizModifiers;
+use App\Modifiers\Quiz\QuizModifiersInterface;
 use App\Modifiers\Thesaurus\Cities\CityModifiers;
 use App\Modifiers\Thesaurus\Cities\CityModifiersInterface;
 use App\Modifiers\Thesaurus\Languages\LanguageModifiers;
 use App\Modifiers\Thesaurus\Languages\LanguageModifiersInterface;
-use App\Modifiers\Modifiers;
-use App\Modifiers\ModifiersInterface;
 use Illuminate\Support\ServiceProvider;
 
 final class ModifiersProvider extends ServiceProvider
@@ -46,6 +50,8 @@ final class ModifiersProvider extends ServiceProvider
         
         $this->app->bind(LanguageModifiersInterface::class, LanguageModifiers::class);
         
-        $this->app->bind(ModifiersInterface::class, Modifiers::class);
+        $this->app->bind(QuizAnswerModifiersInterface::class, QuizAnswerModifiers::class);
+        $this->app->bind(QuizItemModifiersInterface::class, QuizItemModifiers::class);
+        $this->app->bind(QuizModifiersInterface::class, QuizModifiers::class);
     }
 }

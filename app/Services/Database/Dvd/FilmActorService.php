@@ -3,11 +3,11 @@
 namespace App\Services\Database\Dvd;
 
 use App\Exceptions\DatabaseException;
-use App\Models\Dvd\FilmActor;
 use App\Modifiers\Dvd\FilmsActors\FilmActorModifiersInterface;
 use App\Queries\Dvd\Actors\ActorQueriesInterface;
 use App\Queries\Dvd\Films\FilmQueriesInterface;
 use App\Queries\Dvd\FilmsActors\FilmActorQueriesInterface;
+use App\Services\Database\Dvd\Dto\FilmActorDto;
 use Illuminate\Database\Eloquent\Collection;
 
 final class FilmActorService
@@ -20,17 +20,17 @@ final class FilmActorService
     ) {
     }
     
-    public function create(int $filmId, int $actorId): void
+    public function create(FilmActorDto $dto): void
     {
-        if ($this->filmActorQueries->exists($filmId, $actorId)) {
+        if ($this->filmActorQueries->exists($dto)) {
             // Если пара существует, выбрасываем исключение
-            $filmTitle = $this->filmQueries->getById($filmId)->title;
-            $actor = $this->actorQueries->getById($actorId);
+            $filmTitle = $this->filmQueries->getById($dto->filmId)->title;
+            $actor = $this->actorQueries->getById($dto->actorId);
             $name = "$actor->->first_name $actor->last_name";
             throw new DatabaseException("Фильм '$filmTitle' уже содержит актёра $name");
         }
         
-        $this->filmActorModifiers->save(new FilmActor(), $filmId, $actorId);
+        $this->filmActorModifiers->save($dto);
     }
     
     public function getActorsListByFilmId(int $filmId): Collection
@@ -38,12 +38,12 @@ final class FilmActorService
         return $this->filmActorQueries->getByFilmId($filmId);
     }
     
-    public function delete(int $filmId, int $actorId): void
+    public function delete(FilmActorDto $dto): void
     {
-        if(!$this->filmActorQueries->exists($filmId, $actorId)) {
-            throw new DatabaseException("В таблице 'dvd.films_actors' нет записи с film_id=$filmId и actor_id=$actorId");
+        if(!$this->filmActorQueries->exists($dto)) {
+            throw new DatabaseException("В таблице 'dvd.films_actors' нет записи с film_id=$dto->filmId и actor_id=$dto->actorId");
         }
         
-        $this->filmActorModifiers->delete($filmId, $actorId);
+        $this->filmActorModifiers->remove($dto);
     }
 }

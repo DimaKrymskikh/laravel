@@ -4,6 +4,7 @@ namespace App\Services\Database\Person;
 
 use App\Models\User;
 use App\Modifiers\Person\Users\UserModifiersInterface;
+use App\Services\Database\Person\Dto\RegisterDto;
 
 final class UserService
 {
@@ -12,13 +13,32 @@ final class UserService
     ) {
     }
     
-    public function assignAdmin(User $user): void
+    public function create(RegisterDto $dto): User
     {
-        $this->userModifiers->saveField($user, 'is_admin', true);
+        $user = new User();
+        $this->userModifiers->create($user, $dto);
+        
+        return $user;
     }
     
-    public function depriveAdmin(User $user): void
+    public function assignAdmin(User $user): User
     {
-        $this->userModifiers->saveField($user, 'is_admin', false);
+        $user->is_admin = true;
+        $this->userModifiers->save($user);
+        
+        return $user;
+    }
+    
+    public function depriveAdmin(User $user): User
+    {
+        $user->is_admin = false;
+        $this->userModifiers->save($user);
+        
+        return $user;
+    }
+    
+    public function remove(User $user): void
+    {
+        $this->userModifiers->remove($user);
     }
 }

@@ -5,14 +5,15 @@ namespace App\Queries\Person\UsersFilms;
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\Models\Dvd\Film;
 use App\Models\Person\UserFilm;
+use App\Services\Database\Person\Dto\UserFilmDto;
 use Illuminate\Database\Query\JoinClause;
 
 final class UserFilmQueries implements UserFilmQueriesInterface
 {
-    public function exists(int $userId, int $filmId): bool
+    public function exists(UserFilmDto $dto): bool
     {
-        return UserFilm::where('user_id', $userId)
-                ->where('film_id', $filmId)
+        return UserFilm::where('user_id', $dto->userId)
+                ->where('film_id', $dto->filmId)
                 ->exists();
     }
     

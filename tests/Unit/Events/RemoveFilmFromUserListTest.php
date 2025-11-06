@@ -7,6 +7,7 @@ use App\Models\Dvd\Film;
 use App\Modifiers\Dvd\Films\FilmModifiersInterface;
 use App\Queries\Dvd\Films\FilmQueriesInterface;
 use App\Services\Database\Dvd\FilmService;
+use App\Services\Database\Person\Dto\UserFilmDto;
 use PHPUnit\Framework\TestCase;
 
 class RemoveFilmFromUserListTest extends TestCase
@@ -15,6 +16,7 @@ class RemoveFilmFromUserListTest extends TestCase
     private FilmModifiersInterface $filmModifiers;
     private FilmService $filmService;
     private FilmQueriesInterface $filmQueries;
+    private UserFilmDto $dto;
     private int $userId = 2;
     private int $filmId = 17;
     
@@ -28,7 +30,7 @@ class RemoveFilmFromUserListTest extends TestCase
                 ->with($this->identicalTo($this->filmId))
                 ->willReturn($film);
         
-        $this->removeFilmFromUserList = new RemoveFilmFromUserList($this->userId, $this->filmId, $this->filmService);
+        $this->removeFilmFromUserList = new RemoveFilmFromUserList($this->dto, $this->filmService);
         
         $broadcastWith = $this->removeFilmFromUserList->broadcastWith();
         // Проверка отправляемого сообщения
@@ -43,6 +45,7 @@ class RemoveFilmFromUserListTest extends TestCase
     
     protected function setUp(): void
     {
+        $this->dto = new UserFilmDto($this->userId, $this->filmId);
         $this->filmQueries = $this->createMock(FilmQueriesInterface::class);
         $this->filmModifiers = $this->createMock(FilmModifiersInterface::class);
         

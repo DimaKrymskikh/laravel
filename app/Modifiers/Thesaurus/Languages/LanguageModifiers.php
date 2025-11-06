@@ -2,18 +2,8 @@
 
 namespace App\Modifiers\Thesaurus\Languages;
 
-use App\Models\Thesaurus\Language;
+use App\Modifiers\Modifiers;
 
-final class LanguageModifiers implements LanguageModifiersInterface
+final class LanguageModifiers extends Modifiers implements LanguageModifiersInterface
 {
-    public function save(Language $language, string $name): void
-    {
-        $language->name = $name;
-        $language->save();
-    }
-    
-    public function delete(int $id): void
-    {
-        Language::find($id)->delete();
-    }
 }

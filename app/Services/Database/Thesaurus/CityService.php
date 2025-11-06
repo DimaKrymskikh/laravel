@@ -18,33 +18,41 @@ final class CityService
     ) {
     }
     
-    public function create(string $name, int $openWeatherId): void
+    public function create(string $name, int $openWeatherId): City
     {
-        $this->cityModifiers->save(new City(), $name, $openWeatherId);
+        $city = new City();
+        $city->name = $name;
+        $city->open_weather_id = $openWeatherId;
+        
+        $this->cityModifiers->save($city);
+        
+        return $city;
     }
     
-    public function update(int $cityId, string $field, mixed $value): void
+    public function update(int $cityId, string $field, mixed $value): City
     {
         if (!in_array($field, self::VARIABLE_TABLE_FIELDS)) {
             throw new DatabaseException("Поле '$field' таблицы 'thesaurus.cities' нельзя изменять.");
         }
         
+        $city = $this->cityQueries->getById($cityId);
+
         $fieldValue = match ($field) {
             'timezone_id' => $value ?: null,
             default => $value
         };
+        $city->$field = $fieldValue;
         
-        $city = $this->cityQueries->getById($cityId);
-        $this->cityModifiers->saveField($city, $field, $fieldValue);
+        $this->cityModifiers->save($city);
+        
+        return $city;
     }
     
     public function delete(int $cityId): void
     {
-        if (!$this->cityQueries->exists($cityId)) {
-            throw new DatabaseException("В таблице 'thesaurus.cities' нет записи с id=$cityId");
-        }
+        $city = $this->cityQueries->getById($cityId);
         
-        $this->cityModifiers->delete($cityId);
+        $this->cityModifiers->remove($city);
     }
     
     public function getCityById(int $cityId): City

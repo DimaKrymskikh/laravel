@@ -2,12 +2,9 @@
 
 namespace App\Modifiers\Dvd\Actors;
 
-use App\DataTransferObjects\Database\Dvd\ActorDto;
-use App\Models\Dvd\Actor;
+use App\Modifiers\ModifiersInterface;
 
-interface ActorModifiersInterface
+interface ActorModifiersInterface extends ModifiersInterface
 {
-    public function save(Actor $actor, ActorDto $dto): void;
-    
     public function delete(int $id): void;
 }

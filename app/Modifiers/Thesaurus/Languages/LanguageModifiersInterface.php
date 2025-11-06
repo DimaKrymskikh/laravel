@@ -2,11 +2,8 @@
 
 namespace App\Modifiers\Thesaurus\Languages;
 
-use App\Models\Thesaurus\Language;
+use App\Modifiers\ModifiersInterface;
 
-interface LanguageModifiersInterface
+interface LanguageModifiersInterface extends ModifiersInterface
 {
-    public function save(Language $language, string $name): void;
-    
-    public function delete(int $id): void;
 }

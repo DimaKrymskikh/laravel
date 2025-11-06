@@ -2,27 +2,13 @@
 
 namespace App\Modifiers\Dvd\Films;
 
-use App\DataTransferObjects\Database\Dvd\FilmDto;
 use App\Models\Dvd\Film;
 use App\Models\Dvd\FilmActor;
+use App\Modifiers\Modifiers;
 use Illuminate\Support\Facades\DB;
 
-final class FilmModifiers implements FilmModifiersInterface
+final class FilmModifiers extends Modifiers implements FilmModifiersInterface
 {
-    public function save(Film $film, FilmDto $dto): void
-    {
-        $film->title = $dto->title;
-        $film->description = $dto->description;
-        $film->release_year = $dto->releaseYear->value;
-        $film->save();
-    }
-    
-    public function saveField(Film $film, string $field, string|null $value): void
-    {
-        $film->$field = $value;
-        $film->save();
-    }
-    
     public function delete(int $filmId): void
     {
         DB::transaction(function () use ($filmId) {

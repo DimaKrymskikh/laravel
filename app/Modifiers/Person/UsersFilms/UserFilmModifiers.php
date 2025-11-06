@@ -3,20 +3,22 @@
 namespace App\Modifiers\Person\UsersFilms;
 
 use App\Models\Person\UserFilm;
+use App\Services\Database\Person\Dto\UserFilmDto;
 
 final class UserFilmModifiers implements UserFilmModifiersInterface
 {
-    public function save(UserFilm $userFilm, int $userId, int $filmId): void
+    public function save(UserFilmDto $dto): void
     {
-        $userFilm->user_id = $userId;
-        $userFilm->film_id = $filmId;
-        $userFilm->save();
+        UserFilm::insert([
+            'user_id' => $dto->userId,
+            'film_id' => $dto->filmId
+        ]);
     }
     
-    public function delete(int $userId, int $filmId): void
+    public function remove(UserFilmDto $dto): void
     {
-        UserFilm::where('user_id', '=', $userId)
-            ->where('film_id', '=', $filmId)
+        UserFilm::where('user_id', '=', $dto->userId)
+            ->where('film_id', '=', $dto->filmId)
             ->delete();
     }
 }

@@ -2,11 +2,11 @@
 
 namespace App\Modifiers\Person\UsersCities;
 
-use App\Models\Person\UserCity;
+use App\Services\Database\Person\Dto\UserCityDto;
 
 interface UserCityModifiersInterface
 {
-    public function save(UserCity $userCity, int $userId, int $cityId): void;
+    public function save(UserCityDto $dto): void;
     
-    public function delete(int $userId, int $cityId): void;
+    public function remove(UserCityDto $dto): void;
 }
