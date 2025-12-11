@@ -25,7 +25,7 @@ class QuizFieldTest extends TestCase
         $quisField = QuizField::create($field, $value);
         
         $this->assertEquals($field, $quisField->field);
-        $this->assertEquals($value, $quisField->value);
+        $this->assertEquals($value, $quisField->value->value);
     }
     
     public static function failProvider(): array

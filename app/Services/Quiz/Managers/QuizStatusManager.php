@@ -6,6 +6,9 @@ use App\Exceptions\RuleException;
 use App\Models\Quiz\Quiz;
 use App\Services\Quiz\Enums\QuizStatus;
 
+/**
+ * Управляет изменением статуса опроса
+ */
 final class QuizStatusManager
 {
     const MESSAGE_ABOUT_STATUS_CHANGE_BY_MANUAL_CONTROL = 'Статус "%s" опроса не может быть изменён ручным управлением.';
@@ -68,6 +71,11 @@ final class QuizStatusManager
         return $this->newStatus !== $this->oldStatus;
     }
     
+    /**
+     * Возвращает величину нового статуса опроса
+     * 
+     * @return string
+     */
     public function getNewStatusValue(): string
     {
         return $this->newStatus->value;

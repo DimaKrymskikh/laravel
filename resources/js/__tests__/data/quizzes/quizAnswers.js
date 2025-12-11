@@ -14,6 +14,7 @@ export const answerTrue = {
     id: 2,
     description: "4",
     is_correct: true,
+    priority: '2',
     quiz_item_id: quizItem.id,
     quiz_item: quizItem
 };

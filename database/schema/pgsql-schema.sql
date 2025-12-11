@@ -59,6 +59,25 @@ CREATE SCHEMA thesaurus;
 
 
 --
+-- Name: grade; Type: TYPE; Schema: quiz; Owner: -
+--
+
+CREATE TYPE quiz.grade AS ENUM (
+    'неудовлетворительно',
+    'удовлетворительно',
+    'хорошо',
+    'отлично'
+);
+
+
+--
+-- Name: TYPE grade; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON TYPE quiz.grade IS 'Оценки.';
+
+
+--
 -- Name: quiz_item_status; Type: TYPE; Schema: quiz; Owner: -
 --
 
@@ -799,7 +818,8 @@ CREATE TABLE quiz.quiz_answers (
     is_correct boolean DEFAULT false NOT NULL,
     quiz_item_id integer NOT NULL,
     created_at timestamp(0) with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp(0) with time zone DEFAULT now() NOT NULL
+    updated_at timestamp(0) with time zone DEFAULT now() NOT NULL,
+    priority integer
 );
 
 
@@ -822,6 +842,13 @@ COMMENT ON COLUMN quiz.quiz_answers.description IS 'Содержание отв�
 --
 
 COMMENT ON COLUMN quiz.quiz_answers.is_correct IS 'Является ли ответ правильным. true - ответ правильный.';
+
+
+--
+-- Name: COLUMN quiz_answers.priority; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.quiz_answers.priority IS 'Приоритет ответа.';
 
 
 --
@@ -853,7 +880,8 @@ CREATE TABLE quiz.quiz_items (
     status quiz.quiz_item_status DEFAULT 'at_work'::quiz.quiz_item_status NOT NULL,
     quiz_id integer,
     created_at timestamp(0) with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp(0) with time zone DEFAULT now() NOT NULL
+    updated_at timestamp(0) with time zone DEFAULT now() NOT NULL,
+    priority integer
 );
 
 
@@ -876,6 +904,13 @@ COMMENT ON COLUMN quiz.quiz_items.description IS 'Содержание вопр�
 --
 
 COMMENT ON COLUMN quiz.quiz_items.status IS 'Статус вопроса';
+
+
+--
+-- Name: COLUMN quiz_items.priority; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.quiz_items.priority IS 'Приоритет вопроса.';
 
 
 --
@@ -965,6 +1000,169 @@ CREATE SEQUENCE quiz.quizzes_id_seq
 --
 
 ALTER SEQUENCE quiz.quizzes_id_seq OWNED BY quiz.quizzes.id;
+
+
+--
+-- Name: trial_answers; Type: TABLE; Schema: quiz; Owner: -
+--
+
+CREATE TABLE quiz.trial_answers (
+    id bigint NOT NULL,
+    trial_id integer NOT NULL,
+    quiz_item_id integer NOT NULL,
+    question text NOT NULL,
+    quiz_answer_id integer,
+    answer text,
+    is_correct boolean,
+    priority integer DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: TABLE trial_answers; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON TABLE quiz.trial_answers IS 'Вопросы и ответы, которые дал пользователь при прохождении опросов.';
+
+
+--
+-- Name: COLUMN trial_answers.question; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.trial_answers.question IS 'Текст вопроса из таблицы quiz.quiz_items.';
+
+
+--
+-- Name: COLUMN trial_answers.answer; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.trial_answers.answer IS 'Ответ на вопрос, который дал пользователь.';
+
+
+--
+-- Name: COLUMN trial_answers.is_correct; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.trial_answers.is_correct IS 'Правильный или нет ответ.';
+
+
+--
+-- Name: COLUMN trial_answers.priority; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.trial_answers.priority IS 'Приоритет вопроса (из таблицы quiz.quiz_items на момент создания опроса).';
+
+
+--
+-- Name: trial_answers_id_seq; Type: SEQUENCE; Schema: quiz; Owner: -
+--
+
+CREATE SEQUENCE quiz.trial_answers_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: trial_answers_id_seq; Type: SEQUENCE OWNED BY; Schema: quiz; Owner: -
+--
+
+ALTER SEQUENCE quiz.trial_answers_id_seq OWNED BY quiz.trial_answers.id;
+
+
+--
+-- Name: trials; Type: TABLE; Schema: quiz; Owner: -
+--
+
+CREATE TABLE quiz.trials (
+    id bigint NOT NULL,
+    user_id integer NOT NULL,
+    quiz_id integer NOT NULL,
+    start_at timestamp(0) with time zone DEFAULT now() NOT NULL,
+    end_at timestamp(0) with time zone,
+    grade quiz.grade,
+    total_quiz_items integer DEFAULT 0 NOT NULL,
+    correct_answers_number integer DEFAULT 0 NOT NULL,
+    title text NOT NULL,
+    lead_time integer NOT NULL
+);
+
+
+--
+-- Name: TABLE trials; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON TABLE quiz.trials IS 'Результаты, полученные пользователями за прохождение опросов.';
+
+
+--
+-- Name: COLUMN trials.start_at; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.trials.start_at IS 'Время начала опроса.';
+
+
+--
+-- Name: COLUMN trials.end_at; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.trials.end_at IS 'Время окончания опроса.';
+
+
+--
+-- Name: COLUMN trials.grade; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.trials.grade IS 'Оценка, полученная пользователем.';
+
+
+--
+-- Name: COLUMN trials.total_quiz_items; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.trials.total_quiz_items IS 'Всего вопросов в опросе.';
+
+
+--
+-- Name: COLUMN trials.correct_answers_number; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.trials.correct_answers_number IS 'Число правильных ответов.';
+
+
+--
+-- Name: COLUMN trials.title; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.trials.title IS 'Название опроса (на момент испытания).';
+
+
+--
+-- Name: COLUMN trials.lead_time; Type: COMMENT; Schema: quiz; Owner: -
+--
+
+COMMENT ON COLUMN quiz.trials.lead_time IS 'Время выполнения опроса в минутах (на момент испытания).';
+
+
+--
+-- Name: trials_id_seq; Type: SEQUENCE; Schema: quiz; Owner: -
+--
+
+CREATE SEQUENCE quiz.trials_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: trials_id_seq; Type: SEQUENCE OWNED BY; Schema: quiz; Owner: -
+--
+
+ALTER SEQUENCE quiz.trials_id_seq OWNED BY quiz.trials.id;
 
 
 --
@@ -1252,6 +1450,20 @@ ALTER TABLE ONLY quiz.quizzes ALTER COLUMN id SET DEFAULT nextval('quiz.quizzes_
 
 
 --
+-- Name: trial_answers id; Type: DEFAULT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.trial_answers ALTER COLUMN id SET DEFAULT nextval('quiz.trial_answers_id_seq'::regclass);
+
+
+--
+-- Name: trials id; Type: DEFAULT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.trials ALTER COLUMN id SET DEFAULT nextval('quiz.trials_id_seq'::regclass);
+
+
+--
 -- Name: cities id; Type: DEFAULT; Schema: thesaurus; Owner: -
 --
 
@@ -1424,6 +1636,22 @@ ALTER TABLE ONLY quiz.quizzes
 
 
 --
+-- Name: trial_answers trial_answers_pkey; Type: CONSTRAINT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.trial_answers
+    ADD CONSTRAINT trial_answers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: trials trials_pkey; Type: CONSTRAINT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.trials
+    ADD CONSTRAINT trials_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: cities cities_open_weather_id_key; Type: CONSTRAINT; Schema: thesaurus; Owner: -
 --
 
@@ -1512,6 +1740,13 @@ CREATE INDEX users_films_film_id_idx ON person.users_films USING btree (film_id)
 --
 
 CREATE UNIQUE INDEX users_login_idx ON person.users USING btree (login);
+
+
+--
+-- Name: trial_id_idx; Type: INDEX; Schema: quiz; Owner: -
+--
+
+CREATE INDEX trial_id_idx ON quiz.trial_answers USING btree (trial_id);
 
 
 --
@@ -1673,6 +1908,46 @@ ALTER TABLE ONLY quiz.quiz_items
 
 
 --
+-- Name: trial_answers trial_answers_quiz_answer_id_fkey; Type: FK CONSTRAINT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.trial_answers
+    ADD CONSTRAINT trial_answers_quiz_answer_id_fkey FOREIGN KEY (quiz_answer_id) REFERENCES quiz.quiz_answers(id);
+
+
+--
+-- Name: trial_answers trial_answers_quiz_item_id_fkey; Type: FK CONSTRAINT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.trial_answers
+    ADD CONSTRAINT trial_answers_quiz_item_id_fkey FOREIGN KEY (quiz_item_id) REFERENCES quiz.quiz_items(id);
+
+
+--
+-- Name: trial_answers trial_answers_trial_id_fkey; Type: FK CONSTRAINT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.trial_answers
+    ADD CONSTRAINT trial_answers_trial_id_fkey FOREIGN KEY (trial_id) REFERENCES quiz.trials(id);
+
+
+--
+-- Name: trials trials_quiz_id_fkey; Type: FK CONSTRAINT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.trials
+    ADD CONSTRAINT trials_quiz_id_fkey FOREIGN KEY (quiz_id) REFERENCES quiz.quizzes(id);
+
+
+--
+-- Name: trials trials_user_id_fkey; Type: FK CONSTRAINT; Schema: quiz; Owner: -
+--
+
+ALTER TABLE ONLY quiz.trials
+    ADD CONSTRAINT trials_user_id_fkey FOREIGN KEY (user_id) REFERENCES person.users(id);
+
+
+--
 -- Name: cities cities_timezone_id_fkey; Type: FK CONSTRAINT; Schema: thesaurus; Owner: -
 --
 
@@ -1720,6 +1995,12 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 29	2025_09_16_190659_create_quiz	10
 30	2025_09_16_193516_add_commit	11
 31	2025_09_17_190851_create_quiz_answers_table	12
+32	2025_11_07_190911_create_trials_table	13
+33	2025_11_09_205200_alter_trials_table	14
+34	2025_11_11_175130_alter_trials_table	15
+35	2025_11_18_183406_alter_trials_table	16
+36	2025_11_26_195711_alter_quiz_items_and_quiz_answers_tables	17
+37	2025_11_27_205556_alter_trial_answers_table	18
 \.
 
 
@@ -1727,7 +2008,7 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 -- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.migrations_id_seq', 31, true);
+SELECT pg_catalog.setval('public.migrations_id_seq', 37, true);
 
 
 --

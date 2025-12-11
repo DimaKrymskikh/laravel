@@ -1,6 +1,8 @@
 import '@/bootstrap';
 
-import { app, modal } from '@/Services/app';
+import { defineComponent } from 'vue';
+import { mount } from "@vue/test-utils";
+import { app, modal, useCountdown } from '@/Services/app';
 import { cities_user } from '@/__tests__/data/cities';
 
 vi.mock('axios');
@@ -18,12 +20,28 @@ const dataWithError = {
     }
 };
 
+const TestComponent = defineComponent({
+    template: '<div></div>',
+    setup () {
+        return {
+            // 4000 секунд: 1 час, 6 минут, 40 секунд
+            countdown: useCountdown(4000)
+        };
+    }
+});
+
 describe("@/Services/app", () => {
     // В начале каждого теста устанавливаем дефолтные значения
     beforeEach(() => {
+        vi.useFakeTimers();
+        
         app.isRequest = false;
         app.isShowForbiddenModal = false;
         app.errorMessage = '';
+    });
+    
+    afterEach(() => {
+        vi.useRealTimers();
     });
     
     it("axios получает правильные параметры при вызове app.request", async () => {
@@ -105,5 +123,56 @@ describe("@/Services/app", () => {
         modal.isShow = true;
         modal.hide();
         expect(modal.isShow).toBe(false);
+    });
+    
+    it("useCountdown: startTimer", () => {
+        const wrapper = mount(TestComponent, {});
+        // При первом монтировании TestComponent почему-то запускается некий таймер, нужно 3 секунды, чтобы он обнулился
+        vi.advanceTimersByTime(3000);
+        expect(vi.getTimerCount()).toBe(0);
+        
+        // Запускаем таймер 
+        wrapper.vm.countdown.startTimer();
+        expect(vi.getTimerCount()).toBe(1);
+        // Повторный запуск startTimer() не создаёт новый таймер
+        wrapper.vm.countdown.startTimer();
+        expect(vi.getTimerCount()).toBe(1);
+        
+        expect(wrapper.vm.countdown.timeInSeconds.value).toBe(4000);
+        expect(wrapper.vm.countdown.formattedTime.value).toBe('1 ч. 06 м. 40 с.');
+        
+        vi.advanceTimersByTime(40 * 1000);
+        expect(wrapper.vm.countdown.timeInSeconds.value).toBe(3960);
+        expect(wrapper.vm.countdown.formattedTime.value).toBe('1 ч. 06 м. 00 с.');
+        
+        vi.advanceTimersByTime(6 * 60 * 1000);
+        expect(wrapper.vm.countdown.timeInSeconds.value).toBe(3600);
+        expect(wrapper.vm.countdown.formattedTime.value).toBe('1 ч. 00 м. 00 с.');
+        
+        vi.advanceTimersByTime(1000);
+        expect(wrapper.vm.countdown.timeInSeconds.value).toBe(3599);
+        expect(wrapper.vm.countdown.formattedTime.value).toBe('0 ч. 59 м. 59 с.');
+        
+        vi.advanceTimersByTime((59 * 60 + 59) * 1000);
+        expect(wrapper.vm.countdown.timeInSeconds.value).toBe(0);
+        expect(wrapper.vm.countdown.formattedTime.value).toBe('время истекло');
+        expect(vi.getTimerCount()).toBe(1);
+        // В следующую секунду таймер обнуляется
+        vi.advanceTimersByTime(1000);
+        expect(wrapper.vm.countdown.timeInSeconds.value).toBe(0);
+        expect(wrapper.vm.countdown.formattedTime.value).toBe('время истекло');
+        expect(vi.getTimerCount()).toBe(0);
+    });
+    
+    it("useCountdown: onUnmounted", () => {
+        expect(vi.getTimerCount()).toBe(0);
+        const wrapper = mount(TestComponent, {});
+        expect(vi.getTimerCount()).toBe(0);
+        
+        wrapper.vm.countdown.startTimer();
+        expect(vi.getTimerCount()).toBe(1);
+        
+        wrapper.unmount();
+        expect(vi.getTimerCount()).toBe(0);
     });
 });

@@ -1,7 +1,5 @@
-import { mount } from "@vue/test-utils";
-import { router } from '@inertiajs/vue3';
+import { mount, flushPromises } from "@vue/test-utils";
 
-import { updateQuiz } from '@/Services/Content/Quizzes/quizzes';
 import QuizDescriptionColumn from '@/Components/Pages/Admin/Quizzes/Quizzes/QuizDescriptionColumn.vue';
 import SimpleTextarea from '@/Components/Elements/Form/Textarea/SimpleTextarea.vue';
 import CrossSvg from '@/Components/Svg/CrossSvg.vue';
@@ -20,10 +18,6 @@ const getWrapper = function() {
 };
 
 describe("@/Components/Pages/Admin/Quizzes/Quizzes/QuizDescriptionColumn.vue", () => {
-    beforeEach(() => {
-        updateQuiz.isShow = false;
-    });
-    
     it("Отрисовка блока QuizDescriptionColumn с текстом (updateQuizDescription.isShow = false)", () => {
         const wrapper = getWrapper();
         
@@ -33,27 +27,29 @@ describe("@/Components/Pages/Admin/Quizzes/Quizzes/QuizDescriptionColumn.vue", (
         expect(tds[1].findComponent(PencilSvg).exists()).toBe(true);
     });
     
-    it("Отрисовка блока QuizDescriptionColumn с input (updateQuizDescription.isShow = true)", () => {
-        updateQuiz.isShow = true;
-        
+    it("Отрисовка блока QuizDescriptionColumn с input (updateQuizDescription.isShow = true)", async () => {
         const wrapper = getWrapper();
+        wrapper.vm.modal.isShow = true;
+        await flushPromises();
         
         const tds = wrapper.findAll('td');
         expect(tds.length).toBe(2);
         
         const simpleTextarea = tds[0].findComponent(SimpleTextarea);
         expect(simpleTextarea.exists()).toBe(true);
-        expect(simpleTextarea.props('handler')).toBe(wrapper.vm.handlerUpdateQuiz);
-        expect(simpleTextarea.props('errorsMessage')).toBe(wrapper.vm.updateQuizDescription.errorsMessage);
+        expect(simpleTextarea.props('hide')).toBe(wrapper.vm.hide);
+        expect(simpleTextarea.props('handler')).toBe(wrapper.vm.handler);
+        expect(simpleTextarea.props('errorsMessage')).toBe(wrapper.vm.activeField.errorsMessage);
         
         const сrossSvg = tds[1].findComponent(CrossSvg);
         expect(сrossSvg.exists()).toBe(true);
     });
     
-    it("Проверка v-model", () => {
-        updateQuiz.isShow = true;
-        
+    it("Проверка v-model", async () => {
         const wrapper = getWrapper();
+        wrapper.vm.modal.show(wrapper.vm.id, wrapper.vm.field, wrapper.vm.url);
+        await flushPromises();
+        
         const simpleTextarea = wrapper.findComponent(SimpleTextarea);
     
         // Поле ввода заполняется
@@ -65,38 +61,21 @@ describe("@/Components/Pages/Admin/Quizzes/Quizzes/QuizDescriptionColumn.vue", (
         expect(simpleTextarea.emitted('update:modelValue')[0][0]).toBe('Test Quiz Description');
     });
     
-    it("Поле input закрывается", async () => {
-        updateQuiz.isShow = true;
-        
+    it("Клик по карадашу открывает поле input", async () => {
         const wrapper = getWrapper();
-        // Поле input открыто
-        const simpleTextarea = wrapper.findComponent(SimpleTextarea);
-        expect(simpleTextarea.exists()).toBe(true);
         
-        const tds = wrapper.findAll('td');
-        expect(tds.length).toBe(2);
+        const pencilSvg = wrapper.findComponent(PencilSvg);
+        expect(wrapper.findComponent(SimpleTextarea).exists()).toBe(false);
         
-        // Крестик во второй клетке
-        const cross = tds[1];
-        await cross.trigger('click');
-        // Поле input закрыто
-        expect(simpleTextarea.exists()).toBe(false);
+        await pencilSvg.trigger('click');
+        expect(wrapper.findComponent(SimpleTextarea).exists()).toBe(true);
     });
     
-    it("Вызов функции handlerUpdateQuiz", () => {
+    it("Вызов функции hide (app.isRequest = false)", async () => {
         const wrapper = getWrapper();
-        wrapper.vm.handlerUpdateQuiz();
+        wrapper.vm.modal.isShow = true;
         
-        expect(router.put).toHaveBeenCalledTimes(1);
-        expect(router.put).toHaveBeenCalledWith(`/admin/quizzes/${wrapper.vm.quiz.id}`, {
-            field: 'description',
-            value: wrapper.vm.fieldValue
-        }, {
-            preserveScroll: true,
-            onBefore: expect.anything(),
-            onSuccess: expect.anything(),
-            onError: expect.anything(),
-            onFinish: expect.anything()
-        });
+        wrapper.vm.hide();
+        expect(wrapper.vm.modal.isShow).toBe(false);
     });
 });

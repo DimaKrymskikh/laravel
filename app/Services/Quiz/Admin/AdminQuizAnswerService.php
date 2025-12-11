@@ -4,8 +4,8 @@ namespace App\Services\Quiz\Admin;
 
 use App\Models\Quiz\QuizAnswer;
 use App\Modifiers\Quiz\QuizAnswerModifiersInterface;
-use App\Queries\Quiz\QuizAnswers\AdminQuizAnswerQueriesInterface;
-use App\Queries\Quiz\QuizItems\AdminQuizItemQueriesInterface;
+use App\Queries\Quiz\QuizAnswers\QuizAnswerQueriesInterface;
+use App\Queries\Quiz\QuizItems\QuizItemQueriesInterface;
 use App\Services\Quiz\Enums\ValueObjects\QuizItemStatusValue;
 use App\Services\Quiz\Enums\ValueObjects\QuizStatusValue;
 use App\Services\Quiz\Enums\QuizItemStatus;
@@ -17,8 +17,8 @@ final class AdminQuizAnswerService
 {
     public function __construct(
             private QuizAnswerModifiersInterface $quizAnswerModifiers,
-            private AdminQuizAnswerQueriesInterface $adminQuizAnswerQueries,
-            private AdminQuizItemQueriesInterface $adminQuizItemQueries,
+            private QuizAnswerQueriesInterface $quizAnswerQueries,
+            private QuizItemQueriesInterface $quizItemQueries,
     ) {
     }
     
@@ -30,7 +30,7 @@ final class AdminQuizAnswerService
      */
     public function getAnswerCard(int $id): QuizAnswer
     {
-        $quizAnswer =  $this->adminQuizAnswerQueries->getById($id);
+        $quizAnswer =  $this->quizAnswerQueries->getById($id);
         $quizAnswer->quizItem->status = QuizItemStatus::from($quizAnswer->quizItem->status)->getInfo();
         $quizAnswer->quizItem->quiz->status = QuizStatus::from($quizAnswer->quizItem->quiz->status)->getInfo();
         
@@ -45,7 +45,7 @@ final class AdminQuizAnswerService
      */
     public function create(QuizAnswerDto $dto): QuizAnswer
     {
-        $quizItem = $this->adminQuizItemQueries->getById($dto->quizItemId);
+        $quizItem = $this->quizItemQueries->getById($dto->quizItemId);
         $this->checkAnswerEditabilityByStatuses($quizItem->quiz->status, $quizItem->status);
         
         $quizAnswer = new QuizAnswer();
@@ -68,12 +68,12 @@ final class AdminQuizAnswerService
      */
     public function updateField(int $id, QuizAnswerField $quizAnswerField): QuizAnswer
     {
-        $quizAnswer = $this->adminQuizAnswerQueries->getById($id);
-        $quizItem = $this->adminQuizItemQueries->getById($quizAnswer->quiz_item_id);
+        $quizAnswer = $this->quizAnswerQueries->getById($id);
+        $quizItem = $this->quizItemQueries->getById($quizAnswer->quiz_item_id);
         $this->checkAnswerEditabilityByStatuses($quizItem->quiz->status, $quizItem->status);
         
         $field = $quizAnswerField->field;
-        $quizAnswer->$field = $quizAnswerField->value;
+        $quizAnswer->$field = $quizAnswerField->value->value;
         
         $this->quizAnswerModifiers->save($quizAnswer);
         
@@ -89,8 +89,8 @@ final class AdminQuizAnswerService
      */
     public function delete(int $id): int
     {
-        $quizAnswer = $this->adminQuizAnswerQueries->getById($id);
-        $quizItem = $this->adminQuizItemQueries->getById($quizAnswer->quiz_item_id);
+        $quizAnswer = $this->quizAnswerQueries->getById($id);
+        $quizItem = $this->quizItemQueries->getById($quizAnswer->quiz_item_id);
         $this->checkAnswerEditabilityByStatuses($quizItem->quiz->status, $quizItem->status);
         
         $this->quizAnswerModifiers->remove($quizAnswer);
@@ -98,6 +98,13 @@ final class AdminQuizAnswerService
         return $quizAnswer->quiz_item_id;
     }
     
+    /**
+     * По состоянию статусов проверяет, что ответ можно редактировать
+     * 
+     * @param string $quizStatus - статус опроса
+     * @param string $quizItemStatus - статус вопроса
+     * @return void
+     */
     private function checkAnswerEditabilityByStatuses(string $quizStatus, string $quizItemStatus): void
     {
         QuizStatusValue::create($quizStatus)->allowQuizChanges();

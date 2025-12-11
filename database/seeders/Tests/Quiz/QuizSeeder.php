@@ -8,6 +8,9 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Посев таблицы 'quiz.quizzes'
+ */
 class QuizSeeder extends Seeder
 {
     use WithoutModelEvents, Sequences;
@@ -16,6 +19,7 @@ class QuizSeeder extends Seeder
     public const ID_STRAIGHT_LINES_ON_THE_PLANE = 2;
     public const ID_TRIANGLES = 3;
     public const ID_REMOVED_STATUS = 4;
+    public const ID_APPROVED_STATUS = 5;
 
     public function run(): void
     {
@@ -57,6 +61,12 @@ class QuizSeeder extends Seeder
                 'title' => 'Удалённый',
                 'description' => 'Этот опрос удалён.',
                 'status' => QuizStatus::Removed,
+            ],
+            (object) [
+                'id' => self::ID_APPROVED_STATUS,
+                'title' => 'Утверждённый',
+                'description' => 'Этот опрос утверждён для испытания пользователей.',
+                'status' => QuizStatus::Approved,
             ],
         ];
     }

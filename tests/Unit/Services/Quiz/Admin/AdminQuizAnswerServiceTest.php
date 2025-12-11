@@ -4,8 +4,8 @@ namespace Tests\Unit\Services\Quiz\Admin;
 
 use App\Models\Quiz\QuizAnswer;
 use App\Modifiers\Quiz\QuizAnswerModifiersInterface;
-use App\Queries\Quiz\QuizAnswers\AdminQuizAnswerQueriesInterface;
-use App\Queries\Quiz\QuizItems\AdminQuizItemQueriesInterface;
+use App\Queries\Quiz\QuizAnswers\QuizAnswerQueriesInterface;
+use App\Queries\Quiz\QuizItems\QuizItemQueriesInterface;
 use App\Services\Quiz\Admin\AdminQuizAnswerService;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
@@ -16,8 +16,8 @@ use Tests\Unit\Services\Quiz\QuizTestCase;
 final class AdminQuizAnswerServiceTest extends QuizTestCase
 {
     private QuizAnswerModifiersInterface $quizAnswerModifiers;
-    private AdminQuizAnswerQueriesInterface $quizAnswerQueries;
-    private AdminQuizItemQueriesInterface $quizItemQueries;
+    private QuizAnswerQueriesInterface $quizAnswerQueries;
+    private QuizItemQueriesInterface $quizItemQueries;
     private AdminQuizAnswerService $quizAnswerService;
     private int $quizAnswerId = 11;
     
@@ -104,8 +104,8 @@ final class AdminQuizAnswerServiceTest extends QuizTestCase
     protected function setUp(): void
     {
         $this->quizAnswerModifiers = $this->createMock(QuizAnswerModifiersInterface::class);
-        $this->quizAnswerQueries = $this->createMock(AdminQuizAnswerQueriesInterface::class);
-        $this->quizItemQueries = $this->createMock(AdminQuizItemQueriesInterface::class);
+        $this->quizAnswerQueries = $this->createMock(QuizAnswerQueriesInterface::class);
+        $this->quizItemQueries = $this->createMock(QuizItemQueriesInterface::class);
         
         $this->quizAnswerService = new AdminQuizAnswerService($this->quizAnswerModifiers, $this->quizAnswerQueries, $this->quizItemQueries);
     }

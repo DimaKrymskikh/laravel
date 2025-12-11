@@ -72,7 +72,7 @@ const linksList = [{
                 </tr>
             </tbody>
         </table>
-        <div  v-if="!props.quizzes.length">{{ messageEmptyTable }}</div>
+        <div  v-if="!props.quizzes.length" class="my-4 text-center text-orange-800">{{ messageEmptyTable }}</div>
         
         <ApprovedQuizModal v-if="approvedQuiz.isShow" />
         <RemovedQuizModal v-if="removedQuiz.isShow" />

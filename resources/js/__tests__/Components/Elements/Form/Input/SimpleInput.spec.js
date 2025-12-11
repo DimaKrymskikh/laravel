@@ -12,6 +12,7 @@ const getWrapper = function(errorsMessage = '') {
             props: {
                 errorsMessage,
                 modelValue: '',
+                hide: vi.fn(),
                 handler: vi.fn()
             }
         });
@@ -77,5 +78,23 @@ describe("@/components/Elements/Form/Input/SimpleInput.vue", () => {
         const error = wrapper.find('.error');
         expect(error.exists()).toBe(true);
         expect(error.text()).toBe('Некоторая ошибка');
+    });
+    
+    it("Событие blur", async () => {
+        const wrapper = getWrapper(false);
+        const input = wrapper.find('input');
+        
+        await input.trigger('blur');
+        expect(wrapper.vm.props.hide).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.props.handler).not.toHaveBeenCalled();
+    });
+    
+    it("Событие change", async () => {
+        const wrapper = getWrapper(false);
+        const input = wrapper.find('input');
+        
+        await input.trigger('change');
+        expect(wrapper.vm.props.hide).not.toHaveBeenCalled();
+        expect(wrapper.vm.props.handler).toHaveBeenCalledTimes(1);
     });
 });

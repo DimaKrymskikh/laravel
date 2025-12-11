@@ -56,12 +56,13 @@ const checkThead = function(table) {
         const thead = table.get('thead');
         expect(thead.isVisible()).toBe(true);
         const th = thead.findAll('th');
-        expect(th.length).toBe(5);
+        expect(th.length).toBe(6);
         expect(th[0].text()).toBe('#');
         expect(th[1].text()).toBe('Вопрос');
-        expect(th[2].text()).toBe('Статус');
-        expect(th[3].text()).toBe('');
+        expect(th[2].text()).toBe('Приоритет');
+        expect(th[3].text()).toBe('Статус');
         expect(th[4].text()).toBe('');
+        expect(th[5].text()).toBe('');
 };
 
 describe("@/Pages/Admin/Quizzes/QuizCard.vue", () => {
@@ -95,13 +96,15 @@ describe("@/Pages/Admin/Quizzes/QuizCard.vue", () => {
         
         const quizItem = quizWithItems.quiz_items[0];
         const tds = tr[0].findAll('td');
-        expect(tds.length).toBe(6);
+        expect(tds.length).toBe(8);
         expect(tds[0].text()).toBe('1');
         expect(tds[1].text()).toBe(quizItem.description);
         expect(tds[2].getComponent(PencilSvg).props('title')).toBe('Изменить текст вопроса');
-        expect(tds[3].text()).toBe(quizItem.status.name);
-        expect(tds[4].get('a').attributes('href')).toBe('/admin/quiz_items/' + quizItem.id);
-        expect(tds[4].getComponent(EyeSvg).props('title')).toBe('Открыть карточку вопроса');
+        expect(tds[3].text()).toBe(quizItem.priority ? quizItem.priority : 'не указан');
+        expect(tds[4].getComponent(PencilSvg).props('title')).toBe('Изменить приоритет вопроса');
+        expect(tds[5].text()).toBe(quizItem.status.name);
+        expect(tds[6].get('a').attributes('href')).toBe('/admin/quiz_items/' + quizItem.id);
+        expect(tds[6].getComponent(EyeSvg).props('title')).toBe('Открыть карточку вопроса');
         
         expect(wrapper.findComponent(RemovedQuizItemModal).exists()).toBe(false);
     });

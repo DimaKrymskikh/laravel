@@ -4,6 +4,7 @@ import { currentQuizItem, messageEmptyTable, removedQuizAnswer } from '@/Service
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import QuizAnswerDescriptionColumn from '@/Components/Pages/Admin/Quizzes/QuizItemCard/QuizAnswerDescriptionColumn.vue';
 import QuizAnswerIsCorrectColumn from '@/Components/Pages/Admin/Quizzes/QuizItemCard/QuizAnswerIsCorrectColumn.vue';
+import QuizAnswerPriorityColumn from '@/Components/Pages/Admin/Quizzes/QuizItemCard/QuizAnswerPriorityColumn.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import AddQuizAnswerBlock from '@/Components/Pages/Admin/Quizzes/QuizItemCard/AddQuizAnswerBlock.vue';
 import RemovedQuizAnswerColumn from '@/Components/Pages/Admin/Quizzes/QuizItemCard/RemovedQuizAnswerColumn.vue';
@@ -73,6 +74,7 @@ const linksList = [{
                     <th class="w-8">#</th>
                     <th colspan="2">Ответ</th>
                     <th colspan="2">Правильный</th>
+                    <th colspan="2">Приоритет</th>
                     <th class="w-8"></th>
                     <th class="w-8"></th>
                 </tr>
@@ -82,6 +84,7 @@ const linksList = [{
                     <td class="text-center">{{ index + 1 }}</td>
                     <QuizAnswerDescriptionColumn :answer="answer"/>
                     <QuizAnswerIsCorrectColumn :answer="answer"/>
+                    <QuizAnswerPriorityColumn :answer="answer"/>
                     <td>
                         <Link :href="`/admin/quiz_answers/${answer.id}`">
                             <EyeSvg title="Открыть карточку ответа"/>

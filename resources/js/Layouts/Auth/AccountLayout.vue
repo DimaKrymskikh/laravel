@@ -15,10 +15,10 @@ defineProps({
 <template>
     <AuthLayout :errors="errors" :user="user">
         <div class="flex">
-            <div class="w-1/12 pr-4 mt-16">
+            <div class="w-2/12 pr-8">
                 <AuthAccountTabs />
             </div>
-            <div class="w-11/12">
+            <div class="w-10/12">
                 <BreadCrumb :linksList="linksList" />
                 <div class="relative">
                     <PersonalDataBlock :user="user" />

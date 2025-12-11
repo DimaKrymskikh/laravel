@@ -65,7 +65,6 @@ class QuizAnswerTest extends TestCase
         $this->seedQuizzesWithQuizItemsAndAnswers();
         
         $response = $this->actingAs($user)->put('admin/quiz_answers/'.QuizAnswerSeeder::ID_SUM_OF_NUMBERS_IS_3, [
-            'quiz_item_id' => QuizItemSeeder::ID_SUM_OF_NUMBERS,
             'field' => 'is_correct',
             'value' => true
         ]);

@@ -77,6 +77,15 @@ abstract class QuizTestCase extends TestCase
                 ->make();
     }
     
+    protected function factoryQuizTitle(string $title): Quiz
+    {
+        return Quiz::factory()
+                ->state([
+                    'title' => $title,
+                ])
+                ->make();
+    }
+    
     protected function factoryQuizItem(Quiz $quiz, QuizItemStatus $status = QuizItemStatus::AtWork): QuizItem
     {
         $quizItem = QuizItem::factory()
@@ -100,30 +109,50 @@ abstract class QuizTestCase extends TestCase
                 ->make();
     }
     
-    protected function factoryQuizItems(int $nQuizItems, int $nQuizItemsWithStatusAtWork): QuizItemCollection
+    protected function factoryQuizItems(int $nQuizItemsWithStatusReady, int $nQuizItemsWithStatusAtWork): QuizItemCollection
     {
+        $nQuizItems = $nQuizItemsWithStatusReady + $nQuizItemsWithStatusAtWork + 1;
+        
         return  QuizItem::factory()
                 ->count($nQuizItems)
                 ->state(new Sequence(
                     function (Sequence $sequence) use ($nQuizItemsWithStatusAtWork) {
-                        if($sequence->index < $nQuizItemsWithStatusAtWork) {
-                            return ['status' => QuizStatus::AtWork->value];
+                        if($sequence->index === 0) {
+                            // Один вопрос в состоянии 'removed'
+                            return [
+                                'status' => QuizItemStatus::Removed->value,
+                            ];
+                        }
+                        if($sequence->index < $nQuizItemsWithStatusAtWork + 1) {
+                            // $nQuizItemsWithStatusAtWork вопросов в состоянии 'at_work'
+                            return [
+                                'status' => QuizItemStatus::AtWork->value,
+                            ];
                         } else {
-                            return ['status' => QuizStatus::Ready->value];
+                            // Остальные вопросы в состоянии 'ready'
+                            return [
+                                'status' => QuizItemStatus::Ready->value,
+                            ];
                         }
                     }
                 ))
                 ->make();
     }
     
-    protected function factoryQuizItemWithAnswers(QuizItemStatus $quizItemStatus, int $nAnswers, bool $isCorrect): QuizItem
+    protected function factoryQuizItemWithAnswers(QuizItemStatus $quizItemStatus, int $nAnswers, bool $isCorrect, bool $isPriority, bool $isPriorityQuizItem): QuizItem
     {
         $quizItem = QuizItem::factory()
                 ->state([
                         'status' => $quizItemStatus->value,
+                        'priority' => $isPriorityQuizItem ? random_int(1, 99) : 0,
                         'answers' => QuizAnswer::factory()->count($nAnswers)->sequence(
-                            ['is_correct' => false],
-                            ['is_correct' => $isCorrect ? true : false],
+                            [
+                                'is_correct' => false,
+                                'priority' => random_int(1, 99)
+                            ], [
+                                'is_correct' => $isCorrect ? true : false,
+                                'priority' => $isPriority ? random_int(1, 99) : 0
+                            ],
                         )->make()
                     ])
                 ->make();

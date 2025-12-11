@@ -8,7 +8,9 @@ const getWrapper = function(modelValue) {
     return mount(Checkbox, {
             props: {
                 titleText: 'Поле ввода',
-                modelValue
+                modelValue,
+                hide: vi.fn(),
+                handler: vi.fn()
             }
         });
 };
@@ -36,5 +38,23 @@ describe("@/components/Elements/Form/Checkbox", () => {
         const wrapper = getWrapper(false);
         
         testCheckbox.failChecked(wrapper);
+    });
+    
+    it("Событие blur", async () => {
+        const wrapper = getWrapper(false);
+        const input = wrapper.find('input');
+        
+        await input.trigger('blur');
+        expect(wrapper.vm.props.hide).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.props.handler).not.toHaveBeenCalled();
+    });
+    
+    it("Событие change", async () => {
+        const wrapper = getWrapper(false);
+        const input = wrapper.find('input');
+        
+        await input.trigger('change');
+        expect(wrapper.vm.props.hide).not.toHaveBeenCalled();
+        expect(wrapper.vm.props.handler).toHaveBeenCalledTimes(1);
     });
 });

@@ -18,10 +18,27 @@ final class QuizItemStatusManagerTest extends QuizTestCase
         $this->assertTrue($quizItemStatusManager->checkOldAndNewStatusAreNotEqual());
     }
     
-    public function test_defineNewStatus_status_unchanged(): void
+    public function test_defineNewStatus_status_unchanged_no_correct_answer(): void
     {
-        // Нет правильного ответа
-        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::AtWork, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, false);
+        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::AtWork, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, false, true, true);
+        $quizItemStatusManager = new QuizItemStatusManager($quizItem);
+        
+        $quizItemStatusManager->defineNewStatus();
+        $this->assertFalse($quizItemStatusManager->checkOldAndNewStatusAreNotEqual());
+    }
+    
+    public function test_defineNewStatus_status_unchanged_no_priority(): void
+    {
+        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::AtWork, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, true, false, true);
+        $quizItemStatusManager = new QuizItemStatusManager($quizItem);
+        
+        $quizItemStatusManager->defineNewStatus();
+        $this->assertFalse($quizItemStatusManager->checkOldAndNewStatusAreNotEqual());
+    }
+    
+    public function test_defineNewStatus_status_unchanged_no_priorityQuizItem(): void
+    {
+        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::AtWork, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, true, true, false);
         $quizItemStatusManager = new QuizItemStatusManager($quizItem);
         
         $quizItemStatusManager->defineNewStatus();
@@ -48,14 +65,14 @@ final class QuizItemStatusManagerTest extends QuizTestCase
     {
         $this->expectException(RuleException::class);
         
-        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::Removed, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, false);
+        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::Removed, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, false, true, true);
         $quizItemStatusManager = new QuizItemStatusManager($quizItem);
         $quizItemStatusManager->approveNewStatus(QuizItemStatus::Removed);
     }
     
     private function getDefaultQuizItemStatusManager(): QuizItemStatusManager
     {
-        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::AtWork, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, true);
+        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::AtWork, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, true, true, true);
         
         return new QuizItemStatusManager($quizItem);
     }

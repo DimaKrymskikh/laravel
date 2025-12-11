@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/vue3'
 import { currentQuiz, messageEmptyTable, removedQuizItem } from '@/Services/Content/Quizzes/quizCard';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import QuizItemDescriptionColumn from '@/Components/Pages/Admin/Quizzes/QuizCard/QuizItemDescriptionColumn.vue';
+import QuizItemPriorityColumn from '@/Components/Pages/Admin/Quizzes/QuizCard/QuizItemPriorityColumn.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import AddQuizItemBlock from '@/Components/Pages/Admin/Quizzes/QuizCard/AddQuizItemBlock.vue';
 import RemovedQuizItemColumn from '@/Components/Pages/Admin/Quizzes/QuizCard/RemovedQuizItemColumn.vue';
@@ -55,6 +56,7 @@ const linksList = [{
                 <tr>
                     <th>#</th>
                     <th colspan="2">Вопрос</th>
+                    <th colspan="2">Приоритет</th>
                     <th>Статус</th>
                     <th class="w-8"></th>
                     <th class="w-8"></th>
@@ -64,6 +66,7 @@ const linksList = [{
                 <tr v-for="(item, index) in quiz.quiz_items" :key="item.id">
                     <td class="text-center">{{ index + 1 }}</td>
                     <QuizItemDescriptionColumn :quizItem="item"/>
+                    <QuizItemPriorityColumn :quizItem="item"/>
                     <td class="text-center" :class="item.status.style">
                         {{ item.status.name }}
                     </td>

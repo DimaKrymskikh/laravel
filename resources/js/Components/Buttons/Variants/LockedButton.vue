@@ -6,7 +6,7 @@ defineProps({
 
 <template>
     <button
-        class="px-4 py-2 bg-gray-400 text-gray-950 rounded-lg"
+        class="px-4 py-2 bg-gray-400 text-gray-950 rounded-lg cursor-text"
     >
         {{ buttonText }}
     </button>

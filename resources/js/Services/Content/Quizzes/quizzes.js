@@ -1,14 +1,20 @@
+/**
+ * Модуль для работы с опросами
+ */
+
 import { reactive } from 'vue';
 import { router } from '@inertiajs/vue3';
-import { app } from '@/Services/app';
+import { app, modal } from '@/Services/app';
 import { defaultOnBefore, defaultOnError, defaultOnFinish } from '@/Services/router';
-import { modal } from '@/Services/app';
 
 // Должно совпадать с App\Models\Quiz::DEFAULT_LAED_TIME
 const defaultLeadTime = '20';
 
 export const messageEmptyTable = 'Ни один опрос не найден, или ещё ни один опрос не добавлен.';
 
+/**
+ * Объект модального окна, в котором создаётся новый опрос
+ */
 export const newQuiz = reactive({
     ...modal,
     show() {
@@ -22,45 +28,9 @@ export const newQuiz = reactive({
     leadTime: '0'
 });
 
-export const updateQuiz = {
-    ...modal,
-    
-    errorsMessage: '',
-    
-    hideOnCross() {
-        if (!app.isRequest) {
-            this.hide();
-        }
-    },
-    
-    onBefore() {
-        defaultOnBefore();
-        this.errorsMessage = '';
-    },
-    onSuccess() {
-        this.hide();
-    },
-    onError(errors) {
-        this.errorsMessage = errors[this.field] ? errors[this.field] : '';
-        defaultOnError(this.hide.bind(this))(errors);
-    }
-};
-
-export const updateQuizField = function(id, fieldValue, updateQuiz) {
-    return function() {
-        router.put(`/admin/quizzes/${id}`, {
-            field: updateQuiz.field,
-            value: fieldValue.value
-        }, {
-            preserveScroll: true,
-            onBefore: updateQuiz.onBefore.bind(updateQuiz),
-            onSuccess: updateQuiz.onSuccess.bind(updateQuiz),
-            onError: updateQuiz.onError.bind(updateQuiz),
-            onFinish: defaultOnFinish
-        });
-    };
-};
-
+/**
+ * Объект модального окна, в котором опросу задаётся статус 'удалён'
+ */
 export const removedQuiz = reactive({
     ...modal,
     isRemoved: false,
@@ -68,9 +38,89 @@ export const removedQuiz = reactive({
     title: ''
 });
 
+/**
+ * Объект модального окна, в котором опросу задаётся статус 'утверждён'
+ */
 export const approvedQuiz = reactive({
     ...modal,
     isApproved: false,
     id: 0,
     title: ''
 });
+
+/**
+ * Объект, содержащий свойства и методы, которые необходимы для изменения поля в таблице 'quiz.quizzes'
+ */
+export const activeField = reactive({
+    id: undefined,
+    field: undefined,
+    url: undefined,
+    modal: null,
+    errorsMessage: '',
+    
+    set(id, field, url, modal) {
+        activeField.id = id;
+        activeField.field = field;
+        activeField.url = url;
+        activeField.modal = modal;
+    },
+    
+    reset() {
+        activeField.id = undefined;
+        activeField.field = undefined;
+        activeField.url = undefined;
+        activeField.modal = null;
+    },
+    
+    onBefore() {
+        defaultOnBefore();
+        activeField.errorsMessage = '';
+    },
+    
+    onSuccess() {
+        activeField.modal.hide();
+    },
+    
+    onError(errors) {
+        activeField.errorsMessage = errors[activeField.field] ? errors[activeField.field] : '';
+        defaultOnError(activeField.modal.hide.bind(activeField.modal))(errors);
+    },
+    
+    update(value) {
+        router.put(activeField.url, {
+            field: activeField.field,
+            value
+        }, {
+            preserveScroll: true,
+            onBefore: activeField.onBefore,
+            onSuccess: activeField.onSuccess,
+            onError: activeField.onError,
+            onFinish: defaultOnFinish
+        });
+    }
+});
+
+/**
+ * Объект модального окна, в котором редактируется поле опроса
+ */
+export const fieldModal = {
+    isShow: false,
+    show(id, field, url) {
+        if (app.isRequest) {
+            return;
+        }
+        this.isShow = true;
+        activeField.errorsMessage = '';
+        activeField.set(id, field, url, this);
+    },
+    hide() {
+        this.isShow = false;
+        activeField.reset();
+    },
+    
+    hideWithoutRequest() {
+        if (!app.isRequest) {
+            this.hide();
+        }
+    }
+};

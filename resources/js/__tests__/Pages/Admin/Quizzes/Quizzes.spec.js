@@ -155,25 +155,6 @@ describe("@/Pages/Admin/Quizzes/Quizzes.vue", () => {
         expect(wrapper.findComponent(RemovedQuizModal).exists()).toBe(false);
     });
     
-//    it("Клик по PencilSvg открывает SimpleInput. Событие 'change' на input отправляет запрос", async () => {
-//        const wrapper = getWrapper(quizzes);
-//        
-//        const tbody = wrapper.get('tbody');
-//        expect(tbody.isVisible()).toBe(true);
-//        const trs = tbody.findAll('tr');
-//        expect(trs.length).toBe(quizzes.length);
-//        
-//        const pencilSvgs = trs[0].findAllComponents(PencilSvg);
-//        expect(pencilSvgs.length).toBe(3);
-//        
-//        await pencilSvgs[0].trigger('click');
-//        const simpleInput = wrapper.findComponent(SimpleInput);
-//        const input = simpleInput.get('input');
-//        
-//        await input.trigger('change');
-//        expect(router.put).toHaveBeenCalledTimes(1);
-//    });
-    
     it("Отрисовка страницы 'Опросы' с модальным окном ApprovedQuizModal", () => {
         approvedQuiz.isShow = true;
         const wrapper = getWrapper(quizzes);

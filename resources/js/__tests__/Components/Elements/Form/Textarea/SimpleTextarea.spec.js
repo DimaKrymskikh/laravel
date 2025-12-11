@@ -5,13 +5,14 @@ import Spinner from '@/components/Svg/Spinner.vue';
 import { app } from '@/Services/app';
 
 const titleText = 'Поле ввода';
-const nRows = '5';
 
-const getWrapper = function(errorsMessage = '') {
+const getWrapper = function(nRows = undefined, errorsMessage = '') {
     return mount(SimpleTextarea, {
             props: {
+                rows: nRows,
                 errorsMessage,
                 modelValue: '',
+                hide: vi.fn(),
                 handler: vi.fn()
             }
         });
@@ -31,7 +32,7 @@ describe("@/components/Elements/Form/Textarea/SimpleTextarea.vue", () => {
         // Существует текстовое поле
         const textarea = wrapper.get('textarea');
         expect(textarea.isVisible()).toBe(true);
-        expect(textarea.attributes('rows')).toBe(nRows);
+        expect(textarea.attributes('rows')).toBe(wrapper.vm.rows);
         
         // Текстовое поле редактируется
         expect(textarea.element.value).toBe('');
@@ -51,7 +52,7 @@ describe("@/components/Elements/Form/Textarea/SimpleTextarea.vue", () => {
     it("Монтирование компоненты SimpleTextarea (isRequest: true)", async () => {
         app.isRequest = true;
         
-        const wrapper = getWrapper();
+        const wrapper = getWrapper('5');
         
         // Спиннер присутствует
         const spinner = wrapper.findComponent(Spinner);
@@ -62,6 +63,7 @@ describe("@/components/Elements/Form/Textarea/SimpleTextarea.vue", () => {
         // Текстовое поле заблокировано
         const textarea = wrapper.get('textarea');
         expect(textarea.isVisible()).toBe(true);
+        expect(textarea.attributes('rows')).toBe(wrapper.vm.rows);
         expect(textarea.attributes('class')).toContain('disabled');
         expect(textarea.attributes('disabled')).toBe('');
         expect(wrapper.emitted()).not.toHaveProperty('update:modelValue');
@@ -72,11 +74,29 @@ describe("@/components/Elements/Form/Textarea/SimpleTextarea.vue", () => {
     });
     
     it("Отрисовка ошибки", async () => {
-        const wrapper = getWrapper('Некоторая ошибка');
+        const wrapper = getWrapper('2', 'Некоторая ошибка');
         
         // Отрисовывается сообщение об ошибке
         const error = wrapper.find('.error');
         expect(error.exists()).toBe(true);
         expect(error.text()).toBe('Некоторая ошибка');
+    });
+    
+    it("Событие blur", async () => {
+        const wrapper = getWrapper(false);
+        const textarea = wrapper.find('textarea');
+        
+        await textarea.trigger('blur');
+        expect(wrapper.vm.props.hide).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.props.handler).not.toHaveBeenCalled();
+    });
+    
+    it("Событие change", async () => {
+        const wrapper = getWrapper(false);
+        const textarea = wrapper.find('textarea');
+        
+        await textarea.trigger('change');
+        expect(wrapper.vm.props.hide).not.toHaveBeenCalled();
+        expect(wrapper.vm.props.handler).toHaveBeenCalledTimes(1);
     });
 });

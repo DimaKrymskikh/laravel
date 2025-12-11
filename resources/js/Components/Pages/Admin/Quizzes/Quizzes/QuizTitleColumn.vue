@@ -1,8 +1,6 @@
 <script setup>
 import { ref, reactive, onUpdated } from 'vue';
-import { router } from '@inertiajs/vue3';
-import { app } from '@/Services/app';
-import { updateQuiz, updateQuizField } from '@/Services/Content/Quizzes/quizzes';
+import { activeField, fieldModal } from '@/Services/Content/Quizzes/quizzes';
 import SimpleInput from '@/Components/Elements/Form/Input/SimpleInput.vue';
 import CrossSvg from '@/Components/Svg/CrossSvg.vue';
 import PencilSvg from '@/Components/Svg/PencilSvg.vue';
@@ -14,13 +12,16 @@ const props = defineProps({
 
 const isEditable = ref(props.quiz.status.isEditable);
 
-const updateQuizTitle = reactive({ ...updateQuiz, field: 'title'});
+const modal = reactive({ ...fieldModal });
 
-const fieldValue = ref(props.quiz.title);
+const title = ref(props.quiz.title);
+const id = props.quiz.id;
+const field = 'title';
+const url = `/admin/quizzes/${props.quiz.id}`;
 
-const handlerUpdateQuiz = updateQuizField(props.quiz.id, fieldValue, updateQuizTitle);
+const hide = () => { modal.hideWithoutRequest(); };
 
-const showInput = updateQuizTitle.show.bind(updateQuizTitle);
+const handler = () => { activeField.update(title.value); };
 
 onUpdated(() => {
     isEditable.value = props.quiz.status.isEditable;
@@ -28,20 +29,21 @@ onUpdated(() => {
 </script>
 
 <template>
-        <td class="reletive" v-if="updateQuizTitle.isShow">
+        <td class="reletive" v-if="modal.isShow">
             <SimpleInput
-                v-model="fieldValue"
-                :handler="handlerUpdateQuiz"
-                :errorsMessage="updateQuizTitle.errorsMessage"
+                v-model="title"
+                :hide="hide"
+                :handler="handler"
+                :errorsMessage="activeField.errorsMessage"
             />
         </td>
         <td v-else>{{ quiz.title }}</td>
         
-        <td class="w-8" @click="updateQuizTitle.hideOnCross" v-if="updateQuizTitle.isShow">
+        <td class="w-8" v-if="modal.isShow">
             <CrossSvg title="Закрыть"/>
         </td>
         <td class="w-8" v-else>
-            <PencilSvg title="Изменить название опроса" @click="showInput" v-if="isEditable" />
+            <PencilSvg title="Изменить название опроса" @click="modal.show(id, field, url)" v-if="isEditable" />
             <LockedPencilSvg title="Нельзя изменить название опроса" v-else/>
         </td>
 </template>

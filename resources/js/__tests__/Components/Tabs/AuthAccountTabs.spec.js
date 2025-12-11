@@ -24,7 +24,7 @@ describe("@/components/Tabs/AuthAccountTabs.vue", () => {
         });
         
         const lis = wrapper.get('ul').findAll('li');
-        expect(lis.length).toBe(2);
+        expect(lis.length).toBe(3);
         
         const a0 = lis[0].get('a');
         expect(a0.attributes('href')).toBe(wrapper.vm.filmsAccount.getUrl('/userfilms'));
@@ -35,5 +35,10 @@ describe("@/components/Tabs/AuthAccountTabs.vue", () => {
         expect(a1.attributes('href')).toBe('/userweather');
         expect(a1.text()).toBe('погода');
         expect(a1.classes('tabs-link-active')).toBe(false);
+        
+        const a2 = lis[2].get('a');
+        expect(a2.attributes('href')).toBe('/trials/get_results');
+        expect(a2.text()).toBe('результаты опросов');
+        expect(a2.classes('tabs-link-active')).toBe(false);
     });
 });

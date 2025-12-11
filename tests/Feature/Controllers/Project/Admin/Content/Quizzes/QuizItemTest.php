@@ -66,8 +66,8 @@ final class QuizItemTest extends TestCase
         $textQuizItem = 'Новый текст вопроса';
         
         $response = $this->actingAs($user)->put('admin/quiz_items/'.QuizItemSeeder::ID_SUM_OF_NUMBERS, [
-            'quiz_id' => QuizSeeder::ID_ARITHMETIC_OPERATIONS,
-            'description' => $textQuizItem,
+            'field' => 'description',
+            'value' => $textQuizItem,
         ]);
         
         $response->assertStatus(302);

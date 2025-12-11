@@ -5,26 +5,27 @@ namespace Tests\Unit\Services\Quiz\Admin;
 use App\Models\Quiz\Quiz;
 use App\Models\Quiz\QuizItem;
 use App\Modifiers\Quiz\QuizItemModifiersInterface;
-use App\Queries\Quiz\QuizItems\AdminQuizItemQueriesInterface;
-use App\Queries\Quiz\Quizzes\AdminQuizQueriesInterface;
+use App\Queries\Quiz\QuizItems\QuizItemQueriesInterface;
+use App\Queries\Quiz\Quizzes\QuizQueriesInterface;
 use App\Services\Quiz\Admin\AdminQuizItemService;
 use App\Services\Quiz\Enums\ValueObjects\QuizItemStatusValue;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
+use App\Services\Quiz\Fields\QuizItemField;
 use App\Services\Quiz\StatusInterface;
 use Tests\Unit\Services\Quiz\QuizTestCase;
 
 final class AdminQuizItemServiceTest extends QuizTestCase
 {
     private QuizItemModifiersInterface $quizItemModifiers;
-    private AdminQuizItemQueriesInterface $quizItemQueries;
-    private AdminQuizQueriesInterface $quizQueries;
+    private QuizItemQueriesInterface $quizItemQueries;
+    private QuizQueriesInterface $quizQueries;
     private AdminQuizItemService $quizItemService;
     private int $quizItemId = 29;
 
     public function test_success_getQuizItemByIdWithAnswers(): void
     {
-        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::AtWork, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS - 1, true);
+        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::AtWork, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS - 1, true, true, true);
         
         $this->quizItemQueries->expects($this->once())
                 ->method('getByIdWithAnswers')
@@ -59,9 +60,9 @@ final class AdminQuizItemServiceTest extends QuizTestCase
     
     public function test_success_update(): void
     {
-        $description = $this->getQuizItemDto()->description;
-        $quiz = $this->factoryQuiz();
+        $quizItemField = QuizItemField::create('priority', '8');
         
+        $quiz = $this->factoryQuiz();
         $quizItem = $this->factoryQuizItem($quiz, QuizItemStatus::Ready);
         
         $this->quizItemQueries->expects($this->once())
@@ -73,12 +74,12 @@ final class AdminQuizItemServiceTest extends QuizTestCase
                 ->method('save')
                 ->with($quizItem);
         
-        $this->assertInstanceOf(QuizItem::class, $this->quizItemService->update($description, $this->quizItemId));
+        $this->assertInstanceOf(QuizItem::class, $this->quizItemService->updateField($this->quizItemId, $quizItemField));
     }
     
     public function test_success_changeStatus(): void
     {
-        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::AtWork, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, true);
+        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::AtWork, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, true, true, true);
         
         $this->quizItemQueries->expects($this->once())
                 ->method('getByIdWithAnswers')
@@ -95,7 +96,7 @@ final class AdminQuizItemServiceTest extends QuizTestCase
     public function test_success_setFinalStatus(): void
     {
         $status = QuizItemStatusValue::create('removed');
-        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::AtWork, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, true);
+        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::AtWork, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, true, true, true);
         
         $this->quizItemQueries->expects($this->once())
                 ->method('getByIdWithAnswers')
@@ -111,7 +112,7 @@ final class AdminQuizItemServiceTest extends QuizTestCase
     
     public function test_success_cancelFinalStatus(): void
     {
-        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::Removed, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, true);
+        $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::Removed, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, true, true, true);
         
         $this->quizItemQueries->expects($this->once())
                 ->method('getByIdWithAnswers')
@@ -128,8 +129,8 @@ final class AdminQuizItemServiceTest extends QuizTestCase
     protected function setUp(): void
     {
         $this->quizItemModifiers = $this->createMock(QuizItemModifiersInterface::class);
-        $this->quizItemQueries = $this->createMock(AdminQuizItemQueriesInterface::class);
-        $this->quizQueries = $this->createMock(AdminQuizQueriesInterface::class);
+        $this->quizItemQueries = $this->createMock(QuizItemQueriesInterface::class);
+        $this->quizQueries = $this->createMock(QuizQueriesInterface::class);
         
         $this->quizItemService = new AdminQuizItemService($this->quizItemModifiers, $this->quizItemQueries, $this->quizQueries);
     }

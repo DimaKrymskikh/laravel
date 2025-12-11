@@ -25,6 +25,7 @@
         "vitest": "^0.34.1"
     },
     "dependencies": {
+        "caniuse-lite": "^1.0.30001757",
         "pikaday": "^1.8.2"
     }
 }

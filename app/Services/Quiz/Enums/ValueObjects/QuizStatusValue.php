@@ -5,6 +5,9 @@ namespace App\Services\Quiz\Enums\ValueObjects;
 use App\Exceptions\RuleException;
 use App\Services\Quiz\Enums\QuizStatus;
 
+/**
+ * Класс хранит валидный статус опроса
+ */
 final readonly class QuizStatusValue
 {
     public QuizStatus $status;
@@ -15,13 +18,19 @@ final readonly class QuizStatusValue
         $this->status = QuizStatus::tryFrom($strStatus) ?? throw new RuleException('message', sprintf(QuizStatus::MESSAGE_NOT_STATUS_VALUE, $status));
     }
     
+    /**
+     * Получает строку $status и проверяет, что она может быть статусом опроса
+     * 
+     * @param string|null $status
+     * @return self
+     */
     public static function create(string|null $status): self
     {
         return new self($status);
     }
     
     /**
-     * Проверяет, что статус опроса можно изменить ручным управление
+     * Проверяет, что опрос можно редактировать
      * 
      * @return void
      * @throws RuleException

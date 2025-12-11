@@ -1,5 +1,12 @@
-import { reactive } from 'vue';
+/**
+ * Модуль, в котором содержатся объекты, повсеместно используемые в проекте
+ */
 
+import { ref, reactive, computed, onUnmounted } from 'vue';
+
+/**
+ * Основной объект для отправки запросов на сервер
+ */
 export const app = reactive({
     isRequest: false,
     isShowForbiddenModal: false,
@@ -40,7 +47,9 @@ export const app = reactive({
     }
 });
 
-// Базовый объект для модальных окон
+/**
+ * Базовый объект для модальных окон
+ */
 export const modal = {
     isShow: false,
     show() {
@@ -49,4 +58,59 @@ export const modal = {
     hide() {
         this.isShow = false;
     }
+};
+
+/**
+ * Управляет таймером отсчёта убывания времени
+ * 
+ * @param {int} seconds - начальное время в секундах
+ * @returns {object}
+ */
+export const useCountdown = function(seconds) {
+    const timeInSeconds = ref(seconds);
+    let timerInterval = null;
+
+    const formattedTime = computed(() => {
+        const hours = Math.floor(timeInSeconds.value / 3600);
+        const minutes = Math.floor(timeInSeconds.value / 60 - hours * 60);
+        const seconds = timeInSeconds.value - hours * 3600 - minutes * 60;
+        
+        let timeString = undefined;
+        if(timeInSeconds.value > 0) {
+            timeString = `${hours ? hours.toString() : '0'} ч. ${minutes.toString().padStart(2, '0')} м. ${seconds.toString().padStart(2, '0')} с.`;
+        } else {
+            timeString = 'время истекло';
+        }
+        
+        return timeString;
+    });
+
+    const startTimer = () => {
+        if (timerInterval) {
+            return;
+        }
+        
+        timerInterval = setInterval(() => {
+            if(timeInSeconds.value > 0) {
+                timeInSeconds.value--;
+            } else {
+                stopTimer();
+            }
+        }, 1000);
+    };
+    
+    const stopTimer = () => {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    };
+
+    onUnmounted(() => {
+        stopTimer();
+    });
+    
+    return {
+        formattedTime,
+        startTimer,
+        timeInSeconds
+    };
 };

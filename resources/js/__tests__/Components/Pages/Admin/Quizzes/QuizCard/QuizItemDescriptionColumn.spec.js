@@ -1,7 +1,5 @@
 import { mount, flushPromises } from "@vue/test-utils";
-import { router } from '@inertiajs/vue3';
 
-import { app } from '@/Services/app';
 import QuizItemDescriptionColumn from '@/Components/Pages/Admin/Quizzes/QuizCard/QuizItemDescriptionColumn.vue';
 import SimpleTextarea from '@/Components/Elements/Form/Textarea/SimpleTextarea.vue';
 import CrossSvg from '@/Components/Svg/CrossSvg.vue';
@@ -20,10 +18,6 @@ const getWrapper = function() {
 };
 
 describe("@/Components/Pages/Admin/Quizzes/QuizCard/QuizItemDescriptionColumn.vue", () => {
-    beforeEach(() => {
-        app.isRequest = false;
-    });
-    
     it("Отрисовка блока QuizItemDescriptionColumn с текстом (isShow = false)", () => {
         const wrapper = getWrapper();
         
@@ -33,9 +27,9 @@ describe("@/Components/Pages/Admin/Quizzes/QuizCard/QuizItemDescriptionColumn.vu
         expect(tds[1].findComponent(PencilSvg).exists()).toBe(true);
     });
     
-    it("Отрисовка блока QuizItemDescriptionColumn с input (updateQuizDescription.isShow = true)", async () => {
+    it("Отрисовка блока QuizItemDescriptionColumn с input (isShow = true)", async () => {
         const wrapper = getWrapper();
-        wrapper.vm.isShow = true;
+        wrapper.vm.modal.isShow = true;
         await flushPromises();
         
         const tds = wrapper.findAll('td');
@@ -43,7 +37,8 @@ describe("@/Components/Pages/Admin/Quizzes/QuizCard/QuizItemDescriptionColumn.vu
         
         const simpleTextarea = tds[0].findComponent(SimpleTextarea);
         expect(simpleTextarea.exists()).toBe(true);
-        expect(simpleTextarea.props('handler')).toBe(wrapper.vm.updateDescription);
+        expect(simpleTextarea.props('handler')).toBe(wrapper.vm.handler);
+        expect(simpleTextarea.props('hide')).toBe(wrapper.vm.hide);
         
         const сrossSvg = tds[1].findComponent(CrossSvg);
         expect(сrossSvg.exists()).toBe(true);
@@ -51,7 +46,7 @@ describe("@/Components/Pages/Admin/Quizzes/QuizCard/QuizItemDescriptionColumn.vu
     
     it("Проверка v-model", async () => {
         const wrapper = getWrapper();
-        wrapper.vm.isShow = true;
+        wrapper.vm.modal.show(wrapper.vm.id, wrapper.vm.field, wrapper.vm.url);
         await flushPromises();
         
         const simpleTextarea = wrapper.findComponent(SimpleTextarea);
@@ -65,7 +60,7 @@ describe("@/Components/Pages/Admin/Quizzes/QuizCard/QuizItemDescriptionColumn.vu
         expect(simpleTextarea.emitted('update:modelValue')[0][0]).toBe('Test Quiz Description');
     });
     
-    it("Клик по карадашу открывает полн textarea", async () => {
+    it("Клик по карадашу открывает поле textarea", async () => {
         const wrapper = getWrapper();
         
         const pencilSvg = wrapper.findComponent(PencilSvg);
@@ -77,48 +72,11 @@ describe("@/Components/Pages/Admin/Quizzes/QuizCard/QuizItemDescriptionColumn.vu
         expect(wrapper.findComponent(SimpleTextarea).exists()).toBe(true);
     });
     
-    it("Поле textarea закрывается кликом по крестику", async () => {
+    it("Вызов функции hide (app.isRequest = false)", async () => {
         const wrapper = getWrapper();
-        wrapper.vm.isShow = true;
-        await flushPromises();
+        wrapper.vm.modal.isShow = true;
         
-        // Поле textarea открыто
-        expect(wrapper.findComponent(SimpleTextarea).exists()).toBe(true);
-        
-        const tds = wrapper.findAll('td');
-        expect(tds.length).toBe(2);
-        
-        // Крестик во второй клетке
-        const cross = tds[1];
-        await cross.trigger('click');
-        // Поле input закрыто
-        expect(wrapper.findComponent(SimpleTextarea).exists()).toBe(false);
-    });
-    
-    it("Вызов функции updateDescription", () => {
-        const wrapper = getWrapper();
-        wrapper.vm.updateDescription();
-        
-        expect(router.put).toHaveBeenCalledTimes(1);
-        expect(router.put).toHaveBeenCalledWith(`/admin/quiz_items/${wrapper.vm.quizItem.id}`, {
-            description: wrapper.vm.fieldValue
-        }, {
-            preserveScroll: true,
-            onBefore: expect.anything(),
-            onSuccess: expect.anything(),
-            onError: expect.anything(),
-            onFinish: expect.anything()
-        });
-    });
-    
-    it("Вызов функции onSuccess", () => {
-        const wrapper = getWrapper();
-        // Открываем поле textarea
-        wrapper.vm.show();
-        expect(wrapper.vm.isShow).toBe(true);
-        
-        // Вызов функции onSuccess закрывает поле textarea
-        wrapper.vm.onSuccess();
-        expect(wrapper.vm.isShow).toBe(false);
+        wrapper.vm.hide();
+        expect(wrapper.vm.modal.isShow).toBe(false);
     });
 });

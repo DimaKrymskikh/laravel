@@ -3,9 +3,13 @@
 namespace App\Services\Quiz\Managers;
 
 use App\Exceptions\RuleException;
+use App\Models\Quiz\QuizAnswer;
 use App\Models\Quiz\QuizItem;
 use App\Services\Quiz\Enums\QuizItemStatus;
 
+/**
+ * Управляет изменением статуса вопроса
+ */
 final class QuizItemStatusManager
 {
     const MESSAGE_ABOUT_STATUS_CHANGE_BY_MANUAL_CONTROL = 'Статус "%s" вопроса не может быть изменён ручным управлением';
@@ -15,12 +19,18 @@ final class QuizItemStatusManager
     private QuizItemStatus $newStatus;
     private int $nAnswers;
     private bool $isCorrectAnswer;
+    private bool $isPriority;
+    private bool $isPriorityQuizItem;
 
     public function __construct(QuizItem $quizItem)
     {
         $this->oldStatus = QuizItemStatus::from($quizItem->status);
+        $this->isPriorityQuizItem = (bool) $quizItem->priority;
         $this->nAnswers = $quizItem->answers->count();
         $this->isCorrectAnswer = $quizItem->answers->contains('is_correct', true);
+        $this->isPriority = $quizItem->answers->every(function (QuizAnswer $value) {
+                return (bool) $value->priority;
+            });
     }
     
     /**
@@ -30,7 +40,7 @@ final class QuizItemStatusManager
      */
     public function defineNewStatus(): void
     {
-        if ($this->nAnswers >= QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS && $this->isCorrectAnswer) {
+        if ($this->nAnswers >= QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS && $this->isPriorityQuizItem && $this->isCorrectAnswer && $this->isPriority) {
             $this->newStatus = QuizItemStatus::Ready;
         } else {
             $this->newStatus =  QuizItemStatus::AtWork;
@@ -67,6 +77,11 @@ final class QuizItemStatusManager
         return $this->newStatus !== $this->oldStatus;
     }
     
+    /**
+     * Возвращает величину нового статуса вопроса
+     * 
+     * @return string
+     */
     public function getNewStatusValue(): string
     {
         return $this->newStatus->value;

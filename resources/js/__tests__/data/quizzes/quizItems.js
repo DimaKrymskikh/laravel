@@ -6,6 +6,7 @@ export const quizItems = [{
     id: 1,
     description: "2 * 2 = ?",
     quiz_id: quiz.id,
+    priority: '1',
     status: {
         name: "в работе",
         style: "status-sky",

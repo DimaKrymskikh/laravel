@@ -1,7 +1,5 @@
 import { mount, flushPromises } from "@vue/test-utils";
-import { router } from '@inertiajs/vue3';
 
-import { app } from '@/Services/app';
 import QuizAnswerIsCorrectColumn from '@/Components/Pages/Admin/Quizzes/QuizItemCard/QuizAnswerIsCorrectColumn.vue';
 import Checkbox from '@/components/Elements/Form/Checkbox.vue';
 import CrossSvg from '@/Components/Svg/CrossSvg.vue';
@@ -22,10 +20,6 @@ const getWrapper = function() {
 };
 
 describe("@/Components/Pages/Admin/Quizzes/QuizItemCard/QuizAnswerIsCorrectColumn.vue", () => {
-    beforeEach(() => {
-        app.isRequest = false;
-    });
-    
     it("Отрисовка блока QuizAnswerDescriptionColumn с текстом (isShow = false)", () => {
         const wrapper = getWrapper();
         
@@ -40,7 +34,7 @@ describe("@/Components/Pages/Admin/Quizzes/QuizItemCard/QuizAnswerIsCorrectColum
     
     it("Отрисовка блока QuizAnswerDescriptionColumn с input (isShow = true)", async () => {
         const wrapper = getWrapper();
-        wrapper.vm.isShow = true;
+        wrapper.vm.modal.isShow = true;
         await flushPromises();
         
         const tds = wrapper.findAll('td');
@@ -55,7 +49,7 @@ describe("@/Components/Pages/Admin/Quizzes/QuizItemCard/QuizAnswerIsCorrectColum
     
     it("Проверка v-model", async () => {
         const wrapper = getWrapper();
-        wrapper.vm.isShow = true;
+        wrapper.vm.modal.show(wrapper.vm.id, wrapper.vm.field, wrapper.vm.url);
         await flushPromises();
         
         const checkbox = wrapper.findComponent(Checkbox);
@@ -80,47 +74,11 @@ describe("@/Components/Pages/Admin/Quizzes/QuizItemCard/QuizAnswerIsCorrectColum
         expect(wrapper.findComponent(Checkbox).exists()).toBe(true);
     });
     
-    it("Поле checkbox закрывается кликом по крестику", async () => {
+    it("Вызов функции hide (app.isRequest = false)", async () => {
         const wrapper = getWrapper();
-        wrapper.vm.isShow = true;
-        await flushPromises();
+        wrapper.vm.modal.isShow = true;
         
-        expect(wrapper.findComponent(Checkbox).exists()).toBe(true);
-        
-        const tds = wrapper.findAll('td');
-        expect(tds.length).toBe(2);
-        
-        // Крестик во второй клетке
-        const cross = tds[1];
-        await cross.trigger('click');
-        // Поле input закрыто
-        expect(wrapper.findComponent(Checkbox).exists()).toBe(false);
-    });
-    
-    it("Вызов функции updateСorrect", () => {
-        const wrapper = getWrapper();
-        wrapper.vm.updateСorrect();
-        
-        expect(router.put).toHaveBeenCalledTimes(1);
-        expect(router.put).toHaveBeenCalledWith(`/admin/quiz_answers/${wrapper.vm.answer.id}`, {
-            field: 'is_correct',
-            value: wrapper.vm.fieldValue
-        }, {
-            preserveScroll: true,
-            onBefore: expect.anything(),
-            onSuccess: expect.anything(),
-            onError: expect.anything(),
-            onFinish: expect.anything()
-        });
-    });
-    
-    it("Вызов функции onSuccess", () => {
-        const wrapper = getWrapper();
-
-        wrapper.vm.show();
-        expect(wrapper.vm.isShow).toBe(true);
-        
-        wrapper.vm.onSuccess();
-        expect(wrapper.vm.isShow).toBe(false);
+        wrapper.vm.hide();
+        expect(wrapper.vm.modal.isShow).toBe(false);
     });
 });

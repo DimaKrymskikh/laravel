@@ -4,34 +4,34 @@ namespace App\Services\Quiz\Admin;
 
 use App\Models\Quiz\QuizItem;
 use App\Modifiers\Quiz\QuizItemModifiersInterface;
-use App\Queries\Quiz\QuizItems\AdminQuizItemQueriesInterface;
-use App\Queries\Quiz\Quizzes\AdminQuizQueriesInterface;
+use App\Queries\Quiz\QuizItems\QuizItemQueriesInterface;
+use App\Queries\Quiz\Quizzes\QuizQueriesInterface;
 use App\Services\Quiz\Enums\ValueObjects\QuizItemStatusValue;
 use App\Services\Quiz\Enums\ValueObjects\QuizStatusValue;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Fields\DataTransferObjects\QuizItemDto;
+use App\Services\Quiz\Fields\QuizItemField;
 use App\Services\Quiz\Managers\QuizItemStatusManager;
-use App\ValueObjects\ScalarTypes\SimpleStringValue;
 
 final class AdminQuizItemService
 {
     public function __construct(
             private QuizItemModifiersInterface $quizItemModifiers,
-            private AdminQuizItemQueriesInterface $adminQuizItemQueries,
-            private AdminQuizQueriesInterface $adminQuizQueries,
+            private QuizItemQueriesInterface $quizItemQueries,
+            private QuizQueriesInterface $quizQueries,
     ) {
     }
     
     /**
      * Возвращает данные вопроса с ответами для карточки вопроса
      * 
-     * @param int $id
+     * @param int $id - первичный ключ таблицы 'quiz.quiz_items'
      * @return QuizItem
      */
     public function getQuizItemByIdWithAnswers(int $id): QuizItem
     {
-        $quizItem = $this->adminQuizItemQueries->getByIdWithAnswers($id);
+        $quizItem = $this->quizItemQueries->getByIdWithAnswers($id);
         // Статусы получают данные, необходимые для отрисовки
         $quizItem->status = QuizItemStatus::from($quizItem->status)->getInfo();
         $quizItem->quiz->status = QuizStatus::from($quizItem->quiz->status)->getInfo();
@@ -47,7 +47,7 @@ final class AdminQuizItemService
      */
     public function create(QuizItemDto $dto): QuizItem
     {
-        $quiz = $this->adminQuizQueries->getById($dto->quizId);
+        $quiz = $this->quizQueries->getById($dto->quizId);
         QuizStatusValue::create($quiz->status)->allowQuizChanges();
         
         $quizItem = new QuizItem();
@@ -60,18 +60,20 @@ final class AdminQuizItemService
     }
     
     /**
-     * Изменяет существующий вопрос в базе.
+     * Изменяет одно поле ответа в таблице 'quiz.quiz_items'.
+     * Возвращает изменённый вопрос
      * 
-     * @param SimpleStringValue $description
      * @param int $id - id вопроса
+     * @param QuizItemField $quizItemField
      * @return QuizItem
      */
-    public function update(SimpleStringValue $description, int $id): QuizItem
+    public function updateField(int $id, QuizItemField $quizItemField): QuizItem
     {
-        $quizItem = $this->adminQuizItemQueries->getById($id);
+        $quizItem = $this->quizItemQueries->getById($id);
         $this->checkQuizItemEditabilityByStatuses($quizItem->quiz->status, $quizItem->status);
         
-        $quizItem->description = $description->value;
+        $field = $quizItemField->field;
+        $quizItem->$field = $quizItemField->value->value;
         
         $this->quizItemModifiers->save($quizItem);
         
@@ -86,7 +88,7 @@ final class AdminQuizItemService
      */
     public function changeStatus(int $id): QuizItem
     {
-        $quizItem = $this->adminQuizItemQueries->getByIdWithAnswers($id);
+        $quizItem = $this->quizItemQueries->getByIdWithAnswers($id);
         $this->checkQuizItemEditabilityByStatuses($quizItem->quiz->status, $quizItem->status);
         
         $manager = new QuizItemStatusManager($quizItem);
@@ -109,7 +111,7 @@ final class AdminQuizItemService
      */
     public function setFinalStatus(int $id, QuizItemStatusValue $newStatus): QuizItem
     {
-        $quizItem = $this->adminQuizItemQueries->getByIdWithAnswers($id);
+        $quizItem = $this->quizItemQueries->getByIdWithAnswers($id);
         $this->checkQuizItemEditabilityByStatuses($quizItem->quiz->status, $quizItem->status);
         
         $manager = new QuizItemStatusManager($quizItem);
@@ -129,7 +131,7 @@ final class AdminQuizItemService
      */
     public function cancelFinalStatus(int $id): QuizItem
     {
-        $quizItem = $this->adminQuizItemQueries->getByIdWithAnswers($id);
+        $quizItem = $this->quizItemQueries->getByIdWithAnswers($id);
         QuizItemStatusValue::create($quizItem->status)->checkFinalStatus();
         
         $manager = new QuizItemStatusManager($quizItem);
@@ -144,8 +146,8 @@ final class AdminQuizItemService
     /**
      * Проверяет возможность редактирования вопроса.
      * 
-     * @param string $quizStatus
-     * @param string $quizItemStatus
+     * @param string $quizStatus - статус опроса
+     * @param string $quizItemStatus - статус вопроса
      * @return void
      */
     private function checkQuizItemEditabilityByStatuses(string $quizStatus, string $quizItemStatus): void

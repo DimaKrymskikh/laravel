@@ -5,7 +5,7 @@ namespace Tests\Unit\Services\Quiz\Admin;
 use App\Exceptions\RuleException;
 use App\Models\Quiz\Quiz;
 use App\Modifiers\Quiz\QuizModifiersInterface;
-use App\Queries\Quiz\Quizzes\AdminQuizQueriesInterface;
+use App\Queries\Quiz\Quizzes\QuizQueriesInterface;
 use App\Services\Quiz\Admin\AdminQuizService;
 use App\Services\Quiz\Enums\ValueObjects\QuizStatusValue;
 use App\Services\Quiz\Enums\QuizStatus;
@@ -16,7 +16,7 @@ use Tests\Unit\Services\Quiz\QuizTestCase;
 final class AdminQuizServiceTest extends QuizTestCase
 {
     private QuizModifiersInterface $quizModifiers;
-    private AdminQuizQueriesInterface $quizQueries;
+    private QuizQueriesInterface $quizQueries;
     private AdminQuizService $quizService;
     private int $quizId = 17;
 
@@ -82,7 +82,7 @@ final class AdminQuizServiceTest extends QuizTestCase
         $this->quizService->create($dto);
     }
 
-    public function test_success_updateField(): void
+    public function test_success_updateField_lead_time(): void
     {
         $oldLeadTime = '10';
         $newLeadTime = '20';
@@ -103,10 +103,61 @@ final class AdminQuizServiceTest extends QuizTestCase
         // Поле 'lead_time' изменилось.
         $this->assertEquals($newLeadTime, $quiz->lead_time);
     }
+
+    public function test_success_updateField_title(): void
+    {
+        $oldTitle = 'Old Test Title';
+        $newTitle = 'New Test Title';
+        
+        $quiz = $this->factoryQuizTitle($oldTitle);
+        $this->assertEquals($oldTitle, $quiz->title);
+        
+        $this->quizQueries->expects($this->once())
+                ->method('existsByTitle')
+                ->willReturn(false);
+        
+        $this->quizQueries->expects($this->once())
+                ->method('getById')
+                ->with($this->quizId)
+                ->willReturn($quiz);
+        
+        $this->quizModifiers->expects($this->once())
+                ->method('save')
+                ->with($quiz);
+        
+        $this->assertInstanceOf(Quiz::class, $this->quizService->updateField($this->quizId, $this->getQuizField('title', $newTitle)));
+        // Поле 'title' изменилось.
+        $this->assertEquals($newTitle, $quiz->title);
+    }
+
+    public function test_fail_updateField_title(): void
+    {
+        $this->expectException(RuleException::class);
+
+        $oldTitle = 'Old Test Title';
+        $newTitle = 'New Test Title';
+        
+        $quiz = $this->factoryQuizTitle($oldTitle);
+        $this->assertEquals($oldTitle, $quiz->title);
+        
+        $this->quizQueries->expects($this->once())
+                ->method('existsByTitle')
+                ->willReturn(true);
+        
+        $this->quizQueries->expects($this->never())
+                ->method('getById');
+        
+        $this->quizModifiers->expects($this->never())
+                ->method('save');
+        
+        $this->assertInstanceOf(Quiz::class, $this->quizService->updateField($this->quizId, $this->getQuizField('title', $newTitle)));
+        // Поле 'title' не изменилось.
+        $this->assertEquals($oldTitle, $quiz->title);
+    }
     
     public function test_success_changeStatus(): void
     {
-        $quizItems = $this->factoryQuizItems(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS, 0);
+        $quizItems = $this->factoryQuizItems(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS, 0, true);
         $quiz = $this->factoryQuizWithQuizItems($quizItems, QuizStatus::AtWork);
         
         $this->quizQueries->expects($this->once())
@@ -160,7 +211,7 @@ final class AdminQuizServiceTest extends QuizTestCase
     protected function setUp(): void
     {
         $this->quizModifiers = $this->createMock(QuizModifiersInterface::class);
-        $this->quizQueries = $this->createMock(AdminQuizQueriesInterface::class);
+        $this->quizQueries = $this->createMock(QuizQueriesInterface::class);
         
         $this->quizService = new AdminQuizService($this->quizModifiers, $this->quizQueries);
     }

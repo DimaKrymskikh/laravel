@@ -1,8 +1,6 @@
 <script setup>
 import { ref, reactive, watch } from 'vue';
-import { router } from '@inertiajs/vue3';
-import { app } from '@/Services/app';
-import { defaultOnBefore, defaultOnError, defaultOnFinish } from '@/Services/router';
+import { activeField, fieldModal } from '@/Services/Content/Quizzes/quizzes';
 import { currentQuizItem } from '@/Services/Content/Quizzes/quizItemCard';
 import Checkbox from '@/components/Elements/Form/Checkbox.vue';
 import CrossSvg from '@/Components/Svg/CrossSvg.vue';
@@ -10,60 +8,38 @@ import PencilSvg from '@/Components/Svg/PencilSvg.vue';
 import CheckSvg from '@/Components/Svg/CheckSvg.vue';
 import LockedPencilSvg from '@/Components/Svg/Locked/LockedPencilSvg.vue';
 
-const { answer } = defineProps({
+const props = defineProps({
     answer: Object
 });
 
-const fieldValue = ref(answer.is_correct);
+const modal = reactive({ ...fieldModal });
 
-const isShow = ref(false);
+const isCorrect = ref(props.answer.is_correct);
+const id = props.answer.id;
+const field = 'is_correct';
+const url = `/admin/quiz_answers/${props.answer.id}`;
 
-const hide = () => {
-    isShow.value = false;
-};
+const hide = () => { modal.hideWithoutRequest(); };
 
-const show = () => {
-    isShow.value = true;
-};
-
-const hideOnCross = () => {
-    if (!app.isRequest) {
-        hide();
-    }
-};
-    
-const onSuccess = () => { hide(); };
-
-const updateСorrect = () => {
-    router.put(`/admin/quiz_answers/${answer.id}`, {
-        field: 'is_correct',
-        value: fieldValue.value
-    }, {
-        preserveScroll: true,
-        onBefore: defaultOnBefore,
-        onSuccess,
-        onError: defaultOnError(hide),
-        onFinish: defaultOnFinish
-    });
-};
-
-watch(fieldValue, updateСorrect);
+const handler = () => { activeField.update(isCorrect.value); };
 </script>
 
 <template>
-    <td v-if="isShow">
+    <td class="w-24" v-if="modal.isShow">
         <Checkbox 
             titleText="Ответ правильный:"
-            v-model="fieldValue"
+            v-model="isCorrect"
+            :handler="handler"
+            :hide="hide"
         />
     </td>
-    <td v-else><CheckSvg v-if="answer.is_correct" /></td>
+    <td class="w-24" v-else><CheckSvg v-if="answer.is_correct" /></td>
         
-    <td class="w-8" @click="hideOnCross" v-if="isShow">
+    <td class="w-8" v-if="modal.isShow">
         <CrossSvg title="Закрыть"/>
     </td>
     <template v-else>
-        <td class="w-8" @click="show" v-if="currentQuizItem.isEditable">
+        <td class="w-8" @click="modal.show(id, field, url)" v-if="currentQuizItem.isEditable">
             <PencilSvg title="Изменить правильность ответа" />
         </td>
         <td class="w-8" v-else>

@@ -18,9 +18,8 @@ final class QuizStatusManagerTest extends QuizTestCase
         $this->assertTrue($quizStatusManager->checkOldAndNewStatusAreNotEqual());
     }
     
-    public function test_defineNewStatus_status_unchanged(): void
+    public function test_defineNewStatus_status_unchanged_question_in_at_work(): void
     {
-        // Имеется вопрос в статусе 'в работе'
         $quizItems = $this->factoryQuizItems(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS, 1);
         $quiz = $this->factoryQuizWithQuizItems($quizItems, QuizStatus::AtWork);
         
@@ -56,7 +55,8 @@ final class QuizStatusManagerTest extends QuizTestCase
     
     private function getDefaultQuizStatusManager(): QuizStatusManager
     {
-        $quizItems = $this->factoryQuizItems(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS, 0);
+        $quizItems = $this->factoryQuizItems(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS, 0, true);
+        
         $quiz = $this->factoryQuizWithQuizItems($quizItems, QuizStatus::AtWork);
         
         return new QuizStatusManager($quiz);

@@ -8,6 +8,9 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Посев таблицы 'quiz.quiz_items'
+ */
 class QuizItemSeeder extends Seeder
 {
     use WithoutModelEvents, Sequences;
@@ -15,6 +18,7 @@ class QuizItemSeeder extends Seeder
     const ID_SUM_OF_NUMBERS = 1;
     const ID_DIFFERENCE_OF_NUMBERS = 2;
     const ID_REMOVED_STATUS = 3;
+    const ID_FOR_APPROVED_QUIZ =4;
         
     public function run(): void
     {
@@ -55,7 +59,13 @@ class QuizItemSeeder extends Seeder
                 'description' => 'Этот вопрос удалён',
                 'quizId' => QuizSeeder::ID_ARITHMETIC_OPERATIONS,
                 'status' => QuizItemStatus::Removed->value,
-            ]
+            ],
+            (object) [
+                'id' => self::ID_FOR_APPROVED_QUIZ,
+                'description' => 'Нужно ответить на вопрос ?',
+                'quizId' => QuizSeeder::ID_APPROVED_STATUS,
+                'status' => QuizItemStatus::Ready->value,
+            ],
         ];
     }
 }

@@ -34,7 +34,7 @@ describe("@/components/Tabs/AuthContentTabs.vue", () => {
         await span.trigger('click');
         const ul = wrapper.get('ul');
         const lis = ul.findAll('li');
-        expect(lis.length).toBe(2);
+        expect(lis.length).toBe(3);
         
         const a0 = lis[0].get('a');
         expect(a0.attributes('href')).toBe(filmsList.getUrl('/films'));
@@ -45,6 +45,11 @@ describe("@/components/Tabs/AuthContentTabs.vue", () => {
         expect(a1.attributes('href')).toBe('/cities');
         expect(a1.classes('tabs-link-active')).toBe(true);
         expect(a1.text()).toBe('города');
+        
+        const a2 = lis[2].get('a');
+        expect(a2.attributes('href')).toBe('/trials');
+        expect(a2.classes('tabs-link-active')).toBe(false);
+        expect(a2.text()).toBe('опросы');
         
         // Повторный клик по кнопке 'контент' скрывает список
         await span.trigger('click');

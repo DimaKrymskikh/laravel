@@ -15,6 +15,7 @@ class QuizAnswerFieldTest extends TestCase
             // $field, $value
             ['description', 'Это ответ на вопрос'],
             ['is_correct', true],
+            ['priority', '4'],
         ];
     }
     
@@ -24,7 +25,7 @@ class QuizAnswerFieldTest extends TestCase
         $quisField = QuizAnswerField::create($field, $value);
         
         $this->assertEquals($field, $quisField->field);
-        $this->assertEquals($value, $quisField->value);
+        $this->assertEquals($value, $quisField->value->value);
     }
     
     public static function failProvider(): array

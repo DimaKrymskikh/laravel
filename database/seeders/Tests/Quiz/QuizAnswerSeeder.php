@@ -7,6 +7,9 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Посев таблицы 'quiz.quiz_answers'
+ */
 class QuizAnswerSeeder extends Seeder
 {
     use WithoutModelEvents, Sequences;

@@ -6,6 +6,7 @@ import { useAutofocus } from '@/Services/form';
 const props = defineProps({
     errorsMessage: String | undefined,
     modelValue: String | Number,
+    hide: Function | undefined,
     handler: Function
 });
 
@@ -33,6 +34,7 @@ const input = useAutofocus(true);
             :value="modelValue"
             @input="$emit('update:modelValue', $event.target.value)"
             @change="handler"
+            @blur="hide"
             ref="input"
         />
     </div>

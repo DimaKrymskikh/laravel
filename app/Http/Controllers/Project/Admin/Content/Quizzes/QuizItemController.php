@@ -7,6 +7,7 @@ use App\Services\Quiz\Admin\AdminQuizItemService;
 use App\Services\Quiz\Admin\AdminQuizService;
 use App\Services\Quiz\Enums\ValueObjects\QuizItemStatusValue;
 use App\Services\Quiz\Fields\DataTransferObjects\QuizItemDto;
+use App\Services\Quiz\Fields\QuizItemField;
 use App\ValueObjects\ScalarTypes\SimpleStringValue;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -61,7 +62,7 @@ class QuizItemController extends Controller
     }
 
     /**
-     * Изменяет текст вопроса
+     * Изменяет одно поле вопроса
      * 
      * @param Request $request
      * @param int $id - id вопроса
@@ -69,10 +70,14 @@ class QuizItemController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $quizItem = $this->adminQuizItemService->update(
-                SimpleStringValue::create($request->input('description')),
-                $id
-            );
+        $quizItemField = QuizItemField::create($request->input('field'), $request->input('value'));
+        
+        $quizItem = DB::transaction(function() use ($id, $quizItemField) {
+            $quizItem = $this->adminQuizItemService->updateField($id, $quizItemField);
+            $this->adminQuizItemService->changeStatus($quizItem->id);
+            $this->adminQuizService->changeStatus($quizItem->quiz->id);
+            return $quizItem;
+        });
         
         return redirect()->route('admin.quizzes.show', [
             'quiz' => $quizItem->quiz->id,

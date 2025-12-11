@@ -56,12 +56,13 @@ const checkThead = function(table) {
         const thead = table.get('thead');
         expect(thead.isVisible()).toBe(true);
         const th = thead.findAll('th');
-        expect(th.length).toBe(5);
+        expect(th.length).toBe(6);
         expect(th[0].text()).toBe('#');
         expect(th[1].text()).toBe('Ответ');
         expect(th[2].text()).toBe('Правильный');
-        expect(th[3].text()).toBe('');
+        expect(th[3].text()).toBe('Приоритет');
         expect(th[4].text()).toBe('');
+        expect(th[5].text()).toBe('');
 };
 
 describe("@/Services/Content/Quizzes/quizItemCard", () => {

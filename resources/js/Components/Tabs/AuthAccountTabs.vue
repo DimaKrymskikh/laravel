@@ -6,7 +6,7 @@ const filmsAccount = inject('filmsAccount');
 </script>
 
 <template>
-    <ul>
+    <ul class="mt-0.5 pt-16 bg-orange-50">
         <li class="tabs-li">
             <Link 
                 class="block px-4 py-1 small-caps"
@@ -23,6 +23,15 @@ const filmsAccount = inject('filmsAccount');
                 href="/userweather"
             >
                 погода
+            </Link>
+        </li>
+        <li class="tabs-li">
+            <Link 
+                class="block px-4 py-1 small-caps"
+                :class="{ 'tabs-link-active': $page.component === 'Auth/Account/TrialResults' }"
+                href="/trials/get_results"
+            >
+                результаты опросов
             </Link>
         </li>
     </ul>

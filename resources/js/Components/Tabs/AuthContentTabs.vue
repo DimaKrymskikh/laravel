@@ -42,6 +42,15 @@ const filmsList = inject('filmsList');
                     города
                 </Link>
             </li>
+            <li class="tabs-li">
+                <Link
+                    class="block px-4 py-1 small-caps"
+                    :class="{ 'tabs-link-active': $page.component === 'Auth/Trials/Trials' }"
+                    href="/trials"
+                >
+                    опросы
+                </Link>
+            </li>
         </ul>
     </li>
 </template>

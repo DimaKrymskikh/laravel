@@ -5,8 +5,20 @@ namespace App\Models\Quiz;
 use App\Support\Collections\Quiz\QuizCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Опросы.
+ * 
+ * @property int $id Первичный ключ таблицы 'quiz.quizzes'.
+ * @property string $title Заголовок опроса.
+ * @property string $description Описание опроса.
+ * @property int $lead_time Время выполнения опроса в минутах.
+ * @property string $status Статус опроса.
+ * @property string $created_at
+ * @property string $updated_at
+ */
 class Quiz extends Model
 {
     use HasFactory;
@@ -32,5 +44,10 @@ class Quiz extends Model
     public function quizItems(): HasMany
     {
         return $this->hasMany(QuizItem::class);
+    }
+    
+    public function trial(): HasOne
+    {
+        return $this->hasOne(Trial::class);
     }
 }

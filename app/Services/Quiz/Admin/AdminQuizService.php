@@ -6,7 +6,7 @@ use App\Exceptions\RuleException;
 use App\Models\Quiz\Quiz;
 use App\Models\Quiz\QuizItem;
 use App\Modifiers\Quiz\QuizModifiersInterface;
-use App\Queries\Quiz\Quizzes\AdminQuizQueriesInterface;
+use App\Queries\Quiz\Quizzes\QuizQueriesInterface;
 use App\Services\Quiz\Enums\ValueObjects\QuizStatusValue;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Enums\QuizItemStatus;
@@ -17,11 +17,9 @@ use App\Support\Collections\Quiz\QuizCollection;
 
 final class AdminQuizService
 {
-    const FAIL_TITLE_MESSAGE = 'Название опроса "%s" уже существует в базе данных. Внесите изменение в название.';
-    
     public function __construct(
             private QuizModifiersInterface $quizModifiers,
-            private AdminQuizQueriesInterface $adminQuizQueries,
+            private QuizQueriesInterface $quizQueries,
     ) {
     }
     
@@ -32,7 +30,7 @@ final class AdminQuizService
      */
     public function getList(): QuizCollection
     {
-        $quizzes = $this->adminQuizQueries->getList();
+        $quizzes = $this->quizQueries->getList();
         
         return $quizzes->each(function (Quiz $quiz) {
             return $quiz->status = QuizStatus::from($quiz->status)->getInfo();
@@ -47,7 +45,7 @@ final class AdminQuizService
      */
     public function getQuizByIdWithQuizItems(int $id): Quiz
     {
-        $quiz = $this->adminQuizQueries->getQuizByIdWithQuizItems($id);
+        $quiz = $this->quizQueries->getQuizByIdWithQuizItems($id);
         $quiz->status = QuizStatus::from($quiz->status)->getInfo();
         
         $quiz->quizItems->each(function (QuizItem $quizItem) {
@@ -68,8 +66,8 @@ final class AdminQuizService
     {
         $title = $dto->title;
         
-        if($this->adminQuizQueries->existsByTitle($title)) {
-            throw new RuleException('title', sprintf(self::FAIL_TITLE_MESSAGE, $title->value));
+        if($this->quizQueries->existsByTitle($title)) {
+            throw new RuleException('title', sprintf(QuizField::FAIL_TITLE_MESSAGE, $title->value));
         }
         
         $quiz = new Quiz();
@@ -91,10 +89,16 @@ final class AdminQuizService
      */
     public function updateField(int $id, QuizField $quizField): Quiz
     {
-        $quiz = $this->adminQuizQueries->getById($id);
+        // Имя метода класса не чувствительно к регистру 
+        $fnExists = 'existsBy'.$quizField->field;
+        if (method_exists($this->quizQueries::class, $fnExists)) {
+            $quizField->checkFieldUniqueness($this->quizQueries->$fnExists($quizField->value, $id));
+        }
+        
+        $quiz = $this->quizQueries->getById($id);
         
         $field = $quizField->field;
-        $quiz->$field = $quizField->value;
+        $quiz->$field = $quizField->value->value;
         
         $this->quizModifiers->save($quiz);
         
@@ -109,7 +113,7 @@ final class AdminQuizService
      */
     public function changeStatus(int $id): Quiz
     {
-        $quiz = $this->adminQuizQueries->getQuizByIdWithQuizItems($id);
+        $quiz = $this->quizQueries->getQuizByIdWithQuizItems($id);
         $quizStatusManager = new QuizStatusManager($quiz);
         $quizStatusManager->defineNewStatus();
         
@@ -130,7 +134,7 @@ final class AdminQuizService
      */
     public function setFinalStatus(QuizStatusValue $newStatus, int $id): Quiz
     {
-        $quiz = $this->adminQuizQueries->getById($id);
+        $quiz = $this->quizQueries->getById($id);
         $quizStatusManager = new QuizStatusManager($quiz);
         $quizStatusManager->approveNewStatus($newStatus->status);
         
@@ -148,7 +152,7 @@ final class AdminQuizService
      */
     public function cancelFinalStatus(int $id): Quiz
     {
-        $quiz = $this->adminQuizQueries->getById($id);
+        $quiz = $this->quizQueries->getById($id);
         QuizStatusValue::create($quiz->status)->checkFinalStatus();
         
         $quizStatusManager = new QuizStatusManager($quiz);

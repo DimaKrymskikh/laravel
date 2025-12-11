@@ -16,12 +16,18 @@ use App\Queries\Person\UsersCities\UserCityQueries;
 use App\Queries\Person\UsersCities\UserCityQueriesInterface;
 use App\Queries\Person\UsersFilms\UserFilmQueries;
 use App\Queries\Person\UsersFilms\UserFilmQueriesInterface;
-use App\Queries\Quiz\QuizAnswers\AdminQuizAnswerQueries;
-use App\Queries\Quiz\QuizAnswers\AdminQuizAnswerQueriesInterface;
-use App\Queries\Quiz\QuizItems\AdminQuizItemQueries;
-use App\Queries\Quiz\QuizItems\AdminQuizItemQueriesInterface;
-use App\Queries\Quiz\Quizzes\AdminQuizQueries;
-use App\Queries\Quiz\Quizzes\AdminQuizQueriesInterface;
+use App\Queries\Quiz\Facades\TrialQueriesFacade;
+use App\Queries\Quiz\Facades\TrialQueriesFacadeInterface;
+use App\Queries\Quiz\QuizAnswers\QuizAnswerQueries;
+use App\Queries\Quiz\QuizAnswers\QuizAnswerQueriesInterface;
+use App\Queries\Quiz\QuizItems\QuizItemQueries;
+use App\Queries\Quiz\QuizItems\QuizItemQueriesInterface;
+use App\Queries\Quiz\Quizzes\QuizQueries;
+use App\Queries\Quiz\Quizzes\QuizQueriesInterface;
+use App\Queries\Quiz\TrialAnswers\TrialAnswerQueries;
+use App\Queries\Quiz\TrialAnswers\TrialAnswerQueriesInterface;
+use App\Queries\Quiz\Trials\TrialQueries;
+use App\Queries\Quiz\Trials\TrialQueriesInterface;
 use App\Queries\Thesaurus\Cities\CityQueries;
 use App\Queries\Thesaurus\Cities\CityQueriesInterface;
 use App\Queries\Thesaurus\Languages\LanguageQueries;
@@ -50,11 +56,17 @@ final class QueriesProvider extends ServiceProvider
         
         $this->app->bind(UserFilmQueriesInterface::class, UserFilmQueries::class);
         
-        $this->app->bind(AdminQuizAnswerQueriesInterface::class, AdminQuizAnswerQueries::class);
+        $this->app->bind(TrialQueriesFacadeInterface::class, TrialQueriesFacade::class);
         
-        $this->app->bind(AdminQuizItemQueriesInterface::class, AdminQuizItemQueries::class);
+        $this->app->bind(QuizAnswerQueriesInterface::class, QuizAnswerQueries::class);
         
-        $this->app->bind(AdminQuizQueriesInterface::class, AdminQuizQueries::class);
+        $this->app->bind(QuizItemQueriesInterface::class, QuizItemQueries::class);
+        
+        $this->app->bind(QuizQueriesInterface::class, QuizQueries::class);
+        
+        $this->app->bind(TrialAnswerQueriesInterface::class, TrialAnswerQueries::class);
+        
+        $this->app->bind(TrialQueriesInterface::class, TrialQueries::class);
         
         $this->app->bind(CityQueriesInterface::class, CityQueries::class);
         
