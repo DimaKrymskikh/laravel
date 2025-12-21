@@ -2,15 +2,16 @@
 
 namespace App\Queries\Logs\OpenWeatherWeather;
 
+use App\Queries\DBqueries;
 use App\Services\Database\Logs\OpenWeatherWeatherService;
 use App\Models\Logs\OpenWeatherWeather;
 
-final class OpenWeatherWeatherQueries implements OpenWeatherWeatherQueriesInterface
+final class OpenWeatherWeatherQueries extends DBqueries implements OpenWeatherWeatherQueriesInterface
 {
     /**
-     * Возвращает число строк с данными о погоде за последнюю минуту.
+     * {@inheritDoc}
      * 
-     * @return int
+     * @inheritDoc
      */
     public function getNumberOfWeatherLinesForLastMinute(): int
     {
@@ -18,11 +19,9 @@ final class OpenWeatherWeatherQueries implements OpenWeatherWeatherQueriesInterf
     }
     
     /**
-     * Определяет, имеются ли данные о погоде для города $city за последнии 
-     * GetWeatherFromOpenWeatherCommandHandler::OPEN_WEATHER_CITY_UPDATE_PERIOD минут.
+     * {@inheritDoc}
      * 
-     * @param int $cityId
-     * @return bool
+     * @inheritDoc
      */
     public function isTooEarlyToSubmitRequestForThisCity(int $cityId): bool
     {

@@ -1,59 +1,53 @@
 import '@/bootstrap';
 import { mount, flushPromises } from "@vue/test-utils";
 
-import { setActivePinia, createPinia } from 'pinia';
+import { paginationOptionsForWeatherLogs } from "@/Services/Content/Weather/weatherLogs.js";
 import WeatherFilterByDateBlock from '@/Components/Pages/Auth/Account/WeatherFilterByDateBlock.vue';
-import ImputPikaday from '@/Components/Elements/ImputPikaday.vue';
+import InputPikaday from '@/Components/Elements/InputPikaday.vue';
 import BackSpaceSvg from '@/Components/Svg/BackSpaceSvg.vue';
-import { useWeatherPageAuthStore } from '@/Stores/weather';
         
-const getWrapper = function(weatherPageAuth, refreshWeather) {
+const getWrapper = function(paginationOptionsForWeatherLogs, refreshWeather) {
     return mount(WeatherFilterByDateBlock, {
             props: {
                 refreshWeather
             },
             global: {
-                provide: { weatherPageAuth }
+                provide: { paginationOptionsForWeatherLogs }
             }
         });
 };
 
 describe("@/Components/Pages/Auth/Account/WeatherFilterByDateBlock.vue", () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-    });
-    
     it("Отрисовка WeatherFilterByDateBlock", async () => {
-        const weatherPageAuth = useWeatherPageAuthStore();
         const refreshWeather = vi.fn();
         
-        const wrapper = getWrapper(weatherPageAuth, refreshWeather);
+        const wrapper = getWrapper(paginationOptionsForWeatherLogs, refreshWeather);
         
         // Имеются два input-поля для дат
-        const imputPikadays = wrapper.findAllComponents(ImputPikaday);
-        expect(imputPikadays.length).toBe(2);
-        expect(imputPikadays[0].props('datepicker')).toBe('from');
-        expect(imputPikadays[1].props('datepicker')).toBe('to');
+        const InputPikadays = wrapper.findAllComponents(InputPikaday);
+        expect(InputPikadays.length).toBe(2);
+        expect(InputPikadays[0].props('datepicker')).toBe('from');
+        expect(InputPikadays[1].props('datepicker')).toBe('to');
         
         // Задаём значение в первом input-поле для дат 
-        const input0 = imputPikadays[0].get('input');
+        const input0 = InputPikadays[0].get('input');
         input0.setValue('01.01.2024');
         // Изменяется дата
-        expect(imputPikadays[0].emitted()).toHaveProperty('update:modelValue');
+        expect(InputPikadays[0].emitted()).toHaveProperty('update:modelValue');
         await flushPromises();
         expect(wrapper.vm.datefrom).toBe('01.01.2024');
-        expect(weatherPageAuth.datefrom).toBe('01.01.2024');
+        expect(paginationOptionsForWeatherLogs.datefrom).toBe('01.01.2024');
         // Отправляется запрос на сервер
         expect(refreshWeather).toHaveBeenCalledTimes(1);
         
         // Задаём значение во втором input-поле для дат 
-        const input1 = imputPikadays[1].get('input');
+        const input1 = InputPikadays[1].get('input');
         input1.setValue('30.04.2024');
         // Изменяется дата
-        expect(imputPikadays[1].emitted()).toHaveProperty('update:modelValue');
+        expect(InputPikadays[1].emitted()).toHaveProperty('update:modelValue');
         await flushPromises();
         expect(wrapper.vm.dateto).toBe('30.04.2024');
-        expect(weatherPageAuth.dateto).toBe('30.04.2024');
+        expect(paginationOptionsForWeatherLogs.dateto).toBe('30.04.2024');
         // Отправляется запрос на сервер
         expect(refreshWeather).toHaveBeenCalledTimes(2);
         
@@ -68,7 +62,7 @@ describe("@/Components/Pages/Auth/Account/WeatherFilterByDateBlock.vue", () => {
         // Дата очищается
         await flushPromises();
         expect(wrapper.vm.datefrom).toBe('');
-        expect(weatherPageAuth.datefrom).toBe('');
+        expect(paginationOptionsForWeatherLogs.datefrom).toBe('');
         // Отправляется запрос на сервер
         expect(refreshWeather).toHaveBeenCalledTimes(3);
         
@@ -77,30 +71,28 @@ describe("@/Components/Pages/Auth/Account/WeatherFilterByDateBlock.vue", () => {
         // Дата очищается
         await flushPromises();
         expect(wrapper.vm.dateto).toBe('');
-        expect(weatherPageAuth.dateto).toBe('');
+        expect(paginationOptionsForWeatherLogs.dateto).toBe('');
         // Отправляется запрос на сервер
         expect(refreshWeather).toHaveBeenCalledTimes(4);
     });
     
-    it("Задание свойств weatherPageAuth при обновлении страницы (window.location.search = null)", async () => {
-        const weatherPageAuth = useWeatherPageAuthStore();
+    it("Задание свойств paginationOptionsForWeatherLogs при обновлении страницы (window.location.search = null)", async () => {
         const refreshWeather = vi.fn();
         
         window.location.search = null;
         
-        const wrapper = getWrapper(weatherPageAuth, refreshWeather);
-        expect(weatherPageAuth.datefrom).toBe('');
-        expect(weatherPageAuth.dateto).toBe('');
+        const wrapper = getWrapper(paginationOptionsForWeatherLogs, refreshWeather);
+        expect(paginationOptionsForWeatherLogs.datefrom).toBe('');
+        expect(paginationOptionsForWeatherLogs.dateto).toBe('');
     });
     
-    it("Задание свойств weatherPageAuth при обновлении страницы (window.location.search not null)", async () => {
-        const weatherPageAuth = useWeatherPageAuthStore();
+    it("Задание свойств paginationOptionsForWeatherLogs при обновлении страницы (window.location.search not null)", async () => {
         const refreshWeather = vi.fn();
         
         window.location.search = '?datefrom=01.01.2024&dateto=31.01.20024';
         
-        const wrapper = getWrapper(weatherPageAuth, refreshWeather);
-        expect(weatherPageAuth.datefrom).toBe('01.01.2024');
-        expect(weatherPageAuth.dateto).toBe('31.01.20024');
+        const wrapper = getWrapper(paginationOptionsForWeatherLogs, refreshWeather);
+        expect(paginationOptionsForWeatherLogs.datefrom).toBe('01.01.2024');
+        expect(paginationOptionsForWeatherLogs.dateto).toBe('31.01.20024');
     });
 });

@@ -24,7 +24,7 @@ class UserLogsWeatherTest extends TestCase
         $response
             ->assertOk()
             ->assertInertia(fn (Assert $page) => 
-                    $page->component('Auth/Account/UserLogsWeather')
+                    $page->component('Auth/Account/Weather/UserLogsWeather')
                         ->has('errors', 0)
                         ->has('weatherPage.data', 3)
                     // Проверка сортировки orderBy('created_at', 'desc')
@@ -47,6 +47,39 @@ class UserLogsWeatherTest extends TestCase
                             $page->where('name', 'Новосибирск')
                                 ->etc()
                         )
+            );
+    }
+    
+    public function test_success_getStatistics_first_request(): void
+    {
+        $this->seedCitiesAndUsersWithLogsWeather();
+        
+        $user = $this->getUser('AuthTestLogin');
+        $acting = $this->actingAs($user);
+        // В первом запросе отсутствуют параметры
+        $response = $acting->get('userlogsweather/get_statistics/'.CitySeeder::ID_NOVOSIBIRSK);
+
+        $response
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => 
+                    $page->component('Auth/Account/Weather/WeatherStatistics')
+                        ->has('errors', 0)
+            );
+    }
+    
+    public function test_success_getStatistics(): void
+    {
+        $this->seedCitiesAndUsersWithLogsWeather();
+        
+        $user = $this->getUser('AuthTestLogin');
+        $acting = $this->actingAs($user);
+        $response = $acting->get('userlogsweather/get_statistics/'.CitySeeder::ID_NOVOSIBIRSK.'?datefrom=01.01.2015&dateto=31.03.2015&interval=week');
+
+        $response
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => 
+                    $page->component('Auth/Account/Weather/WeatherStatistics')
+                        ->has('errors', 0)
             );
     }
     

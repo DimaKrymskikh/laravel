@@ -1,10 +1,12 @@
 <script setup>
-import { ref, reactive, inject, onUpdated } from 'vue';
+import { ref, reactive, onUpdated } from 'vue';
 import { Head, Link } from '@inertiajs/vue3'
 import { app } from '@/Services/app';
+import { paginationOptionsForWeatherLogs } from "@/Services/Content/Weather/weatherLogs.js";
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
 import EyeSvg from '@/Components/Svg/EyeSvg.vue';
+import GraphUpArrowSvg from '@/Components/Svg/GraphUpArrowSvg.vue';
 import Spinner from '@/Components/Svg/Spinner.vue';
 import ArrowPathSvg from '@/Components/Svg/ArrowPathSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
@@ -16,10 +18,9 @@ const props = defineProps({
     errors: Object | null
 });
 
-const weatherPageAuth = inject('weatherPageAuth');
 // Сбрасываем активную страницу пагинации для страницы погоды, 
 // чтобы при смене города попасть на существующую страницу
-weatherPageAuth.page = 1;
+paginationOptionsForWeatherLogs.page = 1;
 
 const titlePage = 'ЛК: погода';
 
@@ -92,11 +93,20 @@ const refreshCityWeather = function(weather) {
             <template v-for="(city, index) in cities">
                 <div class="flex justify-between border-b">
                     <div class="w-3/12 pr-2">
-                        <span class="font-sans mr-2">{{ index + 1 }}</span> 
-                        <span>{{ city.name }}</span>
-                        <Link :href="weatherPageAuth.getUrl(`/userlogsweather/${city.id}`)">
-                            <EyeSvg title="Посмотреть историю погоды в городе"/>
-                        </Link>
+                        <div class="mb-2">
+                            <span class="font-sans mr-2">{{ index + 1 }}</span> 
+                            <span>{{ city.name }}</span>
+                        </div>
+                        <div class="mb-2">
+                            <Link :href="paginationOptionsForWeatherLogs.getUrl(`/userlogsweather/${city.id}`)">
+                                <EyeSvg title="Посмотреть историю погоды в городе"/>
+                            </Link>
+                        </div>
+                        <div>
+                            <Link :href="`/userlogsweather/get_statistics/${city.id}`">
+                                <GraphUpArrowSvg title="Изучить статистику погоды в городе"/>
+                            </Link>
+                        </div>
                     </div>
                     <div class="w-8/12 pl-2">
                         <template v-if="city.weather">

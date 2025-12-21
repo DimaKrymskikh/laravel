@@ -10,7 +10,6 @@ import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/Us
 import ArrowPathSvg from '@/Components/Svg/ArrowPathSvg.vue';
 import TrashSvg from '@/Components/Svg/TrashSvg.vue';
 import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
-import { useWeatherPageAuthStore } from '@/Stores/weather';
 
 import {  cities_with_weather } from '@/__tests__/data/cities';
 import { weatherForOneCity } from '@/__tests__/data/weather';
@@ -42,9 +41,6 @@ const getWrapper = function() {
                 stubs: {
                     AccountLayout: AuthAccountLayoutStub,
                     RemoveCityFromListOfWeatherModal: true
-                },
-                provide: {
-                    weatherPageAuth: useWeatherPageAuthStore()
                 }
             }
         });
@@ -52,7 +48,6 @@ const getWrapper = function() {
 
 describe("@/Pages/Auth/Account/UserWeather.vue", () => {
     beforeEach(() => {
-        setActivePinia(createPinia());
         app.isRequest = false;
     });
     
@@ -143,5 +138,13 @@ describe("@/Pages/Auth/Account/UserWeather.vue", () => {
         for(let i = 1; i < wrapper.vm.cities.length; i++) {
             expect(wrapper.vm.cities[i].weather).not.toStrictEqual(weatherForOneCity);
         }
+    });
+    
+    it("Проверка onUpdated", async () => {
+        const wrapper = getWrapper();
+        expect(wrapper.vm.props.cities).toStrictEqual(cities_with_weather);
+        
+        await wrapper.setProps({ cities: [] });
+        expect(wrapper.vm.props.cities).toStrictEqual([]);
     });
 });

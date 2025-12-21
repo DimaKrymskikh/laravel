@@ -16,9 +16,6 @@ class DateStringTest extends TestCase
             ['05.11.2020', '05.11.2020'],
             // Високосный год
             ['29.02.2024', '29.02.2024'],
-            // В фильтре условие будет пропущено
-            ['', null],
-            ['', ''],
         ];
     }
     
@@ -37,14 +34,29 @@ class DateStringTest extends TestCase
     }
     
     #[DataProvider('correctDateStringProvider')]
-    public function test_correct_dates(string $result, ?string $date): void
+    public function test_correct_dates(string $result, string $date): void
     {
         $this->assertEquals($result, DateString::create($date)->value);
+        $this->assertEquals($result, DateString::create($date, true)->value);
+        $this->assertEquals($result, DateString::create($date, false)->value);
     }
     
     #[DataProvider('inCorrectDateStringProvider')]
     public function test_incorrect_dates(string $date): void
     {
         $this->assertEquals(now()->format('d.m.Y'), DateString::create($date)->value);
+        $this->assertEquals(now()->format('d.m.Y'), DateString::create($date, true)->value);
+        $this->assertEquals(now()->format('d.m.Y'), DateString::create($date, false)->value);
+    }
+    
+    public function test_null_or_empty_string(): void
+    {
+        $this->assertEquals('', DateString::create(null)->value);
+        $this->assertEquals('', DateString::create(null, true)->value);
+        $this->assertEquals(now()->format('d.m.Y'), DateString::create(null, false)->value);
+        
+        $this->assertEquals('', DateString::create('')->value);
+        $this->assertEquals('', DateString::create(' ', true)->value);
+        $this->assertEquals(now()->format('d.m.Y'), DateString::create(' ', false)->value);
     }
 }

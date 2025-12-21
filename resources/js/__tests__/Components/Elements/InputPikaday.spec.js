@@ -1,10 +1,10 @@
 import '@/bootstrap';
 import { mount } from "@vue/test-utils";
 
-import ImputPikaday from '@/Components/Elements/ImputPikaday.vue';
+import InputPikaday from '@/Components/Elements/InputPikaday.vue';
 
 const getWrapper = function() {
-    return mount(ImputPikaday, {
+    return mount(InputPikaday, {
             props: {
                 datepicker: 'from',
                 modelValue: ''
@@ -12,8 +12,8 @@ const getWrapper = function() {
         });
 };
 
-describe("@/Components/Elements/ImputPikaday.vue", () => {
-    it("Монтирование компоненты ImputPikaday", async () => {
+describe("@/Components/Elements/InputPikaday.vue", () => {
+    it("Монтирование компоненты InputPikaday", async () => {
         const pikaday = vi.spyOn(window, 'pikaday');
         expect(pikaday).toHaveBeenCalledTimes(0);
         

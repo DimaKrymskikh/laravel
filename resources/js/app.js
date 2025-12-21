@@ -7,7 +7,6 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import { useActorsListStore } from '@/Stores/actors';
 import { useFilmsListStore, useFilmsAccountStore, useFilmsAdminStore } from '@/Stores/films';
 import { useLanguagesListStore } from '@/Stores/languages';
-import { useWeatherPageAuthStore } from '@/Stores/weather';
 
 const app = createInertiaApp({
     progress: false,
@@ -23,7 +22,6 @@ const app = createInertiaApp({
             .provide('filmsList', useFilmsListStore())
             .provide('filmsAccount', useFilmsAccountStore())
             .provide('filmsAdmin', useFilmsAdminStore())
-            .provide('weatherPageAuth', useWeatherPageAuthStore())
             .provide('languagesList', useLanguagesListStore())
             .mount(el);
     }

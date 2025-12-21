@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::post('userweather/refresh/{city_id}', [UserWeatherController::class, 'refresh']);
     
     Route::get('userlogsweather/{city_id}', [UserLogsWeatherController::class, 'index']);
+    Route::get('userlogsweather/get_statistics/{id}', [UserLogsWeatherController::class, 'getStatistics']);
     
     Route::get('token', [TokenController::class, 'index']);
     Route::post('token', [TokenController::class, 'create']);

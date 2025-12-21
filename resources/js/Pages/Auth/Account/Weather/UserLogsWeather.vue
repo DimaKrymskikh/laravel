@@ -1,16 +1,11 @@
 <script setup>
-import { inject } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3'
-import { app } from '@/Services/app';
+import { Head, router } from '@inertiajs/vue3'
+import { paginationOptionsForWeatherLogs } from "@/Services/Content/Weather/weatherLogs.js";
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import Buttons from '@/Components/Pagination/Buttons.vue';
 import RemoveCityFromListOfWeatherModal from '@/Components/Pages/Auth/Account/UserWeather/RemoveCityFromListOfWeatherModal.vue';
 import WeatherFilterByDateBlock from '@/Components/Pages/Auth/Account/WeatherFilterByDateBlock.vue';
-import Spinner from '@/Components/Svg/Spinner.vue';
-import ArrowPathSvg from '@/Components/Svg/ArrowPathSvg.vue';
-import TrashSvg from '@/Components/Svg/TrashSvg.vue';
-import EchoAuth from '@/Components/Broadcast/EchoAuth.vue';
 
 const props = defineProps({
     weatherPage: Object,
@@ -18,8 +13,6 @@ const props = defineProps({
     user: Object,
     errors: Object | null
 });
-
-const weatherPageAuth = inject('weatherPageAuth');
 
 const titlePage = 'История погоды в городе ' + props.city.name;
 
@@ -36,13 +29,13 @@ const linksList = [{
 
 // Отправляет запрос на получение нового списка 
 function refreshWeather() {
-    router.get(weatherPageAuth.getUrl(`/userlogsweather/${props.city.id}`));
+    router.get(paginationOptionsForWeatherLogs.getUrl(`/userlogsweather/${props.city.id}`));
 }
 
 // Изменяет число записей погоды на странице
 const changeNumberOfWeatherOnPage = function(newNumber) {
-    weatherPageAuth.page = 1;
-    weatherPageAuth.perPage = newNumber;
+    paginationOptionsForWeatherLogs.page = 1;
+    paginationOptionsForWeatherLogs.perPage = newNumber;
     refreshWeather();
 };
 </script>

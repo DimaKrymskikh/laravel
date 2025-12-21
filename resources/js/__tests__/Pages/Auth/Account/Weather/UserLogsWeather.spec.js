@@ -2,14 +2,13 @@ import '@/bootstrap';
 import { mount } from "@vue/test-utils";
 import { router } from '@inertiajs/vue3';
 
-import { setActivePinia, createPinia } from 'pinia';
 import { app } from '@/Services/app';
-import UserLogsWeather from "@/Pages/Auth/Account/UserLogsWeather.vue";
+import { paginationOptionsForWeatherLogs } from "@/Services/Content/Weather/weatherLogs.js";
+import UserLogsWeather from "@/Pages/Auth/Account/Weather/UserLogsWeather.vue";
 import AccountLayout from '@/Layouts/Auth/AccountLayout.vue';
 import BreadCrumb from '@/Components/Elements/BreadCrumb.vue';
 import Dropdown from '@/Components/Elements/Dropdown.vue';
 import WeatherFilterByDateBlock from '@/Components/Pages/Auth/Account/WeatherFilterByDateBlock.vue';
-import { useWeatherPageAuthStore } from '@/Stores/weather';
 
 import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
 import { city } from '@/__tests__/data/cities';
@@ -39,9 +38,6 @@ const getWrapper = function() {
             global: {
                 stubs: {
                     AccountLayout: AuthAccountLayoutStub
-                },
-                provide: { 
-                    weatherPageAuth: useWeatherPageAuthStore()
                 }
             }
         });
@@ -49,7 +45,6 @@ const getWrapper = function() {
 
 describe("@/Pages/Auth/Account/UserLogsWeather.vue", () => {
     beforeEach(() => {
-        setActivePinia(createPinia());
         app.isRequest = false;
     });
     
@@ -118,8 +113,8 @@ describe("@/Pages/Auth/Account/UserLogsWeather.vue", () => {
         
         wrapper.vm.changeNumberOfWeatherOnPage(50);
         // Функция changeNumberOfFilmsOnPage отправила запрос с нужными параметрами
-        expect(wrapper.vm.weatherPageAuth.page).toBe(1);
-        expect(wrapper.vm.weatherPageAuth.perPage).toBe(50);
-        expect(router.get).toHaveBeenCalledWith(wrapper.vm.weatherPageAuth.getUrl(`/userlogsweather/${city.id}`));
+        expect(paginationOptionsForWeatherLogs.page).toBe(1);
+        expect(paginationOptionsForWeatherLogs.perPage).toBe(50);
+        expect(router.get).toHaveBeenCalledWith(paginationOptionsForWeatherLogs.getUrl(`/userlogsweather/${city.id}`));
     });
 });

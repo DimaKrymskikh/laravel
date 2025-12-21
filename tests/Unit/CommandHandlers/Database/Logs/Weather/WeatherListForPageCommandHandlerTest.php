@@ -3,12 +3,10 @@
 namespace Tests\Unit\CommandHandlers\Database\Logs\Weather;
 
 use App\CommandHandlers\Database\Logs\Weather\WeatherListForPageCommandHandler;
-use App\Models\Thesaurus\City;
 use App\Queries\Logs\OpenWeatherWeather\WeatherListForPage\WeatherListForPageQueriesInterface;
 use App\Queries\Thesaurus\Timezones\TimezoneQueriesInterface;
 use App\Services\Database\Thesaurus\TimezoneService;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Tests\Unit\TestCase\WeatherTestCase;
 
 class WeatherListForPageCommandHandlerTest extends WeatherTestCase
 {
@@ -16,12 +14,10 @@ class WeatherListForPageCommandHandlerTest extends WeatherTestCase
     private WeatherListForPageQueriesInterface $queries;
     private TimezoneQueriesInterface $timezoneQueries;
     private TimezoneService $timezoneService;
-    private int $cityId = 18;
 
     public function test_success_handle(): void
     {
-        $city = new City();
-        $city->id = $this->cityId;
+        $city = $this->getCity($this->cityId);
         
         $weatherFilterDto = $this->getWeatherFilterDto();
         $paginatorDto = $this->getPaginatorDto();

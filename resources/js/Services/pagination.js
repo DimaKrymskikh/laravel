@@ -10,3 +10,12 @@ export const getPaginationOptions = function () {
     
     return { page, perPage };
 };
+
+export const paginationOptions = {
+    // Активная страница
+    // По умолчанию, первая страница является активной
+    page: 1,
+    // Число элементов на странице
+    // По умолчанию, на одной странице должно быть 20 элементов
+    perPage: 20
+};
