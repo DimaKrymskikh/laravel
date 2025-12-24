@@ -75,24 +75,4 @@ describe("@/Components/Pages/Auth/Account/WeatherFilterByDateBlock.vue", () => {
         // Отправляется запрос на сервер
         expect(refreshWeather).toHaveBeenCalledTimes(4);
     });
-    
-    it("Задание свойств paginationOptionsForWeatherLogs при обновлении страницы (window.location.search = null)", async () => {
-        const refreshWeather = vi.fn();
-        
-        window.location.search = null;
-        
-        const wrapper = getWrapper(paginationOptionsForWeatherLogs, refreshWeather);
-        expect(paginationOptionsForWeatherLogs.datefrom).toBe('');
-        expect(paginationOptionsForWeatherLogs.dateto).toBe('');
-    });
-    
-    it("Задание свойств paginationOptionsForWeatherLogs при обновлении страницы (window.location.search not null)", async () => {
-        const refreshWeather = vi.fn();
-        
-        window.location.search = '?datefrom=01.01.2024&dateto=31.01.20024';
-        
-        const wrapper = getWrapper(paginationOptionsForWeatherLogs, refreshWeather);
-        expect(paginationOptionsForWeatherLogs.datefrom).toBe('01.01.2024');
-        expect(paginationOptionsForWeatherLogs.dateto).toBe('31.01.20024');
-    });
 });

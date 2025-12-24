@@ -39,7 +39,20 @@ abstract class WeatherTestCase extends UnitTestCase
         return $city;
     }
     
-    protected function getWeatherStatistics(): array
+    protected function getWeatherAllStatistics(): object
+    {
+        return (object) [
+                    'datefrom' => "01.12.2025",
+                    'dateto' => "08.12.2025",
+                    'avg' => "-6.390000000000001",
+                    'max' => "-0.39",
+                    'max_time' => "11:17:11 02.12.2025",
+                    'min' => "-16.39",
+                    'min_time' => "10:43:02 06.12.2025",
+                ];
+    }
+    
+    protected function getWeatherIntervalsStatistics(): array
     {
         return [ (object) [
                     'datefrom' => "01.12.2025",

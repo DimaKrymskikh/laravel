@@ -21,9 +21,13 @@ class WeatherStatisticsByPeriodicityIntervalCommandHandlerTest extends WeatherTe
         
         $this->queries->expects($this->once())
                 ->method('getArray')
-                ->willReturn($this->getWeatherStatistics());
+                ->willReturn($this->getWeatherIntervalsStatistics());
         
-        $this->assertIsArray($this->handler->handle($weatherStatisticsDto));
+        $this->queries->expects($this->once())
+                ->method('getObject')
+                ->willReturn($this->getWeatherAllStatistics());
+        
+        $this->assertIsObject($this->handler->handle($weatherStatisticsDto));
     }
     
     protected function setUp(): void

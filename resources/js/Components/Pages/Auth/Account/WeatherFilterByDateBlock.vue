@@ -8,11 +8,7 @@ const props = defineProps({
     refreshWeather: Function
 });
 
-// Заполняем поля дат по данным запроса (актуально при обновлении страницы Ctrl-F5)
-const urlParams = new URLSearchParams(window.location.search);
-// Если параметр отсутствует, сохраняем пустую строку
-paginationOptionsForWeatherLogs.datefrom = !!urlParams.get('datefrom') ? urlParams.get('datefrom') : '';
-paginationOptionsForWeatherLogs.dateto = !!urlParams.get('dateto') ? urlParams.get('dateto') : '';
+paginationOptionsForWeatherLogs.urlParams();
 
 const datefrom = ref(paginationOptionsForWeatherLogs.datefrom);
 const dateto = ref(paginationOptionsForWeatherLogs.dateto);

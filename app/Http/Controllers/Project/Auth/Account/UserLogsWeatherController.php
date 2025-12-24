@@ -61,9 +61,9 @@ class UserLogsWeatherController extends Controller
         );
 
         return Inertia::render('Auth/Account/Weather/WeatherStatistics', [
-            // Если параметр 'interval' отсутствует в запросе отдаём пустой массив
-            // Здесь нужно использовать $request->input('interval'), а не $dto->interval->value
-            'weatherPage' => $request->input('interval') ? $this->weatherStatisticsHandler->handle($dto) : [],
+            // Если параметр 'interval' отсутствует в запросе отдаём пустой объект.
+            // Здесь нужно использовать $request->input('interval'), а не $dto->interval->value.
+            'weather' => $request->input('interval') ? $this->weatherStatisticsHandler->handle($dto) : (object) [],
             'city' => $city,
             'user' => $request->user()
         ]);

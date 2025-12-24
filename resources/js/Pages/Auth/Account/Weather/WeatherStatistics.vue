@@ -7,7 +7,7 @@ import LinkBlock from '@/Components/Pages/Auth/Account/Weather/weatherStatistics
 import WeatherOptionsBlock from '@/Components/Pages/Auth/Account/Weather/weatherStatistics/WeatherOptionsBlock.vue';
 
 const props = defineProps({
-    weatherPage: Object,
+    weather: Object,
     city: Object,
     user: Object,
     errors: Object | null
@@ -49,7 +49,37 @@ const linksList = [{
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(weather, index) in weatherPage" class="hover:bg-green-300">
+                <tr v-if="weather.weatherAll">
+                    <td colspan="6" class="text-center">
+                        <span class="text-orange-700">За весь период</span>
+                    </td>
+                </tr>
+                <tr v-if="weather.weatherAll" class="hover:bg-green-300">
+                    <td class="text-center">
+                        <span class="font-sans">0</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="font-sans">{{ weather.weatherAll.datefrom }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="font-sans">{{ weather.weatherAll.dateto }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="font-sans">{{ weather.weatherAll.avg ? weather.weatherAll.avg : 'нет измерений за этот период' }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="font-sans">{{ weather.weatherAll.max ? `${weather.weatherAll.max} (${weather.weatherAll.max_time})` : 'нет измерений за этот период' }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="font-sans">{{ weather.weatherAll.min ? `${weather.weatherAll.min} (${weather.weatherAll.min_time})` : 'нет измерений за этот период' }}</span>
+                    </td>
+                </tr>
+                <tr v-if="weather.weatherIntervals">
+                    <td colspan="6" class="text-center">
+                        <span class="text-orange-700">Разбивка на интервалы</span>
+                    </td>
+                </tr>
+                <tr v-if="weather.weatherIntervals" v-for="(weather, index) in weather.weatherIntervals" class="hover:bg-green-300">
                     <td class="text-center">
                         <span class="font-sans">{{ index + 1 }}</span>
                     </td>
@@ -60,18 +90,18 @@ const linksList = [{
                         <span class="font-sans">{{ weather.dateto }}</span>
                     </td>
                     <td class="text-center">
-                        <span class="font-sans">{{ weather.avg }}</span>
+                        <span class="font-sans">{{ weather.avg ? weather.avg : 'нет измерений за этот период' }}</span>
                     </td>
-                    <td>
+                    <td class="text-center">
                         <span class="font-sans">{{ weather.max ? `${weather.max} (${weather.max_time})` : 'нет измерений за этот период' }}</span>
                     </td>
-                    <td>
+                    <td class="text-center">
                         <span class="font-sans">{{ weather.min ? `${weather.min} (${weather.min_time})` : 'нет измерений за этот период' }}</span>
                     </td>
                 </tr>
             </tbody>
         </table>
             
-        <div  v-if="!weatherPage.length" class="my-4 text-center text-orange-800">{{ messageEmptyTable }}</div>
+        <div  v-if="!weather.weatherAll && !weather.weatherIntervals" class="my-4 text-center text-orange-800">{{ messageEmptyTable }}</div>
     </AccountLayout>
 </template>

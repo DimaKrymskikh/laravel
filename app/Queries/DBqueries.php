@@ -15,4 +15,16 @@ abstract class DBqueries implements DBqueriesInterface
     {
         return DB::select($query, $options);
     }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * @inheritDoc
+     */
+    public function getObject(string $query, array $options = []): object
+    {
+        $arr = $this->getArray($query, $options);
+        
+        return array_shift($arr) ?? (object) [];
+    }
 }

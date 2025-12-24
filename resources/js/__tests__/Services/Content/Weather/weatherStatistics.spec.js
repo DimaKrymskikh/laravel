@@ -24,4 +24,25 @@ describe("@/Services/Content/Weather/weatherStatistics", () => {
             expect(['день', 'неделя', 'месяц', 'год']).toContain(statisticsOptions.getIntervalText(periodicityIntervals[index]));
         }
     });
+    
+    it("statisticsOptions.urlParams() (window.location.search = null)", () => {
+        window.location.search = null;
+        statisticsOptions.datefrom = '01.01.2025';
+        statisticsOptions.dateto = '31.01.2025';
+        statisticsOptions.interval = 'week';
+        statisticsOptions.urlParams();
+        
+        expect(statisticsOptions.datefrom).toBe('');
+        expect(statisticsOptions.dateto).toBe('');
+        expect(statisticsOptions.interval).toBe('');
+    });
+    
+    it("statisticsOptions.urlParams() (window.location.search not null)", () => {
+        window.location.search = '?datefrom=01.01.2024&dateto=31.01.20024&interval=day';
+        statisticsOptions.urlParams();
+        
+        expect(statisticsOptions.datefrom).toBe('01.01.2024');
+        expect(statisticsOptions.dateto).toBe('31.01.20024');
+        expect(statisticsOptions.interval).toBe('day');
+    });
 });

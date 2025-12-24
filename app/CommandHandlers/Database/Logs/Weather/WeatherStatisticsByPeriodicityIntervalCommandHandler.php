@@ -3,7 +3,6 @@
 namespace App\CommandHandlers\Database\Logs\Weather;
 
 use App\DataTransferObjects\Database\OpenWeather\WeatherStatisticsDto;
-use App\Models\Thesaurus\City;
 use App\Queries\Logs\OpenWeatherWeather\OpenWeatherWeatherQueriesInterface;
 use App\Services\CarbonService;
 use App\Services\Database\Thesaurus\TimezoneService;
@@ -24,9 +23,9 @@ final class WeatherStatisticsByPeriodicityIntervalCommandHandler
      * Получает статистику погоды в выбранном городе за заданный промежуток времени с разбивкой по временным интервалам.
      * 
      * @param WeatherStatisticsDto $dto
-     * @return array
+     * @return object
      */
-    public function handle(WeatherStatisticsDto $dto): array
+    public function handle(WeatherStatisticsDto $dto): object
     {
         $fn = 'add'.$dto->interval->value.'s';
         $query = '';
@@ -41,11 +40,21 @@ final class WeatherStatisticsByPeriodicityIntervalCommandHandler
             $query .= $this->selectBlock($m, $dto);
         }
         
-        $weather = $this->queries->getArray($query);
+        // Получаем статистику погоды.
+        $weatherAll = $this->queries->getObject($this->selectAll($dto));
+        $weatherIntervals = $this->queries->getArray($query);
         
-        $this->setFieldsFormat($dto->city, $weather);
+        // Форматируем данные.
+        $tzName = $this->timezoneService->getTimezoneByCity($dto->city);
+        $this->setFormat($weatherAll, $tzName);
+        foreach($weatherIntervals as $item) {
+            $this->setFormat($item, $tzName);
+        }
         
-        return $weather;
+        return (object) [
+                'weatherAll' => $weatherAll,
+                'weatherIntervals' => $weatherIntervals,
+            ];
     }
     
     private function withBlock(int $nInterval, WeatherStatisticsDto $dto): string
@@ -97,17 +106,37 @@ final class WeatherStatisticsByPeriodicityIntervalCommandHandler
         return $query;
     }
     
-    private function setFieldsFormat(City $city, array $weather): void
+    private function selectAll(WeatherStatisticsDto $dto): string
     {
-        $tzName = $this->timezoneService->getTimezoneByCity($city);
-        
-        foreach($weather as $item) {
-            $item->datefrom = CarbonService::setNewTimezoneInString($item->datefrom, 'UTC', $tzName, 'd.m.Y');
-            $item->dateto = CarbonService::setNewTimezoneInString($item->dateto, 'UTC', $tzName, 'd.m.Y');
-            $item->avg = sprintf("%.2f", $item->avg);
-            $item->max_time = $this->changeTimezoneInDateLine($item->max_time ??  '', $tzName);
-            $item->min_time = $this->changeTimezoneInDateLine($item->min_time ??  '', $tzName);
-        }
+        return <<<SQL
+                WITH _ AS (
+                    SELECT
+                        created_at,
+                        main_temp
+                    FROM logs.open_weather__weather
+                    WHERE city_id = {$dto->city->id}
+                        AND created_at >= to_date('{$dto->datefrom->value}', 'DD.MM.YYYY')
+                        AND created_at < to_date('{$dto->dateto->value}', 'DD.MM.YYYY')
+                )
+                SELECT
+                    to_char(to_date('{$dto->datefrom->value}', 'DD.MM.YYYY'), 'DD.MM.YYYY') AS datefrom,
+                    to_char(to_date('{$dto->dateto->value}', 'DD.MM.YYYY'), 'DD.MM.YYYY') AS dateto,
+                    AVG(main_temp) AS avg,
+                    max(main_temp) AS max,
+                    (SELECT string_agg(to_char(created_at, 'HH24:MI:SS DD.MM.YYYY'), ', ') FROM _ WHERE main_temp = (SELECT max(main_temp) FROM _)) AS max_time,
+                    min(main_temp) AS min,
+                    (SELECT string_agg(to_char(created_at, 'HH24:MI:SS DD.MM.YYYY'), ', ') FROM _ WHERE main_temp = (SELECT min(main_temp) FROM _)) AS min_time
+                FROM _
+            SQL;
+    }
+    
+    private function setFormat(object $item, string $tzName): void
+    {
+        $item->datefrom = CarbonService::setNewTimezoneInString($item->datefrom, 'UTC', $tzName, 'd.m.Y');
+        $item->dateto = CarbonService::setNewTimezoneInString($item->dateto, 'UTC', $tzName, 'd.m.Y');
+        $item->avg = $item->avg ? sprintf("%.2f", $item->avg) : '';
+        $item->max_time = $this->changeTimezoneInDateLine($item->max_time ??  '', $tzName);
+        $item->min_time = $this->changeTimezoneInDateLine($item->min_time ??  '', $tzName);
     }
     
     /**

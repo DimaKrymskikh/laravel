@@ -9,7 +9,7 @@ import { messageEmptyTable } from '@/Services/Content/Weather/weatherStatistics'
 import { AuthAccountLayoutStub } from '@/__tests__/stubs/layout';
 import { city } from '@/__tests__/data/cities';
 import { userAuth } from '@/__tests__/data/users';
-import { weatherWeekStatistics } from '@/__tests__/data/weather/weatherStatistics';
+import { weatherWeekStatistics, weatherEmptyStatistics } from '@/__tests__/data/weather/weatherStatistics';
 
 // Делаем заглушку для Head
 vi.mock('@inertiajs/vue3', async () => {
@@ -27,7 +27,7 @@ const getWrapper = function(weather = []) {
     return mount(WeatherStatistics, {
             props: {
                 errors: {},
-                weatherPage: weather,
+                weather: weather,
                 city,
                 user: userAuth
             },
@@ -52,7 +52,7 @@ describe("@/Pages/Auth/Account/Weather/WeatherStatistics.vue", () => {
         
         const tbody = wrapper.get('tbody');
         const trs = tbody.findAll('tr');
-        expect(trs.length).toBe(weatherWeekStatistics.length);
+        expect(trs.length).toBe(weatherWeekStatistics.weatherIntervals.length + 3);
         
         expect(wrapper.text()).not.toContain(messageEmptyTable);
     });
@@ -68,5 +68,18 @@ describe("@/Pages/Auth/Account/Weather/WeatherStatistics.vue", () => {
         expect(trs.length).toBe(0);
         
         expect(wrapper.text()).toContain(messageEmptyTable);
+    });
+    
+    it("Отрисовка WeatherStatistics, когда нет измерений", () => {
+        const wrapper = getWrapper(weatherEmptyStatistics);
+        
+        const table = wrapper.get('table.container');
+        expect(table.isVisible()).toBe(true);
+        
+        const tbody = wrapper.get('tbody');
+        const trs = tbody.findAll('tr');
+        expect(trs.length).toBe(weatherEmptyStatistics.weatherIntervals.length + 3);
+        
+        expect(wrapper.text()).not.toContain(messageEmptyTable);
     });
 });

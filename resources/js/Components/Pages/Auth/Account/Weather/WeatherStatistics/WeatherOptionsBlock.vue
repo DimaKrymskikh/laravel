@@ -3,6 +3,8 @@ import { statisticsOptions } from '@/Services/Content/Weather/weatherStatistics'
 import InputPikaday from '@/Components/Elements/InputPikaday.vue';
 import BackSpaceSvg from '@/Components/Svg/BackSpaceSvg.vue';
 import PeriodicityIntervalDropdown from '@/Components/Pages/Auth/Account/Weather/WeatherStatistics/PeriodicityIntervalDropdown.vue';
+
+statisticsOptions.urlParams();
 </script>
 
 <template>
