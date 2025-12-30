@@ -8,7 +8,7 @@ use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Actor;
 use App\Modifiers\Dvd\Actors\ActorModifiersInterface;
 use App\Queries\Dvd\Actors\ActorQueriesInterface;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\Collections\Dvd\ActorCollection;
 
 final class ActorService
 {
@@ -49,7 +49,7 @@ final class ActorService
         $this->actorModifiers->delete($actorId);
     }
     
-    public function getAllActorsList(ActorFilterDto $actorFilterDto): Collection
+    public function getAllActorsList(ActorFilterDto $actorFilterDto): ActorCollection
     {
         return $this->actorQueries->getListWithFilter($actorFilterDto);
     }

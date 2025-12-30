@@ -7,7 +7,7 @@ use App\Models\Thesaurus\City;
 use App\Modifiers\Thesaurus\Cities\CityModifiersInterface;
 use App\Queries\Thesaurus\Cities\CityQueriesInterface;
 use App\Services\Database\Thesaurus\CityService;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\Collections\Thesaurus\CityCollection;
 use PHPUnit\Framework\TestCase;
 
 class CityServiceTest extends TestCase
@@ -125,7 +125,7 @@ class CityServiceTest extends TestCase
         $this->cityQueries->expects($this->once())
                 ->method('getList');
         
-        $this->assertInstanceOf(Collection::class, $this->cityService->getAllCitiesList());
+        $this->assertInstanceOf(CityCollection::class, $this->cityService->getAllCitiesList());
     }
 
     public function test_success_get_list_with_available_by_user_id(): void
@@ -136,7 +136,7 @@ class CityServiceTest extends TestCase
                 ->method('getListWithAvailableByUserId')
                 ->with($userId);
         
-        $this->assertInstanceOf(Collection::class, $this->cityService->getListWithAvailableByUserId($userId));
+        $this->assertInstanceOf(CityCollection::class, $this->cityService->getListWithAvailableByUserId($userId));
     }
 
     public function test_success_find_city_by_open_weather_id(): void

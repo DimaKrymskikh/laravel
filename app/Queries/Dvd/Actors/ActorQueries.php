@@ -6,7 +6,7 @@ use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Actor;
 use App\Providers\BindingInterfaces\QueriesProvider;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\Collections\Dvd\ActorCollection;
 use Illuminate\Support\Facades\DB;
 
 final class ActorQueries implements ActorQueriesInterface
@@ -42,12 +42,12 @@ final class ActorQueries implements ActorQueriesInterface
                 SQL, ['id' => $id]);
     }
     
-    public function getList(): Collection
+    public function getList(): ActorCollection
     {
         return $this->getListWithFilter(new ActorFilterDto(''));
     }
     
-    public function getListWithFilter(ActorFilterDto $dto): Collection
+    public function getListWithFilter(ActorFilterDto $dto): ActorCollection
     {
         return Actor::select(
                     'id',
@@ -59,5 +59,17 @@ final class ActorQueries implements ActorQueriesInterface
                 ->orderBy('last_name')
                 ->limit(QueriesProvider::DEFAULT_LIMIT)
                 ->get();
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * @inheritDoc
+     */
+    public function getListInLazyById(\Closure $callback): void
+    {
+        Actor::select('id', 'first_name', 'last_name')->orderBy('id')
+                ->lazyById(self::NUMBER_OF_ITEMS_IN_CHUNCK, column: 'id')
+                ->each($callback);
     }
 }

@@ -2,10 +2,8 @@
 
 namespace App\Console\Commands\database\OpenWeather;
 
-use App\Models\OpenWeather\Weather;
+use App\Services\StorageDisk\OpenWeather\CopyWeatherService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class CopyWeather extends Command
 {
@@ -26,84 +24,13 @@ class CopyWeather extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(CopyWeatherService $service): void
     {
         $this->info('Старт.');
         $this->line("$this->description\n");
         
-        $file = 'OpenWeather/WeatherData.php';
-        
-        Storage::disk('database')->put($file, "<?php\n");
-        
-        Storage::disk('database')->append($file, "namespace Database\Copy\OpenWeather;\n");
-        
-        Storage::disk('database')->append($file, "// Данные таблицы open_weather.weather");
-        Storage::disk('database')->append($file, "class WeatherData");
-        Storage::disk('database')->append($file, "{");
-        Storage::disk('database')->append($file, Str::repeat(' ', 4) . "public function __invoke(): array");
-        Storage::disk('database')->append($file, Str::repeat(' ', 4) . "{");
-        Storage::disk('database')->append($file, Str::repeat(' ', 8) . "return [");
-        
-        foreach ($this->getWeather() as $weather) {
-            Storage::disk('database')->append($file, Str::repeat(' ', 12) . "(object) [");
-            Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'id' => $weather->id,");
-            Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'city_id' => $weather->city_id,");
-            // Данные NULL-полей пишем с условием
-            // Используется isset, потому что могут быть значения 0
-            if(isset($weather->weather_description)) {
-                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'weather_description' => '$weather->weather_description',");
-            }
-            if(isset($weather->main_temp)) {
-                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'main_temp' => $weather->main_temp,");
-            }
-            if(isset($weather->main_feels_like)) {
-                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'main_feels_like' => $weather->main_feels_like,");
-            }
-            if(isset($weather->main_pressure)) {
-                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'main_pressure' => $weather->main_pressure,");
-            }
-            if(isset($weather->main_humidity)) {
-                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'main_humidity' => $weather->main_humidity,");
-            }
-            if(isset($weather->visibility)) {
-                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'visibility' => $weather->visibility,");
-            }
-            if(isset($weather->wind_speed)) {
-                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'wind_speed' => $weather->wind_speed,");
-            }
-            if(isset($weather->wind_deg)) {
-                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'wind_deg' => $weather->wind_deg,");
-            }
-            if(isset($weather->clouds_all)) {
-                Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'clouds_all' => $weather->clouds_all,");
-            }
-            Storage::disk('database')->append($file, Str::repeat(' ', 16) . "'created_at' => '$weather->created_at',");
-            Storage::disk('database')->append($file, Str::repeat(' ', 12) . "],");
-        }
-        
-        Storage::disk('database')->append($file, Str::repeat(' ', 8) . "];");
-        
-        Storage::disk('database')->append($file, Str::repeat(' ', 4) . "}");
-        Storage::disk('database')->append($file, "}\n");
+        $service->copy();
         
         $this->info('Команда выполнена.');
-    }
-    
-    private function getWeather(): iterable
-    {
-        yield from Weather::select(
-                'id',
-                'city_id', 
-                'weather_description', 
-                'main_temp',
-                'main_feels_like', 
-                'main_pressure', 
-                'main_humidity', 
-                'visibility', 
-                'wind_speed', 
-                'wind_deg',
-                'clouds_all',
-                'created_at'
-            )->orderBy('id')->get();
     }
 }

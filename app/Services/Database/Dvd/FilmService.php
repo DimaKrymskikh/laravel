@@ -8,7 +8,7 @@ use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
 use App\Modifiers\Dvd\Films\FilmModifiersInterface;
 use App\Queries\Dvd\Films\FilmQueriesInterface;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\Collections\Dvd\FilmCollection;
 
 final class FilmService
 {
@@ -59,7 +59,7 @@ final class FilmService
         return $this->filmQueries->getByIdWithActors($filmId);
     }
     
-    public function getFilmsList(FilmFilterDto $filmFilterDto): Collection
+    public function getFilmsList(FilmFilterDto $filmFilterDto): FilmCollection
     {
         return $this->filmQueries->getListWithFilter($filmFilterDto);
     }

@@ -10,6 +10,8 @@ use App\Queries\Dvd\FilmsActors\FilmActorQueries;
 use App\Queries\Dvd\FilmsActors\FilmActorQueriesInterface;
 use App\Queries\Logs\OpenWeatherWeather\OpenWeatherWeatherQueries;
 use App\Queries\Logs\OpenWeatherWeather\OpenWeatherWeatherQueriesInterface;
+use App\Queries\OpenWeather\OpenWeatherQueries;
+use App\Queries\OpenWeather\OpenWeatherQueriesInterface;
 use App\Queries\Person\Users\UserQueries;
 use App\Queries\Person\Users\UserQueriesInterface;
 use App\Queries\Person\UsersCities\UserCityQueries;
@@ -49,6 +51,8 @@ final class QueriesProvider extends ServiceProvider
         $this->app->bind(FilmActorQueriesInterface::class, FilmActorQueries::class);
         
         $this->app->bind(OpenWeatherWeatherQueriesInterface::class, OpenWeatherWeatherQueries::class);
+        
+        $this->app->bind(OpenWeatherQueriesInterface::class, OpenWeatherQueries::class);
         
         $this->app->bind(UserQueriesInterface::class, UserQueries::class);
         

@@ -8,7 +8,7 @@ use App\Queries\Dvd\Actors\ActorQueriesInterface;
 use App\Queries\Dvd\Films\FilmQueriesInterface;
 use App\Queries\Dvd\FilmsActors\FilmActorQueriesInterface;
 use App\Services\Database\Dvd\Dto\FilmActorDto;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\Collections\Dvd\FilmActorCollection;
 
 final class FilmActorService
 {
@@ -33,7 +33,7 @@ final class FilmActorService
         $this->filmActorModifiers->save($dto);
     }
     
-    public function getActorsListByFilmId(int $filmId): Collection
+    public function getActorsListByFilmId(int $filmId): FilmActorCollection
     {
         return $this->filmActorQueries->getByFilmId($filmId);
     }

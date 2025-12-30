@@ -6,8 +6,8 @@ use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
 use App\Providers\BindingInterfaces\QueriesProvider;
+use App\Support\Collections\Dvd\FilmCollection;
 use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 final class FilmQueries implements FilmQueriesInterface
@@ -43,12 +43,12 @@ final class FilmQueries implements FilmQueriesInterface
         return Film::filter($dto)->count();
     }
     
-    public function getList(): Collection
+    public function getList(): FilmCollection
     {
         return $this->getListWithFilter(new FilmFilterDto('', '', '', ''));
     }
     
-    public function getListWithFilter(FilmFilterDto $dto): Collection
+    public function getListWithFilter(FilmFilterDto $dto): FilmCollection
     {
         return Film::with('language:id,name')
                 ->select('id', 'title', 'description', 'language_id', 'release_year')
@@ -70,5 +70,17 @@ final class FilmQueries implements FilmQueriesInterface
             ])
             ->select('id', 'title', 'description', 'release_year', 'language_id')
             ->find($id);
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * @inheritDoc
+     */
+    public function getListInLazyById(\Closure $callback): void
+    {
+        Film::select('id', 'title', 'description', 'release_year', 'language_id')->orderBy('id')
+                ->lazyById(self::NUMBER_OF_ITEMS_IN_CHUNCK, column: 'id')
+                ->each($callback);
     }
 }

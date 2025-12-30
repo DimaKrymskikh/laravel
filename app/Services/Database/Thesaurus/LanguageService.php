@@ -6,7 +6,7 @@ use App\DataTransferObjects\Database\Thesaurus\Filters\LanguageFilterDto;
 use App\Models\Thesaurus\Language;
 use App\Modifiers\Thesaurus\Languages\LanguageModifiersInterface;
 use App\Queries\Thesaurus\Languages\LanguageQueriesInterface;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\Collections\Thesaurus\LanguageCollection;
 
 final class LanguageService
 {
@@ -42,7 +42,7 @@ final class LanguageService
         $this->languageModifiers->remove($language);
     }
     
-    public function getAllLanguagesList(LanguageFilterDto $languageDto): Collection
+    public function getAllLanguagesList(LanguageFilterDto $languageDto): LanguageCollection
     {
         return $this->languageQueries->getListWithFilter($languageDto);
     }

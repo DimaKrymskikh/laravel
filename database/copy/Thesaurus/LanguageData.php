@@ -10,7 +10,7 @@ class LanguageData
         return [
             (object) [
                 'id' => 1,
-                'name' => 'English',
+                'name' => 'Английский',
             ],
             (object) [
                 'id' => 2,
@@ -31,6 +31,14 @@ class LanguageData
             (object) [
                 'id' => 6,
                 'name' => 'German',
+            ],
+            (object) [
+                'id' => 7,
+                'name' => 'Русский',
+            ],
+            (object) [
+                'id' => 11,
+                'name' => 'Китайский',
             ],
         ];
     }

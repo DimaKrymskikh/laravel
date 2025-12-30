@@ -6,7 +6,7 @@ use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
 use App\Modifiers\Thesaurus\Cities\CityModifiersInterface;
 use App\Queries\Thesaurus\Cities\CityQueriesInterface;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\Collections\Thesaurus\CityCollection;
 
 final class CityService
 {
@@ -60,12 +60,12 @@ final class CityService
         return $this->cityQueries->getById($cityId);
     }
     
-    public function getAllCitiesList(): Collection
+    public function getAllCitiesList(): CityCollection
     {
         return $this->cityQueries->getList();
     }
     
-    public function getListWithAvailableByUserId(int $userId): Collection
+    public function getListWithAvailableByUserId(int $userId): CityCollection
     {
         return $this->cityQueries->getListWithAvailableByUserId($userId);
     }

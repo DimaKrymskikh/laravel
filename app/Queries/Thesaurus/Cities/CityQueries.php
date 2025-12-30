@@ -5,6 +5,7 @@ namespace App\Queries\Thesaurus\Cities;
 use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
 use App\Models\User;
+use App\Support\Collections\Thesaurus\CityCollection;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\JoinClause;
@@ -27,7 +28,12 @@ final class CityQueries implements CityQueriesInterface
                 ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_OPEN_WEATHER_ID, $openWeatherId));
     }
     
-    public function getList(): Collection
+    /**
+     * {@inheritDoc}
+     * 
+     * @inheritDoc
+     */
+    public function getList(): CityCollection
     {
         return City::select('id', 'name', 'open_weather_id', 'timezone_id')
                     ->with('timezone:id,name')
@@ -50,7 +56,7 @@ final class CityQueries implements CityQueriesInterface
         return $user->cities;
     }
     
-    public function getListWithAvailableByUserId(int $userId): Collection
+    public function getListWithAvailableByUserId(int $userId): CityCollection
     {
         return City::select('id', 'name', 'timezone_id')
                     ->with('timezone:id,name')
@@ -61,5 +67,17 @@ final class CityQueries implements CityQueriesInterface
                     ->selectRaw('coalesce (person.users_cities.user_id::bool, false) AS "isAvailable"')
                     ->orderBy('name')
                     ->get();
+    }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * @inheritDoc
+     */
+    public function getListInLazyById(\Closure $callback): void
+    {
+        City::select('id', 'name', 'open_weather_id', 'timezone_id')->orderBy('id')
+            ->lazyById(self::NUMBER_OF_ITEMS_IN_CHUNCK, column: 'id')
+            ->each($callback);
     }
 }
