@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Carbon;
 
+use App\Services\Carbon\Enums\DateFormat;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 
@@ -27,11 +28,11 @@ final class CarbonService
      * @param string $date Валидная для даты и времени строка.
      * @param string $oldTzName Старый часовой пояс, например, 'UTC'.
      * @param string $newTzName Новый часовой пояс, например, 'Asia/Krasnoyarsk'.
-     * @param type $format Формат даты, например, 'H:i:s d.m.Y'.
+     * @param DateFormat $format Формат даты.
      * @return string Строка даты и времени.
      */
-    public static function setNewTimezoneInString(string $date, string $oldTzName, string $newTzName, $format): string
+    public static function setNewTimezoneInString(string $date, string $oldTzName, string $newTzName, DateFormat $format): string
     {
-        return Carbon::parse(trim($date), $oldTzName)->setTimezone($newTzName)->format($format);
+        return Carbon::parse(trim($date), $oldTzName)->setTimezone($newTzName)->format($format->value);
     }
 }

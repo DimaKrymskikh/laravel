@@ -6,7 +6,7 @@ use App\Models\Thesaurus\City;
 use App\Models\Thesaurus\Timezone;
 use App\Queries\Thesaurus\Timezones\TimezoneQueriesInterface;
 use App\Services\Database\Thesaurus\TimezoneService;
-use App\Services\CarbonService;
+use App\Services\Carbon\CarbonService;
 use Illuminate\Database\Eloquent\Collection;
 use PHPUnit\Framework\TestCase;
 

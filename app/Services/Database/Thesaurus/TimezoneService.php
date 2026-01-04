@@ -6,7 +6,7 @@ use App\Models\Logs\OpenWeatherWeather;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
 use App\Queries\Thesaurus\Timezones\TimezoneQueriesInterface;
-use App\Services\CarbonService;
+use App\Services\Carbon\CarbonService;
 use App\Support\Collections\Thesaurus\TimezoneCollection;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;

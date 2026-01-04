@@ -4,7 +4,8 @@ namespace App\CommandHandlers\Database\Logs\Weather;
 
 use App\DataTransferObjects\Database\OpenWeather\WeatherStatisticsDto;
 use App\Queries\Logs\OpenWeatherWeather\OpenWeatherWeatherQueriesInterface;
-use App\Services\CarbonService;
+use App\Services\Carbon\Enums\DateFormat;
+use App\Services\Carbon\CarbonService;
 use App\Services\Database\Thesaurus\TimezoneService;
 use Carbon\Carbon;
 
@@ -132,11 +133,11 @@ final class WeatherStatisticsByPeriodicityIntervalCommandHandler
     
     private function setFormat(object $item, string $tzName): void
     {
-        $item->datefrom = CarbonService::setNewTimezoneInString($item->datefrom, 'UTC', $tzName, 'd.m.Y');
-        $item->dateto = CarbonService::setNewTimezoneInString($item->dateto, 'UTC', $tzName, 'd.m.Y');
+        $item->datefrom = CarbonService::setNewTimezoneInString($item->datefrom, 'UTC', $tzName, DateFormat::Date);
+        $item->dateto = CarbonService::setNewTimezoneInString($item->dateto, 'UTC', $tzName, DateFormat::Date);
         $item->avg = $item->avg ? sprintf("%.2f", $item->avg) : '';
-        $item->max_time = $this->changeTimezoneInDateLine($item->max_time ??  '', $tzName);
-        $item->min_time = $this->changeTimezoneInDateLine($item->min_time ??  '', $tzName);
+        $item->max_time = $this->changeTimezoneInDateLine($item->max_time ?? '', $tzName);
+        $item->min_time = $this->changeTimezoneInDateLine($item->min_time ?? '', $tzName);
     }
     
     /**
@@ -150,7 +151,7 @@ final class WeatherStatisticsByPeriodicityIntervalCommandHandler
     private function changeTimezoneInDateLine(string $date, string $tzName): string
     {
             $arrDate = explode(',', $date);
-            $newArrDate = array_map(fn($time) => CarbonService::setNewTimezoneInString($time, 'UTC', $tzName, 'H:i:s d.m.Y'), $arrDate);
+            $newArrDate = array_map(fn($time) => CarbonService::setNewTimezoneInString($time, 'UTC', $tzName, DateFormat::Full), $arrDate);
             return implode(', ', $newArrDate);
     }
 }
