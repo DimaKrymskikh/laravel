@@ -3,8 +3,9 @@
 namespace App\Queries\Person\Users;
 
 use App\Models\User;
+use App\Queries\DBqueries;
 
-final class UserQueries implements UserQueriesInterface
+final class UserQueries extends DBqueries implements UserQueriesInterface
 {
     public function getById(int $id): User
     {

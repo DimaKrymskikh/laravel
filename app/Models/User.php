@@ -13,6 +13,19 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\Notification;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * Пользователи
+ * 
+ * @property int $id Первичный ключ таблицы 'person.users'.
+ * @property string $login Логин.
+ * @property string $password Пароль.
+ * @property string $email email пользователя.
+ * @property string $email_verified_at Время подтверждения email пользователя.
+ * @property bool $is_admin Имеет ли пользователь права админа.
+ * @property string $remember_token Токен "запомнить меня".
+ * @property string $created_at
+ * @property string $updated_at
+ */
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;

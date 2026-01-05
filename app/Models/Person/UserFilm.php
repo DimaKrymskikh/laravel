@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Модель таблицы person.users_films, которая связывает таблицы person.users и dvd.films
+ * 
+ * @property int user_id Ссылка на person.users.id.
+ * @property int film_id Ссылка на dvd.films.id.
+ * @property string $created_at
+ */
 class UserFilm extends Model
 {
     use HasFactory;
