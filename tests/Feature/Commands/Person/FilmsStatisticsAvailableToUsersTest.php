@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Commands\Dvd;
+namespace Tests\Feature\Commands\Person;
 
 use App\Models\User;
 use App\Models\Dvd\Film;
@@ -34,7 +34,7 @@ class FilmsStatisticsAvailableToUsersTest extends TestCase
         $this->getData();
         
         $this
-            ->artisan('statistics:filmsAndUsers true')
+            ->artisan('statistics:filmsAndUsers --isFile')
             ->assertExitCode(0);
     }
     
