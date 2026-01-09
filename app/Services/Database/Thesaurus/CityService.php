@@ -60,6 +60,11 @@ final class CityService
         return $this->cityQueries->getById($cityId);
     }
     
+    /**
+     * Получить все ряды таблицы 'thesaurus.cities'
+     * 
+     * @return CityCollection
+     */
     public function getAllCitiesList(): CityCollection
     {
         return $this->cityQueries->getList();
@@ -73,10 +78,10 @@ final class CityService
     /**
      * Находит и возвращает город по полю thesaurus.cities.open_weather_id
      * 
-     * @param type $openWeatherId
+     * @param int $openWeatherId id-города в сервисе OpenWeather
      * @return City
      */
-    public function findCityByOpenWeatherId($openWeatherId): City
+    public function findCityByOpenWeatherId(int $openWeatherId): City
     {
         return $this->cityQueries->getByOpenWeatherId($openWeatherId);
     }

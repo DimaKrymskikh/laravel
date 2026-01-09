@@ -20,6 +20,12 @@ final class WeatherService
     ) {
     }
     
+    /**
+     * Сохраняет погоду в таблице open_weather.weather
+     * 
+     * @param WeatherDto $dto
+     * @return Weather
+     */
     public function updateOrCreate(WeatherDto $dto): Weather
     {
         $weather = new Weather();

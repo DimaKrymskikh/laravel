@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Project\Auth\Account;
 
 use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
-use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Events\RefreshCityWeather;
 use App\Http\Controllers\Controller;
-use App\Services\Database\Logs\OpenWeatherWeatherService;
 use App\Services\Database\OpenWeather\WeatherService;
 use App\Services\Database\Thesaurus\CityService;
-use App\ValueObjects\ResponseObjects\OpenWeatherObject;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,7 +14,6 @@ use Inertia\Response;
 class UserWeatherController extends Controller
 {
     public function __construct(
-        private OpenWeatherWeatherService $openWeatherWeatherService,
         private WeatherService $weatherService,
         private CityService $cityService,
     )
@@ -49,16 +45,13 @@ class UserWeatherController extends Controller
     public function refresh(Request $request, int $city_id, GetWeatherFromOpenWeatherCommandHandler $commandHandler): void
     {
         $city = $this->cityService->getCityById($city_id);
-        
-        $response = $commandHandler->handle($city, $this->openWeatherWeatherService);
+        $response = $commandHandler->sendRequest($city);
         
         if($response->status() !== 200) {
             return;
         }
         
-        $dto = new WeatherDto($city_id, OpenWeatherObject::create($response->object()));
-
-        $this->weatherService->updateOrCreate($dto);
+        $commandHandler->updateOrCreate($response, $city);
         event(new RefreshCityWeather($city_id, $request->user()->id, $this->weatherService));
     }
 }

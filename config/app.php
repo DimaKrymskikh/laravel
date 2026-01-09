@@ -195,10 +195,12 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         
+        App\Providers\BindingInterfaces\CommandHandlersProvider::class,
         App\Providers\BindingInterfaces\Actors\ActorsListForPageProvider::class,
         App\Providers\BindingInterfaces\Films\FilmsListForPageProvider::class,
         App\Providers\BindingInterfaces\Weather\WeatherListForPageProvider::class,
         App\Providers\BindingInterfaces\CopyistProvider::class,
+        App\Providers\BindingInterfaces\CurlProvider::class,
         App\Providers\BindingInterfaces\ModifiersProvider::class,
         App\Providers\BindingInterfaces\QueriesProvider::class,
 

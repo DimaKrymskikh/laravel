@@ -22,7 +22,12 @@ final class CityQueries implements CityQueriesInterface
         return City::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
     }
     
-    public function getByOpenWeatherId($openWeatherId): City
+    /**
+     * {@inheritDoc}
+     * 
+     * @inheritDoc
+     */
+    public function getByOpenWeatherId(int $openWeatherId): City
     {
         return City::where('open_weather_id', $openWeatherId)->first()
                 ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_OPEN_WEATHER_ID, $openWeatherId));

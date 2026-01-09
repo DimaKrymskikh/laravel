@@ -17,6 +17,12 @@ final class OpenWeatherWeatherService
     ) {
     }
     
+    /**
+     * Проверяет, не превышен ли предел запросов (self::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE) за одну минуту
+     * 
+     * @return void
+     * @throws OpenWeatherException
+     */
     public function checkNumberOfWeatherLinesForLastMinuteLessBaseValue(): void
     {
         if($this->openWeatherWeatherQueries->getNumberOfWeatherLinesForLastMinute() >= self::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE) {
@@ -24,6 +30,13 @@ final class OpenWeatherWeatherService
         }
     }
     
+    /**
+     * Проверяет, что для города $city имеются данные о погоде за последнии self::OPEN_WEATHER_CITY_UPDATE_PERIOD минут.
+     * 
+     * @param int $cityId
+     * @return void
+     * @throws OpenWeatherException
+     */
     public function checkTooEarlyToSubmitRequestForThisCity(int $cityId): void
     {
         if($this->openWeatherWeatherQueries->isTooEarlyToSubmitRequestForThisCity($cityId)) {

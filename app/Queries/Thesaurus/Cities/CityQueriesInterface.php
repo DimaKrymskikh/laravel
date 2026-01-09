@@ -21,7 +21,13 @@ interface CityQueriesInterface extends QueriesInterface
      */
     public function getList(): CityCollection;
     
-    public function getByOpenWeatherId($openWeatherId): City;
+    /**
+     * Возвращает город по id-города в сервисе OpenWeather
+     * 
+     * @param int $openWeatherId id-города в сервисе OpenWeather
+     * @return City
+     */
+    public function getByOpenWeatherId(int $openWeatherId): City;
     
     public function getByUserWithWeather(User $user): Collection;
     
