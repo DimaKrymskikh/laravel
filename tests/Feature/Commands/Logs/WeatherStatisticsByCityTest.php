@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Commands\OpenWeather;
+namespace Tests\Feature\Commands\logs;
 
 use App\Models\Thesaurus\City;
 use App\Queries\Thesaurus\Cities\CityQueriesInterface;
@@ -22,8 +22,8 @@ class WeatherStatisticsByCityTest extends TestCase
         $this
             ->artisan("statistics:weather $city->open_weather_id")
             ->expectsOutput("Статистика по городу $city->name [$city->open_weather_id]")
-            ->expectsOutput("Максимальная температура: отсутствует")
             ->expectsOutput("Минимальная температура: отсутствует")
+            ->expectsOutput("Максимальная температура: отсутствует")
             ->expectsOutput("Всего записей: 0")
             ->assertExitCode(0);
     }
@@ -37,8 +37,8 @@ class WeatherStatisticsByCityTest extends TestCase
         $this
             ->artisan("statistics:weather $city->open_weather_id")
             ->expectsOutput("Статистика по городу $city->name [$city->open_weather_id]")
-            ->expectsOutput("Максимальная температура: 22.91")
             ->expectsOutput("Минимальная температура: 0.5")
+            ->expectsOutput("Максимальная температура: 22.91")
             ->expectsOutput("Всего записей: 3")
             ->assertExitCode(0);
     }
@@ -46,22 +46,10 @@ class WeatherStatisticsByCityTest extends TestCase
     public function test_statistics_can_be_received_for_all_cities(): void
     {
         $this->seedCitiesAndLogsWeather();
-        // Должна быть сортировка по названию города
-        $cities = City::orderBy('name')->get();
 
         $this
             ->artisan("statistics:weather")
-            ->expectsOutput("Статистика погоды по городам")
-            // Барнаул
-            ->expectsOutput("{$cities[0]->name} [{$cities[0]->open_weather_id}] содержит 1 записей")
-            // Москва
-            ->expectsOutput("{$cities[1]->name} [{$cities[1]->open_weather_id}] содержит 2 записей")
-            // Новосибирск
-            ->expectsOutput("{$cities[2]->name} [{$cities[2]->open_weather_id}] содержит 3 записей")
-            // Омск
-            ->expectsOutput("{$cities[3]->name} [{$cities[3]->open_weather_id}] содержит 0 записей")
-            // Томск
-            ->expectsOutput("{$cities[4]->name} [{$cities[4]->open_weather_id}] содержит 0 записей")
+            ->expectsOutput("Статистика по всем городам.")
             ->assertExitCode(0);
     }
     

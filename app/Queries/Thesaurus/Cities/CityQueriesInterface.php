@@ -4,11 +4,12 @@ namespace App\Queries\Thesaurus\Cities;
 
 use App\Models\Thesaurus\City;
 use App\Models\User;
+use App\Queries\DBqueriesInterface;
 use App\Queries\QueriesInterface;
 use App\Support\Collections\Thesaurus\CityCollection;
 use Illuminate\Database\Eloquent\Collection;
 
-interface CityQueriesInterface extends QueriesInterface
+interface CityQueriesInterface extends DBqueriesInterface, QueriesInterface
 {
     public const NOT_RECORD_WITH_ID = "В таблице 'thesaurus.cities' нет записи с id=%d";
     public const NOT_RECORD_WITH_OPEN_WEATHER_ID = "В таблице 'thesaurus.cities' нет записи с open_weather_id=%d";

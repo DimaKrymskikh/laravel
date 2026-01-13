@@ -5,12 +5,13 @@ namespace App\Queries\Thesaurus\Cities;
 use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
 use App\Models\User;
+use App\Queries\DBqueries;
 use App\Support\Collections\Thesaurus\CityCollection;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\JoinClause;
 
-final class CityQueries implements CityQueriesInterface
+final class CityQueries extends DBqueries implements CityQueriesInterface
 {
     public function exists(int $id): bool
     {
