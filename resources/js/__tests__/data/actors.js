@@ -8,15 +8,18 @@ export const actors = {
         {
             id: 1,
             first_name: 'Penelope',
-            last_name: 'Guiness'
+            last_name: 'Guiness',
+            full_name: 'Penelope Guiness'
         }, {
             id: 2,
             first_name: 'Nick',
-            last_name: 'Wahlberg'
+            last_name: 'Wahlberg',
+            full_name: 'Nick Wahlberg'
         }, {
             id: 3,
             first_name: 'Ed',
-            last_name: 'Chase'
+            last_name: 'Chase',
+            full_name: 'Ed Chase'
         }
     ],
     links: [

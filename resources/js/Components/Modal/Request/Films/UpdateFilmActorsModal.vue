@@ -98,7 +98,7 @@ watch(actorName, function() {
                                 v-for="actor in filmActors.actors"
                                 title="Клик удалит актёра"
                             >
-                                {{ actor.first_name + ' ' + actor.last_name }}
+                                {{ actor.full_name }}
                             </li>
                         </ul>
                     </template>
@@ -127,7 +127,7 @@ watch(actorName, function() {
                                 v-for="actor in actors"
                                 title="Клик добавит актёра"
                             >
-                                {{ actor.first_name + ' ' + actor.last_name }}
+                                {{ actor.full_name }}
                             </li>
                         </ul>
                     </template>

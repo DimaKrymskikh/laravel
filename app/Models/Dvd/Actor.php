@@ -5,6 +5,7 @@ namespace App\Models\Dvd;
 use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use App\Support\Collections\Dvd\ActorCollection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,6 +26,8 @@ class Actor extends Model
     
     public $timestamps = false;
     
+    protected $appends = ['full_name'];
+    
     public function newCollection(array $models = []): ActorCollection
     {
         return new ActorCollection($models);
@@ -36,5 +39,12 @@ class Actor extends Model
             ->when($dto->name, function (Builder $query, string $name) {
                 $query->whereRaw("concat(first_name, ' ', last_name) ILIKE ?", ["%$name%"]);
             });
+    }
+    
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(
+                get: fn (mixed $value, array $attributes) => $attributes['first_name'].' '.$attributes['last_name']
+            );
     }
 }

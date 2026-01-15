@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Commands\Dvd\Actor;
+namespace Tests\Feature\Commands\Dvd\Actors;
 
 use App\Models\Dvd\Actor;
 use Database\Testsupport\Dvd\DvdData;

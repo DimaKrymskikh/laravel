@@ -4,37 +4,41 @@ namespace Tests\Unit\ValueObjects;
 
 use App\Exceptions\RuleException;
 use App\ValueObjects\PersonName;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class PersonNameTest extends TestCase
 {
-    private string $message = 'Некоторое сообщение';
+    private const MESSAGE  = 'Некоторое сообщение';
     
-    public function test_person_name_can_be_created(): void
+    public static function correctProvider(): array
     {
-        $this->assertEquals('Иван', PersonName::create('Иван', 'first_name', $this->message)->name);
+        return [
+            ['Иван'],
+            ['Testname'],
+        ];
     }
     
-    public function test_person_name_cannot_be_created_if_the_name_is_not_capitalized(): void
+    #[DataProvider('correctProvider')]
+    public function test_success_person_name(string $value): void
     {
-        $this->expectException(RuleException::class);
-        $this->expectExceptionMessage($this->message);
-        PersonName::create('иван', 'first_name', $this->message);
+        $this->assertEquals($value, PersonName::create($value, 'first_name', self::MESSAGE)->name);
     }
-        
     
-    public function test_person_name_cannot_be_created_if_the_name_is_null(): void
+    public static function incorrectProvider(): array
     {
-        $this->expectException(RuleException::class);
-        $this->expectExceptionMessage($this->message);
-        PersonName::create(null, 'first_name', $this->message);
+        return [
+            ['иван'],
+            [''],
+            [null],
+        ];
     }
-        
     
-    public function test_person_name_cannot_be_created_if_the_name_is_empty(): void
+    #[DataProvider('incorrectProvider')]
+    public function test_fail_person_name(string|null $value): void
     {
         $this->expectException(RuleException::class);
-        $this->expectExceptionMessage($this->message);
-        PersonName::create('', 'last_name', $this->message);
+        $this->expectExceptionMessage(self::MESSAGE);
+        PersonName::create($value, 'first_name', self::MESSAGE);
     }
 }

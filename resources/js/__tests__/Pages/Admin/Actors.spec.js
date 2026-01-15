@@ -130,7 +130,7 @@ describe("@/Pages/Admin/Actors.vue", () => {
         const tds = tr[1].findAll('td');
         expect(tds.length).toBe(4);
         expect(tds[0].text()).toBe('2');
-        expect(tds[1].text()).toBe('Nick Wahlberg');
+        expect(tds[1].text()).toBe(actors.data[1].full_name);
         expect(tds[2].getComponent(PencilSvg).props('title')).toBe('Редактировать актёра');
         expect(tds[3].getComponent(TrashSvg).props('title')).toBe('Удалить актёра');
         
@@ -246,7 +246,7 @@ describe("@/Pages/Admin/Actors.vue", () => {
         const tr = tbody.findAll('tr');
         expect(tr.length).toBe(3);
         const activeTr = tr[1];
-        expect(activeTr.text()).toContain(`${actors.data[1].first_name} ${actors.data[1].last_name}`);
+        expect(activeTr.text()).toContain(actors.data[1].full_name);
         
         // Проверяем модальное окно 'Удаления актёра'
         // В начальный момент модальное окно отсутствует

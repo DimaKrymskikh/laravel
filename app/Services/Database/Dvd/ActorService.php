@@ -18,6 +18,12 @@ final class ActorService
     ) {
     }
     
+    /**
+     * Создаёт новую запись в таблице 'dvd.actors'.
+     * 
+     * @param ActorDto $dto
+     * @return Actor
+     */
     public function create(ActorDto $dto): Actor
     {
         $actor = new Actor();

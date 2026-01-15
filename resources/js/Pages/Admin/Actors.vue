@@ -29,10 +29,6 @@ const linksList = [{
 
 const actorsList = inject('actorsList');
 actorsList.setOptions(props.actors);
-    
-const getActorName = function(actor) {
-    return actor.first_name + ' ' + actor.last_name;
-};
 
 // Изменяет число актёров на странице
 const changeNumberOfActorsOnPage = function(newNumber) {
@@ -106,7 +102,7 @@ const handlerTableChange = function(e) {
                 <tbody>
                     <tr v-for="(actor, index) in actors.data" class="hover:bg-green-300">
                         <td class="font-sans">{{ actors.from + index }}</td>
-                        <td>{{ getActorName(actor) }}</td>
+                        <td>{{ actor.full_name }}</td>
                         <td class="update-actor" :data-actor_id="actor.id" :data-actor_first_name="actor.first_name" :data-actor_last_name="actor.last_name">
                             <PencilSvg
                                 title="Редактировать актёра"
@@ -136,4 +132,3 @@ const handlerTableChange = function(e) {
         />
     </AdminLayout>
 </template>
-
