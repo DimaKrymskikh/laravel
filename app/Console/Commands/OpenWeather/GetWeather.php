@@ -3,6 +3,7 @@
 namespace App\Console\Commands\OpenWeather;
 
 use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
+use App\ValueObjects\Date\TimeStringFromSeconds;
 use Illuminate\Console\Command;
 
 class GetWeather extends Command
@@ -31,11 +32,13 @@ class GetWeather extends Command
     public function handle(GetWeatherFromOpenWeatherCommandHandler $handler): void
     {
         $this->info('Старт.');
-        $this->line("$this->description");
+        $start = microtime(true);
+        $this->line($this->description);
         $this->line('');
         
         $handler->handle($this);
         
+        $this->line('Время выполнения: '.TimeStringFromSeconds::create(microtime(true) - $start)->value);
         $this->info('Команда выполнена.');
     }
 }

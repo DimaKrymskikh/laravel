@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Person;
 
 use App\CommandHandlers\Database\Person\FilmsStatisticsAvailableToUsersCommandHandler;
+use App\ValueObjects\Date\TimeStringFromSeconds;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,9 +30,12 @@ class FilmsStatisticsAvailableToUsers extends Command
     public function handle(FilmsStatisticsAvailableToUsersCommandHandler $handler): void
     {
         $this->info('Старт.');
+        $start = microtime(true);
         
         $handler->handle($this);
         
+        $this->newLine();
+        $this->line('Время выполнения: '.TimeStringFromSeconds::create(microtime(true) - $start)->value);
         $this->info('Команда выполнена.');
     }
     

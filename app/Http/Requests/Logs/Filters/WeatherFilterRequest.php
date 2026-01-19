@@ -4,7 +4,7 @@ namespace App\Http\Requests\Logs\Filters;
 
 use App\DataTransferObjects\Database\OpenWeather\Filters\WeatherFilterDto;
 use App\Http\Requests\PaginatorRequest;
-use App\ValueObjects\DateString;
+use App\ValueObjects\Date\DateString;
 
 class WeatherFilterRequest extends PaginatorRequest
 {

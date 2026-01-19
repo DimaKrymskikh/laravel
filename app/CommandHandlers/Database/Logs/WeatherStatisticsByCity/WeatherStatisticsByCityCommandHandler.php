@@ -112,6 +112,7 @@ final class WeatherStatisticsByCityCommandHandler
         $command->newLine();
         $command->line("Максимальная температура: $data->max_temp");
         $command->line("Была достигнута $maxDate");
+        $command->newLine();
     }
     
     /**

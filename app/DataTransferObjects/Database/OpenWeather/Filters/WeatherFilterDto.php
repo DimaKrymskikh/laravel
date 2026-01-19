@@ -2,7 +2,7 @@
 
 namespace App\DataTransferObjects\Database\OpenWeather\Filters;
 
-use App\ValueObjects\DateString;
+use App\ValueObjects\Date\DateString;
 
 final readonly class WeatherFilterDto
 {

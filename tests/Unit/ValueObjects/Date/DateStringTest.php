@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\Unit\ValueObjects;
+namespace Tests\Unit\ValueObjects\Date;
 
-use App\ValueObjects\DateString;
+use App\ValueObjects\Date\DateString;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

@@ -4,7 +4,7 @@ namespace App\DataTransferObjects\Database\OpenWeather;
 
 use App\Models\Thesaurus\City;
 use App\ValueObjects\ArrayItems\TimeInterval;
-use App\ValueObjects\DateString;
+use App\ValueObjects\Date\DateString;
 
 /**
  * Содержит данные для получения статистики погоды.

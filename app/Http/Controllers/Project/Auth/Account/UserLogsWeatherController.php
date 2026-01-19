@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Logs\Filters\WeatherFilterRequest;
 use App\Services\Database\Thesaurus\CityService;
 use App\ValueObjects\ArrayItems\TimeInterval;
-use App\ValueObjects\DateString;
+use App\ValueObjects\Date\DateString;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;

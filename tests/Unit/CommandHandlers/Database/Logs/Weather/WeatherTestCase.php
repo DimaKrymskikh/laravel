@@ -6,7 +6,7 @@ use App\DataTransferObjects\Database\OpenWeather\Filters\WeatherFilterDto;
 use App\DataTransferObjects\Database\OpenWeather\WeatherStatisticsDto;
 use App\Models\Thesaurus\City;
 use App\ValueObjects\ArrayItems\TimeInterval;
-use App\ValueObjects\DateString;
+use App\ValueObjects\Date\DateString;
 use Tests\Unit\UnitTestCase;
 
 abstract class WeatherTestCase extends UnitTestCase

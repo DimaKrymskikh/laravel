@@ -1,6 +1,6 @@
 <?php
 
-namespace App\ValueObjects;
+namespace App\ValueObjects\Date;
 
 /**
  * Проверяет, что строка может быть использована для задания даты в формате 'd.m.Y'.
