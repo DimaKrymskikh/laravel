@@ -49,11 +49,6 @@ final class FilmService
         $this->filmModifiers->delete($filmId);
     }
     
-    public function getFilmById($filmId): Film
-    {
-        return $this->filmQueries->getById($filmId);
-    }
-    
     public function getFilmCard(int $filmId): Film
     {
         return $this->filmQueries->getByIdWithActors($filmId);

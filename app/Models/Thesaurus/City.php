@@ -5,6 +5,7 @@ namespace App\Models\Thesaurus;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\Timezone;
 use App\Models\User;
+use App\Services\Carbon\CarbonService;
 use App\Support\Collections\Thesaurus\CityCollection;
 use Database\Factories\Thesaurus\CityFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -55,5 +56,15 @@ class City extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'person.users_cities', 'city_id', 'user_id');
+    }
+    
+    /**
+     * Возвращает название временной зоны города.
+     * 
+     * @return string
+     */
+    public function getTimezonName(): string
+    {
+        return $this->timezone_id ? $this->timezone->name : CarbonService::DEFAULT_TIMEZONE_NAME;
     }
 }

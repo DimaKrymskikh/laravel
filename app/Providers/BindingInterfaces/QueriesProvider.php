@@ -18,8 +18,6 @@ use App\Queries\Person\UsersCities\UserCityQueries;
 use App\Queries\Person\UsersCities\UserCityQueriesInterface;
 use App\Queries\Person\UsersFilms\UserFilmQueries;
 use App\Queries\Person\UsersFilms\UserFilmQueriesInterface;
-use App\Queries\Quiz\Facades\TrialQueriesFacade;
-use App\Queries\Quiz\Facades\TrialQueriesFacadeInterface;
 use App\Queries\Quiz\QuizAnswers\QuizAnswerQueries;
 use App\Queries\Quiz\QuizAnswers\QuizAnswerQueriesInterface;
 use App\Queries\Quiz\QuizItems\QuizItemQueries;
@@ -59,8 +57,6 @@ final class QueriesProvider extends ServiceProvider
         $this->app->bind(UserCityQueriesInterface::class, UserCityQueries::class);
         
         $this->app->bind(UserFilmQueriesInterface::class, UserFilmQueries::class);
-        
-        $this->app->bind(TrialQueriesFacadeInterface::class, TrialQueriesFacade::class);
         
         $this->app->bind(QuizAnswerQueriesInterface::class, QuizAnswerQueries::class);
         

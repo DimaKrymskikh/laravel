@@ -47,6 +47,11 @@ final class CityQueries extends DBqueries implements CityQueriesInterface
                     ->get();
     }
     
+    /**
+     * {@inheritDoc}
+     * 
+     * @inheritDoc
+     */
     public function getByUserWithWeather(User $user): Collection
     {
         $user->load([

@@ -2,6 +2,8 @@
 
 namespace App\Queries\OpenWeather;
 
+use App\Models\OpenWeather\Weather;
+
 interface OpenWeatherQueriesInterface
 {
     public const NUMBER_OF_ITEMS_IN_CHUNCK = 2;
@@ -14,4 +16,12 @@ interface OpenWeatherQueriesInterface
      * @return void
      */
     public function getListInLazyById(\Closure $callback): void;
+    
+    /**
+     * Извлекает погоду по id-города из таблицы 'open_weather.weather'.
+     * 
+     * @param int $cityId
+     * @return Weather
+     */
+    public function getByCityId(int $cityId): Weather;
 }

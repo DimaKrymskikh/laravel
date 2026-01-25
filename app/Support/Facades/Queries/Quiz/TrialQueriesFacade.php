@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Queries\Quiz\Facades;
+namespace App\Support\Facades\Queries\Quiz;
 
 use App\Models\User;
 use App\Models\Quiz\Quiz;
@@ -36,8 +36,7 @@ final class TrialQueriesFacade implements TrialQueriesFacadeInterface
     /**
      * {@inheritDoc}
      * 
-     * @param int $id - первичный ключ таблицы 'quiz.quiz_answers'
-     * @return QuizAnswer
+     * @inheritDoc
      */
     public function getQuizAnswerTableRow(int $id): QuizAnswer
     {
@@ -47,8 +46,7 @@ final class TrialQueriesFacade implements TrialQueriesFacadeInterface
     /**
      * {@inheritDoc}
      * 
-     * @param int $id - первичный ключ таблицы 'quiz.trial_answers'
-     * @return TrialAnswer
+     * @inheritDoc
      */
     public function getTrialAnswerTableRow(int $id): TrialAnswer
     {
@@ -58,8 +56,7 @@ final class TrialQueriesFacade implements TrialQueriesFacadeInterface
     /**
      * {@inheritDoc}
      * 
-     * @param User $user
-     * @return bool
+     * @inheritDoc
      */
     public function existsActiveTrialByUser(User $user): bool
     {
@@ -69,8 +66,7 @@ final class TrialQueriesFacade implements TrialQueriesFacadeInterface
     /**
      * {@inheritDoc}
      * 
-     * @param User $user
-     * @return Trial
+     * @inheritDoc
      */
     public function getActiveTrialByUserWithAnswers(User $user): Trial
     {
@@ -80,8 +76,7 @@ final class TrialQueriesFacade implements TrialQueriesFacadeInterface
     /**
      * {@inheritDoc}
      * 
-     * @param User $user
-     * @return TrialCollection
+     * @inheritDoc
      */
     public function getListByUserForResults(User $user): TrialCollection
     {
@@ -91,8 +86,7 @@ final class TrialQueriesFacade implements TrialQueriesFacadeInterface
     /**
      * {@inheritDoc}
      * 
-     * @param int $id - id опроса
-     * @return QuizItemCollection
+     * @inheritDoc
      */
     public function getListQuizItemsForActiveTrial(int $id): QuizItemCollection
     {
@@ -102,7 +96,7 @@ final class TrialQueriesFacade implements TrialQueriesFacadeInterface
     /**
      * {@inheritDoc}
      * 
-     * @return QuizCollection
+     * @inheritDoc
      */
     public function getListQuizzesForTrials(): QuizCollection
     {
@@ -112,8 +106,7 @@ final class TrialQueriesFacade implements TrialQueriesFacadeInterface
     /**
      * {@inheritDoc}
      * 
-     * @param int $id - id опроса
-     * @return Quiz
+     * @inheritDoc
      */
     public function getQuizForTrial(int $id): Quiz
     {
@@ -123,8 +116,7 @@ final class TrialQueriesFacade implements TrialQueriesFacadeInterface
     /**
      * {@inheritDoc}
      * 
-     * @param int $id - id опроса
-     * @return Quiz
+     * @inheritDoc
      */
     public function getQuizForTrialWithQuizItems(int $id): Quiz
     {

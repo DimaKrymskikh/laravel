@@ -3,52 +3,29 @@
 namespace Tests\Unit\Events;
 
 use App\Events\RemoveFilmFromUserList;
-use App\Models\Dvd\Film;
-use App\Modifiers\Dvd\Films\FilmModifiersInterface;
-use App\Queries\Dvd\Films\FilmQueriesInterface;
-use App\Services\Database\Dvd\FilmService;
-use App\Services\Database\Person\Dto\UserFilmDto;
 use PHPUnit\Framework\TestCase;
 
 class RemoveFilmFromUserListTest extends TestCase
 {
     private RemoveFilmFromUserList $removeFilmFromUserList;
-    private FilmModifiersInterface $filmModifiers;
-    private FilmService $filmService;
-    private FilmQueriesInterface $filmQueries;
-    private UserFilmDto $dto;
     private int $userId = 2;
-    private int $filmId = 17;
+    private string $filmTitle = 'TestFilmTitle';
     
     public function test_film_can_be_remove_from_user_list(): void
     {
-        $film = new Film();
-        $film->title = 'TestTitle';
-        
-        $this->filmQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->identicalTo($this->filmId))
-                ->willReturn($film);
-        
-        $this->removeFilmFromUserList = new RemoveFilmFromUserList($this->dto, $this->filmService);
-        
         $broadcastWith = $this->removeFilmFromUserList->broadcastWith();
         // Проверка отправляемого сообщения
-        $this->assertEquals($broadcastWith['message'], "Вы удалили из своей коллекции фильм $film->title");
+        $this->assertEquals($broadcastWith['message'], "Вы удалили из своей коллекции фильм $this->filmTitle");
         
         // Проверка имени канала
         $channelName = $this->removeFilmFromUserList->broadcastOn()[0]->name;
         $this->assertEquals($channelName, "private-auth.$this->userId");
         
-        $this->assertSame($film->title, $this->removeFilmFromUserList->getFilmTitle());
+        $this->assertSame($this->filmTitle, $this->removeFilmFromUserList->getFilmTitle());
     }
     
     protected function setUp(): void
     {
-        $this->dto = new UserFilmDto($this->userId, $this->filmId);
-        $this->filmQueries = $this->createMock(FilmQueriesInterface::class);
-        $this->filmModifiers = $this->createMock(FilmModifiersInterface::class);
-        
-        $this->filmService = new FilmService($this->filmQueries, $this->filmModifiers);
+        $this->removeFilmFromUserList = new RemoveFilmFromUserList($this->userId, $this->filmTitle);
     }
 }

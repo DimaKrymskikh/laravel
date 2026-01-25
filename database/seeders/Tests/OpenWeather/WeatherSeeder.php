@@ -3,7 +3,7 @@
 namespace Database\Seeders\Tests\OpenWeather;
 
 use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
-use App\Services\Database\OpenWeather\WeatherService;
+use App\Services\OpenWeather\WeatherService;
 use App\ValueObjects\ResponseObjects\OpenWeatherObject;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;

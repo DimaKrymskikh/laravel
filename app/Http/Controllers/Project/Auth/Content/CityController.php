@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Project\Auth\Content;
 
-use App\Events\AddCityInWeatherList;
-use App\Events\RemoveCityFromWeatherList;
 use App\Http\Controllers\Controller;
 use App\Services\Database\Person\Dto\UserCityDto;
 use App\Services\Database\Person\UserCityService;
@@ -47,8 +45,6 @@ class CityController extends Controller
         $dto = new UserCityDto($request->user()->id, $cityId);
         $this->userCityService->create($dto);
         
-        event(new AddCityInWeatherList($dto, $this->cityService));
-        
         return redirect('cities');
     }
     
@@ -63,8 +59,6 @@ class CityController extends Controller
     {
         $dto = new UserCityDto($request->user()->id, $cityId);
         $this->userCityService->delete($dto);
-        
-        event(new RemoveCityFromWeatherList($dto, $this->cityService));
         
         return redirect('userweather');
     }

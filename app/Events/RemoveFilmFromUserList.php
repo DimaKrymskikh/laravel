@@ -2,8 +2,6 @@
 
 namespace App\Events;
 
-use App\Services\Database\Dvd\FilmService;
-use App\Services\Database\Person\Dto\UserFilmDto;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -13,17 +11,17 @@ use Illuminate\Queue\SerializesModels;
 class RemoveFilmFromUserList implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    
-    private int $userId;
-    private string $filmTitle;
 
     /**
-     * Create a new event instance.
+     * Создаёт событие после удаления фильма из коллекции пользователя.
+     * 
+     * @param int $userId
+     * @param string $filmTitle
      */
-    public function __construct(UserFilmDto $dto, FilmService $filmService)
-    {
-        $this->userId = $dto->userId;
-        $this->filmTitle = $filmService->getFilmById($dto->filmId)->title;
+    public function __construct(
+            private int $userId,
+            private string $filmTitle,
+    ) {
     }
     
     public function getFilmTitle(): string

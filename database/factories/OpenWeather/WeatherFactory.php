@@ -26,7 +26,8 @@ class WeatherFactory extends Factory
             'visibility' => 10000,
             'wind_speed' => 3.25,
             'wind_deg' => 180,
-            'clouds_all' => 40
+            'clouds_all' => 40,
+            'created_at' => now(),
         ];
     }
 }

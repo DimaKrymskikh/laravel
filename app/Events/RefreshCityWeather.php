@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Services\Database\OpenWeather\WeatherService;
+use App\ValueObjects\Broadcast\Weather\CurrentWeatherData;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -14,12 +14,14 @@ class RefreshCityWeather implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * Create a new event instance.
+     * Создаёт событие после обновления записи в таблице 'open_weather.weather'.
+     * 
+     * @param int $userId
+     * @param Weather $weather
      */
     public function __construct(
-            private int $cityId,
             private int $userId,
-            private WeatherService $weatherService
+            private CurrentWeatherData $weather
     ) {
     }
 
@@ -38,7 +40,7 @@ class RefreshCityWeather implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'weather' => $this->weatherService->getLatestWeatherForOneCityByCityId($this->cityId)
+            'weather' => $this->weather->data,
         ];
     }
 }

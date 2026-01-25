@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Queries\Quiz\Facades;
+namespace App\Support\Facades\Queries\Quiz;
 
 use App\Models\User;
 use App\Models\Quiz\Quiz;

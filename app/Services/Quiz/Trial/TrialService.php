@@ -8,7 +8,7 @@ use App\Models\Quiz\Quiz;
 use App\Models\Quiz\Trial;
 use App\Models\Quiz\TrialAnswer;
 use App\Modifiers\Quiz\Facades\TrialModifiersFacadeInterface;
-use App\Queries\Quiz\Facades\TrialQueriesFacadeInterface;
+use App\Support\Facades\Queries\Quiz\TrialQueriesFacadeInterface;
 use App\Services\Quiz\Trial\DataTransferObjects\AnswerDto;
 use App\Services\Quiz\Managers\GradeManager;
 use App\Support\Collections\Quiz\QuizCollection;

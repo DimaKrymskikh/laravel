@@ -14,11 +14,11 @@ final class WeatherModifiers extends Modifiers implements WeatherModifiersInterf
      * 
      * @inheritDoc
      */
-    public function updateOrCreate(Weather $weather, WeatherDto $dto): void
+    public function updateOrCreate(WeatherDto $dto): void
     {
         $data = $dto->openWeatherObject->data;
          
-        $weather::updateOrCreate([
+        Weather::updateOrCreate([
                 'city_id' => $dto->cityId,
             ], [
                 'weather_description' => $data->weatherDescription,

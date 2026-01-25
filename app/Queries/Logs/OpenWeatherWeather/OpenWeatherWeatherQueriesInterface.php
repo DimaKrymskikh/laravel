@@ -15,7 +15,7 @@ interface OpenWeatherWeatherQueriesInterface extends DBqueriesInterface
     
     /**
      * Определяет, имеются ли данные о погоде для города $city за последнии 
-     * GetWeatherFromOpenWeatherCommandHandler::OPEN_WEATHER_CITY_UPDATE_PERIOD минут.
+     * WeatherService::OPEN_WEATHER_CITY_UPDATE_PERIOD минут.
      * 
      * @param int $cityId
      * @return bool

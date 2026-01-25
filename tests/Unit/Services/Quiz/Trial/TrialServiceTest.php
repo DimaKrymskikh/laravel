@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Quiz\Quiz;
 use App\Models\Quiz\Trial;
 use App\Modifiers\Quiz\Facades\TrialModifiersFacadeInterface;
-use App\Queries\Quiz\Facades\TrialQueriesFacadeInterface;
+use App\Support\Facades\Queries\Quiz\TrialQueriesFacadeInterface;
 use App\Services\Quiz\Trial\TrialService;
 use App\Support\Collections\Quiz\QuizCollection;
 use App\Support\Collections\Quiz\QuizItemCollection;

@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Project\Auth\Account;
 
 use App\CommandHandlers\Database\Dvd\Films\FilmsListForPageCommandHandler;
-use App\Events\AddFilmInUserList;
-use App\Events\RemoveFilmFromUserList;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dvd\Filters\FilmFilterRequest;
 use App\Providers\RouteServiceProvider;
@@ -56,8 +54,6 @@ class UserFilmsController extends Controller
         
         $dto = new UserFilmDto($user->id, $filmId);
         $this->userFilmService->create($dto);
-        // Если запись была успешной, пользователь получает оповещение
-        event(new AddFilmInUserList($dto, $this->filmService));
         
         return redirect($this->filmUrls->getUrlWithPaginationOptionsByRequest(
                     RouteServiceProvider::URL_AUTH_FILMS,
@@ -80,8 +76,6 @@ class UserFilmsController extends Controller
         // Удаление фильма с filmId из коллекции пользователя.
         $dto = new UserFilmDto($user->id, $filmId);
         $this->userFilmService->delete($dto);
-        // При успешном удалении фильма пользователь получает оповещение
-        event(new RemoveFilmFromUserList($dto, $this->filmService));
         
         return redirect($this->userFilmUrls->getUrlWithPaginationOptionsAfterRemovingFilm(
                     RouteServiceProvider::URL_AUTH_USERFILMS,

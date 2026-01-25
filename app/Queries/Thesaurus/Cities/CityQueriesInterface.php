@@ -30,6 +30,12 @@ interface CityQueriesInterface extends DBqueriesInterface, QueriesInterface
      */
     public function getByOpenWeatherId(int $openWeatherId): City;
     
+    /**
+     * Возвращает города пользователя с текущей погодой.
+     * 
+     * @param User $user
+     * @return Collection
+     */
     public function getByUserWithWeather(User $user): Collection;
     
     public function getListWithAvailableByUserId(int $userId): CityCollection;

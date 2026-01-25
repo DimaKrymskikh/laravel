@@ -2,9 +2,10 @@
 
 namespace Tests\Unit\CommandHandlers\OpenWeather;
 
-use App\CommandHandlers\OpenWeather\Facades\OpenWeatherFacadeInterface;
 use App\Console\Commands\OpenWeather\GetWeather;
 use App\Models\Thesaurus\City;
+use App\Queries\Thesaurus\Cities\CityQueriesInterface;
+use App\Support\Facades\Services\OpenWeather\OpenWeatherFacadeInterface;
 use App\Support\Collections\Thesaurus\CityCollection;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Http\Client\Response;
@@ -38,14 +39,14 @@ abstract class OpenWeatherTestCase extends TestCase
                 ->make();
     }
     
-    protected function defineSuccessStart(OpenWeatherFacadeInterface $facade, GetWeather $command): City
+    protected function defineSuccessStart(CityQueriesInterface $cityQueries, GetWeather $command): City
     {
         $city = $this->factoryCity();
         
         $this->defineIntArgument($city, $command);
         
-        $facade->expects($this->once())
-                ->method('findCityByOpenWeatherId')
+        $cityQueries->expects($this->once())
+                ->method('getByOpenWeatherId')
                 ->willReturn($city);
         
         return $city;
@@ -79,16 +80,16 @@ abstract class OpenWeatherTestCase extends TestCase
         $command->method('argument')->willReturn(null);
     }
     
-    protected function defineNeverFacade(OpenWeatherFacadeInterface $facade): void
+    protected function defineNeverFacade(OpenWeatherFacadeInterface $facade, CityQueriesInterface $cityQueries): void
     {
-        $facade->expects($this->never())
-                ->method('getAllCitiesList');
+        $cityQueries->expects($this->never())
+                ->method('getList');
         
         $facade->expects($this->never())
-                ->method('checkNumberOfWeatherLinesForLastMinuteLessBaseValue');
+                ->method('getNumberOfWeatherLinesForLastMinute');
         
         $facade->expects($this->never())
-                ->method('checkTooEarlyToSubmitRequestForThisCity');
+                ->method('isTooEarlyToSubmitRequestForThisCity');
         
         $this->defineNeverRequest($facade);
     }
@@ -96,7 +97,7 @@ abstract class OpenWeatherTestCase extends TestCase
     protected function defineNeverRequest(OpenWeatherFacadeInterface $facade): void
     {
         $facade->expects($this->never())
-                ->method('getWeatherByCity');
+                ->method('getWeatherFromOpenWeatherByCity');
         
         $facade->expects($this->never())
                 ->method('updateOrCreate');

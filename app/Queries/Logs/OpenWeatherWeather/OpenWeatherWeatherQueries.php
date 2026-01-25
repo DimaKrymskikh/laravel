@@ -3,7 +3,7 @@
 namespace App\Queries\Logs\OpenWeatherWeather;
 
 use App\Queries\DBqueries;
-use App\Services\Database\Logs\OpenWeatherWeatherService;
+use App\Services\OpenWeather\WeatherService;
 use App\Models\Logs\OpenWeatherWeather;
 
 final class OpenWeatherWeatherQueries extends DBqueries implements OpenWeatherWeatherQueriesInterface
@@ -25,7 +25,7 @@ final class OpenWeatherWeatherQueries extends DBqueries implements OpenWeatherWe
      */
     public function isTooEarlyToSubmitRequestForThisCity(int $cityId): bool
     {
-        $period = OpenWeatherWeatherService::OPEN_WEATHER_CITY_UPDATE_PERIOD;
+        $period = WeatherService::OPEN_WEATHER_CITY_UPDATE_PERIOD;
         
         return OpenWeatherWeather::where('city_id', $cityId)
                 ->whereRaw("created_at > now() - interval '$period minute'")

@@ -4,34 +4,44 @@ namespace Tests\Unit\CommandHandlers\OpenWeather;
 
 use App\Exceptions\DatabaseException;
 use App\Exceptions\OpenWeatherException;
-use App\CommandHandlers\OpenWeather\Facades\OpenWeatherFacadeInterface;
 use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
 use App\Console\Commands\OpenWeather\GetWeather;
+use App\Modifiers\Thesaurus\Cities\CityModifiersInterface;
+use App\Queries\Thesaurus\Cities\CityQueriesInterface;
+use App\Support\Facades\Services\OpenWeather\OpenWeatherFacadeInterface;
+use App\Services\OpenWeather\WeatherService;
+use App\Services\Database\Thesaurus\CityService;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Client\Response;
 
 class GetWeatherFromOpenWeatherCommandHandlerTest extends OpenWeatherTestCase
 {
     private GetWeatherFromOpenWeatherCommandHandler $handler;
     private GetWeather $command;
-    private OpenWeatherFacadeInterface $facade;
+    private WeatherService $weatherService;
+    private CityService $cityService;
     private Response $response;
     private OpenWeatherException $openWeatherException;
+    private OpenWeatherFacadeInterface $openWeatherFacade;
+    private CityModifiersInterface $cityModifiers;
+    private CityQueriesInterface $cityQueries;
+    private Dispatcher $dispatcher;
 
     public function test_success_handle_one_city(): void
     {
-        $city = $this->defineSuccessStart($this->facade, $this->command);
+        $city = $this->defineSuccessStart($this->cityQueries, $this->command);
         
         $this->defineSuccessResponse($this->response);
         
-        $this->facade->expects($this->never())
-                ->method('getAllCitiesList');
+        $this->cityQueries->expects($this->never())
+                ->method('getList');
         
-        $this->facade->expects($this->once())
-                ->method('getWeatherByCity')
+        $this->openWeatherFacade->expects($this->once())
+                ->method('getWeatherFromOpenWeatherByCity')
                 ->with($this->identicalTo($city))
                 ->willReturn($this->response);
         
-        $this->facade->expects($this->once())
+        $this->openWeatherFacade->expects($this->once())
                 ->method('updateOrCreate');
         
         $this->assertNull($this->handler->handle($this->command));
@@ -41,10 +51,10 @@ class GetWeatherFromOpenWeatherCommandHandlerTest extends OpenWeatherTestCase
     {
         $this->defineStringArgument($this->command);
         
-        $this->facade->expects($this->never())
-                ->method('findCityByOpenWeatherId');
+        $this->cityQueries->expects($this->never())
+                ->method('getByOpenWeatherId');
         
-        $this->defineNeverFacade($this->facade);
+        $this->defineNeverFacade($this->openWeatherFacade, $this->cityQueries);
         
         $this->handler->handle($this->command);
     }
@@ -53,59 +63,59 @@ class GetWeatherFromOpenWeatherCommandHandlerTest extends OpenWeatherTestCase
     {
         $this->defineIntArgument($this->factoryCity(), $this->command);
         
-        $this->facade->expects($this->once())
-                ->method('findCityByOpenWeatherId')
+        $this->cityQueries->expects($this->once())
+                ->method('getByOpenWeatherId')
                 ->willThrowException(new DatabaseException(''));
         
-        $this->defineNeverFacade($this->facade);
+        $this->defineNeverFacade($this->openWeatherFacade, $this->cityQueries);
         
         $this->handler->handle($this->command);
     }
 
     public function test_fail_handle_request_limit_exceeded(): void
     {
-        $this->defineSuccessStart($this->facade, $this->command);
+        $this->defineSuccessStart($this->cityQueries, $this->command);
         
-        $this->facade->expects($this->once())
-                ->method('checkNumberOfWeatherLinesForLastMinuteLessBaseValue')
+        $this->openWeatherFacade->expects($this->once())
+                ->method('getNumberOfWeatherLinesForLastMinute')
                 ->willThrowException($this->openWeatherException);
         
         $this->openWeatherException->expects($this->once())
                 ->method('report');
         
-        $this->defineNeverRequest($this->facade);
+        $this->defineNeverRequest($this->openWeatherFacade);
         
         $this->handler->handle($this->command);
     }
 
     public function test_fail_handle_little_time_has_passed(): void
     {
-        $this->defineSuccessStart($this->facade, $this->command);
+        $this->defineSuccessStart($this->cityQueries, $this->command);
         
-        $this->facade->expects($this->once())
-                ->method('checkTooEarlyToSubmitRequestForThisCity')
+        $this->openWeatherFacade->expects($this->once())
+                ->method('isTooEarlyToSubmitRequestForThisCity')
                 ->willThrowException($this->openWeatherException);
         
         $this->openWeatherException->expects($this->once())
                 ->method('report');
         
-        $this->defineNeverRequest($this->facade);
+        $this->defineNeverRequest($this->openWeatherFacade);
         
         $this->handler->handle($this->command);
     }
 
     public function test_fail_handle_fail_response(): void
     {
-        $city = $this->defineSuccessStart($this->facade, $this->command);
+        $city = $this->defineSuccessStart($this->cityQueries, $this->command);
         
         $this->defineFailResponse($this->response);
         
-        $this->facade->expects($this->once())
-                ->method('getWeatherByCity')
+        $this->openWeatherFacade->expects($this->once())
+                ->method('getWeatherFromOpenWeatherByCity')
                 ->with($this->identicalTo($city))
                 ->willReturn($this->response);
         
-        $this->facade->expects($this->never())
+        $this->openWeatherFacade->expects($this->never())
                 ->method('updateOrCreate');
         
         $this->handler->handle($this->command);
@@ -120,18 +130,18 @@ class GetWeatherFromOpenWeatherCommandHandlerTest extends OpenWeatherTestCase
         
         $this->defineNullArgument($this->command);
         
-        $this->facade->expects($this->never())
-                ->method('findCityByOpenWeatherId');
+        $this->cityQueries->expects($this->never())
+                ->method('getByOpenWeatherId');
         
-        $this->facade->expects($this->once())
-                ->method('getAllCitiesList')
+        $this->cityQueries->expects($this->once())
+                ->method('getList')
                 ->willReturn($cities);
         
-        $this->facade->expects($this->exactly($nCity))
-                ->method('getWeatherByCity')
+        $this->openWeatherFacade->expects($this->exactly($nCity))
+                ->method('getWeatherFromOpenWeatherByCity')
                 ->willReturn($this->response);
         
-        $this->facade->expects($this->exactly($nCity))
+        $this->openWeatherFacade->expects($this->exactly($nCity))
                 ->method('updateOrCreate');
         
         $this->assertNull($this->handler->handle($this->command));
@@ -142,8 +152,15 @@ class GetWeatherFromOpenWeatherCommandHandlerTest extends OpenWeatherTestCase
         $this->openWeatherException = $this->createStub(OpenWeatherException::class);
         $this->response = $this->createStub(Response::class);
         $this->command = $this->createStub(GetWeather::class);
-        $this->facade = $this->createMock(OpenWeatherFacadeInterface::class);
         
-        $this->handler = new GetWeatherFromOpenWeatherCommandHandler($this->facade);
+        $this->openWeatherFacade = $this->createMock(OpenWeatherFacadeInterface::class);
+        $this->dispatcher = $this->createMock(Dispatcher::class);
+        $this->weatherService = new WeatherService($this->openWeatherFacade, $this->dispatcher);
+        
+        $this->cityModifiers = $this->createMock(CityModifiersInterface::class);
+        $this->cityQueries = $this->createMock(CityQueriesInterface::class);
+        $this->cityService = new CityService($this->cityModifiers, $this->cityQueries);
+        
+        $this->handler = new GetWeatherFromOpenWeatherCommandHandler($this->weatherService, $this->cityService);
     }
 }

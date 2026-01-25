@@ -30,4 +30,14 @@ final class OpenWeatherQueries implements OpenWeatherQueriesInterface
             ->lazyById(self::NUMBER_OF_ITEMS_IN_CHUNCK, column: 'id')
             ->each($callback);
     }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * @inheritDoc
+     */
+    public function getByCityId(int $cityId): Weather
+    {
+        return Weather::where('city_id', $cityId)->first();
+    }
 }

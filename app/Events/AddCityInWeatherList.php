@@ -2,8 +2,6 @@
 
 namespace App\Events;
 
-use App\Services\Database\Person\Dto\UserCityDto;
-use App\Services\Database\Thesaurus\CityService;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -13,19 +11,17 @@ use Illuminate\Queue\SerializesModels;
 class AddCityInWeatherList implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
-    private int $userId;
-    private int $cityId;
-    private CityService $cityService;
     
     /**
-     * Create a new event instance.
+     * Создаёт событие после добавления города в список просмотра погоды пользователя.
+     * 
+     * @param int $userId
+     * @param string $cityName
      */
-    public function __construct(UserCityDto $dto, CityService $cityService)
-    {
-        $this->userId = $dto->userId;
-        $this->cityId = $dto->cityId;
-        $this->cityService = $cityService;
+    public function __construct(
+            private int $userId,
+            private string $cityName,
+    ) {
     }
 
     /**
@@ -42,8 +38,6 @@ class AddCityInWeatherList implements ShouldBroadcast
     
     public function broadcastWith(): array
     {
-        $cityName = $this->cityService->getCityById($this->cityId)->name;
-        
-        return ['message' => "Вы добавили город $cityName в список просмотра погоды"];
+        return ['message' => "Вы добавили город $this->cityName в список просмотра погоды"];
     }
 }
