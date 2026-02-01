@@ -17,7 +17,7 @@ final readonly class CurrentWeatherData
     
     private function __construct(Weather $weather, City $city)
     {
-        $tzName = $city->getTimezonName();
+        $tzName = $city->getTimezoneName();
         
         $createdAt = CarbonService::setNewTimezoneInString($weather->created_at, 'UTC', $tzName, DateFormat::Full);
         

@@ -6,7 +6,6 @@ use App\DataTransferObjects\Database\OpenWeather\WeatherStatisticsDto;
 use App\Queries\Logs\OpenWeatherWeather\OpenWeatherWeatherQueriesInterface;
 use App\Services\Carbon\Enums\DateFormat;
 use App\Services\Carbon\CarbonService;
-use App\Services\Database\Thesaurus\TimezoneService;
 use Carbon\Carbon;
 
 /**
@@ -16,7 +15,6 @@ final class WeatherStatisticsByPeriodicityIntervalCommandHandler
 {
     public function __construct(
             private OpenWeatherWeatherQueriesInterface $queries,
-            private TimezoneService $timezoneService
     ) {
     }
     
@@ -46,7 +44,7 @@ final class WeatherStatisticsByPeriodicityIntervalCommandHandler
         $weatherIntervals = $this->queries->getArray($query);
         
         // Форматируем данные.
-        $tzName = $this->timezoneService->getTimezoneByCity($dto->city);
+        $tzName = $dto->city->getTimezoneName();
         $this->setFormat($weatherAll, $tzName);
         foreach($weatherIntervals as $item) {
             $this->setFormat($item, $tzName);

@@ -18,6 +18,11 @@ final class CityQueries extends DBqueries implements CityQueriesInterface
         return City::where('id', $id)->exists();
     }
     
+    /**
+     * {@inheritDoc}
+     * 
+     * @inheritDoc
+     */
     public function getById(int $id): City
     {
         return City::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
@@ -42,7 +47,6 @@ final class CityQueries extends DBqueries implements CityQueriesInterface
     public function getList(): CityCollection
     {
         return City::select('id', 'name', 'open_weather_id', 'timezone_id')
-                    ->with('timezone:id,name')
                     ->orderBy('name')
                     ->get();
     }

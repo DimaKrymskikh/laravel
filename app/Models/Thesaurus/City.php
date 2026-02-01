@@ -33,6 +33,8 @@ class City extends Model
     
     public $timestamps = false;
     
+    protected $with = ['timezone'];
+    
     public function newCollection(array $models = []): CityCollection
     {
         return new CityCollection($models);
@@ -63,7 +65,7 @@ class City extends Model
      * 
      * @return string
      */
-    public function getTimezonName(): string
+    public function getTimezoneName(): string
     {
         return $this->timezone_id ? $this->timezone->name : CarbonService::DEFAULT_TIMEZONE_NAME;
     }

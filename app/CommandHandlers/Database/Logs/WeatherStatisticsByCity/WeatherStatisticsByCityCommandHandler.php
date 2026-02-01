@@ -8,7 +8,6 @@ use App\Console\Commands\Logs\WeatherStatisticsByCity;
 use App\Queries\Thesaurus\Cities\CityQueriesInterface;
 use App\Services\Carbon\Enums\DateFormat;
 use App\Services\Carbon\CarbonService;
-use App\Services\Database\Thesaurus\TimezoneService;
 use App\ValueObjects\ScalarTypes\SimpleStringValue;
 use App\ValueObjects\IntValue;
 
@@ -16,7 +15,6 @@ final class WeatherStatisticsByCityCommandHandler
 {
     public function __construct(
             private CityQueriesInterface $queries,
-            private TimezoneService $timezoneService,
     ) {
     }
     
@@ -62,7 +60,7 @@ final class WeatherStatisticsByCityCommandHandler
     private function renderStatisticsForCity(object $data, WeatherStatisticsByCity $command): void
     {
         $city = $this->queries->getById($data->id);
-        $tz = $this->timezoneService->getTimezoneByCity($city);
+        $tz = $city->getTimezoneName();
         
         $minTempDate = $this->processForCity(SimpleStringValue::create($data->min_temp_date), $tz);
         $maxTempDate = $this->processForCity(SimpleStringValue::create($data->max_temp_date), $tz);
@@ -129,7 +127,7 @@ final class WeatherStatisticsByCityCommandHandler
         foreach($arrDate as $item) {
             [$cityId, $strDate] = explode('_', $item);
             $city = $this->queries->getById($cityId);
-            $tz = $this->timezoneService->getTimezoneByCity($city);
+            $tz = $city->getTimezoneName();
             $newDate = CarbonService::setNewTimezoneInString($strDate, 'UTC', $tz, DateFormat::Full);
             $newArrDate[] = "$city->name: $newDate";
         }

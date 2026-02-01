@@ -24,18 +24,6 @@ final class TimezoneService
     }
     
     /**
-     * Возвращает временной пояс города
-     * 
-     * @param City $city
-     * @return string
-     */
-    public function getTimezoneByCity(City $city): string
-    {
-        // Если для города не задан временной пояс, берём дефолтный
-        return $city->timezone_id ? $city->timezone->name : CarbonService::DEFAULT_TIMEZONE_NAME;
-    }
-    
-    /**
      * Устанавливает в данных погоды временной пояс города.
      * (В базе время создания строки с данными погоды имеет часовой пояс приложения)
      * 
@@ -45,7 +33,7 @@ final class TimezoneService
      */
     public function setCityTimezoneForWeatherData(City $city, OpenWeatherWeather|Weather $weather): void
     {
-        $tzName = $this->getTimezoneByCity($city);
+        $tzName = $city->getTimezoneName();
         $weather->created_at = CarbonService::setNewTimezone($weather->created_at, $tzName);
     }
     
@@ -58,7 +46,7 @@ final class TimezoneService
      */
     public function setCityTimezoneForCollectionOfWeatherData(City $city, SupportCollection $weatherCollection): void
     {
-        $tzName = $this->getTimezoneByCity($city);
+        $tzName = $city->getTimezoneName();
         foreach($weatherCollection as $weather) {
             $weather->created_at = CarbonService::setNewTimezone($weather->created_at, $tzName);
         }

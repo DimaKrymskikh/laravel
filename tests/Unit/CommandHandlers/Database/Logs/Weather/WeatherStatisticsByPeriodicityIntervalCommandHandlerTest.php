@@ -4,15 +4,11 @@ namespace Tests\Unit\CommandHandlers\Database\Logs\Weather;
 
 use App\CommandHandlers\Database\Logs\Weather\WeatherStatisticsByPeriodicityIntervalCommandHandler;
 use App\Queries\Logs\OpenWeatherWeather\OpenWeatherWeatherQueriesInterface;
-use App\Queries\Thesaurus\Timezones\TimezoneQueriesInterface;
-use App\Services\Database\Thesaurus\TimezoneService;
 
 class WeatherStatisticsByPeriodicityIntervalCommandHandlerTest extends WeatherTestCase
 {
     private WeatherStatisticsByPeriodicityIntervalCommandHandler $handler;
     private OpenWeatherWeatherQueriesInterface $queries;
-    private TimezoneQueriesInterface $timezoneQueries;
-    private TimezoneService $timezoneService;
     
     public function test_success_handle(): void
     {
@@ -33,9 +29,7 @@ class WeatherStatisticsByPeriodicityIntervalCommandHandlerTest extends WeatherTe
     protected function setUp(): void
     {
         $this->queries = $this->createMock(OpenWeatherWeatherQueriesInterface::class);
-        $this->timezoneQueries = $this->createMock(TimezoneQueriesInterface::class);
-        $this->timezoneService = new TimezoneService($this->timezoneQueries);
         
-        $this->handler = new WeatherStatisticsByPeriodicityIntervalCommandHandler($this->queries, $this->timezoneService);
+        $this->handler = new WeatherStatisticsByPeriodicityIntervalCommandHandler($this->queries);
     }
 }

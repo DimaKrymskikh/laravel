@@ -9,8 +9,6 @@ use App\Console\Commands\Logs\WeatherStatisticsByCity;
 use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
 use App\Queries\Thesaurus\Cities\CityQueriesInterface;
-use App\Queries\Thesaurus\Timezones\TimezoneQueriesInterface;
-use App\Services\Database\Thesaurus\TimezoneService;
 use PHPUnit\Framework\TestCase;
 
 class WeatherStatisticsByCityCommandHandlerTest extends TestCase
@@ -18,8 +16,6 @@ class WeatherStatisticsByCityCommandHandlerTest extends TestCase
     private WeatherStatisticsByCityCommandHandler $handler;
     private WeatherStatisticsByCity $command;
     private CityQueriesInterface $queries;
-    private TimezoneQueriesInterface $timezoneQueries;
-    private TimezoneService $timezoneService;
     
     public function test_success_handle_all_cities(): void
     {
@@ -94,9 +90,7 @@ class WeatherStatisticsByCityCommandHandlerTest extends TestCase
     {
         $this->command = $this->createStub(WeatherStatisticsByCity::class);
         $this->queries = $this->createMock(CityQueriesInterface::class);
-        $this->timezoneQueries = $this->createMock(TimezoneQueriesInterface::class);
-        $this->timezoneService = new TimezoneService($this->timezoneQueries);
         
-        $this->handler = new WeatherStatisticsByCityCommandHandler($this->queries, $this->timezoneService);
+        $this->handler = new WeatherStatisticsByCityCommandHandler($this->queries);
     }
 }

@@ -23,6 +23,14 @@ interface CityQueriesInterface extends DBqueriesInterface, QueriesInterface
     public function getList(): CityCollection;
     
     /**
+     * Получить из таблицы 'thesaurus.cities' запись с первичным ключом id
+     * 
+     * @param int $id
+     * @return City
+     */
+    public function getById(int $id): City;
+    
+    /**
      * Возвращает город по id-города в сервисе OpenWeather
      * 
      * @param int $openWeatherId id-города в сервисе OpenWeather
