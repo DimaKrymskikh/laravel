@@ -72,12 +72,12 @@ final class QuizStatusManager
     }
     
     /**
-     * Возвращает величину нового статуса опроса
+     * Возвращает новый статус опроса
      * 
-     * @return string
+     * @return QuizStatus
      */
-    public function getNewStatusValue(): string
+    public function getNewStatus(): QuizStatus
     {
-        return $this->newStatus->value;
+        return $this->newStatus;
     }
 }

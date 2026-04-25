@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Quiz\StoreQuizRequest;
 use App\Services\Quiz\Fields\QuizField;
 use App\Services\Quiz\Admin\AdminQuizService;
-use App\Services\Quiz\Enums\ValueObjects\QuizStatusValue;
+use App\Services\Quiz\Enums\QuizStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -81,7 +81,7 @@ class QuizController extends Controller
      */
     public function setFinalStatus(Request $request, int $id): RedirectResponse
     {
-        $this->adminQuizService->setFinalStatus(QuizStatusValue::create($request->input('status')), $id);
+        $this->adminQuizService->setFinalStatus(QuizStatus::from($request->input('status')), $id);
         
         return redirect()->route('admin.quizzes.index');
     }

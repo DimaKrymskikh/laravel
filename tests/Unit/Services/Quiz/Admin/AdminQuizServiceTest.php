@@ -7,7 +7,6 @@ use App\Models\Quiz\Quiz;
 use App\Modifiers\Quiz\QuizModifiersInterface;
 use App\Queries\Quiz\Quizzes\QuizQueriesInterface;
 use App\Services\Quiz\Admin\AdminQuizService;
-use App\Services\Quiz\Enums\ValueObjects\QuizStatusValue;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\StatusInterface;
 use App\Support\Collections\Quiz\QuizCollection;
@@ -175,7 +174,7 @@ final class AdminQuizServiceTest extends QuizTestCase
     
     public function test_success_setFinalStatus(): void
     {
-        $status = QuizStatusValue::create('removed');
+        $status = QuizStatus::from('removed');
         $quizItems = $this->factoryQuizItems(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS, 0);
         $quiz = $this->factoryQuizWithQuizItems($quizItems, QuizStatus::AtWork);
         

@@ -50,7 +50,7 @@ final class QuizItemStatusManagerTest extends QuizTestCase
         $quizItemStatusManager = $this->getDefaultQuizItemStatusManager();
         $quizItemStatusManager->approveNewStatus(QuizItemStatus::Removed);
         
-        $this->assertEquals(QuizItemStatus::Removed->value, $quizItemStatusManager->getNewStatusValue());
+        $this->assertEquals(QuizItemStatus::Removed->value, $quizItemStatusManager->getNewStatus()->value);
     }
     
     public function test_fail_approveNewStatus_automatic_status(): void

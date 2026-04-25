@@ -8,7 +8,6 @@ use App\Modifiers\Quiz\QuizItemModifiersInterface;
 use App\Queries\Quiz\QuizItems\QuizItemQueriesInterface;
 use App\Queries\Quiz\Quizzes\QuizQueriesInterface;
 use App\Services\Quiz\Admin\AdminQuizItemService;
-use App\Services\Quiz\Enums\ValueObjects\QuizItemStatusValue;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Fields\QuizItemField;
@@ -95,7 +94,7 @@ final class AdminQuizItemServiceTest extends QuizTestCase
     
     public function test_success_setFinalStatus(): void
     {
-        $status = QuizItemStatusValue::create('removed');
+        $status = QuizItemStatus::from('removed');
         $quizItem = $this->factoryQuizItemWithAnswers(QuizItemStatus::AtWork, QuizItem::MINIMUM_ANSWERS_FOR_READY_STATUS, true, true, true);
         
         $this->quizItemQueries->expects($this->once())

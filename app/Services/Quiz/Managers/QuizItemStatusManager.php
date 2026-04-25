@@ -78,12 +78,12 @@ final class QuizItemStatusManager
     }
     
     /**
-     * Возвращает величину нового статуса вопроса
+     * Возвращает новый статус вопроса
      * 
-     * @return string
+     * @return QuizItemStatus
      */
-    public function getNewStatusValue(): string
+    public function getNewStatus(): QuizItemStatus
     {
-        return $this->newStatus->value;
+        return $this->newStatus;
     }
 }

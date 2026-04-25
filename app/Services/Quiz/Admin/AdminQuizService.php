@@ -7,7 +7,6 @@ use App\Models\Quiz\Quiz;
 use App\Models\Quiz\QuizItem;
 use App\Modifiers\Quiz\QuizModifiersInterface;
 use App\Queries\Quiz\Quizzes\QuizQueriesInterface;
-use App\Services\Quiz\Enums\ValueObjects\QuizStatusValue;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Fields\DataTransferObjects\QuizDto;
@@ -118,7 +117,7 @@ final class AdminQuizService
         $quizStatusManager->defineNewStatus();
         
         if ($quizStatusManager->checkOldAndNewStatusAreNotEqual()) {
-            $quiz->status = $quizStatusManager->getNewStatusValue();
+            $quiz->status = $quizStatusManager->getNewStatus()->value;
             $this->quizModifiers->save($quiz);
         }
         
@@ -128,17 +127,17 @@ final class AdminQuizService
     /**
      * Задаёт статус опроса ручным управлением
      * 
-     * @param QuizStatusValue $newStatus
+     * @param QuizStatus $newStatus
      * @param int $id - id опроса
      * @return Quiz
      */
-    public function setFinalStatus(QuizStatusValue $newStatus, int $id): Quiz
+    public function setFinalStatus(QuizStatus $newStatus, int $id): Quiz
     {
         $quiz = $this->quizQueries->getById($id);
         $quizStatusManager = new QuizStatusManager($quiz);
-        $quizStatusManager->approveNewStatus($newStatus->status);
+        $quizStatusManager->approveNewStatus($newStatus);
         
-        $quiz->status = $quizStatusManager->getNewStatusValue();
+        $quiz->status = $quizStatusManager->getNewStatus()->value;
         $this->quizModifiers->save($quiz);
         
         return $quiz;
@@ -153,12 +152,12 @@ final class AdminQuizService
     public function cancelFinalStatus(int $id): Quiz
     {
         $quiz = $this->quizQueries->getById($id);
-        QuizStatusValue::create($quiz->status)->checkFinalStatus();
+        QuizStatus::from($quiz->status)->checkFinalStatus();
         
         $quizStatusManager = new QuizStatusManager($quiz);
         $quizStatusManager->defineNewStatus();
         
-        $quiz->status = $quizStatusManager->getNewStatusValue();
+        $quiz->status = $quizStatusManager->getNewStatus()->value;
         $this->quizModifiers->save($quiz);
         
         return $quiz;

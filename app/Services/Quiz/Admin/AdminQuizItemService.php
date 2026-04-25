@@ -6,8 +6,6 @@ use App\Models\Quiz\QuizItem;
 use App\Modifiers\Quiz\QuizItemModifiersInterface;
 use App\Queries\Quiz\QuizItems\QuizItemQueriesInterface;
 use App\Queries\Quiz\Quizzes\QuizQueriesInterface;
-use App\Services\Quiz\Enums\ValueObjects\QuizItemStatusValue;
-use App\Services\Quiz\Enums\ValueObjects\QuizStatusValue;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Fields\DataTransferObjects\QuizItemDto;
@@ -48,7 +46,7 @@ final class AdminQuizItemService
     public function create(QuizItemDto $dto): QuizItem
     {
         $quiz = $this->quizQueries->getById($dto->quizId);
-        QuizStatusValue::create($quiz->status)->allowQuizChanges();
+        QuizStatus::from($quiz->status)->allowQuizChanges();
         
         $quizItem = new QuizItem();
         $quizItem->quiz_id = $dto->quizId;
@@ -95,7 +93,7 @@ final class AdminQuizItemService
         $manager->defineNewStatus();
         
         if ($manager->checkOldAndNewStatusAreNotEqual()) {
-            $quizItem->status = $manager->getNewStatusValue();
+            $quizItem->status = $manager->getNewStatus()->value;
             $this->quizItemModifiers->save($quizItem);
         }
         
@@ -106,18 +104,18 @@ final class AdminQuizItemService
      * Изменяет статус вопроса ручным управлением
      * 
      * @param int $id - id вопроса
-     * @param QuizItemStatusValue $newStatus
+     * @param QuizItemStatus $newStatus
      * @return QuizItem
      */
-    public function setFinalStatus(int $id, QuizItemStatusValue $newStatus): QuizItem
+    public function setFinalStatus(int $id, QuizItemStatus $newStatus): QuizItem
     {
         $quizItem = $this->quizItemQueries->getByIdWithAnswers($id);
         $this->checkQuizItemEditabilityByStatuses($quizItem->quiz->status, $quizItem->status);
         
         $manager = new QuizItemStatusManager($quizItem);
-        $manager->approveNewStatus($newStatus->status);
+        $manager->approveNewStatus($newStatus);
         
-        $quizItem->status = $manager->getNewStatusValue();
+        $quizItem->status = $manager->getNewStatus()->value;
         $this->quizItemModifiers->save($quizItem);
         
         return $quizItem;
@@ -132,12 +130,12 @@ final class AdminQuizItemService
     public function cancelFinalStatus(int $id): QuizItem
     {
         $quizItem = $this->quizItemQueries->getByIdWithAnswers($id);
-        QuizItemStatusValue::create($quizItem->status)->checkFinalStatus();
+        QuizItemStatus::from($quizItem->status)->checkFinalStatus();
         
         $manager = new QuizItemStatusManager($quizItem);
         $manager->defineNewStatus();
         
-        $quizItem->status = $manager->getNewStatusValue();
+        $quizItem->status = $manager->getNewStatus()->value;
         $this->quizItemModifiers->save($quizItem);
         
         return $quizItem;
@@ -152,7 +150,7 @@ final class AdminQuizItemService
      */
     private function checkQuizItemEditabilityByStatuses(string $quizStatus, string $quizItemStatus): void
     {
-        QuizStatusValue::create($quizStatus)->allowQuizChanges();
-        QuizItemStatusValue::create($quizItemStatus)->allowQuizItemChanges();
+        QuizStatus::from($quizStatus)->allowQuizChanges();
+        QuizItemStatus::from($quizItemStatus)->allowQuizItemChanges();
     }
 }

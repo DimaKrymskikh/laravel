@@ -2,6 +2,7 @@
 
 namespace App\Services\Quiz\Enums;
 
+use App\Exceptions\RuleException;
 use App\Services\Quiz\StatusInterface;
 
 /**
@@ -22,10 +23,39 @@ enum QuizStatus: string
     public const MESSAGE_NOT_FINAL_STATUS = 'Статус опроса "%s" не является финальным.';
     public const MESSAGE_STATUS_NOT_FOR_USERS = 'Опрос со статусом "%s" не может быть представлен пользователям.';
 
+    /**
+     * Возвращает сопутствующую статусу информацию.
+     * 
+     * @return StatusInterface
+     */
     public function getInfo(): StatusInterface
     {
         $status = '\App\Services\Quiz\Enums\QuizStatuses\\'.$this->name.'Status';
         
         return new $status();
+    }
+    
+    /**
+     * Проверяет, что опрос можно редактировать
+     * 
+     * @return true
+     * @throws RuleException
+     */
+    public function allowQuizChanges(): true
+    {
+        return collect(self::AUTOMATIC_STATUSES)->contains($this) ?:
+            throw new RuleException('message', sprintf(self::MESSAGE_FINAL_STATUS_NOT_EDITABLE, $this->getInfo()->name));
+    }
+    
+    /**
+     * Проверяет, что статус опроса можно отменить ручным управление
+     * 
+     * @return true
+     * @throws RuleException
+     */
+    public function checkFinalStatus(): true
+    {
+        return collect(self::MANUAL_CONTROL_STATUSES)->contains($this) ?:
+            throw new RuleException('message', sprintf(self::MESSAGE_NOT_FINAL_STATUS, $this->getInfo()->name));
     }
 }

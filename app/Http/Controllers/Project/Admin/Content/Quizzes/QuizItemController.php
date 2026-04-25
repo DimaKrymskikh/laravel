@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Project\Admin\Content\Quizzes;
 use App\Http\Controllers\Controller;
 use App\Services\Quiz\Admin\AdminQuizItemService;
 use App\Services\Quiz\Admin\AdminQuizService;
-use App\Services\Quiz\Enums\ValueObjects\QuizItemStatusValue;
+use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Fields\DataTransferObjects\QuizItemDto;
 use App\Services\Quiz\Fields\QuizItemField;
 use App\ValueObjects\ScalarTypes\SimpleStringValue;
@@ -93,7 +93,7 @@ class QuizItemController extends Controller
      */
     public function setFinalStatus(Request $request, int $id): RedirectResponse
     {
-        $status = QuizItemStatusValue::create($request->input('status'));
+        $status = QuizItemStatus::from($request->input('status'));
         
         $quizItem = DB::transaction(function() use ($id, $status) {
             $quizItem = $this->adminQuizItemService->setFinalStatus($id, $status);

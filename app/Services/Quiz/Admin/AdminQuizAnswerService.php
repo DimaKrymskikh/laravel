@@ -6,8 +6,6 @@ use App\Models\Quiz\QuizAnswer;
 use App\Modifiers\Quiz\QuizAnswerModifiersInterface;
 use App\Queries\Quiz\QuizAnswers\QuizAnswerQueriesInterface;
 use App\Queries\Quiz\QuizItems\QuizItemQueriesInterface;
-use App\Services\Quiz\Enums\ValueObjects\QuizItemStatusValue;
-use App\Services\Quiz\Enums\ValueObjects\QuizStatusValue;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Fields\DataTransferObjects\QuizAnswerDto;
@@ -107,7 +105,7 @@ final class AdminQuizAnswerService
      */
     private function checkAnswerEditabilityByStatuses(string $quizStatus, string $quizItemStatus): void
     {
-        QuizStatusValue::create($quizStatus)->allowQuizChanges();
-        QuizItemStatusValue::create($quizItemStatus)->allowQuizItemChanges();
+        QuizStatus::from($quizStatus)->allowQuizChanges();
+        QuizItemStatus::from($quizItemStatus)->allowQuizItemChanges();
     }
 }
