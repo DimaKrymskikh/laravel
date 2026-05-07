@@ -44,7 +44,7 @@ const linksList = [{
 
         <div class="mb-4">
             <span class="text-orange-800">Статус опроса: </span>
-            <span :class="quiz.status.style">{{ quiz.status.name }}</span>
+            <span :class="quiz.status_info.style">{{ quiz.status_info.name }}</span>
         </div>
         
         <div class="mb-4">
@@ -67,8 +67,8 @@ const linksList = [{
                     <td class="text-center">{{ index + 1 }}</td>
                     <QuizItemDescriptionColumn :quizItem="item"/>
                     <QuizItemPriorityColumn :quizItem="item"/>
-                    <td class="text-center" :class="item.status.style">
-                        {{ item.status.name }}
+                    <td class="text-center" :class="item.status_info.style">
+                        {{ item.status_info.name }}
                     </td>
                     <td>
                         <Link :href="`/admin/quiz_items/${item.id}`">

@@ -9,9 +9,9 @@ const props = defineProps({
     quiz: Object
 });
 
-const isEditable = ref(props.quiz.status.isEditable);
+const isEditable = ref(props.quiz.status_info.isEditable);
 
-const fnIsRemoved = (quiz) => quiz.status.name === 'удалён';
+const fnIsRemoved = (quiz) => quiz.status_info.name === 'удалён';
 const isRemoved = ref(fnIsRemoved(props.quiz));
 
 const showModal = function(quiz) {
@@ -22,7 +22,7 @@ const showModal = function(quiz) {
 };
 
 onUpdated(() => {
-    isEditable.value = props.quiz.status.isEditable;
+    isEditable.value = props.quiz.status_info.isEditable;
     isRemoved.value = fnIsRemoved(props.quiz);
 });
 </script>

@@ -33,7 +33,7 @@ enum QuizItemStatus: string
     }
     
     /**
-     * Проверяет, что статус вопроса можно изменить ручным управление
+     * Проверяет, что вопрос можно редактировать
      * 
      * @return true
      * @throws RuleException

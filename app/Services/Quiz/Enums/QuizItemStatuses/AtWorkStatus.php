@@ -3,15 +3,10 @@
 namespace App\Services\Quiz\Enums\QuizItemStatuses;
 
 use App\Services\Quiz\Enums\QuizItemStatus;
-use App\Services\Quiz\StatusInterface;
 use Illuminate\Support\Collection;
 
-final readonly class AtWorkStatus implements StatusInterface
+final class AtWorkStatus extends InfoQuizItemStatus
 {
-    public string $name;
-    public string $style;
-    public bool $isEditable; // Можно ли редактировать вопрос в данном статусе
-    
     public function __construct()
     {
         $this->name = 'в работе';
@@ -19,6 +14,9 @@ final readonly class AtWorkStatus implements StatusInterface
         $this->isEditable = true;
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public function getNextStatuses(): Collection
     {
         return collect([QuizItemStatus::Removed]);

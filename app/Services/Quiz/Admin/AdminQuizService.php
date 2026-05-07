@@ -8,10 +8,10 @@ use App\Models\Quiz\QuizItem;
 use App\Modifiers\Quiz\QuizModifiersInterface;
 use App\Queries\Quiz\Quizzes\QuizQueriesInterface;
 use App\Services\Quiz\Enums\QuizStatus;
-use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Fields\DataTransferObjects\QuizDto;
 use App\Services\Quiz\Fields\QuizField;
 use App\Services\Quiz\Managers\QuizStatusManager;
+use App\Services\Quiz\StatusInterface;
 use App\Support\Collections\Quiz\QuizCollection;
 
 final class AdminQuizService
@@ -31,13 +31,11 @@ final class AdminQuizService
     {
         $quizzes = $this->quizQueries->getList();
         
-        return $quizzes->each(function (Quiz $quiz) {
-            return $quiz->status = QuizStatus::from($quiz->status)->getInfo();
-        });
+        return $quizzes->each(fn (Quiz $quiz): StatusInterface => $quiz->status_info = $quiz->status->getInfo());
     }
     
     /**
-     * Возвращает список опросов с вопросами для карточки опроса
+     * Возвращает опрос с вопросами для карточки опроса
      * 
      * @param int $id - id опроса
      * @return Quiz
@@ -45,11 +43,9 @@ final class AdminQuizService
     public function getQuizByIdWithQuizItems(int $id): Quiz
     {
         $quiz = $this->quizQueries->getQuizByIdWithQuizItems($id);
-        $quiz->status = QuizStatus::from($quiz->status)->getInfo();
+        $quiz->status_info = $quiz->status->getInfo();
         
-        $quiz->quizItems->each(function (QuizItem $quizItem) {
-            return $quizItem->status = QuizItemStatus::from($quizItem->status)->getInfo();
-        });
+        $quiz->quizItems->each(fn (QuizItem $quizItem): StatusInterface => $quizItem->status_info = $quizItem->status->getInfo());
         
         return $quiz;
     }
@@ -88,13 +84,14 @@ final class AdminQuizService
      */
     public function updateField(int $id, QuizField $quizField): Quiz
     {
+        $quiz = $this->quizQueries->getById($id);
+        $quiz->status->allowQuizChanges();
+        
         // Имя метода класса не чувствительно к регистру 
         $fnExists = 'existsBy'.$quizField->field;
         if (method_exists($this->quizQueries::class, $fnExists)) {
             $quizField->checkFieldUniqueness($this->quizQueries->$fnExists($quizField->value, $id));
         }
-        
-        $quiz = $this->quizQueries->getById($id);
         
         $field = $quizField->field;
         $quiz->$field = $quizField->value->value;
@@ -117,7 +114,7 @@ final class AdminQuizService
         $quizStatusManager->defineNewStatus();
         
         if ($quizStatusManager->checkOldAndNewStatusAreNotEqual()) {
-            $quiz->status = $quizStatusManager->getNewStatus()->value;
+            $quiz->status = $quizStatusManager->getNewStatus();
             $this->quizModifiers->save($quiz);
         }
         
@@ -137,7 +134,7 @@ final class AdminQuizService
         $quizStatusManager = new QuizStatusManager($quiz);
         $quizStatusManager->approveNewStatus($newStatus);
         
-        $quiz->status = $quizStatusManager->getNewStatus()->value;
+        $quiz->status = $quizStatusManager->getNewStatus();
         $this->quizModifiers->save($quiz);
         
         return $quiz;
@@ -152,12 +149,12 @@ final class AdminQuizService
     public function cancelFinalStatus(int $id): Quiz
     {
         $quiz = $this->quizQueries->getById($id);
-        QuizStatus::from($quiz->status)->checkFinalStatus();
+        $quiz->status->checkFinalStatus();
         
         $quizStatusManager = new QuizStatusManager($quiz);
         $quizStatusManager->defineNewStatus();
         
-        $quiz->status = $quizStatusManager->getNewStatus()->value;
+        $quiz->status = $quizStatusManager->getNewStatus();
         $this->quizModifiers->save($quiz);
         
         return $quiz;

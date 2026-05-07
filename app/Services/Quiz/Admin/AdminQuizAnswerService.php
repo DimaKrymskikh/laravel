@@ -29,8 +29,8 @@ final class AdminQuizAnswerService
     public function getAnswerCard(int $id): QuizAnswer
     {
         $quizAnswer =  $this->quizAnswerQueries->getById($id);
-        $quizAnswer->quizItem->status = QuizItemStatus::from($quizAnswer->quizItem->status)->getInfo();
-        $quizAnswer->quizItem->quiz->status = QuizStatus::from($quizAnswer->quizItem->quiz->status)->getInfo();
+        $quizAnswer->quizItem->status_info = $quizAnswer->quizItem->status->getInfo();
+        $quizAnswer->quizItem->quiz->status_info = $quizAnswer->quizItem->quiz->status->getInfo();
         
         return $quizAnswer;
     }
@@ -99,13 +99,13 @@ final class AdminQuizAnswerService
     /**
      * По состоянию статусов проверяет, что ответ можно редактировать
      * 
-     * @param string $quizStatus - статус опроса
-     * @param string $quizItemStatus - статус вопроса
+     * @param QuizStatus $quizStatus
+     * @param QuizItemStatus $quizItemStatus
      * @return void
      */
-    private function checkAnswerEditabilityByStatuses(string $quizStatus, string $quizItemStatus): void
+    private function checkAnswerEditabilityByStatuses(QuizStatus $quizStatus, QuizItemStatus $quizItemStatus): void
     {
-        QuizStatus::from($quizStatus)->allowQuizChanges();
-        QuizItemStatus::from($quizItemStatus)->allowQuizItemChanges();
+        $quizStatus->allowQuizChanges();
+        $quizItemStatus->allowQuizItemChanges();
     }
 }

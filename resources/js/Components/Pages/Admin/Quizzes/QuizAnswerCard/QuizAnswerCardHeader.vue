@@ -12,7 +12,7 @@ const props = defineProps({
 
     <div class="mb-4">
         <span class="text-orange-800">Статус опроса: </span>
-        <span :class="quizAnswer.quiz_item.quiz.status.style">{{ quizAnswer.quiz_item.quiz.status.name }}</span>
+        <span :class="quizAnswer.quiz_item.quiz.status_info.style">{{ quizAnswer.quiz_item.quiz.status_info.name }}</span>
     </div>
 
     <div class="mb-4">
@@ -22,6 +22,6 @@ const props = defineProps({
 
     <div class="mb-4">
         <span class="text-orange-800">Статус вопроса: </span>
-        <span :class="quizAnswer.quiz_item.status.style">{{ quizAnswer.quiz_item.status.name }}</span>
+        <span :class="quizAnswer.quiz_item.status_info.style">{{ quizAnswer.quiz_item.status_info.name }}</span>
     </div>
 </template>

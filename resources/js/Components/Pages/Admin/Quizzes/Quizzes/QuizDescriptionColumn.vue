@@ -10,7 +10,7 @@ const props = defineProps({
     quiz: Object
 });
 
-const isEditable = ref(props.quiz.status.isEditable);
+const isEditable = ref(props.quiz.status_info.isEditable);
 
 const modal = reactive({ ...fieldModal });
 
@@ -24,7 +24,7 @@ const hide = () => { modal.hideWithoutRequest(); };
 const handler = () => { activeField.update(description.value); };
 
 onUpdated(() => {
-    isEditable.value = props.quiz.status.isEditable;
+    isEditable.value = props.quiz.status_info.isEditable;
 });
 </script>
 

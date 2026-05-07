@@ -2,17 +2,10 @@
 
 namespace App\Services\Quiz\Enums\QuizStatuses;
 
-use App\Services\Quiz\StatusInterface;
 use Illuminate\Support\Collection;
 
-final readonly class ApprovedStatus implements StatusInterface
+final class ApprovedStatus extends InfoQuizStatus
 {
-    public string $name;
-    public string $style;
-    public bool $isEditable; // Можно ли редактировать опрос в данном статусе
-    public string $colorSvg;
-    public string $titleSvg;
-    
     public function __construct()
     {
         $this->name = 'утверждён';
@@ -22,6 +15,9 @@ final readonly class ApprovedStatus implements StatusInterface
         $this->titleSvg = "Опрос имеет статус 'утверждён', хотите отменить этот статус?";
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public function getNextStatuses(): Collection
     {
         return collect([]);

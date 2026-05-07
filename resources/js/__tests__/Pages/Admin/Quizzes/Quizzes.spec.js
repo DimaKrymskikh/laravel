@@ -114,8 +114,8 @@ describe("@/Pages/Admin/Quizzes/Quizzes.vue", () => {
         expect(tds.length).toBe(11);
         expect(tds[0].text()).toBe('2');
         
-        expect(tds[7].text()).toBe(quiz.status.name);
-        expect(tds[7].classes()).toContain(quiz.status.style);
+        expect(tds[7].text()).toBe(quiz.status_info.name);
+        expect(tds[7].classes()).toContain(quiz.status_info.style);
         
         const aEyeSvg = tds[8].get('a');
         expect(aEyeSvg.attributes('href')).toBe(`/admin/quizzes/${quiz.id}`);

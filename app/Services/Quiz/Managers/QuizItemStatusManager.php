@@ -24,7 +24,7 @@ final class QuizItemStatusManager
 
     public function __construct(QuizItem $quizItem)
     {
-        $this->oldStatus = QuizItemStatus::from($quizItem->status);
+        $this->oldStatus = $quizItem->status;
         $this->isPriorityQuizItem = (bool) $quizItem->priority;
         $this->nAnswers = $quizItem->answers->count();
         $this->isCorrectAnswer = $quizItem->answers->contains('is_correct', true);

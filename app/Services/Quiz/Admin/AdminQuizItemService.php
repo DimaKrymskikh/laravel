@@ -31,8 +31,8 @@ final class AdminQuizItemService
     {
         $quizItem = $this->quizItemQueries->getByIdWithAnswers($id);
         // Статусы получают данные, необходимые для отрисовки
-        $quizItem->status = QuizItemStatus::from($quizItem->status)->getInfo();
-        $quizItem->quiz->status = QuizStatus::from($quizItem->quiz->status)->getInfo();
+        $quizItem->status_info = $quizItem->status->getInfo();
+        $quizItem->quiz->status_info = $quizItem->quiz->status->getInfo();
         
         return $quizItem;
     }
@@ -46,7 +46,7 @@ final class AdminQuizItemService
     public function create(QuizItemDto $dto): QuizItem
     {
         $quiz = $this->quizQueries->getById($dto->quizId);
-        QuizStatus::from($quiz->status)->allowQuizChanges();
+        $quiz->status->allowQuizChanges();
         
         $quizItem = new QuizItem();
         $quizItem->quiz_id = $dto->quizId;
@@ -130,7 +130,7 @@ final class AdminQuizItemService
     public function cancelFinalStatus(int $id): QuizItem
     {
         $quizItem = $this->quizItemQueries->getByIdWithAnswers($id);
-        QuizItemStatus::from($quizItem->status)->checkFinalStatus();
+        $quizItem->status->checkFinalStatus();
         
         $manager = new QuizItemStatusManager($quizItem);
         $manager->defineNewStatus();
@@ -144,13 +144,13 @@ final class AdminQuizItemService
     /**
      * Проверяет возможность редактирования вопроса.
      * 
-     * @param string $quizStatus - статус опроса
-     * @param string $quizItemStatus - статус вопроса
+     * @param QuizStatus $quizStatus
+     * @param QuizItemStatus $quizItemStatus
      * @return void
      */
-    private function checkQuizItemEditabilityByStatuses(string $quizStatus, string $quizItemStatus): void
+    private function checkQuizItemEditabilityByStatuses(QuizStatus $quizStatus, QuizItemStatus $quizItemStatus): void
     {
-        QuizStatus::from($quizStatus)->allowQuizChanges();
-        QuizItemStatus::from($quizItemStatus)->allowQuizItemChanges();
+        $quizStatus->allowQuizChanges();
+        $quizItemStatus->allowQuizItemChanges();
     }
 }

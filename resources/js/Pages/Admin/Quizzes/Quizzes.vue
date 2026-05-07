@@ -59,8 +59,8 @@ const linksList = [{
                     <QuizTitleColumn :quiz="quiz" />
                     <QuizDescriptionColumn :quiz="quiz" />
                     <QuizLeadTimeColumn :quiz="quiz" />
-                    <td class="text-center" :class="quiz.status.style">
-                        {{ quiz.status.name }}
+                    <td class="text-center" :class="quiz.status_info.style">
+                        {{ quiz.status_info.name }}
                     </td>
                     <td>
                         <Link :href="`/admin/quizzes/${quiz.id}`">

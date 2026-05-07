@@ -31,9 +31,11 @@ final class AdminQuizItemServiceTest extends QuizTestCase
                 ->with($this->quizItemId)
                 ->willReturn($quizItem);
         
-        $this->assertInstanceOf(QuizItem::class, $this->quizItemService->getQuizItemByIdWithAnswers($this->quizItemId));
-        $this->assertInstanceOf(StatusInterface::class, $quizItem->status);
-        $this->assertInstanceOf(StatusInterface::class, $quizItem->quiz->status);
+        $appQuizItem = $this->quizItemService->getQuizItemByIdWithAnswers($this->quizItemId);
+        
+        $this->assertInstanceOf(QuizItem::class, $appQuizItem);
+        $this->assertInstanceOf(StatusInterface::class, $appQuizItem->status_info);
+        $this->assertInstanceOf(StatusInterface::class, $appQuizItem->quiz->status_info);
     }
     
     public function test_success_create(): void

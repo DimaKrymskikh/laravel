@@ -49,7 +49,7 @@ const linksList = [{
 
         <div class="mb-4">
             <span class="text-orange-800">Статус опроса: </span>
-            <span :class="quizItem.quiz.status.style">{{ quizItem.quiz.status.name }}</span>
+            <span :class="quizItem.quiz.status_info.style">{{ quizItem.quiz.status_info.name }}</span>
         </div>
         
         <h1>{{ titlePage }}</h1>
@@ -61,7 +61,7 @@ const linksList = [{
 
         <div class="mb-4">
             <span class="text-orange-800">Статус вопроса: </span>
-            <span :class="quizItem.status.style">{{ quizItem.status.name }}</span>
+            <span :class="quizItem.status_info.style">{{ quizItem.status_info.name }}</span>
         </div>
         
         <div class="mb-4">

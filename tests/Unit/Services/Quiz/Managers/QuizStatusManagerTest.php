@@ -55,7 +55,7 @@ final class QuizStatusManagerTest extends QuizTestCase
     
     private function getDefaultQuizStatusManager(): QuizStatusManager
     {
-        $quizItems = $this->factoryQuizItems(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS, 0, true);
+        $quizItems = $this->factoryQuizItems(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS, 0);
         
         $quiz = $this->factoryQuizWithQuizItems($quizItems, QuizStatus::AtWork);
         

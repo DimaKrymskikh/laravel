@@ -4,7 +4,7 @@ export const quizzes = [{
     title: "Арифметические операции",
     description: "Изучаются арифметические операции.",
     lead_time: 5,
-    status: {
+    status_info: {
         name: "в работе",
         style: "status-sky",
         isEditable: true,
@@ -16,7 +16,7 @@ export const quizzes = [{
     title: "Прямые на плоскости",
     description: "Изучаются прямые на плоскости.",
     lead_time: 15,
-    status: {
+    status_info: {
         name: "готов",
         style: "status-yellow",
         isEditable: true,
@@ -28,7 +28,7 @@ export const quizzes = [{
     title: "Плоскости",
     description: "Изучаются плоскости.",
     lead_time: 15,
-    status: {
+    status_info: {
         name: "удалён",
         style: "status-gray",
         isEditable: false,
@@ -40,7 +40,7 @@ export const quizzes = [{
     title: "Кривые второго порядка",
     description: "Изучаются кривые второго порядка на плоскости.",
     lead_time: 15,
-    status: {
+    status_info: {
         name: "утверждён",
         style: "status-green",
         isEditable: false,
@@ -54,7 +54,7 @@ export const quizWithoutItems = { ...quizzes[0], quiz_items: [] };
 export const quizWithItems = { ...quizzes[0], quiz_items: [{
     id: 1,
     description: "2 * 2 = ?",
-    status: {
+    status_info: {
         name: "в работе",
         style: "status-sky",
         isEditable: true

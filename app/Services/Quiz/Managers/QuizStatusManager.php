@@ -4,6 +4,7 @@ namespace App\Services\Quiz\Managers;
 
 use App\Exceptions\RuleException;
 use App\Models\Quiz\Quiz;
+use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
 
 /**
@@ -21,9 +22,9 @@ final class QuizStatusManager
 
     public function __construct(Quiz $quiz)
     {
-        $this->oldStatus = QuizStatus::from($quiz->status);
-        $this->nQuizItemsWithStatusReady = $quiz->quizItems->where('status', QuizStatus::Ready->value)->count();
-        $this->nQuizItemsWithStatusAtWork = $quiz->quizItems->where('status', QuizStatus::AtWork->value)->count();
+        $this->oldStatus = $quiz->status;
+        $this->nQuizItemsWithStatusReady = $quiz->quizItems->where('status', QuizItemStatus::Ready)->count();
+        $this->nQuizItemsWithStatusAtWork = $quiz->quizItems->where('status', QuizItemStatus::AtWork)->count();
     }
     
     /**

@@ -77,10 +77,11 @@ abstract class QuizTestCase extends TestCase
                 ->make();
     }
     
-    protected function factoryQuizTitle(string $title): Quiz
+    protected function factoryQuizTitle(QuizStatus $status, string $title): Quiz
     {
         return Quiz::factory()
                 ->state([
+                    'status' => $status->value,
                     'title' => $title,
                 ])
                 ->make();

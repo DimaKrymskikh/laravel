@@ -4,6 +4,7 @@ namespace App\Models\Quiz;
 
 use App\Models\Quiz\Quiz;
 use App\Models\Quiz\QuizAnswer;
+use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Support\Collections\Quiz\QuizItemCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -34,6 +35,10 @@ class QuizItem extends Model
     public $timestamps = false;
     
     protected $with = ['quiz'];
+    
+    protected $casts = [
+        'status' => QuizItemStatus::class,
+    ];
     
     public function newCollection(array $models = []): QuizItemCollection
     {

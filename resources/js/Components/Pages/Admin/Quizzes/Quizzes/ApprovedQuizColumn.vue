@@ -6,8 +6,8 @@ const props = defineProps({
     quiz: Object
 });
 
-const isApproved = (quiz) => quiz.status.name === 'утверждён';
-const isShow = (quiz) => quiz.status.name === 'утверждён' || quiz.status.name === 'готов';
+const isApproved = (quiz) => quiz.status_info.name === 'утверждён';
+const isShow = (quiz) => quiz.status_info.name === 'утверждён' || quiz.status_info.name === 'готов';
 
 const showModal = function(quiz) {
     if(!isShow(quiz)) {
@@ -22,6 +22,6 @@ const showModal = function(quiz) {
 
 <template>
     <td>
-        <AppIndicatorSvg :title="quiz.status.titleSvg" :color="quiz.status.colorSvg" @click="showModal(quiz)" />
+        <AppIndicatorSvg :title="quiz.status_info.titleSvg" :color="quiz.status_info.colorSvg" @click="showModal(quiz)" />
     </td>
 </template>

@@ -6,7 +6,7 @@ export const messageEmptyTable = 'Для этого вопроса ещё нет
 export const currentQuizItem = reactive({
     isEditable: true,
     setIsEditable(quizItem) {
-        this.isEditable = quizItem.status.isEditable && quizItem.quiz.status.isEditable;
+        this.isEditable = quizItem.status_info.isEditable && quizItem.quiz.status_info.isEditable;
     }
 });
 

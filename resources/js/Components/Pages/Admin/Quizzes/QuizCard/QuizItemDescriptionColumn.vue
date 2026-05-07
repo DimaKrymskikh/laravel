@@ -37,7 +37,7 @@ const handler = () => { activeField.update(description.value); };
         <CrossSvg title="Закрыть"/>
     </td>
     <template v-else>
-        <td class="w-8" @click="modal.show(id, field, url)" v-if="currentQuiz.isEditable && quizItem.status.isEditable">
+        <td class="w-8" @click="modal.show(id, field, url)" v-if="currentQuiz.isEditable && quizItem.status_info.isEditable">
             <PencilSvg title="Изменить текст вопроса" />
         </td>
         <td class="w-8" v-else>

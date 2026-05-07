@@ -7,7 +7,7 @@ export const quizItems = [{
     description: "2 * 2 = ?",
     quiz_id: quiz.id,
     priority: '1',
-    status: {
+    status_info: {
         name: "в работе",
         style: "status-sky",
         isEditable: true
@@ -17,7 +17,7 @@ export const quizItems = [{
     id: 2,
     description: "2 + 11 = ?",
     quiz_id: quiz.id,
-    status: {
+    status_info: {
         name: "готов",
         style: "status-green",
         isEditable: true
@@ -27,7 +27,7 @@ export const quizItems = [{
     id: 3,
     description: "2 - 3 = ?",
     quiz_id: quiz.id,
-    status: {
+    status_info: {
         name: "удалён",
         style: "status-gray",
         isEditable: false

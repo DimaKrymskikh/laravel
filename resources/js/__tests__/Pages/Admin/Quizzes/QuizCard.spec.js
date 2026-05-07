@@ -102,7 +102,7 @@ describe("@/Pages/Admin/Quizzes/QuizCard.vue", () => {
         expect(tds[2].getComponent(PencilSvg).props('title')).toBe('Изменить текст вопроса');
         expect(tds[3].text()).toBe(quizItem.priority ? quizItem.priority : 'не указан');
         expect(tds[4].getComponent(PencilSvg).props('title')).toBe('Изменить приоритет вопроса');
-        expect(tds[5].text()).toBe(quizItem.status.name);
+        expect(tds[5].text()).toBe(quizItem.status_info.name);
         expect(tds[6].get('a').attributes('href')).toBe('/admin/quiz_items/' + quizItem.id);
         expect(tds[6].getComponent(EyeSvg).props('title')).toBe('Открыть карточку вопроса');
         

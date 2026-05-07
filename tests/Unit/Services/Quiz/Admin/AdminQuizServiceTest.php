@@ -27,9 +27,11 @@ final class AdminQuizServiceTest extends QuizTestCase
                 ->method('getList')
                 ->willReturn($quizzes);
         
-        $this->assertInstanceOf(QuizCollection::class, $this->quizService->getList());
-        foreach ($quizzes as $quiz) {
-            $this->assertInstanceOf(StatusInterface::class, $quiz->status);
+        $appQuizzes = $this->quizService->getList();
+        
+        $this->assertInstanceOf(QuizCollection::class, $appQuizzes);
+        foreach ($appQuizzes as $quiz) {
+            $this->assertInstanceOf(StatusInterface::class, $quiz->status_info);
         }
     }
 
@@ -43,9 +45,11 @@ final class AdminQuizServiceTest extends QuizTestCase
                 ->with($this->quizId)
                 ->willReturn($quiz);
         
-        $this->assertInstanceOf(Quiz::class, $this->quizService->getQuizByIdWithQuizItems($this->quizId));
-        foreach ($quiz->quizItems as $item) {
-            $this->assertInstanceOf(StatusInterface::class, $item->status);
+        $appQuiz = $this->quizService->getQuizByIdWithQuizItems($this->quizId);
+        
+        $this->assertInstanceOf(Quiz::class, $appQuiz);
+        foreach ($appQuiz->quizItems as $item) {
+            $this->assertInstanceOf(StatusInterface::class, $item->status_info);
         }
     }
 
@@ -89,8 +93,7 @@ final class AdminQuizServiceTest extends QuizTestCase
         $quiz = $this->factoryQuiz(QuizStatus::AtWork, $oldLeadTime);
         $this->assertEquals($oldLeadTime, $quiz->lead_time);
         
-        $this->quizQueries->expects($this->once())
-                ->method('getById')
+        $this->quizQueries->method('getById')
                 ->with($this->quizId)
                 ->willReturn($quiz);
         
@@ -108,17 +111,16 @@ final class AdminQuizServiceTest extends QuizTestCase
         $oldTitle = 'Old Test Title';
         $newTitle = 'New Test Title';
         
-        $quiz = $this->factoryQuizTitle($oldTitle);
+        $quiz = $this->factoryQuizTitle(QuizStatus::Ready, $oldTitle);
         $this->assertEquals($oldTitle, $quiz->title);
+        
+        $this->quizQueries->method('getById')
+                ->with($this->quizId)
+                ->willReturn($quiz);
         
         $this->quizQueries->expects($this->once())
                 ->method('existsByTitle')
                 ->willReturn(false);
-        
-        $this->quizQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->quizId)
-                ->willReturn($quiz);
         
         $this->quizModifiers->expects($this->once())
                 ->method('save')
@@ -136,15 +138,16 @@ final class AdminQuizServiceTest extends QuizTestCase
         $oldTitle = 'Old Test Title';
         $newTitle = 'New Test Title';
         
-        $quiz = $this->factoryQuizTitle($oldTitle);
+        $quiz = $this->factoryQuizTitle(QuizStatus::Ready, $oldTitle);
         $this->assertEquals($oldTitle, $quiz->title);
+        
+        $this->quizQueries->method('getById')
+                ->with($this->quizId)
+                ->willReturn($quiz);
         
         $this->quizQueries->expects($this->once())
                 ->method('existsByTitle')
                 ->willReturn(true);
-        
-        $this->quizQueries->expects($this->never())
-                ->method('getById');
         
         $this->quizModifiers->expects($this->never())
                 ->method('save');
@@ -152,6 +155,26 @@ final class AdminQuizServiceTest extends QuizTestCase
         $this->assertInstanceOf(Quiz::class, $this->quizService->updateField($this->quizId, $this->getQuizField('title', $newTitle)));
         // Поле 'title' не изменилось.
         $this->assertEquals($oldTitle, $quiz->title);
+    }
+
+    public function test_fail_updateField_removed_status(): void
+    {
+        $this->expectException(RuleException::class);
+        
+        $oldLeadTime = '10';
+        $newLeadTime = '20';
+        
+        $quiz = $this->factoryQuiz(QuizStatus::Removed, $oldLeadTime);
+        $this->assertEquals($oldLeadTime, $quiz->lead_time);
+        
+        $this->quizQueries->method('getById')
+                ->with($this->quizId)
+                ->willReturn($quiz);
+        
+        $this->quizModifiers->expects($this->never())
+                ->method('save');
+        
+        $this->quizService->updateField($this->quizId, $this->getQuizField('lead_time', $newLeadTime));
     }
     
     public function test_success_changeStatus(): void
@@ -169,7 +192,7 @@ final class AdminQuizServiceTest extends QuizTestCase
                 ->with($quiz);
         
         $this->assertInstanceOf(Quiz::class, $this->quizService->changeStatus($this->quizId));
-        $this->assertEquals(QuizStatus::Ready->value, $quiz->status);
+        $this->assertEquals(QuizStatus::Ready, $quiz->status);
     }
     
     public function test_success_setFinalStatus(): void

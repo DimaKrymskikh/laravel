@@ -10,7 +10,7 @@ const props = defineProps({
     quizItem: Object
 });
 
-const fnIsRemoved = (quizItem) => quizItem.status.name === 'удалён';
+const fnIsRemoved = (quizItem) => quizItem.status_info.name === 'удалён';
 const isRemoved = ref(fnIsRemoved(props.quizItem));
 
 const showModal = function(quizItem) {
