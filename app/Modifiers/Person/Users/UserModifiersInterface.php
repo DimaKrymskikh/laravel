@@ -8,5 +8,12 @@ use App\Services\Database\Person\Dto\RegisterDto;
 
 interface UserModifiersInterface extends ModifiersInterface
 {
-    public function create(User $user, RegisterDto $dto): void;
+    /**
+     * Создаёт запись в таблице person.users.
+     * 
+     * @param User $user
+     * @param RegisterDto $dto
+     * @return User
+     */
+    public function create(User $user, RegisterDto $dto): User;
 }

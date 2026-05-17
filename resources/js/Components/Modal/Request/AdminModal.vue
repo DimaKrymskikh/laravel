@@ -32,7 +32,7 @@ const handlerSubmit = function(e) {
         return;
     }
     
-    let url = admin ? 'admin/destroy' : 'admin/create';
+    let url = admin ? '/admin/destroy' : '/admin/create';
     
     router.post(filmsAccount.getUrl(url), {
             password: inputPassword.value

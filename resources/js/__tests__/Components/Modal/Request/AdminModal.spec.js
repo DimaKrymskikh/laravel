@@ -132,7 +132,7 @@ describe("@/Components/Modal/Request/AdminModal.vue", () => {
         wrapper.vm.handlerSubmit(eventCurrentTargetClassListContainsFalse);
         
         expect(router.post).toHaveBeenCalledTimes(1);
-        expect(router.post).toHaveBeenCalledWith(filmsAccount.getUrl('admin/create'), {
+        expect(router.post).toHaveBeenCalledWith(filmsAccount.getUrl('/admin/create'), {
                 password: wrapper.vm.inputPassword
             }, options);
     });
@@ -151,7 +151,7 @@ describe("@/Components/Modal/Request/AdminModal.vue", () => {
         wrapper.vm.handlerSubmit(eventCurrentTargetClassListContainsFalse);
         
         expect(router.post).toHaveBeenCalledTimes(1);
-        expect(router.post).toHaveBeenCalledWith(filmsAccount.getUrl('admin/destroy'), {
+        expect(router.post).toHaveBeenCalledWith(filmsAccount.getUrl('/admin/destroy'), {
                 password: wrapper.vm.inputPassword
             }, options);
     });

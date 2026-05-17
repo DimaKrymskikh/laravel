@@ -1,7 +1,7 @@
 <x-mail.layout>
     <div class="main">
         <div>
-            <div class="h1">Привет</div>
+            <div class="h1">Привет, {{ $login }}!</div>
         </div>
         
         <p>
@@ -9,7 +9,7 @@
         </p>
         
         <div style="text-align: center; margin: 2rem 0">
-            <a class="button" href="{{ $actionUrl }}" target="_blank" rel="noopener">Подтвердение адреса эл. почты</a>
+            <a class="button" href="{{ $url }}" target="_blank" rel="noopener">Подтвердение адреса эл. почты</a>
         </div>
         
         <p>
@@ -23,7 +23,7 @@
         
         <p>
             Если у Вас возникли проблемы с нажатием кнопки "Подтвердение адреса эл. почты", скопируйте ссылку и вставьте её в ваш веб-браузер: <br>
-            <a href="{{ $actionUrl }}">{{ $displayableActionUrl }}</a>
+            <a href="{{ $url }}">{{ $url }}</a>
         </p>
     </div>
 </x-mail.layout>

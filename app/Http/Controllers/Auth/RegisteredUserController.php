@@ -10,6 +10,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -40,9 +41,9 @@ class RegisteredUserController extends Controller
     {
         $user = $this->userService->create($request->getDto());
 
-        event(new Registered($user));
-
         Auth::login($user, $request->input('is_remember'));
+
+        event(new Registered($user));
 
         return redirect(RouteServiceProvider::HOME);
     }
@@ -55,7 +56,9 @@ class RegisteredUserController extends Controller
      */
     public function remove(Request $request): RedirectResponse
     {
-        $this->userService->remove($request->user());
+        DB::transaction(function() use ($request) {
+            $this->userService->remove($request->user());
+        });
         
         Auth::guard('web')->logout();
 

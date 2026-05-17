@@ -30,6 +30,7 @@ class UserSeeder extends Seeder implements SequencesInterface
                 'password' => $user->password,
                 'email' => $user->email,
                 'is_admin' => $user->is_admin,
+                'remember_token' => $user->remember_token ?? null,
             ]);
         }
         
@@ -52,6 +53,7 @@ class UserSeeder extends Seeder implements SequencesInterface
                 'password' => '$2y$10$Sna8cIKAgkNDOMXvfj5xYeFDY/e9lHieUseILF/N03QdLvqvw.xlC', // AuthTestPassword2
                 'email' => 'authtestlogin@example.com',
                 'is_admin' => false,
+                'remember_token' => 'oJl4AfCTDtsuOOXm1W56oOToxBDhO9AXjtImiEbPrxirpAqKcm0VtOz3TINu',
             ],
             (object) [
                 'id' => self::ID_TEST_LOGIN,

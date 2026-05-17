@@ -9,12 +9,15 @@ use Illuminate\Support\Facades\Hash;
 
 final class UserModifiers extends Modifiers implements UserModifiersInterface
 {
-    public function create(User $user, RegisterDto $dto): void
+    /**
+     * {@inheritDoc}
+     */
+    public function create(User $user, RegisterDto $dto): User
     {
-        $user::create([
-            'login' => $dto->login,
-            'email' => $dto->email,
-            'password' => Hash::make($dto->password),
-        ]);
+        return $user::create([
+                    'login' => $dto->login,
+                    'email' => $dto->email,
+                    'password' => Hash::make($dto->password),
+                ]);
     }
 }

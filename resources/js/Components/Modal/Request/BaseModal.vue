@@ -17,7 +17,7 @@ const hideBaseModal = function(e) {
 
 <template>
     <div
-        class="fixed top-0 left-0 right-0 w-full overflow-x-hidden overflow-y-auto h-screen"
+        class="fixed z-10 top-0 left-0 right-0 w-full overflow-x-hidden overflow-y-auto h-screen"
         tabindex="-1"
     >
         <div

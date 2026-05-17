@@ -190,6 +190,10 @@ class RegisteredUserTest extends TestCase
         $response = $acting->delete('register', [
             'password' => 'AuthTestPassword2',
         ]);
+        
+        $this->assertDatabaseMissing('person.users', [
+            'email' => 'authtestlogin@example.com',
+        ]);
 
         $this->assertGuest();
         $response->assertRedirect(RouteServiceProvider::HOME);
