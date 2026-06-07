@@ -40,7 +40,13 @@ final readonly class TimeStringFromSeconds
         }
         
         if($seconds > 0) {
-            [$iPart, $fPart] = explode('.', (string) $seconds);
+            // Количество элементов в массиве $allPart = 2 или 1.
+            $allPart = explode('.', (string) $seconds);
+            if(count($allPart) === 1) {
+                $allPart[] = '';
+            }
+            
+            [$iPart, $fPart] = $allPart;
             $strTime .= sprintf("%02d", (int) $iPart);
             $strTime .= $fPart ? '.'.sprintf("%d", (int) $fPart) : '';
             $strTime .= ' с.';

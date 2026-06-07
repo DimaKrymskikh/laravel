@@ -13,6 +13,11 @@ class TimeStringFromSecondsTest extends TestCase
         return [
             [-1.1, '0 с.'],
             [0, '0 с.'],
+            [.0, '0 с.'],
+            [0., '0 с.'],
+            [.2, '00.2 с.'],
+            [2, '02 с.'],
+            [2., '02 с.'],
             [0.235, '00.24 с.'],
             [5.241, '05.24 с.'],
             [60, '01 м.'],
@@ -28,6 +33,7 @@ class TimeStringFromSecondsTest extends TestCase
     {
         $this->assertEquals($value, TimeStringFromSeconds::create($seconds)->value);
     }
+    
     public static function decProvider(): array
     {
         return [
