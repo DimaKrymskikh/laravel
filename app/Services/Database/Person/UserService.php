@@ -3,14 +3,18 @@
 namespace App\Services\Database\Person;
 
 use App\Models\User;
-use App\Modifiers\Person\Users\UserModifiersInterface;
+use App\Modifiers\Person\UserModifiers;
 use App\Services\Database\Person\Dto\RegisterDto;
+use App\Services\ServiceManagerInterface;
 
 final class UserService
 {
+    private UserModifiers $userModifiers;
+    
     public function __construct(
-            private UserModifiersInterface $userModifiers,
+            private ServiceManagerInterface $serviceManager
     ) {
+        $this->userModifiers = $this->serviceManager->getQueriesOrModifiers(UserModifiers::class);
     }
     
     /**

@@ -6,16 +6,18 @@ use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use App\DataTransferObjects\Database\Dvd\ActorDto;
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Actor;
-use App\Modifiers\Dvd\Actors\ActorModifiersInterface;
-use App\Queries\Dvd\Actors\ActorQueriesInterface;
+use App\Modifiers\Dvd\ActorModifiers;
+use App\Queries\Dvd\ActorQueries;
 use App\Services\Database\Dvd\ActorService;
+use App\Services\ServiceManagerInterface;
 use App\ValueObjects\PersonName;
 use PHPUnit\Framework\TestCase;
 
 class ActorServiceTest extends TestCase
 {
-    private ActorModifiersInterface $actorModifiers;
-    private ActorQueriesInterface $actorQueries;
+    private ServiceManagerInterface $serviceManager;
+    private ActorModifiers $actorModifiers;
+    private ActorQueries $actorQueries;
     private ActorService $actorService;
     private ActorDto $actorDto;
     private int $actorId = 12;
@@ -58,7 +60,7 @@ class ActorServiceTest extends TestCase
         $this->actorQueries->expects($this->once())
                 ->method('getById')
                 ->with($this->identicalTo($this->actorId))
-                ->willThrowException(new DatabaseException(sprintf(ActorQueriesInterface::NOT_RECORD_WITH_ID, $this->actorId)));
+                ->willThrowException(new DatabaseException(sprintf(ActorQueries::NOT_RECORD_WITH_ID, $this->actorId)));
         
         $this->actorModifiers->expects($this->never())
                 ->method('save');
@@ -112,10 +114,14 @@ class ActorServiceTest extends TestCase
         $firstName = PersonName::create('Testfirstname', 'first_name', 'Имя актёра должно начинаться с заглавной буквы. Остальные буквы должны быть строчными.');
         $lastName = PersonName::create('Testlastname', 'last_name', 'Фамилия актёра должна начинаться с заглавной буквы. Остальные буквы должны быть строчными.');
         $this->actorDto = new ActorDto($firstName, $lastName);
-
-        $this->actorModifiers = $this->createMock(ActorModifiersInterface::class);
-        $this->actorQueries = $this->createMock(ActorQueriesInterface::class);
         
-        $this->actorService = new ActorService($this->actorModifiers, $this->actorQueries);
+        $this->actorModifiers = $this->createMock(ActorModifiers::class);
+        $this->actorQueries = $this->createMock(ActorQueries::class);
+        
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->actorModifiers, $this->actorQueries);
+        
+        $this->actorService = new ActorService($this->serviceManager);
     }
 }

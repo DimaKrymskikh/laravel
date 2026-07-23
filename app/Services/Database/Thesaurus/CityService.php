@@ -4,18 +4,23 @@ namespace App\Services\Database\Thesaurus;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
-use App\Modifiers\Thesaurus\Cities\CityModifiersInterface;
-use App\Queries\Thesaurus\Cities\CityQueriesInterface;
+use App\Modifiers\Thesaurus\CityModifiers;
+use App\Queries\Thesaurus\CityQueries;
+use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Thesaurus\CityCollection;
 
 final class CityService
 {
     const VARIABLE_TABLE_FIELDS = ['name', 'timezone_id'];
     
+    private CityModifiers $cityModifiers;
+    private CityQueries $cityQueries;
+
     public function __construct(
-        private CityModifiersInterface $cityModifiers,
-        private CityQueriesInterface $cityQueries,
+            private ServiceManagerInterface $serviceManager,
     ) {
+        $this->cityModifiers = $this->serviceManager->getQueriesOrModifiers(CityModifiers::class);
+        $this->cityQueries = $this->serviceManager->getQueriesOrModifiers(CityQueries::class);
     }
     
     public function create(string $name, int $openWeatherId): City

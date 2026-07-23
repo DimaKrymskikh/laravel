@@ -3,21 +3,27 @@
 namespace App\Services\Quiz\Admin;
 
 use App\Models\Quiz\QuizAnswer;
-use App\Modifiers\Quiz\QuizAnswerModifiersInterface;
-use App\Queries\Quiz\QuizAnswers\QuizAnswerQueriesInterface;
-use App\Queries\Quiz\QuizItems\QuizItemQueriesInterface;
+use App\Modifiers\Quiz\QuizAnswerModifiers;
+use App\Queries\Quiz\QuizAnswerQueries;
+use App\Queries\Quiz\QuizItemQueries;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Fields\DataTransferObjects\QuizAnswerDto;
 use App\Services\Quiz\Fields\QuizAnswerField;
+use App\Services\ServiceManagerInterface;
 
 final class AdminQuizAnswerService
 {
+    private QuizAnswerModifiers $quizAnswerModifiers;
+    private QuizAnswerQueries $quizAnswerQueries;
+    private QuizItemQueries $quizItemQueries;
+    
     public function __construct(
-            private QuizAnswerModifiersInterface $quizAnswerModifiers,
-            private QuizAnswerQueriesInterface $quizAnswerQueries,
-            private QuizItemQueriesInterface $quizItemQueries,
+            private ServiceManagerInterface $serviceManager,
     ) {
+        $this->quizAnswerModifiers = $this->serviceManager->getQueriesOrModifiers(QuizAnswerModifiers::class);
+        $this->quizAnswerQueries = $this->serviceManager->getQueriesOrModifiers(QuizAnswerQueries::class);
+        $this->quizItemQueries = $this->serviceManager->getQueriesOrModifiers(QuizItemQueries::class);
     }
     
     /**

@@ -3,21 +3,28 @@
 namespace App\Services\Database\Dvd;
 
 use App\Exceptions\DatabaseException;
-use App\Modifiers\Dvd\FilmsActors\FilmActorModifiersInterface;
-use App\Queries\Dvd\Actors\ActorQueriesInterface;
-use App\Queries\Dvd\Films\FilmQueriesInterface;
-use App\Queries\Dvd\FilmsActors\FilmActorQueriesInterface;
+use App\Modifiers\Dvd\FilmActorModifiers;
+use App\Queries\Dvd\ActorQueries;
+use App\Queries\Dvd\FilmQueries;
+use App\Queries\Dvd\FilmActorQueries;
 use App\Services\Database\Dvd\Dto\FilmActorDto;
+use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Dvd\FilmActorCollection;
 
 final class FilmActorService
 {
+    private ActorQueries $actorQueries;
+    private FilmActorModifiers $filmActorModifiers;
+    private FilmActorQueries $filmActorQueries;
+    private FilmQueries $filmQueries;
+    
     public function __construct(
-            private ActorQueriesInterface $actorQueries,
-            private FilmActorModifiersInterface $filmActorModifiers,
-            private FilmActorQueriesInterface $filmActorQueries,
-            private FilmQueriesInterface $filmQueries,
+            private ServiceManagerInterface $serviceManager,
     ) {
+        $this->actorQueries = $this->serviceManager->getQueriesOrModifiers(ActorQueries::class);
+        $this->filmActorModifiers = $this->serviceManager->getQueriesOrModifiers(FilmActorModifiers::class);
+        $this->filmActorQueries = $this->serviceManager->getQueriesOrModifiers(FilmActorQueries::class);
+        $this->filmQueries = $this->serviceManager->getQueriesOrModifiers(FilmQueries::class);
     }
     
     public function create(FilmActorDto $dto): void

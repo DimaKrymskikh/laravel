@@ -7,12 +7,14 @@ use App\StorageDisk\CopyingDatabaseDataToFile\BaseCopyist;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-final class ActorsCopyist extends BaseCopyist implements ActorsCopyistInterface
+class ActorsCopyist extends BaseCopyist
 {
     /**
-     * {@inheritDoc}
-     * 
-     * @inheritDoc
+     * Записывает std-объект по модели Actor
+     *
+     * @param string $file
+     * @param Actor $actor
+     * @return void
      */
     public function writeData(string $file, Actor $actor): void
     {

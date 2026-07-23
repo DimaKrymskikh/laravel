@@ -7,10 +7,10 @@ use App\Models\Quiz\Quiz;
 use App\Models\Quiz\Trial;
 use App\Modifiers\Modifiers;
 
-final class TrialModifiers extends Modifiers implements TrialModifiersInterface
+class TrialModifiers extends Modifiers
 {
     /**
-     * {@inheritDoc}
+     * Записывает в таблицу 'quiz.trials' новый опрос для пользователя и возвращает id этого опроса
      * 
      * @param User $user
      * @param Quiz $quiz

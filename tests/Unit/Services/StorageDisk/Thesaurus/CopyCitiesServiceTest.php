@@ -3,16 +3,16 @@
 namespace Tests\Unit\Services\StorageDisk\Thesaurus;
 
 use App\Models\Thesaurus\City;
-use App\Queries\Thesaurus\Cities\CityQueriesInterface;
+use App\Queries\Thesaurus\CityQueries;
 use App\Services\StorageDisk\Thesaurus\CopyCitiesService;
-use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\CitiesCopyistInterface;
-use PHPUnit\Framework\TestCase;
+use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\CitiesCopyist;
+use Tests\Unit\Services\StorageDisk\StorageDiskTestCase;
 
-class CopyCitiesServiceTest extends TestCase
+class CopyCitiesServiceTest extends StorageDiskTestCase
 {
-    private CityQueriesInterface $queries;
-    private CopyCitiesService $service;
-    private CitiesCopyistInterface $copyist;
+    protected CityQueries $queries;
+    protected CopyCitiesService $service;
+    protected CitiesCopyist $copyist;
     
     public function test_success_copy(): void
     {
@@ -33,9 +33,11 @@ class CopyCitiesServiceTest extends TestCase
     
     protected function setUp(): void
     {
-        $this->queries = $this->createMock(CityQueriesInterface::class);
-        $this->copyist = $this->createMock(CitiesCopyistInterface::class);
+        $this->queries = $this->createMock(CityQueries::class);
+        $this->copyist = $this->createMock(CitiesCopyist::class);
         
-        $this->service = new CopyCitiesService($this->queries, $this->copyist);
+        parent::setUp();
+        
+        $this->service = new CopyCitiesService($this->serviceManager);
     }
 }

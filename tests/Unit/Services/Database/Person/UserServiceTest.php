@@ -3,14 +3,16 @@
 namespace Tests\Unit\Services\Database\Person;
 
 use App\Models\User;
-use App\Modifiers\Person\Users\UserModifiersInterface;
+use App\Modifiers\Person\UserModifiers;
 use App\Services\Database\Person\Dto\RegisterDto;
 use App\Services\Database\Person\UserService;
+use App\Services\ServiceManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 class UserServiceTest extends TestCase
 {
-    private UserModifiersInterface $userModifiers;
+    private ServiceManagerInterface $serviceManager;
+    private UserModifiers $userModifiers;
     private UserService $userService;
     private User $user;
 
@@ -48,15 +50,6 @@ class UserServiceTest extends TestCase
         $this->assertInstanceOf(User::class, $this->userService->depriveAdmin($this->user));
         $this->assertFalse($this->user->is_admin);
     }
-    
-    protected function setUp(): void
-    {
-        $this->user = new User();
-        
-        $this->userModifiers = $this->createMock(UserModifiersInterface::class);
-        
-        $this->userService = new UserService($this->userModifiers, $this->userQueries);
-    }
 
     public function test_success_remove(): void
     {
@@ -65,5 +58,18 @@ class UserServiceTest extends TestCase
                 ->with($this->identicalTo($this->user));
         
         $this->assertNull($this->userService->remove($this->user));
+    }
+    
+    protected function setUp(): void
+    {
+        $this->user = new User();
+        
+        $this->userModifiers = $this->createMock(UserModifiers::class);
+        
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->userModifiers);
+        
+        $this->userService = new UserService($this->serviceManager);
     }
 }

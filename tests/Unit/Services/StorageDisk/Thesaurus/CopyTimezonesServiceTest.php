@@ -3,16 +3,16 @@
 namespace Tests\Unit\Services\StorageDisk\Thesaurus;
 
 use App\Models\Thesaurus\Timezone;
-use App\Queries\Thesaurus\Timezones\TimezoneQueriesInterface;
+use App\Queries\Thesaurus\TimezoneQueries;
 use App\Services\StorageDisk\Thesaurus\CopyTimezonesService;
-use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\TimezonesCopyistInterface;
-use PHPUnit\Framework\TestCase;
+use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\TimezonesCopyist;
+use Tests\Unit\Services\StorageDisk\StorageDiskTestCase;
 
-class CopyTimezonesServiceTest extends TestCase
+class CopyTimezonesServiceTest extends StorageDiskTestCase
 {
-    private TimezoneQueriesInterface $queries;
-    private CopyTimezonesService $service;
-    private TimezonesCopyistInterface $copyist;
+    protected TimezoneQueries $queries;
+    protected CopyTimezonesService $service;
+    protected TimezonesCopyist $copyist;
     
     public function test_success_copy(): void
     {
@@ -33,9 +33,11 @@ class CopyTimezonesServiceTest extends TestCase
     
     protected function setUp(): void
     {
-        $this->queries = $this->createMock(TimezoneQueriesInterface::class);
-        $this->copyist = $this->createMock(TimezonesCopyistInterface::class);
+        $this->queries = $this->createMock(TimezoneQueries::class);
+        $this->copyist = $this->createMock(TimezonesCopyist::class);
         
-        $this->service = new CopyTimezonesService($this->queries, $this->copyist);
+        parent::setUp();
+        
+        $this->service = new CopyTimezonesService($this->serviceManager);
     }
 }

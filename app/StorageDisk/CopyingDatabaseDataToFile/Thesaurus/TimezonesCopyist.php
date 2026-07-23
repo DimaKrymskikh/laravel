@@ -7,12 +7,14 @@ use App\StorageDisk\CopyingDatabaseDataToFile\BaseCopyist;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-final class TimezonesCopyist extends BaseCopyist implements TimezonesCopyistInterface
+class TimezonesCopyist extends BaseCopyist
 {
     /**
-     * {@inheritDoc}
+     * Записывает std-объект по модели Timezone
      * 
-     * @inheritDoc
+     * @param string $file
+     * @param Timezone $timezone
+     * @return void
      */
     public function writeData(string $file, Timezone $tz): void
     {

@@ -2,9 +2,10 @@
 
 namespace App\Modifiers;
 
+use App\Services\DatabaseQueryInterface;
 use Illuminate\Database\Eloquent\Model;
 
-interface ModifiersInterface
+interface ModifiersInterface extends DatabaseQueryInterface
 {
     /**
      * Создаёт новую запись или изменяет запись в таблице базы данных

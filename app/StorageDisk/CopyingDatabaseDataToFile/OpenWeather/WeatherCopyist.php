@@ -7,12 +7,14 @@ use App\StorageDisk\CopyingDatabaseDataToFile\BaseCopyist;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-final class WeatherCopyist extends BaseCopyist implements WeatherCopyistInterface
+class WeatherCopyist extends BaseCopyist
 {
     /**
-     * {@inheritDoc}
+     * Записывает std-объект по модели Weather
      * 
-     * @inheritDoc
+     * @param string $file
+     * @param Weather $weather
+     * @return void
      */
     public function writeData(string $file, Weather $weather): void
     {

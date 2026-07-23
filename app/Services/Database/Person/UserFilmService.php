@@ -5,20 +5,26 @@ namespace App\Services\Database\Person;
 use App\Events\AddFilmInUserList;
 use App\Events\RemoveFilmFromUserList;
 use App\Exceptions\DatabaseException;
-use App\Modifiers\Person\UsersFilms\UserFilmModifiersInterface;
-use App\Queries\Dvd\Films\FilmQueriesInterface;
-use App\Queries\Person\UsersFilms\UserFilmQueriesInterface;
+use App\Modifiers\Person\UserFilmModifiers;
+use App\Queries\Dvd\FilmQueries;
+use App\Queries\Person\UserFilmQueries;
 use App\Services\Database\Person\Dto\UserFilmDto;
+use App\Services\ServiceManagerInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
 final class UserFilmService
 {
+    private UserFilmModifiers $userFilmModifiers;
+    private FilmQueries $filmQueries;
+    private UserFilmQueries $userFilmQueries;
+    
     public function __construct(
-            private UserFilmModifiersInterface $userFilmModifiers,
-            private FilmQueriesInterface $filmQueries,
-            private UserFilmQueriesInterface $userFilmQueries,
+            private ServiceManagerInterface $serviceManager,
             private Dispatcher $dispatcher,
     ) {
+        $this->userFilmModifiers = $this->serviceManager->getQueriesOrModifiers(UserFilmModifiers::class);
+        $this->filmQueries = $this->serviceManager->getQueriesOrModifiers(FilmQueries::class);
+        $this->userFilmQueries = $this->serviceManager->getQueriesOrModifiers(UserFilmQueries::class);
     }
     
     /**

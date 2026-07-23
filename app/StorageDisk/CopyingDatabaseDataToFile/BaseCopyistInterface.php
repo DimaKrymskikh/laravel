@@ -2,7 +2,9 @@
 
 namespace App\StorageDisk\CopyingDatabaseDataToFile;
 
-interface BaseCopyistInterface 
+use App\Services\CopyistInterface;
+
+interface BaseCopyistInterface extends CopyistInterface
 {
     /**
      * Создаёт шапку класса, хранящего данные таблицы.

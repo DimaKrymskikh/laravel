@@ -27,4 +27,14 @@ abstract class DBqueries implements DBqueriesInterface
         
         return array_shift($arr) ?? (object) [];
     }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * @inheritDoc
+     */
+    public function getValue(string $query, array $options = []): mixed
+    {
+        return DB::scalar($query, $options);
+    }
 }

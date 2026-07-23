@@ -4,16 +4,18 @@ namespace Tests\Unit\Services\Database\Dvd;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
-use App\Modifiers\Dvd\Films\FilmModifiersInterface;
-use App\Queries\Dvd\Films\FilmQueriesInterface;
+use App\Modifiers\Dvd\FilmModifiers;
+use App\Queries\Dvd\FilmQueries;
 use App\Services\Database\Dvd\FilmService;
+use App\Services\ServiceManagerInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Tests\Unit\TestCase\DvdTestCase;
 
 class FilmServiceTest extends DvdTestCase
 {
-    private FilmQueriesInterface $filmQueries;
-    private FilmModifiersInterface $filmModifiers;
+    private ServiceManagerInterface $serviceManager;
+    private FilmQueries $filmQueries;
+    private FilmModifiers $filmModifiers;
     private FilmService $filmService;
     private int $filmId = 12;
 
@@ -56,7 +58,7 @@ class FilmServiceTest extends DvdTestCase
         $this->filmQueries->expects($this->once())
                 ->method('getById')
                 ->with($this->identicalTo($this->filmId))
-                ->willThrowException(new DatabaseException(sprintf(FilmQueriesInterface::NOT_RECORD_WITH_ID, $this->filmId)));
+                ->willThrowException(new DatabaseException(sprintf(FilmQueries::NOT_RECORD_WITH_ID, $this->filmId)));
         
         $this->filmModifiers->expects($this->never())
                 ->method('save');
@@ -124,9 +126,13 @@ class FilmServiceTest extends DvdTestCase
     
     protected function setUp(): void
     {
-        $this->filmQueries = $this->createMock(FilmQueriesInterface::class);
-        $this->filmModifiers = $this->createMock(FilmModifiersInterface::class);
+        $this->filmQueries = $this->createMock(FilmQueries::class);
+        $this->filmModifiers = $this->createMock(FilmModifiers::class);
         
-        $this->filmService = new FilmService($this->filmQueries, $this->filmModifiers);
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->filmModifiers, $this->filmQueries);
+        
+        $this->filmService = new FilmService($this->serviceManager);
     }
 }

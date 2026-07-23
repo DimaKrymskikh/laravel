@@ -4,8 +4,7 @@ namespace Tests\Unit\CommandHandlers\OpenWeather;
 
 use App\Console\Commands\OpenWeather\GetWeather;
 use App\Models\Thesaurus\City;
-use App\Queries\Thesaurus\Cities\CityQueriesInterface;
-use App\Support\Facades\Services\OpenWeather\OpenWeatherFacadeInterface;
+use App\Queries\Thesaurus\CityQueries;
 use App\Support\Collections\Thesaurus\CityCollection;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Http\Client\Response;
@@ -39,17 +38,13 @@ abstract class OpenWeatherTestCase extends TestCase
                 ->make();
     }
     
-    protected function defineSuccessStart(CityQueriesInterface $cityQueries, GetWeather $command): City
+    protected function defineSuccessStart(CityQueries $cityQueries, GetWeather $command): void
     {
         $city = $this->factoryCity();
         
         $this->defineIntArgument($city, $command);
         
-        $cityQueries->expects($this->once())
-                ->method('getByOpenWeatherId')
-                ->willReturn($city);
-        
-        return $city;
+        $cityQueries->method('getByOpenWeatherId')->willReturn($city);
     }
     
     protected function defineSuccessResponse(Response $response): void
@@ -78,28 +73,5 @@ abstract class OpenWeatherTestCase extends TestCase
     protected function defineNullArgument(GetWeather $command): void
     {
         $command->method('argument')->willReturn(null);
-    }
-    
-    protected function defineNeverFacade(OpenWeatherFacadeInterface $facade, CityQueriesInterface $cityQueries): void
-    {
-        $cityQueries->expects($this->never())
-                ->method('getList');
-        
-        $facade->expects($this->never())
-                ->method('getNumberOfWeatherLinesForLastMinute');
-        
-        $facade->expects($this->never())
-                ->method('isTooEarlyToSubmitRequestForThisCity');
-        
-        $this->defineNeverRequest($facade);
-    }
-    
-    protected function defineNeverRequest(OpenWeatherFacadeInterface $facade): void
-    {
-        $facade->expects($this->never())
-                ->method('getWeatherFromOpenWeatherByCity');
-        
-        $facade->expects($this->never())
-                ->method('updateOrCreate');
     }
 }

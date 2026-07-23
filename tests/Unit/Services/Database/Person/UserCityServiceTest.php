@@ -5,19 +5,21 @@ namespace Tests\Unit\Services\Database\Person;
 use App\Events\AddCityInWeatherList;
 use App\Events\RemoveCityFromWeatherList;
 use App\Exceptions\DatabaseException;
-use App\Modifiers\Person\UsersCities\UserCityModifiersInterface;
+use App\Modifiers\Person\UserCityModifiers;
 use App\Models\Thesaurus\City;
-use App\Queries\Person\UsersCities\UserCityQueriesInterface;
-use App\Queries\Thesaurus\Cities\CityQueriesInterface;
+use App\Queries\Person\UserCityQueries;
+use App\Queries\Thesaurus\CityQueries;
 use App\Services\Database\Person\Dto\UserCityDto;
 use App\Services\Database\Person\UserCityService;
+use App\Services\ServiceManagerInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class UserCityServiceTest extends UserTestCase
 {
-    private UserCityModifiersInterface $userCityModifiers;
-    private UserCityQueriesInterface $userCityQueries;
-    private CityQueriesInterface $cityQueries;
+    private ServiceManagerInterface $serviceManager;
+    private UserCityModifiers $userCityModifiers;
+    private UserCityQueries $userCityQueries;
+    private CityQueries $cityQueries;
     private UserCityService $userCityService;
     private Dispatcher $dispatcher;
     private UserCityDto $dto;
@@ -100,12 +102,16 @@ class UserCityServiceTest extends UserTestCase
         $this->dto = $this->getUserCityDto();
         $this->city = $this->factoryCity();
         
-        $this->userCityModifiers = $this->createMock(UserCityModifiersInterface::class);
-        $this->userCityQueries = $this->createMock(UserCityQueriesInterface::class);
-        $this->cityQueries = $this->createMock(CityQueriesInterface::class);
+        $this->userCityModifiers = $this->createMock(UserCityModifiers::class);
+        $this->userCityQueries = $this->createMock(UserCityQueries::class);
+        $this->cityQueries = $this->createMock(CityQueries::class);
         $this->dispatcher = $this->createMock(Dispatcher::class);
         
-        $this->userCityService = new UserCityService($this->userCityModifiers, $this->userCityQueries, $this->cityQueries, $this->dispatcher);
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->userCityModifiers, $this->userCityQueries, $this->cityQueries);
+        
+        $this->userCityService = new UserCityService($this->serviceManager, $this->dispatcher);
         
         $this->cityQueries->expects($this->once())
                 ->method('getById')

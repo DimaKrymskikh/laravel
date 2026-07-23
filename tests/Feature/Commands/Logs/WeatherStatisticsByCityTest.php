@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\Feature\Commands\logs;
+namespace Tests\Feature\Commands\Logs;
 
 use App\Models\Thesaurus\City;
-use App\Queries\Thesaurus\Cities\CityQueriesInterface;
+use App\Queries\Thesaurus\CityQueries;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Database\Testsupport\Thesaurus\ThesaurusData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -62,7 +62,7 @@ class WeatherStatisticsByCityTest extends TestCase
         $openWeatherId = 13;
         $this
             ->artisan("statistics:weather $openWeatherId")
-            ->expectsOutput(sprintf(CityQueriesInterface::NOT_RECORD_WITH_OPEN_WEATHER_ID, $openWeatherId))
+            ->expectsOutput(sprintf(CityQueries::NOT_RECORD_WITH_OPEN_WEATHER_ID, $openWeatherId))
             ->assertExitCode(0);
     }
     

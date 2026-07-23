@@ -3,15 +3,20 @@
 namespace App\Services\StorageDisk\Thesaurus;
 
 use App\Models\Thesaurus\City;
-use App\Queries\Thesaurus\Cities\CityQueriesInterface;
-use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\CitiesCopyistInterface;
+use App\Queries\Thesaurus\CityQueries;
+use App\Services\ServiceManagerInterface;
+use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\CitiesCopyist;
 
 final class CopyCitiesService
 {
+    private CityQueries $queries;
+    private CitiesCopyist $copyist;
+    
     public function __construct(
-            private CityQueriesInterface $queries,
-            private CitiesCopyistInterface $copyist
+            private ServiceManagerInterface $serviceManager
     ) {
+        $this->queries = $this->serviceManager->getQueriesOrModifiers(CityQueries::class);
+        $this->copyist = $this->serviceManager->getCopyist(CitiesCopyist::class);
     }
     
     /**

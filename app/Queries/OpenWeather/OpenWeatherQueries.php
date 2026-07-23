@@ -3,13 +3,18 @@
 namespace App\Queries\OpenWeather;
 
 use App\Models\OpenWeather\Weather;
+use App\Services\DatabaseQueryInterface;
 
-final class OpenWeatherQueries implements OpenWeatherQueriesInterface
+class OpenWeatherQueries implements DatabaseQueryInterface
 {
+    public const NUMBER_OF_ITEMS_IN_CHUNCK = 2;
+    
     /**
-     * {@inheritDoc}
+     * Извлекает по частям все данные таблицы 'open_weather.weather'.
+     * Используется метод 'lazyById'
      * 
-     * @inheritDoc
+     * @param \Closure $callback
+     * @return void
      */
     public function getListInLazyById(\Closure $callback): void
     {
@@ -32,9 +37,10 @@ final class OpenWeatherQueries implements OpenWeatherQueriesInterface
     }
     
     /**
-     * {@inheritDoc}
+     * Извлекает погоду по id-города из таблицы 'open_weather.weather'.
      * 
-     * @inheritDoc
+     * @param int $cityId
+     * @return Weather
      */
     public function getByCityId(int $cityId): Weather
     {

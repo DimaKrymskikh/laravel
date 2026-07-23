@@ -6,18 +6,20 @@ use App\Events\AddFilmInUserList;
 use App\Events\RemoveFilmFromUserList;
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
-use App\Modifiers\Person\UsersFilms\UserFilmModifiersInterface;
-use App\Queries\Dvd\Films\FilmQueriesInterface;
-use App\Queries\Person\UsersFilms\UserFilmQueriesInterface;
+use App\Modifiers\Person\UserFilmModifiers;
+use App\Queries\Dvd\FilmQueries;
+use App\Queries\Person\UserFilmQueries;
 use App\Services\Database\Person\Dto\UserFilmDto;
 use App\Services\Database\Person\UserFilmService;
+use App\Services\ServiceManagerInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class UserFilmServiceTest extends UserTestCase
 {
-    private UserFilmModifiersInterface $userFilmModifiers;
-    private FilmQueriesInterface $filmQueries;
-    private UserFilmQueriesInterface $userFilmQueries;
+    private ServiceManagerInterface $serviceManager;
+    private UserFilmModifiers $userFilmModifiers;
+    private FilmQueries $filmQueries;
+    private UserFilmQueries $userFilmQueries;
     private UserFilmService $userFilmService;
     private Dispatcher $dispatcher;
     private UserFilmDto $dto;
@@ -100,12 +102,16 @@ class UserFilmServiceTest extends UserTestCase
         $this->dto = $this->getUserFilmDto();
         $this->film = $this->factoryFilm();
         
-        $this->userFilmModifiers = $this->createMock(UserFilmModifiersInterface::class);
-        $this->filmQueries = $this->createMock(FilmQueriesInterface::class);
-        $this->userFilmQueries = $this->createMock(UserFilmQueriesInterface::class);
+        $this->userFilmModifiers = $this->createMock(UserFilmModifiers::class);
+        $this->filmQueries = $this->createMock(FilmQueries::class);
+        $this->userFilmQueries = $this->createMock(UserFilmQueries::class);
         $this->dispatcher = $this->createMock(Dispatcher::class);
         
-        $this->userFilmService = new UserFilmService($this->userFilmModifiers, $this->filmQueries, $this->userFilmQueries, $this->dispatcher);
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->userFilmModifiers, $this->filmQueries, $this->userFilmQueries);
+        
+        $this->userFilmService = new UserFilmService($this->serviceManager, $this->dispatcher);
         
         $this->filmQueries->expects($this->once())
                 ->method('getById')

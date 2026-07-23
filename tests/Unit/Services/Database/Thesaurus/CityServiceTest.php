@@ -4,16 +4,18 @@ namespace Tests\Unit\Services\Database\Thesaurus;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
-use App\Modifiers\Thesaurus\Cities\CityModifiersInterface;
-use App\Queries\Thesaurus\Cities\CityQueriesInterface;
+use App\Modifiers\Thesaurus\CityModifiers;
+use App\Queries\Thesaurus\CityQueries;
 use App\Services\Database\Thesaurus\CityService;
+use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Thesaurus\CityCollection;
 use PHPUnit\Framework\TestCase;
 
 class CityServiceTest extends TestCase
 {
-    private CityModifiersInterface $cityModifiers;
-    private CityQueriesInterface $cityQueries;
+    private ServiceManagerInterface $serviceManager;
+    private CityModifiers $cityModifiers;
+    private CityQueries $cityQueries;
     private CityService $cityService;
     private int $cityId = 3;
     private string $name = 'TestCity';
@@ -98,7 +100,7 @@ class CityServiceTest extends TestCase
         $this->cityQueries->expects($this->once())
                 ->method('getById')
                 ->with($this->cityId)
-                ->willThrowException(new DatabaseException(sprintf(CityQueriesInterface::NOT_RECORD_WITH_ID, $this->cityId)));
+                ->willThrowException(new DatabaseException(sprintf(CityQueries::NOT_RECORD_WITH_ID, $this->cityId)));
         
         $this->cityModifiers->expects($this->never())
                 ->method('remove');
@@ -158,16 +160,20 @@ class CityServiceTest extends TestCase
         $this->cityQueries->expects($this->once())
                 ->method('getByOpenWeatherId')
                 ->with($this->openWeatherId)
-                ->willThrowException(new DatabaseException(sprintf(CityQueriesInterface::NOT_RECORD_WITH_ID, $this->cityId)));
+                ->willThrowException(new DatabaseException(sprintf(CityQueries::NOT_RECORD_WITH_ID, $this->cityId)));
         
         $this->cityService->findCityByOpenWeatherId($this->openWeatherId);
     }
     
     protected function setUp(): void
     {
-        $this->cityModifiers = $this->createMock(CityModifiersInterface::class);
-        $this->cityQueries = $this->createMock(CityQueriesInterface::class);
+        $this->cityModifiers = $this->createMock(CityModifiers::class);
+        $this->cityQueries = $this->createMock(CityQueries::class);
         
-        $this->cityService = new CityService($this->cityModifiers, $this->cityQueries);
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->cityModifiers, $this->cityQueries);
+        
+        $this->cityService = new CityService($this->serviceManager);
     }
 }

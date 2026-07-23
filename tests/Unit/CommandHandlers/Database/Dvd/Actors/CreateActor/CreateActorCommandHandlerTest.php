@@ -4,17 +4,19 @@ namespace Tests\Unit\CommandHandlers\Database\Dvd\Actors\CreateActor;
 
 use App\CommandHandlers\Database\Dvd\Actors\CreateActor\CreateActorCommandHandler;
 use App\Console\Commands\Dvd\Actors\CreateActor;
-use App\Modifiers\Dvd\Actors\ActorModifiersInterface;
-use App\Queries\Dvd\Actors\ActorQueriesInterface;
+use App\Modifiers\Dvd\ActorModifiers;
+use App\Queries\Dvd\ActorQueries;
 use App\Services\Database\Dvd\ActorService;
+use App\Services\ServiceManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 class CreateActorCommandHandlerTest extends TestCase
 {
     private CreateActorCommandHandler $handler;
     private CreateActor $command;
-    private ActorModifiersInterface $actorModifiers;
-    private ActorQueriesInterface $actorQueries;
+    private ServiceManagerInterface $serviceManager;
+    private ActorModifiers $actorModifiers;
+    private ActorQueries $actorQueries;
     private ActorService $actorService;
 
     public function test_success_handle(): void
@@ -63,9 +65,14 @@ class CreateActorCommandHandlerTest extends TestCase
     {
         $this->command = $this->createMock(CreateActor::class);
         
-        $this->actorModifiers = $this->createMock(ActorModifiersInterface::class);
-        $this->actorQueries = $this->createMock(ActorQueriesInterface::class);
-        $this->actorService = new ActorService($this->actorModifiers, $this->actorQueries);
+        $this->actorModifiers = $this->createMock(ActorModifiers::class);
+        $this->actorQueries = $this->createMock(ActorQueries::class);
+        
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->actorModifiers, $this->actorQueries);
+        
+        $this->actorService = new ActorService($this->serviceManager);
         
         $this->handler = new CreateActorCommandHandler($this->actorService);
     }

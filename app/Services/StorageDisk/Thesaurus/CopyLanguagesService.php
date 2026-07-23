@@ -3,15 +3,20 @@
 namespace App\Services\StorageDisk\Thesaurus;
 
 use App\Models\Thesaurus\Language;
-use App\Queries\Thesaurus\Languages\LanguageQueriesInterface;
-use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\LanguagesCopyistInterface;
+use App\Queries\Thesaurus\LanguageQueries;
+use App\Services\ServiceManagerInterface;
+use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\LanguagesCopyist;
 
 final class CopyLanguagesService
 {
+    private LanguageQueries $queries;
+    private LanguagesCopyist $copyist;
+    
     public function __construct(
-            private LanguageQueriesInterface $queries,
-            private LanguagesCopyistInterface $copyist,
+            private ServiceManagerInterface $serviceManager
     ) {
+        $this->queries = $this->serviceManager->getQueriesOrModifiers(LanguageQueries::class);
+        $this->copyist = $this->serviceManager->getCopyist(LanguagesCopyist::class);
     }
     
     /**

@@ -7,12 +7,14 @@ use App\StorageDisk\CopyingDatabaseDataToFile\BaseCopyist;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-final class CitiesCopyist extends BaseCopyist implements CitiesCopyistInterface
+class CitiesCopyist extends BaseCopyist
 {
     /**
-     * {@inheritDoc}
+     * Записывает std-объект по модели City
      * 
-     * @inheritDoc
+     * @param string $file
+     * @param City $city
+     * @return void
      */
     public function writeData(string $file, City $city): void
     {

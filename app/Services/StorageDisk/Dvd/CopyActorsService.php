@@ -3,15 +3,20 @@
 namespace App\Services\StorageDisk\Dvd;
 
 use App\Models\Dvd\Actor;
-use App\Queries\Dvd\Actors\ActorQueriesInterface;
-use App\StorageDisk\CopyingDatabaseDataToFile\Dvd\ActorsCopyistInterface;
+use App\Queries\Dvd\ActorQueries;
+use App\Services\ServiceManagerInterface;
+use App\StorageDisk\CopyingDatabaseDataToFile\Dvd\ActorsCopyist;
 
 final class CopyActorsService
 {
+    private ActorQueries $queries;
+    private ActorsCopyist $copyist;
+            
     public function __construct(
-            private ActorQueriesInterface $queries,
-            private ActorsCopyistInterface $copyist
+            private ServiceManagerInterface $serviceManager,
     ) {
+        $this->queries = $this->serviceManager->getQueriesOrModifiers(ActorQueries::class);
+        $this->copyist = $this->serviceManager->getCopyist(ActorsCopyist::class);
     }
     
     /**

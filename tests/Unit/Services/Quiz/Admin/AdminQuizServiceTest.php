@@ -4,18 +4,20 @@ namespace Tests\Unit\Services\Quiz\Admin;
 
 use App\Exceptions\RuleException;
 use App\Models\Quiz\Quiz;
-use App\Modifiers\Quiz\QuizModifiersInterface;
-use App\Queries\Quiz\Quizzes\QuizQueriesInterface;
+use App\Modifiers\Quiz\QuizModifiers;
+use App\Queries\Quiz\QuizQueries;
 use App\Services\Quiz\Admin\AdminQuizService;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\StatusInterface;
+use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Quiz\QuizCollection;
 use Tests\Unit\Services\Quiz\QuizTestCase;
 
 final class AdminQuizServiceTest extends QuizTestCase
 {
-    private QuizModifiersInterface $quizModifiers;
-    private QuizQueriesInterface $quizQueries;
+    private ServiceManagerInterface $serviceManager;
+    private QuizModifiers $quizModifiers;
+    private QuizQueries $quizQueries;
     private AdminQuizService $quizService;
     private int $quizId = 17;
 
@@ -232,9 +234,13 @@ final class AdminQuizServiceTest extends QuizTestCase
     
     protected function setUp(): void
     {
-        $this->quizModifiers = $this->createMock(QuizModifiersInterface::class);
-        $this->quizQueries = $this->createMock(QuizQueriesInterface::class);
+        $this->quizModifiers = $this->createMock(QuizModifiers::class);
+        $this->quizQueries = $this->createMock(QuizQueries::class);
         
-        $this->quizService = new AdminQuizService($this->quizModifiers, $this->quizQueries);
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->quizModifiers, $this->quizQueries);
+        
+        $this->quizService = new AdminQuizService($this->serviceManager);
     }
 }

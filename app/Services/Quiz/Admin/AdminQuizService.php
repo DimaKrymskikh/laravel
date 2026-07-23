@@ -5,21 +5,26 @@ namespace App\Services\Quiz\Admin;
 use App\Exceptions\RuleException;
 use App\Models\Quiz\Quiz;
 use App\Models\Quiz\QuizItem;
-use App\Modifiers\Quiz\QuizModifiersInterface;
-use App\Queries\Quiz\Quizzes\QuizQueriesInterface;
+use App\Modifiers\Quiz\QuizModifiers;
+use App\Queries\Quiz\QuizQueries;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Fields\DataTransferObjects\QuizDto;
 use App\Services\Quiz\Fields\QuizField;
 use App\Services\Quiz\Managers\QuizStatusManager;
 use App\Services\Quiz\StatusInterface;
+use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Quiz\QuizCollection;
 
 final class AdminQuizService
 {
+    private QuizModifiers $quizModifiers;
+    private QuizQueries $quizQueries;
+    
     public function __construct(
-            private QuizModifiersInterface $quizModifiers,
-            private QuizQueriesInterface $quizQueries,
+            private ServiceManagerInterface $serviceManager,
     ) {
+        $this->quizModifiers = $this->serviceManager->getQueriesOrModifiers(QuizModifiers::class);
+        $this->quizQueries = $this->serviceManager->getQueriesOrModifiers(QuizQueries::class);
     }
     
     /**

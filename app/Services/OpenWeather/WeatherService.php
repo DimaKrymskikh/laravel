@@ -2,13 +2,20 @@
 
 namespace App\Services\OpenWeather;
 
+use App\Curl\OpenWeather\OpenWeatherRequests;
 use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Events\RefreshCityWeather;
 use App\Exceptions\OpenWeatherException;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
+use App\Modifiers\OpenWeather\WeatherModifiers;
+use App\Queries\Logs\OpenWeatherWeatherQueries;
+use App\Queries\OpenWeather\OpenWeatherQueries;
+use App\Queries\Person\UserQueries;
+use App\Queries\Thesaurus\CityQueries;
 use App\Services\Database\Person\Dto\UserCityDto;
-use App\Support\Facades\Services\OpenWeather\OpenWeatherFacadeInterface;
+use App\Services\Database\Thesaurus\TimezoneService;
+use App\Services\ServiceManagerInterface;
 use App\ValueObjects\Broadcast\Weather\CurrentWeatherData;
 use App\ValueObjects\ResponseObjects\OpenWeatherObject;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -25,10 +32,23 @@ final class WeatherService
     // Период обновления погоды для города в минутах
     public const OPEN_WEATHER_CITY_UPDATE_PERIOD = 10;
     
+    private OpenWeatherRequests $openWeatherRequests;
+    private WeatherModifiers $weatherModifiers;
+    private OpenWeatherWeatherQueries $openWeatherWeatherQueries;
+    private OpenWeatherQueries $openWeatherQueries;
+    private UserQueries $userQueries;
+    private CityQueries $cityQueries;
+
     public function __construct(
-            private OpenWeatherFacadeInterface $facade,
-            private Dispatcher $dispatcher,
+            private ServiceManagerInterface $serviceManager,
+            private TimezoneService $timezoneService,
     ) {
+        $this->openWeatherRequests = $this->serviceManager->getCurlRequest(OpenWeatherRequests::class);
+        $this->weatherModifiers = $this->serviceManager->getQueriesOrModifiers(WeatherModifiers::class);
+        $this->openWeatherWeatherQueries = $this->serviceManager->getQueriesOrModifiers(OpenWeatherWeatherQueries::class);
+        $this->openWeatherQueries = $this->serviceManager->getQueriesOrModifiers(OpenWeatherQueries::class);
+        $this->userQueries = $this->serviceManager->getQueriesOrModifiers(UserQueries::class);
+        $this->cityQueries = $this->serviceManager->getQueriesOrModifiers(CityQueries::class);
     }
     
     /**
@@ -39,18 +59,18 @@ final class WeatherService
      */
     public function updateOrCreate(WeatherDto $dto): Weather
     {
-        $this->facade->updateOrCreate($dto);
+        $this->weatherModifiers->updateOrCreate($dto);
         
-        return $this->facade->getWeatherByCityId($dto->cityId);
+        return $this->openWeatherQueries->getByCityId($dto->cityId);
     }
     
     public function getWeatherInCitiesForAuthUserByUserId(int $userId): Collection
     {
-        $user = $this->facade->getUserById($userId);
-        $cities = $this->facade->getWeatherInCitiesForUser($user);
+        $user = $this->userQueries->getById($userId);
+        $cities = $this->cityQueries->getByUserWithWeather($user);
         
         // Устанавливаем в данных погоды часовой пояс города
-        $this->facade->setTimezoneOfCitiesForWeatherData($cities);
+        $this->timezoneService->setTimezoneOfCitiesForWeatherData($cities);
         
         return $cities;
     }
@@ -63,7 +83,7 @@ final class WeatherService
      */
     public function checkNumberOfWeatherLinesForLastMinuteLessBaseValue(): void
     {
-        if($this->facade->getNumberOfWeatherLinesForLastMinute() >= WeatherService::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE) {
+        if($this->openWeatherWeatherQueries->getNumberOfWeatherLinesForLastMinute() >= WeatherService::OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE) {
             throw new OpenWeatherException('Превышен лимит запросов на сервер OpenWeather. Подождите одну минуту.');
         }
     }
@@ -77,7 +97,7 @@ final class WeatherService
      */
     public function checkTooEarlyToSubmitRequestForThisCity(int $cityId): void
     {
-        if($this->facade->isTooEarlyToSubmitRequestForThisCity($cityId)) {
+        if($this->openWeatherWeatherQueries->isTooEarlyToSubmitRequestForThisCity($cityId)) {
             throw new OpenWeatherException('На сервере OpenWeather данные о погоде в городе не обновились.');
         }
     }
@@ -93,7 +113,7 @@ final class WeatherService
         $this->checkNumberOfWeatherLinesForLastMinuteLessBaseValue();
         $this->checkTooEarlyToSubmitRequestForThisCity($city->id);
         
-        return $this->facade->getWeatherFromOpenWeatherByCity($city);
+        return $this->openWeatherRequests->getWeatherByCity($city);
     }
     
     /**
@@ -116,9 +136,9 @@ final class WeatherService
      * @param UserCityDto $dto
      * @return void
      */
-    public function refreshWeatherInCity(UserCityDto $dto): void
+    public function refreshWeatherInCity(UserCityDto $dto, Dispatcher $dispatcher): void
     {
-        $city = $this->facade->getCityById($dto->cityId);
+        $city = $this->cityQueries->getById($dto->cityId);
         $response = $this->sendRequest($city);
         
         if($response->status() !== 200) {
@@ -127,6 +147,6 @@ final class WeatherService
         
         $weather = $this->saveResponse($response, $city);
         
-        $this->dispatcher->dispatch(new RefreshCityWeather($dto->userId, CurrentWeatherData::create($weather, $city)));
+        $dispatcher->dispatch(new RefreshCityWeather($dto->userId, CurrentWeatherData::create($weather, $city)));
     }
 }

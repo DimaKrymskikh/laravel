@@ -3,15 +3,20 @@
 namespace App\Services\StorageDisk\OpenWeather;
 
 use App\Models\OpenWeather\Weather;
-use App\Queries\OpenWeather\OpenWeatherQueriesInterface;
-use App\StorageDisk\CopyingDatabaseDataToFile\OpenWeather\WeatherCopyistInterface;
+use App\Queries\OpenWeather\OpenWeatherQueries;
+use App\Services\ServiceManagerInterface;
+use App\StorageDisk\CopyingDatabaseDataToFile\OpenWeather\WeatherCopyist;
 
 final class CopyWeatherService
 {
+    private OpenWeatherQueries $queries;
+    private WeatherCopyist $copyist;
+
     public function __construct(
-            private OpenWeatherQueriesInterface $queries,
-            private WeatherCopyistInterface $copyist
+            private ServiceManagerInterface $serviceManager
     ) {
+        $this->queries = $this->serviceManager->getQueriesOrModifiers(OpenWeatherQueries::class);
+        $this->copyist = $this->serviceManager->getCopyist(WeatherCopyist::class);
     }
     
     /**

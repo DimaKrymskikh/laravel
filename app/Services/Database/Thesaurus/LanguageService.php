@@ -4,16 +4,21 @@ namespace App\Services\Database\Thesaurus;
 
 use App\DataTransferObjects\Database\Thesaurus\Filters\LanguageFilterDto;
 use App\Models\Thesaurus\Language;
-use App\Modifiers\Thesaurus\Languages\LanguageModifiersInterface;
-use App\Queries\Thesaurus\Languages\LanguageQueriesInterface;
+use App\Modifiers\Thesaurus\LanguageModifiers;
+use App\Queries\Thesaurus\LanguageQueries;
+use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Thesaurus\LanguageCollection;
 
 final class LanguageService
 {
+    private LanguageModifiers $languageModifiers;
+    private LanguageQueries $languageQueries;
+    
     public function __construct(
-            private LanguageModifiersInterface $languageModifiers,
-            private LanguageQueriesInterface $languageQueries,
+            private ServiceManagerInterface $serviceManager
     ) {
+        $this->languageModifiers = $this->serviceManager->getQueriesOrModifiers(LanguageModifiers::class);
+        $this->languageQueries = $this->serviceManager->getQueriesOrModifiers(LanguageQueries::class);
     }
     
     public function create(string $name): Language

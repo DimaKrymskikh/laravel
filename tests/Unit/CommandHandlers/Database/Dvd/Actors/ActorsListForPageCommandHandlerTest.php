@@ -5,7 +5,7 @@ namespace Tests\Unit\CommandHandlers\Database\Dvd\Actors;
 use App\CommandHandlers\Database\Dvd\Actors\ActorsListForPageCommandHandler;
 use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
-use App\Queries\Dvd\Actors\ActorsListForPage\ActorsListForPageQueriesInterface;
+use App\Queries\Dvd\ActorsListForPage\ActorsListForPageQueriesInterface;
 use App\ValueObjects\Pagination\PageValue;
 use App\ValueObjects\Pagination\PerPageValue;
 use PHPUnit\Framework\TestCase;

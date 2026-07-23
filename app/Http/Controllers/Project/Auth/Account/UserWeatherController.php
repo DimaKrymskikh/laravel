@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Project\Auth\Account;
 use App\Http\Controllers\Controller;
 use App\Services\Database\Person\Dto\UserCityDto;
 use App\Services\OpenWeather\WeatherService;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -38,9 +39,9 @@ class UserWeatherController extends Controller
      * @param int $cityId
      * @return void
      */
-    public function refresh(Request $request, int $cityId): void
+    public function refresh(Request $request, Dispatcher $dispatcher, int $cityId): void
     {
         $dto = new UserCityDto($request->user()->id, $cityId);
-        $this->weatherService->refreshWeatherInCity($dto);
+        $this->weatherService->refreshWeatherInCity($dto, $dispatcher);
     }
 }

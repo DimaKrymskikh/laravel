@@ -6,16 +6,21 @@ use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\DataTransferObjects\Database\Dvd\FilmDto;
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
-use App\Modifiers\Dvd\Films\FilmModifiersInterface;
-use App\Queries\Dvd\Films\FilmQueriesInterface;
+use App\Modifiers\Dvd\FilmModifiers;
+use App\Queries\Dvd\FilmQueries;
+use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Dvd\FilmCollection;
 
 final class FilmService
 {
+    private FilmQueries $filmQueries;
+    private FilmModifiers $filmModifiers;
+    
     public function __construct(
-            private FilmQueriesInterface $filmQueries,
-            private FilmModifiersInterface $filmModifiers,
+            private ServiceManagerInterface $serviceManager
     ) {
+        $this->filmModifiers = $this->serviceManager->getQueriesOrModifiers(FilmModifiers::class);
+        $this->filmQueries = $this->serviceManager->getQueriesOrModifiers(FilmQueries::class);
     }
     
     public function create(FilmDto $dto): Film
@@ -43,7 +48,7 @@ final class FilmService
     public function delete(int $filmId): void
     {
         if (!$this->filmQueries->exists($filmId)) {
-            throw new DatabaseException(sprintf(FilmQueriesInterface::NOT_RECORD_WITH_ID, $filmId));
+            throw new DatabaseException(sprintf(FilmQueries::NOT_RECORD_WITH_ID, $filmId));
         }
         
         $this->filmModifiers->delete($filmId);

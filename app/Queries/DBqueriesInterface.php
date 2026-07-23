@@ -2,7 +2,9 @@
 
 namespace App\Queries;
 
-interface DBqueriesInterface
+use App\Services\DatabaseQueryInterface;
+
+interface DBqueriesInterface extends DatabaseQueryInterface
 {
     /**
      * Оболочка над DB::select.
@@ -24,4 +26,13 @@ interface DBqueriesInterface
      * @return object std-объект.
      */
     public function getObject(string $query, array $options = []): object;
+    
+    /**
+     * Оболочка над DB::scalar.
+     * 
+     * @param string $query
+     * @param array $options
+     * @return mixed
+     */
+    public function getValue(string $query, array $options = []): mixed;
 }

@@ -4,14 +4,18 @@ namespace App\Support\Pagination\Urls\Films;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
-use App\Queries\Person\UsersFilms\UserFilmQueriesInterface;
+use App\Queries\Person\UserFilmQueries;
+use App\Services\ServiceManagerInterface;
 
 final class UserFilmUrls
 {
+    private UserFilmQueries $userFilmQueries;
+    
     public function __construct(
-        private UserFilmQueriesInterface $userFilmQueries,
-        private BaseFilmUrls $baseFilmUrls
+            private ServiceManagerInterface $serviceManager,
+            private BaseFilmUrls $baseFilmUrls
     ) {
+        $this->userFilmQueries = $this->serviceManager->getQueriesOrModifiers(UserFilmQueries::class);
     }
     
     public function getUrlWithPaginationOptionsAfterRemovingFilm(string $url, PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto, int $userId): string

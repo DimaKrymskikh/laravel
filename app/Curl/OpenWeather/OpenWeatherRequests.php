@@ -3,18 +3,20 @@
 namespace App\Curl\OpenWeather;
 
 use App\Models\Thesaurus\City;
+use App\Services\CurlRequestInterface;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 /**
  * Класс методов для отправки http-запросов на сервер OpenWeather
  */
-final class OpenWeatherRequests implements OpenWeatherRequestsInterface
+class OpenWeatherRequests implements CurlRequestInterface
 {
     /**
-     * {@inheritDoc}
+     * Отправляет http-запрос на сервер OpenWeather для одного города.
      * 
-     * @inheritDoc
+     * @param City $city
+     * @return Response
      */
     public function getWeatherByCity(City $city): Response
     {

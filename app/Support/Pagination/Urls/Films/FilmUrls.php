@@ -4,15 +4,19 @@ namespace App\Support\Pagination\Urls\Films;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
-use App\Queries\Dvd\Films\FilmQueriesInterface;
+use App\Queries\Dvd\FilmQueries;
+use App\Services\ServiceManagerInterface;
 use App\Support\Pagination\Paginator;
 
 final class FilmUrls
 {
+    private FilmQueries $filmQueries;
+    
     public function __construct(
-        private FilmQueriesInterface $filmQueries,
-        private BaseFilmUrls $baseFilmUrls
+            private ServiceManagerInterface $serviceManager,
+            private BaseFilmUrls $baseFilmUrls
     ) {
+        $this->filmQueries = $this->serviceManager->getQueriesOrModifiers(FilmQueries::class);
     }
     
     /**

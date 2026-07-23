@@ -3,16 +3,16 @@
 namespace Tests\Unit\Services\StorageDisk\Thesaurus;
 
 use App\Models\Thesaurus\Language;
-use App\Queries\Thesaurus\Languages\LanguageQueriesInterface;
+use App\Queries\Thesaurus\LanguageQueries;
 use App\Services\StorageDisk\Thesaurus\CopyLanguagesService;
-use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\LanguagesCopyistInterface;
-use PHPUnit\Framework\TestCase;
+use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\LanguagesCopyist;
+use Tests\Unit\Services\StorageDisk\StorageDiskTestCase;
 
-class CopyLanguagesServiceTest extends TestCase
+class CopyLanguagesServiceTest extends StorageDiskTestCase
 {
-    private LanguageQueriesInterface $queries;
-    private CopyLanguagesService $service;
-    private LanguagesCopyistInterface $copyist;
+    protected LanguageQueries $queries;
+    protected CopyLanguagesService $service;
+    protected LanguagesCopyist $copyist;
     
     public function test_success_copy(): void
     {
@@ -33,9 +33,11 @@ class CopyLanguagesServiceTest extends TestCase
     
     protected function setUp(): void
     {
-        $this->queries = $this->createMock(LanguageQueriesInterface::class);
-        $this->copyist = $this->createMock(LanguagesCopyistInterface::class);
+        $this->queries = $this->createMock(LanguageQueries::class);
+        $this->copyist = $this->createMock(LanguagesCopyist::class);
         
-        $this->service = new CopyLanguagesService($this->queries, $this->copyist);
+        parent::setUp();
+        
+        $this->service = new CopyLanguagesService($this->serviceManager);
     }
 }

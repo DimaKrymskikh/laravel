@@ -4,7 +4,7 @@ namespace App\CommandHandlers\Database\Dvd\Actors;
 
 use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
-use App\Queries\Dvd\Actors\ActorsListForPage\ActorsListForPageQueriesInterface;
+use App\Queries\Dvd\ActorsListForPage\ActorsListForPageQueriesInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 final class ActorsListForPageCommandHandler

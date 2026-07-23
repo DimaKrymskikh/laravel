@@ -11,6 +11,8 @@ use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
+    const DEFAULT_LIMIT = 100;
+    
     /**
      * Register any application services.
      */

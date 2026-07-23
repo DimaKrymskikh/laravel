@@ -5,7 +5,7 @@ namespace App\CommandHandlers\Database\Logs\Weather;
 use App\DataTransferObjects\Database\OpenWeather\Filters\WeatherFilterDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
 use App\Models\Thesaurus\City;
-use App\Queries\Logs\OpenWeatherWeather\WeatherListForPage\WeatherListForPageQueriesInterface;
+use App\Queries\Logs\WeatherListForPage\WeatherListForPageQueriesInterface;
 use App\Services\Database\Thesaurus\TimezoneService;
 use Illuminate\Pagination\LengthAwarePaginator;
 

@@ -4,16 +4,18 @@ namespace Tests\Unit\Services\Database\Thesaurus;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\Language;
-use App\Modifiers\Thesaurus\Languages\LanguageModifiersInterface;
-use App\Queries\Thesaurus\Languages\LanguageQueriesInterface;
+use App\Modifiers\Thesaurus\LanguageModifiers;
+use App\Queries\Thesaurus\LanguageQueries;
 use App\Services\Database\Thesaurus\LanguageService;
+use App\Services\ServiceManagerInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Tests\Unit\TestCase\ThesaurusTestCase;
 
 class LanguageServiceTest extends ThesaurusTestCase
 {
-    private LanguageModifiersInterface $languageModifiers;
-    private LanguageQueriesInterface $languageQueries;
+    private ServiceManagerInterface $serviceManager;
+    private LanguageModifiers $languageModifiers;
+    private LanguageQueries $languageQueries;
     private LanguageService $languageService;
     private string $name = 'TestName';
     private int $languageId = 12;
@@ -67,7 +69,7 @@ class LanguageServiceTest extends ThesaurusTestCase
         $this->languageQueries->expects($this->once())
                 ->method('getById')
                 ->with($this->languageId)
-                ->willThrowException(new DatabaseException(sprintf(LanguageQueriesInterface::NOT_RECORD_WITH_ID, $this->languageId)));
+                ->willThrowException(new DatabaseException(sprintf(LanguageQueries::NOT_RECORD_WITH_ID, $this->languageId)));
         
         $this->languageModifiers->expects($this->never())
                 ->method('remove')
@@ -90,9 +92,13 @@ class LanguageServiceTest extends ThesaurusTestCase
     
     protected function setUp(): void
     {
-        $this->languageModifiers = $this->createMock(LanguageModifiersInterface::class);
-        $this->languageQueries = $this->createMock(LanguageQueriesInterface::class);
+        $this->languageModifiers = $this->createMock(LanguageModifiers::class);
+        $this->languageQueries = $this->createMock(LanguageQueries::class);
         
-        $this->languageService = new LanguageService($this->languageModifiers, $this->languageQueries);
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->languageModifiers, $this->languageQueries);
+        
+        $this->languageService = new LanguageService($this->serviceManager);
     }
 }

@@ -3,16 +3,16 @@
 namespace Tests\Unit\Services\StorageDisk\Dvd;
 
 use App\Models\Dvd\Film;
-use App\Queries\Dvd\Films\FilmQueriesInterface;
+use App\Queries\Dvd\FilmQueries;
 use App\Services\StorageDisk\Dvd\CopyFilmsService;
-use App\StorageDisk\CopyingDatabaseDataToFile\Dvd\FilmsCopyistInterface;
-use PHPUnit\Framework\TestCase;
+use App\StorageDisk\CopyingDatabaseDataToFile\Dvd\FilmsCopyist;
+use Tests\Unit\Services\StorageDisk\StorageDiskTestCase;
 
-class CopyFilmsServiceTest extends TestCase
+class CopyFilmsServiceTest extends StorageDiskTestCase
 {
-    private FilmQueriesInterface $queries;
-    private CopyFilmsService $service;
-    private FilmsCopyistInterface $copyist;
+    protected FilmQueries $queries;
+    protected CopyFilmsService $service;
+    protected FilmsCopyist $copyist;
     
     public function test_success_copy(): void
     {
@@ -33,9 +33,11 @@ class CopyFilmsServiceTest extends TestCase
     
     protected function setUp(): void
     {
-        $this->queries = $this->createMock(FilmQueriesInterface::class);
-        $this->copyist = $this->createMock(FilmsCopyistInterface::class);
+        $this->queries = $this->createMock(FilmQueries::class);
+        $this->copyist = $this->createMock(FilmsCopyist::class);
         
-        $this->service = new CopyFilmsService($this->queries, $this->copyist);
+        parent::setUp();
+        
+        $this->service = new CopyFilmsService($this->serviceManager);
     }
 }

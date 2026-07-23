@@ -6,7 +6,7 @@ use App\Events\RefreshCityWeather;
 use App\Models\Logs\OpenWeatherWeather;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
-use App\Queries\Thesaurus\Cities\CityQueriesInterface;
+use App\Queries\Thesaurus\CityQueries;
 use App\Services\OpenWeather\WeatherService;
 use Database\Seeders\Tests\Thesaurus\CitySeeder;
 use Database\Testsupport\OpenWeather\OpenWeatherResponse;
@@ -71,7 +71,7 @@ class GetWeatherTest extends TestCase
         $openWeatherId = 13;
         $this
             ->artisan("get:weather $openWeatherId")
-            ->expectsOutput(sprintf(CityQueriesInterface::NOT_RECORD_WITH_OPEN_WEATHER_ID, $openWeatherId))
+            ->expectsOutput(sprintf(CityQueries::NOT_RECORD_WITH_OPEN_WEATHER_ID, $openWeatherId))
             ->assertExitCode(0);
         // Нет данных погоды
         $this->assertEquals(0, Weather::all()->count());

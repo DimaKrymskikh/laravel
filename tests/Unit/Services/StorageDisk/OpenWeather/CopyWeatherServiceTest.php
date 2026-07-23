@@ -2,16 +2,16 @@
 
 namespace Tests\Unit\Services\StorageDisk\OpenWeather;
 
-use App\Queries\OpenWeather\OpenWeatherQueriesInterface;
+use App\Queries\OpenWeather\OpenWeatherQueries;
 use App\Services\StorageDisk\OpenWeather\CopyWeatherService;
-use App\StorageDisk\CopyingDatabaseDataToFile\OpenWeather\WeatherCopyistInterface;
-use PHPUnit\Framework\TestCase;
+use App\StorageDisk\CopyingDatabaseDataToFile\OpenWeather\WeatherCopyist;
+use Tests\Unit\Services\StorageDisk\StorageDiskTestCase;
 
-class CopyWeatherServiceTest extends TestCase
+class CopyWeatherServiceTest extends StorageDiskTestCase
 {
-    private OpenWeatherQueriesInterface $queries;
-    private CopyWeatherService $service;
-    private WeatherCopyistInterface $copyist;
+    protected OpenWeatherQueries $queries;
+    protected CopyWeatherService $service;
+    protected WeatherCopyist $copyist;
     
     public function test_success_copy(): void
     {
@@ -32,9 +32,11 @@ class CopyWeatherServiceTest extends TestCase
     
     protected function setUp(): void
     {
-        $this->queries = $this->createMock(OpenWeatherQueriesInterface::class);
-        $this->copyist = $this->createMock(WeatherCopyistInterface::class);
+        $this->queries = $this->createMock(OpenWeatherQueries::class);
+        $this->copyist = $this->createMock(WeatherCopyist::class);
         
-        $this->service = new CopyWeatherService($this->queries, $this->copyist);
+        parent::setUp();
+        
+        $this->service = new CopyWeatherService($this->serviceManager);
     }
 }

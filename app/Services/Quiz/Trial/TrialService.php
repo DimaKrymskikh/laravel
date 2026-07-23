@@ -7,10 +7,16 @@ use App\Models\User;
 use App\Models\Quiz\Quiz;
 use App\Models\Quiz\Trial;
 use App\Models\Quiz\TrialAnswer;
-use App\Modifiers\Quiz\Facades\TrialModifiersFacadeInterface;
-use App\Support\Facades\Queries\Quiz\TrialQueriesFacadeInterface;
+use App\Modifiers\Quiz\TrialAnswerModifiers;
+use App\Modifiers\Quiz\TrialModifiers;
+use App\Queries\Quiz\QuizAnswerQueries;
+use App\Queries\Quiz\QuizItemQueries;
+use App\Queries\Quiz\QuizQueries;
+use App\Queries\Quiz\TrialAnswerQueries;
+use App\Queries\Quiz\TrialQueries;
 use App\Services\Quiz\Trial\DataTransferObjects\AnswerDto;
 use App\Services\Quiz\Managers\GradeManager;
+use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Quiz\QuizCollection;
 use App\Support\Collections\Quiz\QuizItemCollection;
 use App\Support\Collections\Quiz\TrialCollection;
@@ -18,10 +24,24 @@ use Carbon\Carbon;
 
 final class TrialService
 {
+    private TrialAnswerModifiers $trialAnswerModifiers;
+    private TrialModifiers $trialModifiers;
+    private QuizAnswerQueries $quizAnswerQueries;
+    private QuizItemQueries $quizItemQueries;
+    private QuizQueries $quizQueries;
+    private TrialAnswerQueries $trialAnswerQueries;
+    private TrialQueries $trialQueries;
+    
     public function __construct(
-            private TrialModifiersFacadeInterface $trialModifiers,
-            private TrialQueriesFacadeInterface $trialQueries,
+            private ServiceManagerInterface $serviceManager,
     ) {
+        $this->trialAnswerModifiers = $this->serviceManager->getQueriesOrModifiers(TrialAnswerModifiers::class);
+        $this->trialModifiers = $this->serviceManager->getQueriesOrModifiers(TrialModifiers::class);
+        $this->quizAnswerQueries = $this->serviceManager->getQueriesOrModifiers(QuizAnswerQueries::class);
+        $this->quizItemQueries = $this->serviceManager->getQueriesOrModifiers(QuizItemQueries::class);
+        $this->quizQueries = $this->serviceManager->getQueriesOrModifiers(QuizQueries::class);
+        $this->trialAnswerQueries = $this->serviceManager->getQueriesOrModifiers(TrialAnswerQueries::class);
+        $this->trialQueries = $this->serviceManager->getQueriesOrModifiers(TrialQueries::class);
     }
     
     /**
@@ -31,7 +51,7 @@ final class TrialService
      */
     public function getQuizzes(): QuizCollection
     {
-        return $this->trialQueries->getListQuizzesForTrials();
+        return $this->quizQueries->getListForTrials();
     }
     
     /**
@@ -43,7 +63,7 @@ final class TrialService
      */
     public function getQuiz(User $user, int $id): Quiz
     {
-        $quiz = $this->trialQueries->getQuizForTrial($id);
+        $quiz = $this->quizQueries->getByIdForTrial($id);
         $quiz->isActiveTrial = $this->trialQueries->existsActiveTrialByUser($user);
         
         return $quiz;
@@ -63,9 +83,9 @@ final class TrialService
             throw new DatabaseException(sprintf('У пользователя %s имеется активный опрос. Нельзя начать новый.', $user->login));
         }
         
-        $quiz = $this->trialQueries->getQuizForTrialWithQuizItems($quizId);
+        $quiz = $this->quizQueries->getByIdForTrialWithQuizItems($quizId);
         
-        $trialId = $this->trialModifiers->insertInTrialTableGetId($user, $quiz);
+        $trialId = $this->trialModifiers->insertGetId($user, $quiz);
         
         foreach ($quiz->quizItems as $item) {
             $trialAnswer = new TrialAnswer();
@@ -73,7 +93,7 @@ final class TrialService
             $trialAnswer->quiz_item_id = $item->id;
             $trialAnswer->question = $item->description;
             $trialAnswer->priority = $item->priority ?? 0;
-            $this->trialModifiers->saveInTrialAnswerTable($trialAnswer);
+            $this->trialAnswerModifiers->save($trialAnswer);
         }
     }
     
@@ -99,7 +119,7 @@ final class TrialService
      */
     public function getListQuizItemsForActiveTrial(int $id): QuizItemCollection
     {
-        return $this->trialQueries->getListQuizItemsForActiveTrial($id);
+        return $this->quizItemQueries->getListByQuizIdWithAnswersForTrial($id);
     }
     
     /**
@@ -131,14 +151,14 @@ final class TrialService
             throw new DatabaseException('Время опроса истекло. Ответ не принят.');
         }
         
-        $trialAnswer = $this->trialQueries->getTrialAnswerTableRow($dto->id);
-        $answer = $this->trialQueries->getQuizAnswerTableRow($dto->quiz_answer_id);
+        $trialAnswer = $this->trialAnswerQueries->getById($dto->id);
+        $answer = $this->quizAnswerQueries->getById($dto->quiz_answer_id);
         
         $trialAnswer->quiz_answer_id = $dto->quiz_answer_id;
         $trialAnswer->answer = $answer->description;
         $trialAnswer->is_correct = $answer->is_correct;
         
-        $this->trialModifiers->saveInTrialAnswerTable($trialAnswer);
+        $this->trialAnswerModifiers->save($trialAnswer);
     }
     
     /**
@@ -157,6 +177,6 @@ final class TrialService
         $trial->correct_answers_number = $trialAnswers->filter(fn ($trialAnswer) => $trialAnswer->is_correct === true)->count();
         $trial->grade = GradeManager::find($trial);
         
-        $this->trialModifiers->saveInTrialTable($trial);
+        $this->trialModifiers->save($trial);
     }
 }

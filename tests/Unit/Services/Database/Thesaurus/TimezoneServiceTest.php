@@ -2,14 +2,16 @@
 
 namespace Tests\Unit\Services\Database\Thesaurus;
 
-use App\Queries\Thesaurus\Timezones\TimezoneQueriesInterface;
+use App\Queries\Thesaurus\TimezoneQueries;
 use App\Services\Database\Thesaurus\TimezoneService;
+use App\Services\ServiceManagerInterface;
 use Illuminate\Database\Eloquent\Collection;
 use PHPUnit\Framework\TestCase;
 
 class TimezoneServiceTest extends TestCase
 {
-    private TimezoneQueriesInterface $timezoneQueries;
+    private ServiceManagerInterface $serviceManager;
+    private TimezoneQueries $timezoneQueries;
     private TimezoneService $timezoneService;
     private string $filterName = 'TestFilter';
     
@@ -24,8 +26,12 @@ class TimezoneServiceTest extends TestCase
     
     protected function setUp(): void
     {
-        $this->timezoneQueries = $this->createMock(TimezoneQueriesInterface::class);
+        $this->timezoneQueries = $this->createMock(TimezoneQueries::class);
         
-        $this->timezoneService = new TimezoneService($this->timezoneQueries);
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->timezoneQueries);
+        
+        $this->timezoneService = new TimezoneService($this->serviceManager);
     }
 }

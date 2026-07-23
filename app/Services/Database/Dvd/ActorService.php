@@ -6,16 +6,21 @@ use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use App\DataTransferObjects\Database\Dvd\ActorDto;
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Actor;
-use App\Modifiers\Dvd\Actors\ActorModifiersInterface;
-use App\Queries\Dvd\Actors\ActorQueriesInterface;
+use App\Modifiers\Dvd\ActorModifiers;
+use App\Queries\Dvd\ActorQueries;
+use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Dvd\ActorCollection;
 
 final class ActorService
 {
+    private ActorModifiers $actorModifiers;
+    private ActorQueries $actorQueries;
+    
     public function __construct(
-            private ActorModifiersInterface $actorModifiers,
-            private ActorQueriesInterface $actorQueries,
+            private ServiceManagerInterface $serviceManager,
     ) {
+        $this->actorModifiers = $this->serviceManager->getQueriesOrModifiers(ActorModifiers::class);
+        $this->actorQueries = $this->serviceManager->getQueriesOrModifiers(ActorQueries::class);
     }
     
     /**
@@ -49,7 +54,7 @@ final class ActorService
     public function delete(int $actorId): void
     {
         if(!$this->actorQueries->exists($actorId)) {
-            throw new DatabaseException(sprintf(ActorQueriesInterface::NOT_RECORD_WITH_ID, $actorId));
+            throw new DatabaseException(sprintf(ActorQueries::NOT_RECORD_WITH_ID, $actorId));
         }
         
         $this->actorModifiers->delete($actorId);

@@ -8,14 +8,16 @@ use App\CommandHandlers\Database\Logs\WeatherStatisticsByCity\WeatherStatisticsB
 use App\Console\Commands\Logs\WeatherStatisticsByCity;
 use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
-use App\Queries\Thesaurus\Cities\CityQueriesInterface;
+use App\Queries\Thesaurus\CityQueries;
+use App\Services\ServiceManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 class WeatherStatisticsByCityCommandHandlerTest extends TestCase
 {
+    private ServiceManagerInterface $serviceManager;
     private WeatherStatisticsByCityCommandHandler $handler;
     private WeatherStatisticsByCity $command;
-    private CityQueriesInterface $queries;
+    private CityQueries $queries;
     
     public function test_success_handle_all_cities(): void
     {
@@ -89,8 +91,12 @@ class WeatherStatisticsByCityCommandHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->command = $this->createStub(WeatherStatisticsByCity::class);
-        $this->queries = $this->createMock(CityQueriesInterface::class);
+        $this->queries = $this->createMock(CityQueries::class);
         
-        $this->handler = new WeatherStatisticsByCityCommandHandler($this->queries);
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->queries);
+        
+        $this->handler = new WeatherStatisticsByCityCommandHandler($this->serviceManager);
     }
 }

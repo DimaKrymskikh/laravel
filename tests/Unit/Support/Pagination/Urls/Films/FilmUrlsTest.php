@@ -4,7 +4,8 @@ namespace Tests\Unit\Support\Pagination\Urls\Films;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\DataTransferObjects\Pagination\PaginatorDto;
-use App\Queries\Dvd\Films\FilmQueriesInterface;
+use App\Queries\Dvd\FilmQueries;
+use App\Services\ServiceManagerInterface;
 use App\Support\Pagination\Urls\Films\BaseFilmUrls;
 use App\Support\Pagination\Urls\Films\FilmUrls;
 use App\Support\Pagination\Paginator;
@@ -12,7 +13,8 @@ use Tests\Unit\TestCase\DvdTestCase;
 
 class FilmUrlsTest extends DvdTestCase
 {
-    private FilmQueriesInterface $filmQueries;
+    private ServiceManagerInterface $serviceManager;
+    private FilmQueries $filmQueries;
     private BaseFilmUrls $baseFilmUrls;
     private FilmUrls $filmUrls;
     private Paginator $paginator;
@@ -89,10 +91,14 @@ class FilmUrlsTest extends DvdTestCase
         $this->filmFilterDto = $this->getFilmFilterDto();
         $this->paginatorDto = $this->getPaginatorDto();
         
-        $this->filmQueries = $this->createMock(FilmQueriesInterface::class);
+        $this->filmQueries = $this->createMock(FilmQueries::class);
         $this->paginator = new Paginator();
         $this->baseFilmUrls = new BaseFilmUrls($this->paginator);
         
-        $this->filmUrls = new FilmUrls($this->filmQueries, $this->baseFilmUrls);
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->filmQueries);
+        
+        $this->filmUrls = new FilmUrls($this->serviceManager, $this->baseFilmUrls);
     }
 }

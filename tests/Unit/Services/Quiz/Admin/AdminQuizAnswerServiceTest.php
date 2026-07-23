@@ -3,21 +3,23 @@
 namespace Tests\Unit\Services\Quiz\Admin;
 
 use App\Models\Quiz\QuizAnswer;
-use App\Modifiers\Quiz\QuizAnswerModifiersInterface;
-use App\Queries\Quiz\QuizAnswers\QuizAnswerQueriesInterface;
-use App\Queries\Quiz\QuizItems\QuizItemQueriesInterface;
+use App\Modifiers\Quiz\QuizAnswerModifiers;
+use App\Queries\Quiz\QuizAnswerQueries;
+use App\Queries\Quiz\QuizItemQueries;
 use App\Services\Quiz\Admin\AdminQuizAnswerService;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Fields\QuizAnswerField;
 use App\Services\Quiz\StatusInterface;
+use App\Services\ServiceManagerInterface;
 use Tests\Unit\Services\Quiz\QuizTestCase;
 
 final class AdminQuizAnswerServiceTest extends QuizTestCase
 {
-    private QuizAnswerModifiersInterface $quizAnswerModifiers;
-    private QuizAnswerQueriesInterface $quizAnswerQueries;
-    private QuizItemQueriesInterface $quizItemQueries;
+    private ServiceManagerInterface $serviceManager;
+    private QuizAnswerModifiers $quizAnswerModifiers;
+    private QuizAnswerQueries $quizAnswerQueries;
+    private QuizItemQueries $quizItemQueries;
     private AdminQuizAnswerService $quizAnswerService;
     private int $quizAnswerId = 11;
     
@@ -105,10 +107,14 @@ final class AdminQuizAnswerServiceTest extends QuizTestCase
 
     protected function setUp(): void
     {
-        $this->quizAnswerModifiers = $this->createMock(QuizAnswerModifiersInterface::class);
-        $this->quizAnswerQueries = $this->createMock(QuizAnswerQueriesInterface::class);
-        $this->quizItemQueries = $this->createMock(QuizItemQueriesInterface::class);
+        $this->quizAnswerModifiers = $this->createMock(QuizAnswerModifiers::class);
+        $this->quizAnswerQueries = $this->createMock(QuizAnswerQueries::class);
+        $this->quizItemQueries = $this->createMock(QuizItemQueries::class);
         
-        $this->quizAnswerService = new AdminQuizAnswerService($this->quizAnswerModifiers, $this->quizAnswerQueries, $this->quizItemQueries);
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->quizAnswerModifiers, $this->quizAnswerQueries, $this->quizItemQueries);
+        
+        $this->quizAnswerService = new AdminQuizAnswerService($this->serviceManager);
     }
 }

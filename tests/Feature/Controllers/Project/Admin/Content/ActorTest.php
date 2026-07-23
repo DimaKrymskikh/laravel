@@ -4,7 +4,7 @@ namespace Tests\Feature\Controllers\Project\Admin\Content;
 
 use App\Models\Dvd\Actor;
 use App\Providers\RouteServiceProvider;
-use App\Queries\Dvd\Actors\ActorQueriesInterface;
+use App\Queries\Dvd\ActorQueries;
 use Database\Seeders\Tests\Dvd\ActorSeeder;
 use Database\Testsupport\Dvd\DvdData;
 use Illuminate\Database\Query\Builder;
@@ -213,7 +213,7 @@ class ActorTest extends TestCase
 
         $response
             ->assertInvalid([
-                'message' => sprintf(ActorQueriesInterface::NOT_RECORD_WITH_ID, ActorSeeder::ID_NOT),
+                'message' => sprintf(ActorQueries::NOT_RECORD_WITH_ID, ActorSeeder::ID_NOT),
             ])
             ->assertStatus(303);
     }

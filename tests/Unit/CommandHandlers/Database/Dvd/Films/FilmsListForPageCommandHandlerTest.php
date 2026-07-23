@@ -3,7 +3,7 @@
 namespace Tests\Unit\CommandHandlers\Database\Dvd\Films;
 
 use App\CommandHandlers\Database\Dvd\Films\FilmsListForPageCommandHandler;
-use App\Queries\Dvd\Films\FilmsListForPage\FilmsListForPageQueriesInterface;
+use App\Queries\Dvd\FilmsListForPage\FilmsListForPageQueriesInterface;
 use Tests\Unit\TestCase\DvdTestCase;
 
 class FilmsListForPageCommandHandlerTest extends DvdTestCase

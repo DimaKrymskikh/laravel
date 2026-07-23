@@ -5,20 +5,26 @@ namespace App\Services\Database\Person;
 use App\Events\AddCityInWeatherList;
 use App\Events\RemoveCityFromWeatherList;
 use App\Exceptions\DatabaseException;
-use App\Modifiers\Person\UsersCities\UserCityModifiersInterface;
-use App\Queries\Person\UsersCities\UserCityQueriesInterface;
-use App\Queries\Thesaurus\Cities\CityQueriesInterface;
+use App\Modifiers\Person\UserCityModifiers;
+use App\Queries\Person\UserCityQueries;
+use App\Queries\Thesaurus\CityQueries;
 use App\Services\Database\Person\Dto\UserCityDto;
+use App\Services\ServiceManagerInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
 final class UserCityService
 {
+    private UserCityModifiers $userCityModifiers;
+    private UserCityQueries $userCityQueries;
+    private CityQueries $cityQueries;
+    
     public function __construct(
-            private UserCityModifiersInterface $userCityModifiers,
-            private UserCityQueriesInterface $userCityQueries,
-            private CityQueriesInterface $cityQueries,
+            private ServiceManagerInterface $serviceManager,
             private Dispatcher $dispatcher,
     ) {
+        $this->userCityModifiers = $this->serviceManager->getQueriesOrModifiers(UserCityModifiers::class);
+        $this->userCityQueries = $this->serviceManager->getQueriesOrModifiers(UserCityQueries::class);
+        $this->cityQueries = $this->serviceManager->getQueriesOrModifiers(CityQueries::class);
     }
     
     /**

@@ -3,15 +3,20 @@
 namespace App\Services\StorageDisk\Thesaurus;
 
 use App\Models\Thesaurus\Timezone;
-use App\Queries\Thesaurus\Timezones\TimezoneQueriesInterface;
-use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\TimezonesCopyistInterface;
+use App\Queries\Thesaurus\TimezoneQueries;
+use App\Services\ServiceManagerInterface;
+use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\TimezonesCopyist;
 
 final class CopyTimezonesService
 {
+    private TimezoneQueries $queries;
+    private TimezonesCopyist $copyist;
+    
     public function __construct(
-            private TimezoneQueriesInterface $queries,
-            private TimezonesCopyistInterface $copyist,
+            private ServiceManagerInterface $serviceManager
     ) {
+        $this->queries = $this->serviceManager->getQueriesOrModifiers(TimezoneQueries::class);
+        $this->copyist = $this->serviceManager->getCopyist(TimezonesCopyist::class);
     }
     
     /**

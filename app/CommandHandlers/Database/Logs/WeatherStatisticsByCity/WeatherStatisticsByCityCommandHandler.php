@@ -5,17 +5,21 @@ namespace App\CommandHandlers\Database\Logs\WeatherStatisticsByCity;
 use App\Exceptions\DatabaseException;
 use App\Exceptions\RuleException;
 use App\Console\Commands\Logs\WeatherStatisticsByCity;
-use App\Queries\Thesaurus\Cities\CityQueriesInterface;
+use App\Queries\Thesaurus\CityQueries;
 use App\Services\Carbon\Enums\DateFormat;
 use App\Services\Carbon\CarbonService;
+use App\Services\ServiceManagerInterface;
 use App\ValueObjects\ScalarTypes\SimpleStringValue;
 use App\ValueObjects\IntValue;
 
 final class WeatherStatisticsByCityCommandHandler
 {
+    private CityQueries $queries;
+    
     public function __construct(
-            private CityQueriesInterface $queries,
+            private ServiceManagerInterface $serviceManager
     ) {
+        $this->queries = $this->serviceManager->getQueriesOrModifiers(CityQueries::class);
     }
     
     /**

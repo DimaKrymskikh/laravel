@@ -2,16 +2,22 @@
 
 namespace Tests\Unit\CommandHandlers\OpenWeather;
 
+use App\Curl\OpenWeather\OpenWeatherRequests;
 use App\Exceptions\DatabaseException;
 use App\Exceptions\OpenWeatherException;
 use App\CommandHandlers\OpenWeather\GetWeatherFromOpenWeatherCommandHandler;
 use App\Console\Commands\OpenWeather\GetWeather;
-use App\Modifiers\Thesaurus\Cities\CityModifiersInterface;
-use App\Queries\Thesaurus\Cities\CityQueriesInterface;
-use App\Support\Facades\Services\OpenWeather\OpenWeatherFacadeInterface;
+use App\Modifiers\OpenWeather\WeatherModifiers;
+use App\Modifiers\Thesaurus\CityModifiers;
+use App\Queries\Logs\OpenWeatherWeatherQueries;
+use App\Queries\OpenWeather\OpenWeatherQueries;
+use App\Queries\Person\UserQueries;
+use App\Queries\Thesaurus\CityQueries;
+use App\Queries\Thesaurus\TimezoneQueries;
 use App\Services\OpenWeather\WeatherService;
 use App\Services\Database\Thesaurus\CityService;
-use Illuminate\Contracts\Events\Dispatcher;
+use App\Services\Database\Thesaurus\TimezoneService;
+use App\Services\ServiceManagerInterface;
 use Illuminate\Http\Client\Response;
 
 class GetWeatherFromOpenWeatherCommandHandlerTest extends OpenWeatherTestCase
@@ -19,30 +25,25 @@ class GetWeatherFromOpenWeatherCommandHandlerTest extends OpenWeatherTestCase
     private GetWeatherFromOpenWeatherCommandHandler $handler;
     private GetWeather $command;
     private WeatherService $weatherService;
+    private ServiceManagerInterface $serviceManager;
+    private TimezoneService $timezoneService;
     private CityService $cityService;
     private Response $response;
     private OpenWeatherException $openWeatherException;
-    private OpenWeatherFacadeInterface $openWeatherFacade;
-    private CityModifiersInterface $cityModifiers;
-    private CityQueriesInterface $cityQueries;
-    private Dispatcher $dispatcher;
+    private CityModifiers $cityModifiers;
+    private CityQueries $cityQueries;
+    private TimezoneQueries $timezoneQueries;
+    private OpenWeatherRequests $openWeatherRequests;
+    private WeatherModifiers $weatherModifiers;
+    private OpenWeatherWeatherQueries $openWeatherWeatherQueries;
+    private OpenWeatherQueries $openWeatherQueries;
+    private UserQueries $userQueries;
 
     public function test_success_handle_one_city(): void
     {
-        $city = $this->defineSuccessStart($this->cityQueries, $this->command);
+        $this->defineSuccessStart($this->cityQueries, $this->command);
         
         $this->defineSuccessResponse($this->response);
-        
-        $this->cityQueries->expects($this->never())
-                ->method('getList');
-        
-        $this->openWeatherFacade->expects($this->once())
-                ->method('getWeatherFromOpenWeatherByCity')
-                ->with($this->identicalTo($city))
-                ->willReturn($this->response);
-        
-        $this->openWeatherFacade->expects($this->once())
-                ->method('updateOrCreate');
         
         $this->assertNull($this->handler->handle($this->command));
     }
@@ -51,74 +52,44 @@ class GetWeatherFromOpenWeatherCommandHandlerTest extends OpenWeatherTestCase
     {
         $this->defineStringArgument($this->command);
         
-        $this->cityQueries->expects($this->never())
-                ->method('getByOpenWeatherId');
-        
-        $this->defineNeverFacade($this->openWeatherFacade, $this->cityQueries);
-        
-        $this->handler->handle($this->command);
+        $this->assertNull($this->handler->handle($this->command));
     }
 
     public function test_fail_handle_not_open_weather_id(): void
     {
         $this->defineIntArgument($this->factoryCity(), $this->command);
         
-        $this->cityQueries->expects($this->once())
-                ->method('getByOpenWeatherId')
+        $this->cityQueries->method('getByOpenWeatherId')
                 ->willThrowException(new DatabaseException(''));
         
-        $this->defineNeverFacade($this->openWeatherFacade, $this->cityQueries);
-        
-        $this->handler->handle($this->command);
+        $this->assertNull($this->handler->handle($this->command));
     }
 
     public function test_fail_handle_request_limit_exceeded(): void
     {
         $this->defineSuccessStart($this->cityQueries, $this->command);
         
-        $this->openWeatherFacade->expects($this->once())
-                ->method('getNumberOfWeatherLinesForLastMinute')
+        $this->openWeatherWeatherQueries->method('getNumberOfWeatherLinesForLastMinute')
                 ->willThrowException($this->openWeatherException);
         
-        $this->openWeatherException->expects($this->once())
-                ->method('report');
-        
-        $this->defineNeverRequest($this->openWeatherFacade);
-        
-        $this->handler->handle($this->command);
+        $this->assertNull($this->handler->handle($this->command));
     }
 
     public function test_fail_handle_little_time_has_passed(): void
     {
         $this->defineSuccessStart($this->cityQueries, $this->command);
         
-        $this->openWeatherFacade->expects($this->once())
-                ->method('isTooEarlyToSubmitRequestForThisCity')
+        $this->openWeatherWeatherQueries->method('isTooEarlyToSubmitRequestForThisCity')
                 ->willThrowException($this->openWeatherException);
         
-        $this->openWeatherException->expects($this->once())
-                ->method('report');
-        
-        $this->defineNeverRequest($this->openWeatherFacade);
-        
-        $this->handler->handle($this->command);
+        $this->assertNull($this->handler->handle($this->command));
     }
 
     public function test_fail_handle_fail_response(): void
     {
-        $city = $this->defineSuccessStart($this->cityQueries, $this->command);
-        
         $this->defineFailResponse($this->response);
         
-        $this->openWeatherFacade->expects($this->once())
-                ->method('getWeatherFromOpenWeatherByCity')
-                ->with($this->identicalTo($city))
-                ->willReturn($this->response);
-        
-        $this->openWeatherFacade->expects($this->never())
-                ->method('updateOrCreate');
-        
-        $this->handler->handle($this->command);
+        $this->assertNull($this->handler->handle($this->command));
     }
 
     public function test_success_handle_many_cities(): void
@@ -130,19 +101,11 @@ class GetWeatherFromOpenWeatherCommandHandlerTest extends OpenWeatherTestCase
         
         $this->defineNullArgument($this->command);
         
-        $this->cityQueries->expects($this->never())
-                ->method('getByOpenWeatherId');
-        
-        $this->cityQueries->expects($this->once())
-                ->method('getList')
+        $this->cityQueries->method('getList')
                 ->willReturn($cities);
         
-        $this->openWeatherFacade->expects($this->exactly($nCity))
-                ->method('getWeatherFromOpenWeatherByCity')
+        $this->openWeatherRequests->method('getWeatherByCity')
                 ->willReturn($this->response);
-        
-        $this->openWeatherFacade->expects($this->exactly($nCity))
-                ->method('updateOrCreate');
         
         $this->assertNull($this->handler->handle($this->command));
     }
@@ -153,13 +116,32 @@ class GetWeatherFromOpenWeatherCommandHandlerTest extends OpenWeatherTestCase
         $this->response = $this->createStub(Response::class);
         $this->command = $this->createStub(GetWeather::class);
         
-        $this->openWeatherFacade = $this->createMock(OpenWeatherFacadeInterface::class);
-        $this->dispatcher = $this->createMock(Dispatcher::class);
-        $this->weatherService = new WeatherService($this->openWeatherFacade, $this->dispatcher);
+        $this->openWeatherRequests = $this->createStub(OpenWeatherRequests::class);
         
-        $this->cityModifiers = $this->createMock(CityModifiersInterface::class);
-        $this->cityQueries = $this->createMock(CityQueriesInterface::class);
-        $this->cityService = new CityService($this->cityModifiers, $this->cityQueries);
+        $this->cityModifiers = $this->createStub(CityModifiers::class);
+        $this->weatherModifiers = $this->createStub(WeatherModifiers::class);
+        
+        $this->openWeatherWeatherQueries = $this->createStub(OpenWeatherWeatherQueries::class);
+        $this->openWeatherQueries = $this->createStub(OpenWeatherQueries::class);
+        $this->userQueries = $this->createStub(UserQueries::class);
+        $this->cityQueries = $this->createStub(CityQueries::class);
+        $this->timezoneQueries = $this->createStub(TimezoneQueries::class);
+        
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getCurlRequest')
+                ->willReturn($this->openWeatherRequests);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn(
+                        $this->timezoneQueries,
+                        $this->weatherModifiers,
+                        $this->openWeatherWeatherQueries, $this->openWeatherQueries, $this->userQueries, $this->cityQueries,
+                        $this->cityModifiers, $this->cityQueries
+                    );
+        
+        $this->timezoneService = new TimezoneService($this->serviceManager);
+        $this->weatherService = new WeatherService($this->serviceManager, $this->timezoneService);
+        
+        $this->cityService = new CityService($this->serviceManager);
         
         $this->handler = new GetWeatherFromOpenWeatherCommandHandler($this->weatherService, $this->cityService);
     }

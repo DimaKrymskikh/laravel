@@ -3,20 +3,22 @@
 namespace Tests\Unit\Services\Database\Dvd;
 
 use App\Exceptions\DatabaseException;
-use App\Modifiers\Dvd\FilmsActors\FilmActorModifiersInterface;
-use App\Queries\Dvd\Actors\ActorQueriesInterface;
-use App\Queries\Dvd\Films\FilmQueriesInterface;
-use App\Queries\Dvd\FilmsActors\FilmActorQueriesInterface;
+use App\Modifiers\Dvd\FilmActorModifiers;
+use App\Queries\Dvd\ActorQueries;
+use App\Queries\Dvd\FilmQueries;
+use App\Queries\Dvd\FilmActorQueries;
 use App\Services\Database\Dvd\Dto\FilmActorDto;
 use App\Services\Database\Dvd\FilmActorService;
+use App\Services\ServiceManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 class FilmActorServiceTest extends TestCase
 {
-    private FilmActorModifiersInterface $filmActorModifiers;
-    private ActorQueriesInterface $actorQueries;
-    private FilmActorQueriesInterface $filmActorQueries;
-    private FilmQueriesInterface $filmQueries;
+    private ServiceManagerInterface $serviceManager;
+    private FilmActorModifiers $filmActorModifiers;
+    private ActorQueries $actorQueries;
+    private FilmActorQueries $filmActorQueries;
+    private FilmQueries $filmQueries;
     private FilmActorService $filmActorService;
     private FilmActorDto $dto;
     private int $filmId = 5;
@@ -92,11 +94,16 @@ class FilmActorServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->dto = new FilmActorDto($this->filmId, $this->actorId);
-        $this->actorQueries = $this->createMock(ActorQueriesInterface::class);
-        $this->filmActorModifiers = $this->createMock(FilmActorModifiersInterface::class);
-        $this->filmActorQueries = $this->createMock(FilmActorQueriesInterface::class);
-        $this->filmQueries = $this->createMock(FilmQueriesInterface::class);
         
-        $this->filmActorService = new FilmActorService($this->actorQueries, $this->filmActorModifiers, $this->filmActorQueries, $this->filmQueries);
+        $this->actorQueries = $this->createMock(ActorQueries::class);
+        $this->filmActorModifiers = $this->createMock(FilmActorModifiers::class);
+        $this->filmActorQueries = $this->createMock(FilmActorQueries::class);
+        $this->filmQueries = $this->createMock(FilmQueries::class);
+        
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->actorQueries, $this->filmActorModifiers, $this->filmActorQueries, $this->filmQueries);
+        
+        $this->filmActorService = new FilmActorService($this->serviceManager);
     }
 }

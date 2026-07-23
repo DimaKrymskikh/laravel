@@ -7,12 +7,14 @@ use App\StorageDisk\CopyingDatabaseDataToFile\BaseCopyist;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-final class LanguagesCopyist extends BaseCopyist implements LanguagesCopyistInterface
+class LanguagesCopyist extends BaseCopyist
 {
     /**
-     * {@inheritDoc}
+     * Записывает std-объект по модели Language
      * 
-     * @inheritDoc
+     * @param string $file
+     * @param Language $language
+     * @return void
      */
     public function writeData(string $file, Language $language): void
     {

@@ -3,12 +3,14 @@
 namespace Tests\Unit\CommandHandlers\Database\Logs\Weather;
 
 use App\CommandHandlers\Database\Logs\Weather\WeatherStatisticsByPeriodicityIntervalCommandHandler;
-use App\Queries\Logs\OpenWeatherWeather\OpenWeatherWeatherQueriesInterface;
+use App\Queries\Logs\OpenWeatherWeatherQueries;
+use App\Services\ServiceManagerInterface;
 
 class WeatherStatisticsByPeriodicityIntervalCommandHandlerTest extends WeatherTestCase
 {
+    private ServiceManagerInterface $serviceManager;
     private WeatherStatisticsByPeriodicityIntervalCommandHandler $handler;
-    private OpenWeatherWeatherQueriesInterface $queries;
+    private OpenWeatherWeatherQueries $queries;
     
     public function test_success_handle(): void
     {
@@ -28,8 +30,12 @@ class WeatherStatisticsByPeriodicityIntervalCommandHandlerTest extends WeatherTe
     
     protected function setUp(): void
     {
-        $this->queries = $this->createMock(OpenWeatherWeatherQueriesInterface::class);
+        $this->queries = $this->createMock(OpenWeatherWeatherQueries::class);
         
-        $this->handler = new WeatherStatisticsByPeriodicityIntervalCommandHandler($this->queries);
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->queries);
+        
+        $this->handler = new WeatherStatisticsByPeriodicityIntervalCommandHandler($this->serviceManager);
     }
 }

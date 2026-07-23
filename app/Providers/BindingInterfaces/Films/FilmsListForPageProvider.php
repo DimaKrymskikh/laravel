@@ -7,10 +7,10 @@ use App\Http\Controllers\Project\Admin\Content\FilmController as AdminFilmContro
 use App\Http\Controllers\Project\Auth\Account\UserFilmsController;
 use App\Http\Controllers\Project\Auth\Content\FilmController as AuthFilmController;
 use App\Http\Controllers\Project\Guest\Content\FilmController as GuestFilmController;
-use App\Queries\Dvd\Films\FilmsListForPage\AdminFilmsListForPageQueries;
-use App\Queries\Dvd\Films\FilmsListForPage\AuthFilmsListForPageQueries;
-use App\Queries\Dvd\Films\FilmsListForPage\GuestFilmsListForPageQueries;
-use App\Queries\Dvd\Films\FilmsListForPage\UserFilmsListForPageQueries;
+use App\Queries\Dvd\FilmsListForPage\AdminFilmsListForPageQueries;
+use App\Queries\Dvd\FilmsListForPage\AuthFilmsListForPageQueries;
+use App\Queries\Dvd\FilmsListForPage\GuestFilmsListForPageQueries;
+use App\Queries\Dvd\FilmsListForPage\UserFilmsListForPageQueries;
 use App\Support\Pagination\Dvd\FilmPagination;
 use Illuminate\Support\ServiceProvider;
 

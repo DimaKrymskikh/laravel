@@ -2,10 +2,11 @@
 
 namespace App\Queries;
 
+use App\Services\DatabaseQueryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 
-interface QueriesInterface
+interface QueriesInterface extends DatabaseQueryInterface
 {
     /**
      * Существует ли в таблице запись с первичным ключом id
