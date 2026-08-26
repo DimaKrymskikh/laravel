@@ -3,7 +3,7 @@
 namespace App\Queries\Logs\WeatherListForPage;
 
 use App\DataTransferObjects\Database\OpenWeather\Filters\WeatherFilterDto;
-use App\DataTransferObjects\Pagination\PaginatorDto;
+use App\Pagination\PaginatorDTO;
 use App\Support\Pagination\Logs\WeatherPagination;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -15,7 +15,7 @@ abstract class BaseWeatherListForPageQueries implements WeatherListForPageQuerie
     ) {
     }
     
-    public function get(PaginatorDto $paginatorDto, WeatherFilterDto $weatherFilterDto, int $cityId): LengthAwarePaginator
+    public function get(PaginatorDTO $paginatorDto, WeatherFilterDto $weatherFilterDto, int $cityId): LengthAwarePaginator
     {
         $query = $this->queryList($weatherFilterDto, $cityId);
         

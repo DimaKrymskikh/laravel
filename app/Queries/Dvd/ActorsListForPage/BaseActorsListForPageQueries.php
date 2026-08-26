@@ -3,7 +3,7 @@
 namespace App\Queries\Dvd\ActorsListForPage;
 
 use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
-use App\DataTransferObjects\Pagination\PaginatorDto;
+use App\Pagination\PaginatorDTO;
 use App\Support\Pagination\Dvd\ActorPagination;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -15,7 +15,7 @@ abstract class BaseActorsListForPageQueries implements ActorsListForPageQueriesI
     ) {
     }
     
-    public function get(PaginatorDto $paginatorDto, ActorFilterDto $actorFilterDto): LengthAwarePaginator
+    public function get(PaginatorDTO $paginatorDto, ActorFilterDto $actorFilterDto): LengthAwarePaginator
     {
         $query =  $this->queryList($actorFilterDto);
         

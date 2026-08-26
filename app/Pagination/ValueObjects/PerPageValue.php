@@ -1,9 +1,12 @@
 <?php
 
-namespace App\ValueObjects\Pagination;
+namespace App\Pagination\ValueObjects;
 
-use App\Support\Pagination\Paginator;
+use App\Pagination\PaginatorDTO;
 
+/**
+ * Класс хранит валидное число элементов на странице пагинации.
+ */
 final readonly class PerPageValue
 {
     public int $value;
@@ -12,8 +15,8 @@ final readonly class PerPageValue
     {
         $intPerPage = intval(trim($perPage ?? ''));
         
-        if (!in_array($intPerPage, Paginator::PAGINATOR_PER_PAGE_LIST)) {
-            $this->value = Paginator::PAGINATOR_DEFAULT_PER_PAGE;
+        if (!in_array($intPerPage, PaginatorDTO::PAGINATOR_PER_PAGE_LIST)) {
+            $this->value = PaginatorDTO::PAGINATOR_DEFAULT_PER_PAGE;
             return ;
         }
         

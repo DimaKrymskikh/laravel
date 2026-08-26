@@ -1,9 +1,12 @@
 <?php
 
-namespace App\ValueObjects\Pagination;
+namespace App\Pagination\ValueObjects;
 
-use App\Support\Pagination\Paginator;
+use App\Pagination\PaginatorDTO;
 
+/**
+ * Класс хранит валидный номер страницы пагинации.
+ */
 final readonly class PageValue
 {
     public int $value;
@@ -14,7 +17,7 @@ final readonly class PageValue
         
         // Номер страницы должен быть положительным
         if ($intPage <= 0 || $intPage === PHP_INT_MAX) {
-            $this->value = Paginator::PAGINATOR_DEFAULT_CURRENT_PAGE;
+            $this->value = PaginatorDTO::PAGINATOR_DEFAULT_CURRENT_PAGE;
             return ;
         }
         

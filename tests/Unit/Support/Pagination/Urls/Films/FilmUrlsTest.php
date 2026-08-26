@@ -3,12 +3,11 @@
 namespace Tests\Unit\Support\Pagination\Urls\Films;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
-use App\DataTransferObjects\Pagination\PaginatorDto;
+use App\Pagination\PaginatorDTO;
 use App\Queries\Dvd\FilmQueries;
 use App\Services\ServiceManagerInterface;
 use App\Support\Pagination\Urls\Films\BaseFilmUrls;
 use App\Support\Pagination\Urls\Films\FilmUrls;
-use App\Support\Pagination\Paginator;
 use Tests\Unit\TestCase\DvdTestCase;
 
 class FilmUrlsTest extends DvdTestCase
@@ -17,10 +16,9 @@ class FilmUrlsTest extends DvdTestCase
     private FilmQueries $filmQueries;
     private BaseFilmUrls $baseFilmUrls;
     private FilmUrls $filmUrls;
-    private Paginator $paginator;
     private int $filmId = 12;
     private FilmFilterDto $filmFilterDto;
-    private PaginatorDto $paginatorDto;
+    private PaginatorDTO $paginatorDto;
 
     public function test_getUrlWithPaginationOptionsByRequest(): void
     {
@@ -55,7 +53,7 @@ class FilmUrlsTest extends DvdTestCase
                 ->willReturn(null);
         
         $this->assertStringContainsString(
-                'page='.Paginator::PAGINATOR_DEFAULT_ITEM_NUMBER,
+                'page='.PaginatorDTO::PAGINATOR_DEFAULT_ITEM_NUMBER,
                 $this->filmUrls->getUrlWithPaginationOptionsAfterCreatingOrUpdatingFilm('test', $this->paginatorDto, $this->filmId)
             );
     }
@@ -89,11 +87,10 @@ class FilmUrlsTest extends DvdTestCase
     protected function setUp(): void
     {
         $this->filmFilterDto = $this->getFilmFilterDto();
-        $this->paginatorDto = $this->getPaginatorDto();
+        $this->paginatorDto = $this->getPaginatorDTO();
         
         $this->filmQueries = $this->createMock(FilmQueries::class);
-        $this->paginator = new Paginator();
-        $this->baseFilmUrls = new BaseFilmUrls($this->paginator);
+        $this->baseFilmUrls = new BaseFilmUrls();
         
         $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
         $this->serviceManager->method('getQueriesOrModifiers')

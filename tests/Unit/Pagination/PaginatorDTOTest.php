@@ -2,11 +2,13 @@
 
 namespace Tests\Unit\Support\Pagination;
 
-use App\Support\Pagination\Paginator;
+use App\Pagination\ValueObjects\PageValue;
+use App\Pagination\ValueObjects\PerPageValue;
+use App\Pagination\PaginatorDTO;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class PaginatorTest extends TestCase
+class PaginatorDTOTest extends TestCase
 {
     public static function getPageOfItemProvider(): array
     {
@@ -19,11 +21,11 @@ class PaginatorTest extends TestCase
     }
     
     #[DataProvider('getPageOfItemProvider')]
-    public function test_get_page_of_item(int $result, int $itemNumber, int $perPage): void
+    public function test_getСurrentPageByItemNumber(int $result, int $itemNumber, int $perPage): void
     {
-        $paginator = new Paginator();
+        $dto = new PaginatorDTO(PageValue::create('1'), PerPageValue::create((string) $perPage));
         
-        $this->assertSame($result, $paginator->getPageOfItem($itemNumber, $perPage));
+        $this->assertEquals($result, $dto->getСurrentPageByItemNumber($itemNumber)->value);
     }
     
     public static function getCurrentPageProvider(): array
@@ -40,8 +42,8 @@ class PaginatorTest extends TestCase
     #[DataProvider('getCurrentPageProvider')]
     public function test_get_current_page(int $result, int $maxItemNumber, int $page, int $perPage): void
     {
-        $paginator = new Paginator();
+        $dto = new PaginatorDTO(PageValue::create((string) $page), PerPageValue::create((string) $perPage));
         
-        $this->assertSame($result, $paginator->getCurrentPage($maxItemNumber, $page, $perPage));
+        $this->assertEquals($result, $dto->getСurrentPage($maxItemNumber)->value);
     }
 }

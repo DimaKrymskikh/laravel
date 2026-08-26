@@ -3,7 +3,7 @@
 namespace App\CommandHandlers\Database\Logs\Weather;
 
 use App\DataTransferObjects\Database\OpenWeather\Filters\WeatherFilterDto;
-use App\DataTransferObjects\Pagination\PaginatorDto;
+use App\Pagination\PaginatorDTO;
 use App\Models\Thesaurus\City;
 use App\Queries\Logs\WeatherListForPage\WeatherListForPageQueriesInterface;
 use App\Services\Database\Thesaurus\TimezoneService;
@@ -17,7 +17,7 @@ final class WeatherListForPageCommandHandler
     ) {
     }
     
-    public function handle(PaginatorDto $paginatorDto, WeatherFilterDto $weatherFilterDto, City $city): LengthAwarePaginator
+    public function handle(PaginatorDTO $paginatorDto, WeatherFilterDto $weatherFilterDto, City $city): LengthAwarePaginator
     {
         $weatherList = $this->weatherListForPageQueries->get($paginatorDto, $weatherFilterDto, $city->id);
         $this->timezoneService->setCityTimezoneForCollectionOfWeatherData($city, collect($weatherList->items()));

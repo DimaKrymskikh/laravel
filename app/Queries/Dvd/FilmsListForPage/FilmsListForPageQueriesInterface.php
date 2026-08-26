@@ -3,7 +3,7 @@
 namespace App\Queries\Dvd\FilmsListForPage;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
-use App\DataTransferObjects\Pagination\PaginatorDto;
+use App\Pagination\PaginatorDTO;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 interface FilmsListForPageQueriesInterface
@@ -16,5 +16,5 @@ interface FilmsListForPageQueriesInterface
      * @param int|null $userId - id пользователя
      * @return LengthAwarePaginator
      */
-    public function get(PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto, int|null $userId = null): LengthAwarePaginator;
+    public function get(PaginatorDTO $paginatorDto, FilmFilterDto $filmFilterDto, int|null $userId = null): LengthAwarePaginator;
 }

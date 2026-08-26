@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\Unit\ValueObjects\Pagination;
+namespace Tests\Unit\Pagination\ValueObjects;
 
-use App\Support\Pagination\Paginator;
-use App\ValueObjects\Pagination\PageValue;
+use App\Pagination\PaginatorDTO;
+use App\Pagination\ValueObjects\PageValue;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -41,6 +41,6 @@ class PageValueTest extends TestCase
     #[DataProvider('inCorrectPagesProvider')]
     public function test_incorrect_pages(?string $str): void
     {
-        $this->assertEquals(Paginator::PAGINATOR_DEFAULT_CURRENT_PAGE, PageValue::create($str)->value);
+        $this->assertEquals(PaginatorDTO::PAGINATOR_DEFAULT_CURRENT_PAGE, PageValue::create($str)->value);
     }
 }

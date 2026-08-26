@@ -3,17 +3,11 @@
 namespace App\Support\Pagination\Urls\Films;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
-use App\DataTransferObjects\Pagination\PaginatorDto;
-use App\Support\Pagination\Paginator;
+use App\Pagination\PaginatorDTO;
 
 final class BaseFilmUrls
 {
-    public function __construct(
-        private Paginator $paginator
-    ) {
-    }
-    
-    public function getUrlByRequest(string $url, PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto): string
+    public function getUrlByRequest(string $url, PaginatorDTO $paginatorDto, FilmFilterDto $filmFilterDto): string
     {
         return $url.'?'.http_build_query([
             'page' => $paginatorDto->page->value,
@@ -25,10 +19,10 @@ final class BaseFilmUrls
         ]);
     }
     
-    public function getUrlAfterCreatingOrUpdatingFilm(string $url, PaginatorDto $dto, int $itemNumber): string
+    public function getUrlAfterCreatingOrUpdatingFilm(string $url, PaginatorDTO $dto, int $itemNumber): string
     {
         return $url.'?'.http_build_query([
-            'page' => $this->paginator->getPageOfItem($itemNumber, $dto->perPage->value),
+            'page' => $dto->getСurrentPageByItemNumber($itemNumber)->value,
             'number' => $dto->perPage->value,
             // Нужно сбросить фильтр поиска, чтобы новый или изменённый фильм попал в список
             'title_filter' => '',
@@ -38,10 +32,10 @@ final class BaseFilmUrls
         ]);
     }
     
-    public function getUrlAfterRemovingFilm(string $url, PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto, int $maxSerialNumber): string
+    public function getUrlAfterRemovingFilm(string $url, PaginatorDTO $paginatorDto, FilmFilterDto $filmFilterDto, int $maxSerialNumber): string
     {
         return $url.'?'.http_build_query([
-            'page' => $this->paginator->getCurrentPage($maxSerialNumber, $paginatorDto->page->value, $paginatorDto->perPage->value),
+            'page' => $paginatorDto->getСurrentPage($maxSerialNumber)->value,
             'number' => $paginatorDto->perPage->value,
             'title_filter' => $filmFilterDto->title,
             'description_filter' => $filmFilterDto->description,

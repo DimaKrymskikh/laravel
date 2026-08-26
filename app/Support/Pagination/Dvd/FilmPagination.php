@@ -3,13 +3,21 @@
 namespace App\Support\Pagination\Dvd;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
-use App\DataTransferObjects\Pagination\PaginatorDto;
+use App\Pagination\PaginatorDTO;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 final class FilmPagination
 {
-    public function paginate(Builder $query, PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto): LengthAwarePaginator
+    /**
+     * По строке запроса $query возвращает объект пагинации.
+     * 
+     * @param Builder $query
+     * @param PaginatorDTO $paginatorDto
+     * @param FilmFilterDto $filmFilterDto
+     * @return LengthAwarePaginator
+     */
+    public function paginate(Builder $query, PaginatorDTO $paginatorDto, FilmFilterDto $filmFilterDto): LengthAwarePaginator
     {
         $perPage = $paginatorDto->perPage->value;
                 

@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\DataTransferObjects\Pagination\PaginatorDto;
-use App\ValueObjects\Pagination\PageValue;
-use App\ValueObjects\Pagination\PerPageValue;
+use App\Pagination\PaginatorDTO;
+use App\Pagination\ValueObjects\PageValue;
+use App\Pagination\ValueObjects\PerPageValue;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PaginatorRequest extends FormRequest
@@ -22,9 +22,9 @@ class PaginatorRequest extends FormRequest
         return [];
     }
     
-    public function getPaginatorDto(): PaginatorDto
+    public function getPaginatorDto(): PaginatorDTO
     {
-        return new PaginatorDto(
+        return new PaginatorDTO(
                 PageValue::create($this->input('page')),
                 PerPageValue::create($this->input('number')),
             );

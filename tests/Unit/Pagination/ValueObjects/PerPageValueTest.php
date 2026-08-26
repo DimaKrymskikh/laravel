@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\Unit\ValueObjects\Pagination;
+namespace Tests\Unit\Pagination\ValueObjects;
 
-use App\Support\Pagination\Paginator;
-use App\ValueObjects\Pagination\PerPageValue;
+use App\Pagination\PaginatorDTO;
+use App\Pagination\ValueObjects\PerPageValue;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -26,7 +26,7 @@ class PerPageValueTest extends TestCase
             [null],
             [''],
             ['7777777777777777777777777777777777777777777777777777777'],
-            // Отсутствует в Paginator::PAGINATOR_PER_PAGE_LIST
+            // Отсутствует в PaginatorDTO::PAGINATOR_PER_PAGE_LIST
             ['12'],
             ['-7'],
             // Строка начинается с буквы
@@ -43,6 +43,6 @@ class PerPageValueTest extends TestCase
     #[DataProvider('inCorrectPerPagesProvider')]
     public function test_incorrect_per_pages(?string $str): void
     {
-        $this->assertEquals(Paginator::PAGINATOR_DEFAULT_PER_PAGE, PerPageValue::create($str)->value);
+        $this->assertEquals(PaginatorDTO::PAGINATOR_DEFAULT_PER_PAGE, PerPageValue::create($str)->value);
     }
 }

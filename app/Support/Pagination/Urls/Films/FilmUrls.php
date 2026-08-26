@@ -3,10 +3,9 @@
 namespace App\Support\Pagination\Urls\Films;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
-use App\DataTransferObjects\Pagination\PaginatorDto;
+use App\Pagination\PaginatorDTO;
 use App\Queries\Dvd\FilmQueries;
 use App\Services\ServiceManagerInterface;
-use App\Support\Pagination\Paginator;
 
 final class FilmUrls
 {
@@ -27,7 +26,7 @@ final class FilmUrls
      * @param FilmFilterDto $filmFilterDto
      * @return string
      */
-    public function getUrlWithPaginationOptionsByRequest(string $url, PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto): string
+    public function getUrlWithPaginationOptionsByRequest(string $url, PaginatorDTO $paginatorDto, FilmFilterDto $filmFilterDto): string
     {
         return $this->baseFilmUrls->getUrlByRequest($url, $paginatorDto, $filmFilterDto);
     }
@@ -41,9 +40,9 @@ final class FilmUrls
      * @param int $filmId
      * @return string
      */
-    public function getUrlWithPaginationOptionsAfterCreatingOrUpdatingFilm(string $url, PaginatorDto $dto, int $filmId): string
+    public function getUrlWithPaginationOptionsAfterCreatingOrUpdatingFilm(string $url, PaginatorDTO $dto, int $filmId): string
     {
-        $itemNumber = $this->filmQueries->getNumberInTableByIdWithOrderByTitle($filmId) ?? Paginator::PAGINATOR_DEFAULT_ITEM_NUMBER;
+        $itemNumber = $this->filmQueries->getNumberInTableByIdWithOrderByTitle($filmId) ?? PaginatorDTO::PAGINATOR_DEFAULT_ITEM_NUMBER;
         
         return $this->baseFilmUrls->getUrlAfterCreatingOrUpdatingFilm($url, $dto, $itemNumber);
     }
@@ -58,7 +57,7 @@ final class FilmUrls
      * @param FilmFilterDto $filmFilterDto
      * @return string
      */
-    public function getUrlWithPaginationOptionsAfterRemovingFilm(string $url, PaginatorDto $paginatorDto, FilmFilterDto $filmFilterDto): string
+    public function getUrlWithPaginationOptionsAfterRemovingFilm(string $url, PaginatorDTO $paginatorDto, FilmFilterDto $filmFilterDto): string
     {
         // После удаления фильма находим число фильмов с заданными фильтрами
         $maxSerialNumber = $this->filmQueries->count($filmFilterDto);

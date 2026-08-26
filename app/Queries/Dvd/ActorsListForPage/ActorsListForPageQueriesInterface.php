@@ -3,10 +3,17 @@
 namespace App\Queries\Dvd\ActorsListForPage;
 
 use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
-use App\DataTransferObjects\Pagination\PaginatorDto;
+use App\Pagination\PaginatorDTO;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 interface ActorsListForPageQueriesInterface 
 {
-    public function get(PaginatorDto $paginatorDto, ActorFilterDto $actorFilterDto): LengthAwarePaginator;
+    /**
+     * Возвращает страницу пагинации
+     * 
+     * @param PaginatorDTO $paginatorDto Параметры пагинации
+     * @param ActorFilterDto $actorFilterDto Параметры фильтра
+     * @return LengthAwarePaginator
+     */
+    public function get(PaginatorDTO $paginatorDto, ActorFilterDto $actorFilterDto): LengthAwarePaginator;
 }
