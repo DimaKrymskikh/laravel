@@ -2,30 +2,29 @@
 
 namespace Tests\Unit\CommandHandlers\Database\Logs\WeatherStatisticsByCity;
 
+use App\Contracts\Database\DBqueriesInterface;
+use App\Contracts\Services\Database\Thesaurus\InfoAboutCitiesInterface;
+use App\Exceptions\DatabaseException;
 use App\CommandHandlers\Database\Logs\WeatherStatisticsByCity\SelectForAllCities;
 use App\CommandHandlers\Database\Logs\WeatherStatisticsByCity\SelectForOneCity;
 use App\CommandHandlers\Database\Logs\WeatherStatisticsByCity\WeatherStatisticsByCityCommandHandler;
 use App\Console\Commands\Logs\WeatherStatisticsByCity;
-use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
-use App\Queries\Thesaurus\CityQueries;
-use App\Services\ServiceManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 class WeatherStatisticsByCityCommandHandlerTest extends TestCase
 {
-    private ServiceManagerInterface $serviceManager;
+    private InfoAboutCitiesInterface $citiesService;
+    private DBqueriesInterface $queries;
     private WeatherStatisticsByCityCommandHandler $handler;
     private WeatherStatisticsByCity $command;
-    private CityQueries $queries;
-    
+
     public function test_success_handle_all_cities(): void
     {
         $this->command->method('argument')
                 ->willReturn(null);
         
-        $this->queries->expects($this->once())
-                ->method('getObject')
+        $this->queries->method('getObject')
                 ->with(new SelectForAllCities())
                 ->willReturn((object) [
                     // Суммарно 3 даты
@@ -33,8 +32,8 @@ class WeatherStatisticsByCityCommandHandlerTest extends TestCase
                     'max_date' => '7_16:07:19 25.06.2024'
                 ]);
         
-        $this->queries->expects($this->exactly(3))
-                ->method('getById')
+        $this->citiesService->expects($this->exactly(3))
+                ->method('getCityById')
                 ->willReturn(new City());
         
         $this->assertNull($this->handler->handle($this->command));
@@ -44,6 +43,9 @@ class WeatherStatisticsByCityCommandHandlerTest extends TestCase
     {
         $this->command->method('argument')
                 ->willReturn('33');
+        
+        $this->citiesService->method('getCityByOpenWeatherId')
+                ->willReturn(new City());
         
         $this->queries->expects($this->once())
                 ->method('getObject')
@@ -55,8 +57,8 @@ class WeatherStatisticsByCityCommandHandlerTest extends TestCase
                     'max_temp_date' => '17:47:32 28.06.2024'
                 ]);
         
-        $this->queries->expects($this->once())
-                ->method('getById')
+        $this->citiesService->expects($this->once())
+                ->method('getCityById')
                 ->willReturn(new City());
         
         $this->assertNull($this->handler->handle($this->command));
@@ -78,9 +80,8 @@ class WeatherStatisticsByCityCommandHandlerTest extends TestCase
         $this->command->method('argument')
                 ->willReturn('33');
         
-        $this->queries->expects($this->once())
-                ->method('getByOpenWeatherId')
-                ->willThrowException(new DatabaseException('Test Message'));
+        $this->citiesService->method('getCityByOpenWeatherId')
+                ->willThrowException(new DatabaseException(''));
         
         $this->queries->expects($this->never())
                 ->method('getObject');
@@ -91,12 +92,10 @@ class WeatherStatisticsByCityCommandHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->command = $this->createStub(WeatherStatisticsByCity::class);
-        $this->queries = $this->createMock(CityQueries::class);
         
-        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
-        $this->serviceManager->method('getQueriesOrModifiers')
-                ->willReturn($this->queries);
+        $this->citiesService = $this->createMock(InfoAboutCitiesInterface::class);
+        $this->queries = $this->createMock(DBqueriesInterface::class);
         
-        $this->handler = new WeatherStatisticsByCityCommandHandler($this->serviceManager);
+        $this->handler = new WeatherStatisticsByCityCommandHandler($this->queries, $this->citiesService);
     }
 }

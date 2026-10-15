@@ -2,11 +2,11 @@
 
 namespace App\Queries\Person;
 
+use App\Contracts\Database\DatabaseQueryInterface;
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\Models\Dvd\Film;
 use App\Models\Person\UserFilm;
 use App\Services\Database\Person\Dto\UserFilmDto;
-use App\Services\DatabaseQueryInterface;
 use Illuminate\Database\Query\JoinClause;
 
 class UserFilmQueries implements DatabaseQueryInterface

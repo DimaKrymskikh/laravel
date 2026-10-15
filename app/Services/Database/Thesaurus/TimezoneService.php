@@ -2,17 +2,18 @@
 
 namespace App\Services\Database\Thesaurus;
 
+use App\Contracts\Services\Database\Thesaurus\TimezoneServiceInterface;
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Models\Logs\OpenWeatherWeather;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
 use App\Queries\Thesaurus\TimezoneQueries;
 use App\Services\Carbon\CarbonService;
-use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Thesaurus\TimezoneCollection;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 
-final class TimezoneService
+final class TimezoneService implements TimezoneServiceInterface
 {
     private TimezoneQueries $timezoneQueries;
     
@@ -28,12 +29,7 @@ final class TimezoneService
     }
     
     /**
-     * Устанавливает в данных погоды временной пояс города.
-     * (В базе время создания строки с данными погоды имеет часовой пояс приложения)
-     * 
-     * @param City $city
-     * @param OpenWeatherWeather|Weather $weather
-     * @return void
+     * {@inheritDoc}
      */
     public function setCityTimezoneForWeatherData(City $city, OpenWeatherWeather|Weather $weather): void
     {
@@ -42,11 +38,7 @@ final class TimezoneService
     }
     
     /**
-     * Устанавливает в данных погоды (коллекция погоды) временной пояс города.
-     * 
-     * @param City $city
-     * @param SupportCollection $weatherCollection
-     * @return void
+     * {@inheritDoc}
      */
     public function setCityTimezoneForCollectionOfWeatherData(City $city, SupportCollection $weatherCollection): void
     {
@@ -57,11 +49,7 @@ final class TimezoneService
     }
     
     /**
-     * Для каждого города коллекции устанавливает у данных погоды временной пояс города.
-     * Коллекция $cities должна быть получена жадной загрузкой, чтобы не было запросов в цикле.
-     * 
-     * @param Collection $cities
-     * @return void
+     * {@inheritDoc}
      */
     public function setTimezoneOfCitiesForWeatherData(Collection $cities): void
     {

@@ -2,6 +2,7 @@
 
 namespace App\Services\Database\Person;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Events\AddFilmInUserList;
 use App\Events\RemoveFilmFromUserList;
 use App\Exceptions\DatabaseException;
@@ -9,7 +10,6 @@ use App\Modifiers\Person\UserFilmModifiers;
 use App\Queries\Dvd\FilmQueries;
 use App\Queries\Person\UserFilmQueries;
 use App\Services\Database\Person\Dto\UserFilmDto;
-use App\Services\ServiceManagerInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
 final class UserFilmService
@@ -37,7 +37,7 @@ final class UserFilmService
      */
     public function create(UserFilmDto $dto): void
     {
-        $filmTitle = $this->filmQueries->getById($dto->filmId)->title;
+        $filmTitle = $this->filmQueries->find($dto->filmId)->title;
         
         // Проверка наличия в таблице 'person.users_films' пары первичных ключей (user_id, film_id)
         if ($this->userFilmQueries->exists($dto)) {
@@ -61,7 +61,7 @@ final class UserFilmService
      */
     public function delete(UserFilmDto $dto): void
     {
-        $filmTitle = $this->filmQueries->getById($dto->filmId)->title;
+        $filmTitle = $this->filmQueries->find($dto->filmId)->title;
         
         // Если пара не существует, выбрасываем исключение
         if (!$this->userFilmQueries->exists($dto)) {

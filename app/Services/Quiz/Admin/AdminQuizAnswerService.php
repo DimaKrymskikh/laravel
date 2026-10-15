@@ -3,29 +3,14 @@
 namespace App\Services\Quiz\Admin;
 
 use App\Models\Quiz\QuizAnswer;
-use App\Modifiers\Quiz\QuizAnswerModifiers;
-use App\Queries\Quiz\QuizAnswerQueries;
-use App\Queries\Quiz\QuizItemQueries;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Fields\DataTransferObjects\QuizAnswerDto;
 use App\Services\Quiz\Fields\QuizAnswerField;
-use App\Services\ServiceManagerInterface;
+use App\Services\Quiz\QuizService;
 
-final class AdminQuizAnswerService
+final class AdminQuizAnswerService extends QuizService
 {
-    private QuizAnswerModifiers $quizAnswerModifiers;
-    private QuizAnswerQueries $quizAnswerQueries;
-    private QuizItemQueries $quizItemQueries;
-    
-    public function __construct(
-            private ServiceManagerInterface $serviceManager,
-    ) {
-        $this->quizAnswerModifiers = $this->serviceManager->getQueriesOrModifiers(QuizAnswerModifiers::class);
-        $this->quizAnswerQueries = $this->serviceManager->getQueriesOrModifiers(QuizAnswerQueries::class);
-        $this->quizItemQueries = $this->serviceManager->getQueriesOrModifiers(QuizItemQueries::class);
-    }
-    
     /**
      * Возвращает данные для карточки ответа
      * 
@@ -34,7 +19,7 @@ final class AdminQuizAnswerService
      */
     public function getAnswerCard(int $id): QuizAnswer
     {
-        $quizAnswer =  $this->quizAnswerQueries->getById($id);
+        $quizAnswer =  $this->getQuizAnswerById($id);
         $quizAnswer->quizItem->status_info = $quizAnswer->quizItem->status->getInfo();
         $quizAnswer->quizItem->quiz->status_info = $quizAnswer->quizItem->quiz->status->getInfo();
         
@@ -49,7 +34,7 @@ final class AdminQuizAnswerService
      */
     public function create(QuizAnswerDto $dto): QuizAnswer
     {
-        $quizItem = $this->quizItemQueries->getById($dto->quizItemId);
+        $quizItem = $this->quizItemQueries->find($dto->quizItemId);
         $this->checkAnswerEditabilityByStatuses($quizItem->quiz->status, $quizItem->status);
         
         $quizAnswer = new QuizAnswer();
@@ -72,8 +57,8 @@ final class AdminQuizAnswerService
      */
     public function updateField(int $id, QuizAnswerField $quizAnswerField): QuizAnswer
     {
-        $quizAnswer = $this->quizAnswerQueries->getById($id);
-        $quizItem = $this->quizItemQueries->getById($quizAnswer->quiz_item_id);
+        $quizAnswer = $this->getQuizAnswerById($id);
+        $quizItem = $this->quizItemQueries->find($quizAnswer->quiz_item_id);
         $this->checkAnswerEditabilityByStatuses($quizItem->quiz->status, $quizItem->status);
         
         $field = $quizAnswerField->field;
@@ -93,8 +78,8 @@ final class AdminQuizAnswerService
      */
     public function delete(int $id): int
     {
-        $quizAnswer = $this->quizAnswerQueries->getById($id);
-        $quizItem = $this->quizItemQueries->getById($quizAnswer->quiz_item_id);
+        $quizAnswer = $this->getQuizAnswerById($id);
+        $quizItem = $this->quizItemQueries->find($quizAnswer->quiz_item_id);
         $this->checkAnswerEditabilityByStatuses($quizItem->quiz->status, $quizItem->status);
         
         $this->quizAnswerModifiers->remove($quizAnswer);

@@ -2,6 +2,7 @@
 
 namespace App\Services\Database\Person;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Events\AddCityInWeatherList;
 use App\Events\RemoveCityFromWeatherList;
 use App\Exceptions\DatabaseException;
@@ -9,7 +10,6 @@ use App\Modifiers\Person\UserCityModifiers;
 use App\Queries\Person\UserCityQueries;
 use App\Queries\Thesaurus\CityQueries;
 use App\Services\Database\Person\Dto\UserCityDto;
-use App\Services\ServiceManagerInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
 final class UserCityService
@@ -36,7 +36,7 @@ final class UserCityService
      */
     public function create(UserCityDto $dto): void
     {
-        $cityName = $this->cityQueries->getById($dto->cityId)->name;
+        $cityName = $this->cityQueries->find($dto->cityId)->name;
         
         if ($this->userCityQueries->exists($dto)) {
             throw new DatabaseException("Город '$cityName' уже выбран для просмотра погоды.");
@@ -56,7 +56,7 @@ final class UserCityService
      */
     public function delete(UserCityDto $dto): void
     {
-        $cityName = $this->cityQueries->getById($dto->cityId)->name;
+        $cityName = $this->cityQueries->find($dto->cityId)->name;
         
         if (!$this->userCityQueries->exists($dto)) {
             throw new DatabaseException("Города '$cityName' уже нет в списке просмотра погоды.");

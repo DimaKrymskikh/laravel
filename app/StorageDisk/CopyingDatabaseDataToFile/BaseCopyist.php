@@ -2,6 +2,7 @@
 
 namespace App\StorageDisk\CopyingDatabaseDataToFile;
 
+use App\Contracts\StorageDisk\BaseCopyistInterface;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 

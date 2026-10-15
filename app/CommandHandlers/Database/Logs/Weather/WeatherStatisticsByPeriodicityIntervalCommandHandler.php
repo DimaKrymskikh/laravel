@@ -2,11 +2,10 @@
 
 namespace App\CommandHandlers\Database\Logs\Weather;
 
+use App\Contracts\Database\DBqueriesInterface;
 use App\DataTransferObjects\Database\OpenWeather\WeatherStatisticsDto;
-use App\Queries\Logs\OpenWeatherWeatherQueries;
 use App\Services\Carbon\Enums\DateFormat;
 use App\Services\Carbon\CarbonService;
-use App\Services\ServiceManagerInterface;
 use Carbon\Carbon;
 
 /**
@@ -14,12 +13,9 @@ use Carbon\Carbon;
  */
 final class WeatherStatisticsByPeriodicityIntervalCommandHandler
 {
-    private OpenWeatherWeatherQueries $queries;
-    
     public function __construct(
-            private ServiceManagerInterface $serviceManager
+            private DBqueriesInterface $queries
     ) {
-        $this->queries = $this->serviceManager->getQueriesOrModifiers(OpenWeatherWeatherQueries::class);
     }
     
     /**

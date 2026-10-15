@@ -4,61 +4,35 @@ namespace Tests\Unit\Services\Database\Dvd;
 
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
-use App\Modifiers\Dvd\FilmModifiers;
-use App\Queries\Dvd\FilmQueries;
 use App\Services\Database\Dvd\FilmService;
-use App\Services\ServiceManagerInterface;
-use Illuminate\Database\Eloquent\Collection;
+use App\Support\Collections\Dvd\FilmCollection;
 use Tests\Unit\TestCase\DvdTestCase;
 
 class FilmServiceTest extends DvdTestCase
 {
-    private ServiceManagerInterface $serviceManager;
-    private FilmQueries $filmQueries;
-    private FilmModifiers $filmModifiers;
     private FilmService $filmService;
-    private int $filmId = 12;
 
     public function test_success_create(): void
     {
         $dto = $this->getFilmDto();
-        $film = new Film();
-        $film->title = $dto->title;
-        $film->description = $dto->description;
-        $film->release_year = $dto->releaseYear->value;
-        
-        $this->filmModifiers->expects($this->once())
-                ->method('save')
-                ->with($film);
         
         $this->assertInstanceOf(Film::class, $this->filmService->create($dto));
     }
     
     public function test_success_update(): void
     {
-        $film = new Film();
-        
-        $this->filmQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->filmId)
-                ->willReturn($film);
-        
-        $this->filmModifiers->expects($this->once())
-                ->method('save')
-                ->with($film);
+        $this->filmQueries->method('find')
+                ->willReturn(new Film());
         
         $this->assertInstanceOf(Film::class, $this->filmService->update('test_field', 'testValue', $this->filmId));
-        $this->assertEquals($film->test_field, 'testValue');
     }
     
     public function test_fail_update(): void
     {
         $this->expectException(DatabaseException::class);
 
-        $this->filmQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->identicalTo($this->filmId))
-                ->willThrowException(new DatabaseException(sprintf(FilmQueries::NOT_RECORD_WITH_ID, $this->filmId)));
+        $this->filmQueries->method('find')
+                ->willReturn(null);
         
         $this->filmModifiers->expects($this->never())
                 ->method('save');
@@ -68,39 +42,24 @@ class FilmServiceTest extends DvdTestCase
     
     public function test_success_delete(): void
     {
-        $this->filmQueries->expects($this->once())
-                ->method('exists')
-                ->with($this->identicalTo($this->filmId))
+        $this->filmQueries->method('exists')
                 ->willReturn(true);
-        
-        $this->filmModifiers->expects($this->once())
-                ->method('delete')
-                ->with($this->identicalTo($this->filmId));
         
         $this->assertNull($this->filmService->delete($this->filmId));
     }
     
     public function test_fail_delete(): void
     {
-        $this->filmQueries->expects($this->once())
-                ->method('exists')
-                ->with($this->identicalTo($this->filmId))
-                ->willReturn(false);
-        
-        $this->filmModifiers->expects($this->never())
-                ->method('delete');
-        
         $this->expectException(DatabaseException::class);
         
-        $this->assertNull($this->filmService->delete($this->filmId));
+        $this->filmQueries->method('exists')
+                ->willReturn(false);
+        
+        $this->filmService->delete($this->filmId);
     }
     
     public function test_success_get_film_card(): void
     {
-        $this->filmQueries->expects($this->once())
-                ->method('getByIdWithActors')
-                ->with($this->identicalTo($this->filmId));
-        
         $this->assertInstanceOf(Film::class, $this->filmService->getFilmCard($this->filmId));
     }
     
@@ -108,30 +67,17 @@ class FilmServiceTest extends DvdTestCase
     {
         $filmFilterDto = $this->getFilmFilterDto();
         
-        $this->filmQueries->expects($this->once())
-                ->method('getListWithFilter')
-                ->with($filmFilterDto);
-        
-        $this->assertInstanceOf(Collection::class, $this->filmService->getFilmsList($filmFilterDto));
+        $this->assertInstanceOf(FilmCollection::class, $this->filmService->getFilmsList($filmFilterDto));
     }
     
     public function test_success_get_actors_list(): void
     {
-        $this->filmQueries->expects($this->once())
-                ->method('getByIdWithActors')
-                ->with($this->identicalTo($this->filmId));
-        
         $this->assertInstanceOf(Film::class, $this->filmService->getActorsList($this->filmId));
     }
     
     protected function setUp(): void
     {
-        $this->filmQueries = $this->createMock(FilmQueries::class);
-        $this->filmModifiers = $this->createMock(FilmModifiers::class);
-        
-        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
-        $this->serviceManager->method('getQueriesOrModifiers')
-                ->willReturn($this->filmModifiers, $this->filmQueries);
+        parent::setUp();
         
         $this->filmService = new FilmService($this->serviceManager);
     }

@@ -2,14 +2,16 @@
 
 namespace App\Queries;
 
+use App\Contracts\Database\DBqueriesInterface;
 use Illuminate\Support\Facades\DB;
 
-abstract class DBqueries implements DBqueriesInterface
+/**
+ * Класс содержит оболочки над DB::select, DB::scalar.
+ */
+class DBqueries implements DBqueriesInterface
 {
     /**
      * {@inheritDoc}
-     * 
-     * @inheritDoc
      */
     public function getArray(string $query, array $options = []): array
     {
@@ -18,8 +20,6 @@ abstract class DBqueries implements DBqueriesInterface
     
     /**
      * {@inheritDoc}
-     * 
-     * @inheritDoc
      */
     public function getObject(string $query, array $options = []): object
     {
@@ -30,8 +30,6 @@ abstract class DBqueries implements DBqueriesInterface
     
     /**
      * {@inheritDoc}
-     * 
-     * @inheritDoc
      */
     public function getValue(string $query, array $options = []): mixed
     {

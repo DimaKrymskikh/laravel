@@ -2,31 +2,19 @@
 
 namespace App\Services\Quiz\Admin;
 
+use App\Contracts\Services\Quiz\StatusInterface;
 use App\Exceptions\RuleException;
 use App\Models\Quiz\Quiz;
 use App\Models\Quiz\QuizItem;
-use App\Modifiers\Quiz\QuizModifiers;
-use App\Queries\Quiz\QuizQueries;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Fields\DataTransferObjects\QuizDto;
 use App\Services\Quiz\Fields\QuizField;
 use App\Services\Quiz\Managers\QuizStatusManager;
-use App\Services\Quiz\StatusInterface;
-use App\Services\ServiceManagerInterface;
+use App\Services\Quiz\QuizService;
 use App\Support\Collections\Quiz\QuizCollection;
 
-final class AdminQuizService
+final class AdminQuizService extends QuizService
 {
-    private QuizModifiers $quizModifiers;
-    private QuizQueries $quizQueries;
-    
-    public function __construct(
-            private ServiceManagerInterface $serviceManager,
-    ) {
-        $this->quizModifiers = $this->serviceManager->getQueriesOrModifiers(QuizModifiers::class);
-        $this->quizQueries = $this->serviceManager->getQueriesOrModifiers(QuizQueries::class);
-    }
-    
     /**
      * Возвращает список опросов
      * 
@@ -89,7 +77,7 @@ final class AdminQuizService
      */
     public function updateField(int $id, QuizField $quizField): Quiz
     {
-        $quiz = $this->quizQueries->getById($id);
+        $quiz = $this->getQuizById($id);
         $quiz->status->allowQuizChanges();
         
         // Имя метода класса не чувствительно к регистру 
@@ -135,7 +123,7 @@ final class AdminQuizService
      */
     public function setFinalStatus(QuizStatus $newStatus, int $id): Quiz
     {
-        $quiz = $this->quizQueries->getById($id);
+        $quiz = $this->getQuizById($id);
         $quizStatusManager = new QuizStatusManager($quiz);
         $quizStatusManager->approveNewStatus($newStatus);
         
@@ -153,7 +141,7 @@ final class AdminQuizService
      */
     public function cancelFinalStatus(int $id): Quiz
     {
-        $quiz = $this->quizQueries->getById($id);
+        $quiz = $this->getQuizById($id);
         $quiz->status->checkFinalStatus();
         
         $quizStatusManager = new QuizStatusManager($quiz);

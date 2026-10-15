@@ -2,9 +2,10 @@
 
 namespace Tests\Unit\CommandHandlers\OpenWeather;
 
+use App\Contracts\Services\Database\Thesaurus\InfoAboutCitiesInterface;
+use App\Contracts\Services\OpenWeather\OpenWeatherInterface;
 use App\Console\Commands\OpenWeather\GetWeather;
 use App\Models\Thesaurus\City;
-use App\Queries\Thesaurus\CityQueries;
 use App\Support\Collections\Thesaurus\CityCollection;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Http\Client\Response;
@@ -38,26 +39,29 @@ abstract class OpenWeatherTestCase extends TestCase
                 ->make();
     }
     
-    protected function defineSuccessStart(CityQueries $cityQueries, GetWeather $command): void
+    protected function defineSuccessStart(InfoAboutCitiesInterface $cityService, GetWeather $command): void
     {
         $city = $this->factoryCity();
         
         $this->defineIntArgument($city, $command);
         
-        $cityQueries->method('getByOpenWeatherId')->willReturn($city);
+        $cityService->method('getCityByOpenWeatherId')->willReturn($city);
     }
     
-    protected function defineSuccessResponse(Response $response): void
+    protected function defineSuccessResponse(Response $response, OpenWeatherInterface $weatherService): void
     {
         $response->method('status')->willReturn(200);
-        
         $response->method('object')->willReturn((object) []);
+        
+        $weatherService->method('sendRequest')->willReturn($response);
     }
     
-    protected function defineFailResponse(Response $response): void
+    protected function defineFailResponse(Response $response, OpenWeatherInterface $weatherService): void
     {
         // Важно: статус не равен 200
         $response->method('status')->willReturn(400);
+        
+        $weatherService->method('sendRequest')->willReturn($response);
     }
     
     protected function defineIntArgument(City $city, GetWeather $command): void

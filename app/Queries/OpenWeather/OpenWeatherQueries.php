@@ -3,7 +3,7 @@
 namespace App\Queries\OpenWeather;
 
 use App\Models\OpenWeather\Weather;
-use App\Services\DatabaseQueryInterface;
+use App\Contracts\Database\DatabaseQueryInterface;
 
 class OpenWeatherQueries implements DatabaseQueryInterface
 {

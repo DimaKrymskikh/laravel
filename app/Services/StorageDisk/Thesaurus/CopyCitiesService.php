@@ -2,9 +2,9 @@
 
 namespace App\Services\StorageDisk\Thesaurus;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Models\Thesaurus\City;
 use App\Queries\Thesaurus\CityQueries;
-use App\Services\ServiceManagerInterface;
 use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\CitiesCopyist;
 
 final class CopyCitiesService

@@ -4,19 +4,13 @@ namespace Tests\Unit\CommandHandlers\Database\Dvd\Actors\CreateActor;
 
 use App\CommandHandlers\Database\Dvd\Actors\CreateActor\CreateActorCommandHandler;
 use App\Console\Commands\Dvd\Actors\CreateActor;
-use App\Modifiers\Dvd\ActorModifiers;
-use App\Queries\Dvd\ActorQueries;
 use App\Services\Database\Dvd\ActorService;
-use App\Services\ServiceManagerInterface;
-use PHPUnit\Framework\TestCase;
+use Tests\Unit\TestCase\DvdTestCase;
 
-class CreateActorCommandHandlerTest extends TestCase
+class CreateActorCommandHandlerTest extends DvdTestCase
 {
     private CreateActorCommandHandler $handler;
     private CreateActor $command;
-    private ServiceManagerInterface $serviceManager;
-    private ActorModifiers $actorModifiers;
-    private ActorQueries $actorQueries;
     private ActorService $actorService;
 
     public function test_success_handle(): void
@@ -29,9 +23,6 @@ class CreateActorCommandHandlerTest extends TestCase
                         ['Введите имя актёра?', null, 'Testname'],
                         ['Введите фамилию актёра?', null, 'Testlastname']
                     ]);
-        
-        $this->actorModifiers->expects($this->once())
-                ->method('save');
         
         $this->command
                 ->expects($this->never())
@@ -51,9 +42,6 @@ class CreateActorCommandHandlerTest extends TestCase
                         ['Введите фамилию актёра?', null, 'Testlastname']
                     ]);
         
-        $this->actorModifiers->expects($this->never())
-                ->method('save');
-        
         $this->command
                 ->expects($this->once())
                 ->method('error');
@@ -63,14 +51,9 @@ class CreateActorCommandHandlerTest extends TestCase
     
     protected function setUp(): void
     {
+        parent::setUp();
+        
         $this->command = $this->createMock(CreateActor::class);
-        
-        $this->actorModifiers = $this->createMock(ActorModifiers::class);
-        $this->actorQueries = $this->createMock(ActorQueries::class);
-        
-        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
-        $this->serviceManager->method('getQueriesOrModifiers')
-                ->willReturn($this->actorModifiers, $this->actorQueries);
         
         $this->actorService = new ActorService($this->serviceManager);
         

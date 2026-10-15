@@ -2,9 +2,9 @@
 
 namespace App\Services\StorageDisk\Dvd;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Models\Dvd\FilmActor;
 use App\Queries\Dvd\FilmActorQueries;
-use App\Services\ServiceManagerInterface;
 use App\StorageDisk\CopyingDatabaseDataToFile\Dvd\FilmsActorsCopyist;
 
 final class CopyFilmsActorsService

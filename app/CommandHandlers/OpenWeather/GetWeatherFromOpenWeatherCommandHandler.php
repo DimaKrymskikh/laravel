@@ -2,12 +2,12 @@
 
 namespace App\CommandHandlers\OpenWeather;
 
+use App\Contracts\Services\Database\Thesaurus\InfoAboutCitiesInterface;
+use App\Contracts\Services\OpenWeather\OpenWeatherInterface;
 use App\Exceptions\DatabaseException;
 use App\Exceptions\OpenWeatherException;
 use App\Exceptions\RuleException;
 use App\Console\Commands\OpenWeather\GetWeather;
-use App\Services\OpenWeather\WeatherService;
-use App\Services\Database\Thesaurus\CityService;
 use App\ValueObjects\IntValue;
 
 /**
@@ -16,8 +16,8 @@ use App\ValueObjects\IntValue;
 final class GetWeatherFromOpenWeatherCommandHandler
 {
     public function __construct(
-            private WeatherService $weatherService,
-            private CityService $cityService,
+            private OpenWeatherInterface $weatherService,
+            private InfoAboutCitiesInterface $cityService,
     ) {
     }
     
@@ -35,7 +35,7 @@ final class GetWeatherFromOpenWeatherCommandHandler
         if($open_weather_id) {
             try {
                 $openWeatherId = IntValue::create($open_weather_id, 'message', 'Параметр команды не является целым числом.');
-                $city = $this->cityService->findCityByOpenWeatherId($openWeatherId->value);
+                $city = $this->cityService->getCityByOpenWeatherId($openWeatherId->value);
             } catch(DatabaseException $ex) {
                 $command->error($ex->getMessage());
                 return;

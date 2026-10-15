@@ -2,10 +2,10 @@
 
 namespace App\Support\Pagination\Urls;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use App\Pagination\PaginatorDTO;
 use App\Queries\Dvd\ActorQueries;
-use App\Services\ServiceManagerInterface;
 
 final class ActorUrls
 {

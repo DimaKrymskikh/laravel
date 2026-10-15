@@ -3,26 +3,18 @@
 namespace App\Queries\Dvd;
 
 use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
-use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Actor;
 use App\Providers\AppServiceProvider;
-use App\Queries\DBqueries;
-use App\Queries\QueriesInterface;
+use App\Queries\ModelQueries;
 use App\Support\Collections\Dvd\ActorCollection;
 
-class ActorQueries extends DBqueries implements QueriesInterface
+class ActorQueries extends ModelQueries
 {
-    public const NOT_RECORD_WITH_ID = "В таблице 'dvd.actors' нет записи с id=%d";
     public const NUMBER_OF_ITEMS_IN_CHUNCK = 10;
     
-    public function exists(int $id): bool
+    protected function setClassName(): void
     {
-        return Actor::where('id', $id)->exists();
-    }
-    
-    public function getById(int $id): Actor
-    {
-        return Actor::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
+        $this->className = Actor::class;
     }
     
     public function count(ActorFilterDto $dto): int
@@ -51,11 +43,6 @@ class ActorQueries extends DBqueries implements QueriesInterface
                     )_
                     WHERE id = :id
                 SQL, ['id' => $id]);
-    }
-    
-    public function getList(): ActorCollection
-    {
-        return $this->getListWithFilter(new ActorFilterDto(''));
     }
     
     public function getListWithFilter(ActorFilterDto $dto): ActorCollection

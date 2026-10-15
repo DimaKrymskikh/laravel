@@ -68,7 +68,6 @@ class FilmActorTest extends TestCase
         $film = Film::find(FilmSeeder::ID_JAPANESE_RUN);
         $filmTitle = $film->title;
         $actor = Actor::find(ActorSeeder::ID_NICK_WAHLBERG);
-        $name = "$actor->->first_name $actor->last_name";
         
         $this->seedUsers();
         $acting = $this->actingAs($this->getUser('AdminTestLogin'));
@@ -84,7 +83,7 @@ class FilmActorTest extends TestCase
 
         $response
             ->assertInvalid([
-                'message' => "Фильм '$filmTitle' уже содержит актёра $name"
+                'message' => "Фильм '$filmTitle' уже содержит актёра $actor->full_name"
             ]);
     }
     

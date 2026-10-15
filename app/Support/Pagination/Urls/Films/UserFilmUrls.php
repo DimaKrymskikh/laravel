@@ -2,10 +2,10 @@
 
 namespace App\Support\Pagination\Urls\Films;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
 use App\Pagination\PaginatorDTO;
 use App\Queries\Person\UserFilmQueries;
-use App\Services\ServiceManagerInterface;
 
 final class UserFilmUrls
 {

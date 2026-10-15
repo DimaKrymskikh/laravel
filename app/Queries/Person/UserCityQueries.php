@@ -2,9 +2,9 @@
 
 namespace App\Queries\Person;
 
+use App\Contracts\Database\DatabaseQueryInterface;
 use App\Models\Person\UserCity;
 use App\Services\Database\Person\Dto\UserCityDto;
-use App\Services\DatabaseQueryInterface;
 
 class UserCityQueries implements DatabaseQueryInterface
 {

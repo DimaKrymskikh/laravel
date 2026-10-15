@@ -2,34 +2,23 @@
 
 namespace Tests\Unit\Services\Quiz\Admin;
 
+use App\Contracts\Services\Quiz\StatusInterface;
 use App\Models\Quiz\QuizAnswer;
-use App\Modifiers\Quiz\QuizAnswerModifiers;
-use App\Queries\Quiz\QuizAnswerQueries;
-use App\Queries\Quiz\QuizItemQueries;
 use App\Services\Quiz\Admin\AdminQuizAnswerService;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Fields\QuizAnswerField;
-use App\Services\Quiz\StatusInterface;
-use App\Services\ServiceManagerInterface;
 use Tests\Unit\Services\Quiz\QuizTestCase;
 
 final class AdminQuizAnswerServiceTest extends QuizTestCase
 {
-    private ServiceManagerInterface $serviceManager;
-    private QuizAnswerModifiers $quizAnswerModifiers;
-    private QuizAnswerQueries $quizAnswerQueries;
-    private QuizItemQueries $quizItemQueries;
     private AdminQuizAnswerService $quizAnswerService;
-    private int $quizAnswerId = 11;
     
     public function test_success_getAnswerCard(): void
     {
         $quizAnswer = $this->factoryAnswer(false, QuizStatus::Ready, QuizItemStatus::AtWork);
         
-        $this->quizAnswerQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->quizAnswerId)
+        $this->quizAnswerQueries->method('find')
                 ->willReturn($quizAnswer);
         
         $appQuizAnswer = $this->quizAnswerService->getAnswerCard($this->quizAnswerId);
@@ -45,9 +34,7 @@ final class AdminQuizAnswerServiceTest extends QuizTestCase
         $quiz = $this->factoryQuiz();
         $quizItem = $this->factoryQuizItem($quiz);
         
-        $this->quizItemQueries->expects($this->once())
-                ->method('getById')
-                ->with($dto->quizItemId)
+        $this->quizItemQueries->method('find')
                 ->willReturn($quizItem);
         
         $this->quizAnswerModifiers->expects($this->once())
@@ -67,14 +54,10 @@ final class AdminQuizAnswerServiceTest extends QuizTestCase
         
         $quizAnswer = $this->factoryAnswer(false, QuizStatus::Ready, QuizItemStatus::AtWork);
         
-        $this->quizAnswerQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->quizAnswerId)
+        $this->quizAnswerQueries->method('find')
                 ->willReturn($quizAnswer);
         
-        $this->quizItemQueries->expects($this->once())
-                ->method('getById')
-                ->with($quizAnswer->quiz_item_id)
+        $this->quizItemQueries->method('find')
                 ->willReturn($quizAnswer->quizItem);
         
         $this->quizAnswerModifiers->expects($this->once())
@@ -88,14 +71,10 @@ final class AdminQuizAnswerServiceTest extends QuizTestCase
     {
         $quizAnswer = $this->factoryAnswer(false, QuizStatus::Ready, QuizItemStatus::AtWork);
         
-        $this->quizAnswerQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->quizAnswerId)
+        $this->quizAnswerQueries->method('find')
                 ->willReturn($quizAnswer);
         
-        $this->quizItemQueries->expects($this->once())
-                ->method('getById')
-                ->with($quizAnswer->quiz_item_id)
+        $this->quizItemQueries->method('find')
                 ->willReturn($quizAnswer->quizItem);
         
         $this->quizAnswerModifiers->expects($this->once())
@@ -107,13 +86,7 @@ final class AdminQuizAnswerServiceTest extends QuizTestCase
 
     protected function setUp(): void
     {
-        $this->quizAnswerModifiers = $this->createMock(QuizAnswerModifiers::class);
-        $this->quizAnswerQueries = $this->createMock(QuizAnswerQueries::class);
-        $this->quizItemQueries = $this->createMock(QuizItemQueries::class);
-        
-        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
-        $this->serviceManager->method('getQueriesOrModifiers')
-                ->willReturn($this->quizAnswerModifiers, $this->quizAnswerQueries, $this->quizItemQueries);
+        parent::setUp();
         
         $this->quizAnswerService = new AdminQuizAnswerService($this->serviceManager);
     }

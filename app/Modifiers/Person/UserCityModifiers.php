@@ -4,7 +4,7 @@ namespace App\Modifiers\Person;
 
 use App\Models\Person\UserCity;
 use App\Services\Database\Person\Dto\UserCityDto;
-use App\Services\DatabaseQueryInterface;
+use App\Contracts\Database\DatabaseQueryInterface;
 
 class UserCityModifiers implements DatabaseQueryInterface
 {

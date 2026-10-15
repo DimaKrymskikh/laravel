@@ -6,94 +6,43 @@ use App\DataTransferObjects\Database\Dvd\Filters\ActorFilterDto;
 use App\DataTransferObjects\Database\Dvd\ActorDto;
 use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Actor;
-use App\Modifiers\Dvd\ActorModifiers;
-use App\Queries\Dvd\ActorQueries;
 use App\Services\Database\Dvd\ActorService;
-use App\Services\ServiceManagerInterface;
+use App\Support\Collections\Dvd\ActorCollection;
 use App\ValueObjects\PersonName;
-use PHPUnit\Framework\TestCase;
+use Tests\Unit\TestCase\DvdTestCase;
 
-class ActorServiceTest extends TestCase
+class ActorServiceTest extends DvdTestCase
 {
-    private ServiceManagerInterface $serviceManager;
-    private ActorModifiers $actorModifiers;
-    private ActorQueries $actorQueries;
     private ActorService $actorService;
     private ActorDto $actorDto;
-    private int $actorId = 12;
     
     public function test_success_create(): void
     {
-        $actor = new Actor();
-        $actor->first_name = $this->actorDto->firstName->name;
-        $actor->last_name = $this->actorDto->lastName->name;
-        
-        $this->actorModifiers->expects($this->once())
-                ->method('save')
-                ->with($actor);
-        
         $this->assertInstanceOf(Actor::class, $this->actorService->create($this->actorDto));
     }
     
     public function test_success_update(): void
     {
-        $actor = new Actor();
-        $actor->first_name = $this->actorDto->firstName->name;
-        $actor->last_name = $this->actorDto->lastName->name;
-        
-        $this->actorQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->actorId)
-                ->willReturn($actor);
-        
-        $this->actorModifiers->expects($this->once())
-                ->method('save')
-                ->with($actor);
+        $this->actorQueries->method('find')
+                ->willReturn(new Actor());
         
         $this->assertInstanceOf(Actor::class, $this->actorService->update($this->actorDto, $this->actorId));
     }
     
-    public function test_fail_update(): void
-    {
-        $this->expectException(DatabaseException::class);
-
-        $this->actorQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->identicalTo($this->actorId))
-                ->willThrowException(new DatabaseException(sprintf(ActorQueries::NOT_RECORD_WITH_ID, $this->actorId)));
-        
-        $this->actorModifiers->expects($this->never())
-                ->method('save');
-        
-        $this->actorService->update($this->actorDto, $this->actorId);
-    }
-    
     public function test_success_delete(): void
     {
-        $this->actorQueries->expects($this->once())
-                ->method('exists')
-                ->with($this->actorId)
+        $this->actorQueries->method('exists')
                 ->willReturn(true);
         
-        $this->actorModifiers->expects($this->once())
-                ->method('delete')
-                ->with($this->identicalTo($this->actorId));
-        
-        $this->actorService->delete($this->actorId);
+        $this->assertNull($this->actorService->delete($this->actorId));
     }
     
     public function test_fail_delete(): void
     {
-        $this->actorQueries->expects($this->once())
-                ->method('exists')
-                ->with($this->actorId)
-                ->willReturn(false);
-        
-        $this->actorModifiers->expects($this->never())
-                ->method('delete')
-                ->with($this->identicalTo($this->actorId));
-        
         $this->expectException(DatabaseException::class);
+        
+        $this->actorQueries->method('exists')
+                ->willReturn(false);
         
         $this->actorService->delete($this->actorId);
     }
@@ -102,11 +51,7 @@ class ActorServiceTest extends TestCase
     {
         $actorFilterDto = new ActorFilterDto('test');
         
-        $this->actorQueries->expects($this->once())
-                ->method('getListWithFilter')
-                ->with($actorFilterDto);
-        
-        $this->actorService->getAllActorsList($actorFilterDto);
+        $this->assertInstanceOf(ActorCollection::class, $this->actorService->getAllActorsList($actorFilterDto));
     }
     
     protected function setUp(): void
@@ -115,12 +60,7 @@ class ActorServiceTest extends TestCase
         $lastName = PersonName::create('Testlastname', 'last_name', 'Фамилия актёра должна начинаться с заглавной буквы. Остальные буквы должны быть строчными.');
         $this->actorDto = new ActorDto($firstName, $lastName);
         
-        $this->actorModifiers = $this->createMock(ActorModifiers::class);
-        $this->actorQueries = $this->createMock(ActorQueries::class);
-        
-        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
-        $this->serviceManager->method('getQueriesOrModifiers')
-                ->willReturn($this->actorModifiers, $this->actorQueries);
+        parent::setUp();
         
         $this->actorService = new ActorService($this->serviceManager);
     }

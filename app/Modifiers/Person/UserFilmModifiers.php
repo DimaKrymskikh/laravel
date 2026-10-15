@@ -4,7 +4,7 @@ namespace App\Modifiers\Person;
 
 use App\Models\Person\UserFilm;
 use App\Services\Database\Person\Dto\UserFilmDto;
-use App\Services\DatabaseQueryInterface;
+use App\Contracts\Database\DatabaseQueryInterface;
 
 class UserFilmModifiers implements DatabaseQueryInterface
 {

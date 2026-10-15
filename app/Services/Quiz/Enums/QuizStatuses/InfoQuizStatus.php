@@ -2,7 +2,7 @@
 
 namespace App\Services\Quiz\Enums\QuizStatuses;
 
-use App\Services\Quiz\StatusInterface;
+use App\Contracts\Services\Quiz\StatusInterface;
 use Illuminate\Support\Collection;
 
 abstract class InfoQuizStatus implements StatusInterface

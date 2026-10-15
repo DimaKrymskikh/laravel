@@ -2,31 +2,23 @@
 
 namespace Tests\Unit\Services\Quiz\Admin;
 
+use App\Contracts\Services\Quiz\StatusInterface;
 use App\Exceptions\RuleException;
 use App\Models\Quiz\Quiz;
-use App\Modifiers\Quiz\QuizModifiers;
-use App\Queries\Quiz\QuizQueries;
 use App\Services\Quiz\Admin\AdminQuizService;
 use App\Services\Quiz\Enums\QuizStatus;
-use App\Services\Quiz\StatusInterface;
-use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Quiz\QuizCollection;
 use Tests\Unit\Services\Quiz\QuizTestCase;
 
 final class AdminQuizServiceTest extends QuizTestCase
 {
-    private ServiceManagerInterface $serviceManager;
-    private QuizModifiers $quizModifiers;
-    private QuizQueries $quizQueries;
     private AdminQuizService $quizService;
-    private int $quizId = 17;
 
     public function test_success_getList(): void
     {
         $quizzes = $this->factoryQuizzes(5);
         
-        $this->quizQueries->expects($this->once())
-                ->method('getList')
+        $this->quizQueries->method('getList')
                 ->willReturn($quizzes);
         
         $appQuizzes = $this->quizService->getList();
@@ -42,9 +34,7 @@ final class AdminQuizServiceTest extends QuizTestCase
         $quizItems = $this->factoryQuizItems(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS - 1, 2);
         $quiz = $this->factoryQuizWithQuizItems($quizItems, QuizStatus::AtWork);
         
-        $this->quizQueries->expects($this->once())
-                ->method('getQuizByIdWithQuizItems')
-                ->with($this->quizId)
+        $this->quizQueries->method('getQuizByIdWithQuizItems')
                 ->willReturn($quiz);
         
         $appQuiz = $this->quizService->getQuizByIdWithQuizItems($this->quizId);
@@ -59,9 +49,7 @@ final class AdminQuizServiceTest extends QuizTestCase
     {
         $dto = $this->getQuizDto();
         
-        $this->quizQueries->expects($this->once())
-                ->method('existsByTitle')
-                ->with($dto->title)
+        $this->quizQueries->method('existsByTitle')
                 ->willReturn(false);
         
         $this->quizModifiers->expects($this->once())
@@ -76,9 +64,7 @@ final class AdminQuizServiceTest extends QuizTestCase
         
         $this->expectException(RuleException::class);
         
-        $this->quizQueries->expects($this->once())
-                ->method('existsByTitle')
-                ->with($dto->title)
+        $this->quizQueries->method('existsByTitle')
                 ->willReturn(true);
         
         $this->quizModifiers->expects($this->never())
@@ -95,8 +81,7 @@ final class AdminQuizServiceTest extends QuizTestCase
         $quiz = $this->factoryQuiz(QuizStatus::AtWork, $oldLeadTime);
         $this->assertEquals($oldLeadTime, $quiz->lead_time);
         
-        $this->quizQueries->method('getById')
-                ->with($this->quizId)
+        $this->quizQueries->method('find')
                 ->willReturn($quiz);
         
         $this->quizModifiers->expects($this->once())
@@ -116,12 +101,10 @@ final class AdminQuizServiceTest extends QuizTestCase
         $quiz = $this->factoryQuizTitle(QuizStatus::Ready, $oldTitle);
         $this->assertEquals($oldTitle, $quiz->title);
         
-        $this->quizQueries->method('getById')
-                ->with($this->quizId)
+        $this->quizQueries->method('find')
                 ->willReturn($quiz);
         
-        $this->quizQueries->expects($this->once())
-                ->method('existsByTitle')
+        $this->quizQueries->method('existsByTitle')
                 ->willReturn(false);
         
         $this->quizModifiers->expects($this->once())
@@ -143,12 +126,10 @@ final class AdminQuizServiceTest extends QuizTestCase
         $quiz = $this->factoryQuizTitle(QuizStatus::Ready, $oldTitle);
         $this->assertEquals($oldTitle, $quiz->title);
         
-        $this->quizQueries->method('getById')
-                ->with($this->quizId)
+        $this->quizQueries->method('find')
                 ->willReturn($quiz);
         
-        $this->quizQueries->expects($this->once())
-                ->method('existsByTitle')
+        $this->quizQueries->method('existsByTitle')
                 ->willReturn(true);
         
         $this->quizModifiers->expects($this->never())
@@ -169,8 +150,7 @@ final class AdminQuizServiceTest extends QuizTestCase
         $quiz = $this->factoryQuiz(QuizStatus::Removed, $oldLeadTime);
         $this->assertEquals($oldLeadTime, $quiz->lead_time);
         
-        $this->quizQueries->method('getById')
-                ->with($this->quizId)
+        $this->quizQueries->method('find')
                 ->willReturn($quiz);
         
         $this->quizModifiers->expects($this->never())
@@ -184,9 +164,7 @@ final class AdminQuizServiceTest extends QuizTestCase
         $quizItems = $this->factoryQuizItems(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS, 0, true);
         $quiz = $this->factoryQuizWithQuizItems($quizItems, QuizStatus::AtWork);
         
-        $this->quizQueries->expects($this->once())
-                ->method('getQuizByIdWithQuizItems')
-                ->with($this->quizId)
+        $this->quizQueries->method('getQuizByIdWithQuizItems')
                 ->willReturn($quiz);
         
         $this->quizModifiers->expects($this->once())
@@ -203,9 +181,7 @@ final class AdminQuizServiceTest extends QuizTestCase
         $quizItems = $this->factoryQuizItems(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS, 0);
         $quiz = $this->factoryQuizWithQuizItems($quizItems, QuizStatus::AtWork);
         
-        $this->quizQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->quizId)
+        $this->quizQueries->method('find')
                 ->willReturn($quiz);
         
         $this->quizModifiers->expects($this->once())
@@ -220,9 +196,7 @@ final class AdminQuizServiceTest extends QuizTestCase
         $quizItems = $this->factoryQuizItems(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS, 0);
         $quiz = $this->factoryQuizWithQuizItems($quizItems, QuizStatus::Removed);
         
-        $this->quizQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->quizId)
+        $this->quizQueries->method('find')
                 ->willReturn($quiz);
         
         $this->quizModifiers->expects($this->once())
@@ -234,12 +208,7 @@ final class AdminQuizServiceTest extends QuizTestCase
     
     protected function setUp(): void
     {
-        $this->quizModifiers = $this->createMock(QuizModifiers::class);
-        $this->quizQueries = $this->createMock(QuizQueries::class);
-        
-        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
-        $this->serviceManager->method('getQueriesOrModifiers')
-                ->willReturn($this->quizModifiers, $this->quizQueries);
+        parent::setUp();
         
         $this->quizService = new AdminQuizService($this->serviceManager);
     }

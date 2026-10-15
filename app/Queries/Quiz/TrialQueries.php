@@ -4,18 +4,18 @@ namespace App\Queries\Quiz;
 
 use App\Models\User;
 use App\Models\Quiz\Trial;
-use App\Queries\QueriesInterface;
+use App\Queries\ModelQueries;
 use App\Support\Collections\Quiz\TrialCollection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class TrialQueries implements QueriesInterface
+class TrialQueries extends ModelQueries
 {
     public const NOT_RECORD_WITH_ID = "В таблице 'quiz.trials' нет записи с id=%d";
     public const NOT_ACTIVE_TRIAL_FOR_USER = "У пользователя %s нет активного опроса.";
     
-    public function exists(int $id): bool
+    protected function setClassName(): void
     {
-        return Trial::where('id', $id)->exists();
+        $this->className = Trial::class;
     }
     
     /**
@@ -27,17 +27,6 @@ class TrialQueries implements QueriesInterface
     public function existsActiveTrialByUser(User $user): bool
     {
         return Trial::where('user_id', $user->id)->whereNull('end_at')->exists();
-    }
-    
-    /**
-     * {@inheritDoc} (таблица 'quiz.trials')
-     * 
-     * @param int $id - первичный ключ таблицы
-     * @return Trial
-     */
-    public function getById(int $id): Trial
-    {
-        return Trial::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
     }
     
     /**
@@ -55,16 +44,6 @@ class TrialQueries implements QueriesInterface
                 ])
                 ->where('user_id', $user->id)->whereNull('end_at')->first()
                 ?? throw new DatabaseException(sprintf(self::NOT_ACTIVE_TRIAL_FOR_USER, $user->login));
-    }
-    
-    /**
-     * {@inheritDoc} 'quiz.trials'
-     * 
-     * @return TrialCollection
-     */
-    public function getList(): TrialCollection
-    {
-        return Trial::orderBy('title')->get();
     }
     
     /**

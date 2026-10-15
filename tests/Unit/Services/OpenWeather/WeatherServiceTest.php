@@ -2,6 +2,9 @@
 
 namespace Tests\Unit\Services\OpenWeather;
 
+use App\Contracts\Services\Database\Thesaurus\InfoAboutCitiesInterface;
+use App\Contracts\Services\Database\Thesaurus\TimezoneServiceInterface;
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Curl\OpenWeather\OpenWeatherRequests;
 use App\Exceptions\OpenWeatherException;
 use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
@@ -11,16 +14,11 @@ use App\Models\User;
 use App\Modifiers\OpenWeather\WeatherModifiers;
 use App\Queries\Logs\OpenWeatherWeatherQueries;
 use App\Queries\OpenWeather\OpenWeatherQueries;
-use App\Queries\Person\UserQueries;
-use App\Queries\Thesaurus\CityQueries;
-use App\Queries\Thesaurus\TimezoneQueries;
-use App\Services\Database\Thesaurus\TimezoneService;
 use App\Services\OpenWeather\WeatherService;
-use App\Services\ServiceManagerInterface;
+use App\Support\Collections\Thesaurus\CityCollection;
 use App\ValueObjects\ResponseObjects\OpenWeatherObject;
 use Database\Testsupport\OpenWeather\OpenWeatherResponse;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Client\Response;
 
 class WeatherServiceTest extends WeatherTestCase
@@ -32,10 +30,8 @@ class WeatherServiceTest extends WeatherTestCase
     private WeatherModifiers $weatherModifiers;
     private OpenWeatherWeatherQueries $openWeatherWeatherQueries;
     private OpenWeatherQueries $openWeatherQueries;
-    private UserQueries $userQueries;
-    private CityQueries $cityQueries;
-    private TimezoneService $timezoneService;
-    private TimezoneQueries $timezoneQueries;
+    private TimezoneServiceInterface $timezoneService;
+    private InfoAboutCitiesInterface $cityService;
     private WeatherService $weatherService;
     private Response $response;
     private City $city;
@@ -51,24 +47,19 @@ class WeatherServiceTest extends WeatherTestCase
         $this->assertInstanceOf(Weather::class, $this->weatherService->updateOrCreate($weatherDto));
     }
     
-    public function test_success_getWeatherInCitiesForAuthUserByUserId(): void
+    public function test_success_getWeatherInCitiesForAuthUser(): void
     {
-        $userId = 7;
-        $user = new User();
-        $user->id = $userId;
-        $cities = new Collection();
+        $this->cityService->method('getCitiesWithWeatherByUser')
+                ->willReturn(new CityCollection());
         
-        $this->userQueries->expects($this->once())
-                ->method('getById')
-                ->with($userId)
-                ->willReturn($user);
+        $this->assertInstanceOf(CityCollection::class, $this->weatherService->getWeatherInCitiesForAuthUser(new User()));
+    }
+    
+    public function test_fail_getWeatherInCitiesForAuthUser(): void
+    {
+        $this->expectException(\LogicException::class);
         
-        $this->cityQueries->expects($this->once())
-                ->method('getByUserWithWeather')
-                ->with($this->identicalTo($user))
-                ->willReturn($cities);
-        
-        $this->assertSame($cities, $this->weatherService->getWeatherInCitiesForAuthUserByUserId($userId));
+        $this->weatherService->getWeatherInCitiesForAuthUser(null);
     }
     
     public function test_success_checkNumberOfWeatherLinesForLastMinuteLessBaseValue(): void
@@ -148,9 +139,7 @@ class WeatherServiceTest extends WeatherTestCase
         $this->city = $this->factoryCity();
         $this->defineSuccessResponse($this->response);
         
-        $this->cityQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->cityId)
+        $this->cityService->method('getCityById')
                 ->willReturn($this->city);
         
         $this->openWeatherRequests->expects($this->once())
@@ -178,9 +167,7 @@ class WeatherServiceTest extends WeatherTestCase
         $this->city = $this->factoryCity();
         $this->response->method('status')->willReturn(400); // !200
         
-        $this->cityQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->cityId)
+        $this->cityService->method('getCityById')
                 ->willReturn($this->city);
         
         $this->openWeatherRequests->expects($this->once())
@@ -201,26 +188,20 @@ class WeatherServiceTest extends WeatherTestCase
     {
         $this->response = $this->createStub(Response::class);
         
-        $this->timezoneQueries = $this->createStub(TimezoneQueries::class);
-        
         $this->openWeatherRequests = $this->createMock(OpenWeatherRequests::class);
         $this->weatherModifiers = $this->createMock(WeatherModifiers::class);
         $this->openWeatherWeatherQueries = $this->createMock(OpenWeatherWeatherQueries::class);
         $this->openWeatherQueries = $this->createMock(OpenWeatherQueries::class);
-        $this->userQueries = $this->createMock(UserQueries::class);
-        $this->cityQueries = $this->createMock(CityQueries::class);
         
         $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
         $this->serviceManager->method('getCurlRequest')
                 ->willReturn($this->openWeatherRequests);
         $this->serviceManager->method('getQueriesOrModifiers')
-                ->willReturn(
-                        $this->timezoneQueries,
-                        $this->weatherModifiers,
-                        $this->openWeatherWeatherQueries, $this->openWeatherQueries, $this->userQueries, $this->cityQueries,
-                    );
+                ->willReturn($this->weatherModifiers, $this->openWeatherWeatherQueries, $this->openWeatherQueries);
         
-        $this->timezoneService = new TimezoneService($this->serviceManager);
-        $this->weatherService = new WeatherService($this->serviceManager, $this->timezoneService);
+        $this->cityService = $this->createStub(InfoAboutCitiesInterface::class);
+        $this->timezoneService = $this->createStub(TimezoneServiceInterface::class);
+        
+        $this->weatherService = new WeatherService($this->serviceManager, $this->cityService, $this->timezoneService);
     }
 }

@@ -2,48 +2,31 @@
 
 namespace App\Queries\Thesaurus;
 
-use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
 use App\Models\User;
-use App\Queries\DBqueries;
-use App\Queries\QueriesInterface;
+use App\Queries\ModelQueries;
 use App\Support\Collections\Thesaurus\CityCollection;
 use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\JoinClause;
 
-class CityQueries extends DBqueries implements QueriesInterface
+class CityQueries extends ModelQueries
 {
-    public const NOT_RECORD_WITH_ID = "В таблице 'thesaurus.cities' нет записи с id=%d";
-    public const NOT_RECORD_WITH_OPEN_WEATHER_ID = "В таблице 'thesaurus.cities' нет записи с open_weather_id=%d";
     public const NUMBER_OF_ITEMS_IN_CHUNCK = 2;
     
-    public function exists(int $id): bool
+    protected function setClassName(): void
     {
-        return City::where('id', $id)->exists();
+        $this->className = City::class;
     }
     
     /**
-     * Получить из таблицы 'thesaurus.cities' запись с первичным ключом id
+     * Из таблицы 'thesaurus.cities' извлекает город по id-города в сервисе OpenWeather.
      * 
-     * @param int $id
-     * @return City
+     * @param int $openWeatherId
+     * @return City|null
      */
-    public function getById(int $id): City
+    public function findByOpenWeatherId(int $openWeatherId): City|null
     {
-        return City::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
-    }
-    
-    /**
-     * Возвращает город по id-города в сервисе OpenWeather
-     * 
-     * @param int $openWeatherId id-города в сервисе OpenWeather
-     * @return City
-     */
-    public function getByOpenWeatherId(int $openWeatherId): City
-    {
-        return City::where('open_weather_id', $openWeatherId)->first()
-                ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_OPEN_WEATHER_ID, $openWeatherId));
+        return City::where('open_weather_id', $openWeatherId)->first();
     }
     
     /**
@@ -62,9 +45,9 @@ class CityQueries extends DBqueries implements QueriesInterface
      * Возвращает города пользователя с текущей погодой.
      * 
      * @param User $user
-     * @return Collection
+     * @return CityCollection
      */
-    public function getByUserWithWeather(User $user): Collection
+    public function getByUserWithWeather(User $user): CityCollection
     {
         $user->load([
                 'cities' => function (Builder $query) {
@@ -79,6 +62,12 @@ class CityQueries extends DBqueries implements QueriesInterface
         return $user->cities;
     }
     
+    /**
+     * Получает коллекцию городов, доступную пользователю.
+     * 
+     * @param int $userId id пользователя.
+     * @return CityCollection
+     */
     public function getListWithAvailableByUserId(int $userId): CityCollection
     {
         return City::select('id', 'name', 'timezone_id')

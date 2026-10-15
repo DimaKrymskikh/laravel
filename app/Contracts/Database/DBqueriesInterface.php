@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Queries;
+namespace App\Contracts\Database;
 
-use App\Services\DatabaseQueryInterface;
-
+/**
+ * {@inheritDoc}
+ * Содержит оболочки над DB::select, DB::scalar.
+ */
 interface DBqueriesInterface extends DatabaseQueryInterface
 {
     /**

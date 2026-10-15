@@ -2,15 +2,18 @@
 
 namespace App\Services\Database\Thesaurus;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\DataTransferObjects\Database\Thesaurus\Filters\LanguageFilterDto;
+use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\Language;
 use App\Modifiers\Thesaurus\LanguageModifiers;
 use App\Queries\Thesaurus\LanguageQueries;
-use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Thesaurus\LanguageCollection;
 
 final class LanguageService
 {
+    public const NOT_RECORD_WITH_ID = "В таблице 'thesaurus.languages' нет записи с id=%d";
+    
     private LanguageModifiers $languageModifiers;
     private LanguageQueries $languageQueries;
     
@@ -19,6 +22,11 @@ final class LanguageService
     ) {
         $this->languageModifiers = $this->serviceManager->getQueriesOrModifiers(LanguageModifiers::class);
         $this->languageQueries = $this->serviceManager->getQueriesOrModifiers(LanguageQueries::class);
+    }
+    
+    public function getLanguageById(int $id): Language
+    {
+        return $this->languageQueries->find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
     }
     
     public function create(string $name): Language
@@ -33,7 +41,7 @@ final class LanguageService
     
     public function update(string $name, int $id): Language
     {
-        $language = $this->languageQueries->getById($id);
+        $language = $this->getLanguageById($id);
         $language->name = $name;
         
         $this->languageModifiers->save($language);
@@ -43,7 +51,7 @@ final class LanguageService
     
     public function delete(int $id): void
     {
-        $language = $this->languageQueries->getById($id);
+        $language = $this->getLanguageById($id);
         $this->languageModifiers->remove($language);
     }
     

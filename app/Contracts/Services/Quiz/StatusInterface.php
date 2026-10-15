@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Quiz;
+namespace App\Contracts\Services\Quiz;
 
 use Illuminate\Support\Collection;
 

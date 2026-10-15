@@ -2,6 +2,7 @@
 
 namespace App\Modifiers;
 
+use App\Contracts\Database\ModifiersInterface;
 use Illuminate\Database\Eloquent\Model;
 
 abstract class Modifiers implements ModifiersInterface

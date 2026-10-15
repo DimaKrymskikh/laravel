@@ -2,6 +2,7 @@
 
 namespace App\Services\Quiz\Trial;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Exceptions\DatabaseException;
 use App\Models\User;
 use App\Models\Quiz\Quiz;
@@ -9,39 +10,46 @@ use App\Models\Quiz\Trial;
 use App\Models\Quiz\TrialAnswer;
 use App\Modifiers\Quiz\TrialAnswerModifiers;
 use App\Modifiers\Quiz\TrialModifiers;
-use App\Queries\Quiz\QuizAnswerQueries;
-use App\Queries\Quiz\QuizItemQueries;
-use App\Queries\Quiz\QuizQueries;
 use App\Queries\Quiz\TrialAnswerQueries;
 use App\Queries\Quiz\TrialQueries;
 use App\Services\Quiz\Trial\DataTransferObjects\AnswerDto;
 use App\Services\Quiz\Managers\GradeManager;
-use App\Services\ServiceManagerInterface;
+use App\Services\Quiz\QuizService;
 use App\Support\Collections\Quiz\QuizCollection;
 use App\Support\Collections\Quiz\QuizItemCollection;
 use App\Support\Collections\Quiz\TrialCollection;
 use Carbon\Carbon;
 
-final class TrialService
+final class TrialService extends QuizService
 {
+    const NOT_RECORD_WITH_ID_QUIZ_TRIAL_ANSWERS = "В таблице 'quiz.trial_answers' нет записи с id=%d";
+    
     private TrialAnswerModifiers $trialAnswerModifiers;
     private TrialModifiers $trialModifiers;
-    private QuizAnswerQueries $quizAnswerQueries;
-    private QuizItemQueries $quizItemQueries;
-    private QuizQueries $quizQueries;
     private TrialAnswerQueries $trialAnswerQueries;
     private TrialQueries $trialQueries;
     
     public function __construct(
             private ServiceManagerInterface $serviceManager,
     ) {
+        parent::__construct($serviceManager);
+        
         $this->trialAnswerModifiers = $this->serviceManager->getQueriesOrModifiers(TrialAnswerModifiers::class);
         $this->trialModifiers = $this->serviceManager->getQueriesOrModifiers(TrialModifiers::class);
-        $this->quizAnswerQueries = $this->serviceManager->getQueriesOrModifiers(QuizAnswerQueries::class);
-        $this->quizItemQueries = $this->serviceManager->getQueriesOrModifiers(QuizItemQueries::class);
-        $this->quizQueries = $this->serviceManager->getQueriesOrModifiers(QuizQueries::class);
         $this->trialAnswerQueries = $this->serviceManager->getQueriesOrModifiers(TrialAnswerQueries::class);
         $this->trialQueries = $this->serviceManager->getQueriesOrModifiers(TrialQueries::class);
+    }
+    
+    /**
+     * По id таблицы 'quiz.trial_answers' извлекает запись и создаёт ORM-модель.
+     * Если в таблице нет записи, будет выброшено исключение DatabaseException.
+     * 
+     * @param int $id Первичный ключ таблицы 'quiz.trial_answers'
+     * @return TrialAnswer
+     */
+    public function getTrialAnswerById(int $id): TrialAnswer
+    {
+        return $this->trialAnswerQueries->find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID_QUIZ_TRIAL_ANSWERS, $id));
     }
     
     /**
@@ -151,8 +159,8 @@ final class TrialService
             throw new DatabaseException('Время опроса истекло. Ответ не принят.');
         }
         
-        $trialAnswer = $this->trialAnswerQueries->getById($dto->id);
-        $answer = $this->quizAnswerQueries->getById($dto->quiz_answer_id);
+        $trialAnswer = $this->getTrialAnswerById($dto->id);
+        $answer = $this->getQuizAnswerById($dto->quiz_answer_id);
         
         $trialAnswer->quiz_answer_id = $dto->quiz_answer_id;
         $trialAnswer->answer = $answer->description;

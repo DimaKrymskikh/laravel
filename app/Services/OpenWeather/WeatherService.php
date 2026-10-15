@@ -2,53 +2,51 @@
 
 namespace App\Services\OpenWeather;
 
+use App\Contracts\Services\Database\Thesaurus\InfoAboutCitiesInterface;
+use App\Contracts\Services\Database\Thesaurus\TimezoneServiceInterface;
+use App\Contracts\Services\OpenWeather\OpenWeatherInterface;
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Curl\OpenWeather\OpenWeatherRequests;
 use App\DataTransferObjects\Database\OpenWeather\WeatherDto;
 use App\Events\RefreshCityWeather;
 use App\Exceptions\OpenWeatherException;
 use App\Models\OpenWeather\Weather;
 use App\Models\Thesaurus\City;
+use App\Models\User;
 use App\Modifiers\OpenWeather\WeatherModifiers;
 use App\Queries\Logs\OpenWeatherWeatherQueries;
 use App\Queries\OpenWeather\OpenWeatherQueries;
-use App\Queries\Person\UserQueries;
-use App\Queries\Thesaurus\CityQueries;
 use App\Services\Database\Person\Dto\UserCityDto;
-use App\Services\Database\Thesaurus\TimezoneService;
-use App\Services\ServiceManagerInterface;
+use App\Support\Collections\Thesaurus\CityCollection;
 use App\ValueObjects\Broadcast\Weather\CurrentWeatherData;
 use App\ValueObjects\ResponseObjects\OpenWeatherObject;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Client\Response;
 
 /**
  * Бизнес-логика работы с сервисом OpenWeather
  */
-final class WeatherService
+final class WeatherService implements OpenWeatherInterface
 {
     // Число запросов на сервер OpenWeather при бесплатном тарифе за одну минуту
     public const OPEN_WEATHER_LIMIT_FOR_ONE_MINUTE = 60;
     // Период обновления погоды для города в минутах
     public const OPEN_WEATHER_CITY_UPDATE_PERIOD = 10;
     
-    private OpenWeatherRequests $openWeatherRequests;
-    private WeatherModifiers $weatherModifiers;
-    private OpenWeatherWeatherQueries $openWeatherWeatherQueries;
-    private OpenWeatherQueries $openWeatherQueries;
-    private UserQueries $userQueries;
-    private CityQueries $cityQueries;
+    private readonly OpenWeatherRequests $openWeatherRequests;
+    private readonly WeatherModifiers $weatherModifiers;
+    private readonly OpenWeatherWeatherQueries $openWeatherWeatherQueries;
+    private readonly OpenWeatherQueries $openWeatherQueries;
 
     public function __construct(
-            private ServiceManagerInterface $serviceManager,
-            private TimezoneService $timezoneService,
+            private readonly ServiceManagerInterface $serviceManager,
+            private readonly InfoAboutCitiesInterface $cityService,
+            private readonly TimezoneServiceInterface $timezoneService,
     ) {
         $this->openWeatherRequests = $this->serviceManager->getCurlRequest(OpenWeatherRequests::class);
         $this->weatherModifiers = $this->serviceManager->getQueriesOrModifiers(WeatherModifiers::class);
         $this->openWeatherWeatherQueries = $this->serviceManager->getQueriesOrModifiers(OpenWeatherWeatherQueries::class);
         $this->openWeatherQueries = $this->serviceManager->getQueriesOrModifiers(OpenWeatherQueries::class);
-        $this->userQueries = $this->serviceManager->getQueriesOrModifiers(UserQueries::class);
-        $this->cityQueries = $this->serviceManager->getQueriesOrModifiers(CityQueries::class);
     }
     
     /**
@@ -64,10 +62,20 @@ final class WeatherService
         return $this->openWeatherQueries->getByCityId($dto->cityId);
     }
     
-    public function getWeatherInCitiesForAuthUserByUserId(int $userId): Collection
+    /**
+     * Возвращает города пользователя с текущей погодой.
+     * 
+     * @param User|null $user
+     * @return CityCollection
+     * @throws \LogicException
+     */
+    public function getWeatherInCitiesForAuthUser(User|null $user): CityCollection
     {
-        $user = $this->userQueries->getById($userId);
-        $cities = $this->cityQueries->getByUserWithWeather($user);
+        if(!$user) {
+            throw new \LogicException('Пользователь не аутентифицирован.');
+        }
+        
+        $cities = $this->cityService->getCitiesWithWeatherByUser($user);
         
         // Устанавливаем в данных погоды часовой пояс города
         $this->timezoneService->setTimezoneOfCitiesForWeatherData($cities);
@@ -138,7 +146,7 @@ final class WeatherService
      */
     public function refreshWeatherInCity(UserCityDto $dto, Dispatcher $dispatcher): void
     {
-        $city = $this->cityQueries->getById($dto->cityId);
+        $city = $this->cityService->getCityById($dto->cityId);
         $response = $this->sendRequest($city);
         
         if($response->status() !== 200) {

@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Services\Database\Person;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Models\User;
 use App\Modifiers\Person\UserModifiers;
 use App\Services\Database\Person\Dto\RegisterDto;
 use App\Services\Database\Person\UserService;
-use App\Services\ServiceManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 class UserServiceTest extends TestCase

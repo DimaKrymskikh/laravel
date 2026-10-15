@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Contracts\Curl;
 
 /**
  * Указывает на то, что объект данного типа выполняет curl-запрос.

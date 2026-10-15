@@ -2,24 +2,22 @@
 
 namespace App\CommandHandlers\Database\Logs\WeatherStatisticsByCity;
 
+use App\Contracts\Database\DBqueriesInterface;
+use App\Contracts\Services\Database\Thesaurus\InfoAboutCitiesInterface;
 use App\Exceptions\DatabaseException;
 use App\Exceptions\RuleException;
 use App\Console\Commands\Logs\WeatherStatisticsByCity;
-use App\Queries\Thesaurus\CityQueries;
 use App\Services\Carbon\Enums\DateFormat;
 use App\Services\Carbon\CarbonService;
-use App\Services\ServiceManagerInterface;
 use App\ValueObjects\ScalarTypes\SimpleStringValue;
 use App\ValueObjects\IntValue;
 
 final class WeatherStatisticsByCityCommandHandler
 {
-    private CityQueries $queries;
-    
     public function __construct(
-            private ServiceManagerInterface $serviceManager
+            private DBqueriesInterface $queries,
+            private InfoAboutCitiesInterface $cityService
     ) {
-        $this->queries = $this->serviceManager->getQueriesOrModifiers(CityQueries::class);
     }
     
     /**
@@ -37,7 +35,7 @@ final class WeatherStatisticsByCityCommandHandler
                 // Проверяем, что $openWeatherId - целое число.
                 IntValue::create($openWeatherId, 'message', 'Параметр команды не является целым числом.');
                 // Проверяем, что в таблице 'thesaurus.cities' имеется запись с open_weather_id = $openWeatherId.
-                $this->queries->getByOpenWeatherId($openWeatherId);
+                $this->cityService->getCityByOpenWeatherId($openWeatherId);
             } catch(DatabaseException $ex) {
                 $command->error($ex->getMessage());
                 return;
@@ -63,7 +61,7 @@ final class WeatherStatisticsByCityCommandHandler
      */
     private function renderStatisticsForCity(object $data, WeatherStatisticsByCity $command): void
     {
-        $city = $this->queries->getById($data->id);
+        $city = $this->cityService->getCityById($data->id);
         $tz = $city->getTimezoneName();
         
         $minTempDate = $this->processForCity(SimpleStringValue::create($data->min_temp_date), $tz);
@@ -130,7 +128,7 @@ final class WeatherStatisticsByCityCommandHandler
         $newArrDate = [];
         foreach($arrDate as $item) {
             [$cityId, $strDate] = explode('_', $item);
-            $city = $this->queries->getById($cityId);
+            $city = $this->cityService->getCityById($cityId);
             $tz = $city->getTimezoneName();
             $newDate = CarbonService::setNewTimezoneInString($strDate, 'UTC', $tz, DateFormat::Full);
             $newArrDate[] = "$city->name: $newDate";

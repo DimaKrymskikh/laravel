@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Contracts\StorageDisk;
 
 /**
  * Указывает на то, что объект данного типа выполняет запись на диск.

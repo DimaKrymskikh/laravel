@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services\Database\Person;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Events\AddCityInWeatherList;
 use App\Events\RemoveCityFromWeatherList;
 use App\Exceptions\DatabaseException;
@@ -11,7 +12,6 @@ use App\Queries\Person\UserCityQueries;
 use App\Queries\Thesaurus\CityQueries;
 use App\Services\Database\Person\Dto\UserCityDto;
 use App\Services\Database\Person\UserCityService;
-use App\Services\ServiceManagerInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class UserCityServiceTest extends UserTestCase
@@ -113,9 +113,7 @@ class UserCityServiceTest extends UserTestCase
         
         $this->userCityService = new UserCityService($this->serviceManager, $this->dispatcher);
         
-        $this->cityQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->dto->cityId)
+        $this->cityQueries->method('find')
                 ->willReturn($this->city);
     }
 }

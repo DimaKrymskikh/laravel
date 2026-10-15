@@ -2,25 +2,46 @@
 
 namespace App\Services\Database\Thesaurus;
 
+use App\Contracts\Services\Database\Thesaurus\InfoAboutCitiesInterface;
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\City;
+use App\Models\User;
 use App\Modifiers\Thesaurus\CityModifiers;
 use App\Queries\Thesaurus\CityQueries;
-use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Thesaurus\CityCollection;
 
-final class CityService
+final class CityService implements InfoAboutCitiesInterface
 {
-    const VARIABLE_TABLE_FIELDS = ['name', 'timezone_id'];
+    public const NOT_RECORD_WITH_ID = "В таблице 'thesaurus.cities' нет записи с id=%d";
+    public const NOT_RECORD_WITH_OPEN_WEATHER_ID = "В таблице 'thesaurus.cities' нет записи с open_weather_id=%d";
+    public const VARIABLE_TABLE_FIELDS = ['name', 'timezone_id'];
     
     private CityModifiers $cityModifiers;
-    private CityQueries $cityQueries;
+    public readonly CityQueries $cityQueries;
 
     public function __construct(
-            private ServiceManagerInterface $serviceManager,
+            private readonly ServiceManagerInterface $serviceManager,
     ) {
         $this->cityModifiers = $this->serviceManager->getQueriesOrModifiers(CityModifiers::class);
         $this->cityQueries = $this->serviceManager->getQueriesOrModifiers(CityQueries::class);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public function getCityById(int $id): City
+    {
+        return $this->cityQueries->find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public function getCityByOpenWeatherId(int $openWeatherId): City
+    {
+        return $this->cityQueries->findByOpenWeatherId($openWeatherId)
+                ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_OPEN_WEATHER_ID, $openWeatherId));
     }
     
     public function create(string $name, int $openWeatherId): City
@@ -40,7 +61,7 @@ final class CityService
             throw new DatabaseException("Поле '$field' таблицы 'thesaurus.cities' нельзя изменять.");
         }
         
-        $city = $this->cityQueries->getById($cityId);
+        $city = $this->getCityById($cityId);
 
         $fieldValue = match ($field) {
             'timezone_id' => $value ?: null,
@@ -55,39 +76,32 @@ final class CityService
     
     public function delete(int $cityId): void
     {
-        $city = $this->cityQueries->getById($cityId);
+        $city = $this->getCityById($cityId);
         
         $this->cityModifiers->remove($city);
     }
     
-    public function getCityById(int $cityId): City
-    {
-        return $this->cityQueries->getById($cityId);
-    }
-    
     /**
-     * Получить все ряды таблицы 'thesaurus.cities'
-     * 
-     * @return CityCollection
+     * {@inheritDoc}
      */
     public function getAllCitiesList(): CityCollection
     {
         return $this->cityQueries->getList();
     }
     
+    /**
+     * {@inheritDoc}
+     */
     public function getListWithAvailableByUserId(int $userId): CityCollection
     {
         return $this->cityQueries->getListWithAvailableByUserId($userId);
     }
     
     /**
-     * Находит и возвращает город по полю thesaurus.cities.open_weather_id
-     * 
-     * @param int $openWeatherId id-города в сервисе OpenWeather
-     * @return City
+     * {@inheritDoc}
      */
-    public function findCityByOpenWeatherId(int $openWeatherId): City
+    public function getCitiesWithWeatherByUser(User $user): CityCollection
     {
-        return $this->cityQueries->getByOpenWeatherId($openWeatherId);
+        return $this->cityQueries->getByUserWithWeather($user);
     }
 }

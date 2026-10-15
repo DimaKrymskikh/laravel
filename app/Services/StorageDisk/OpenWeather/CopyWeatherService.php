@@ -2,9 +2,9 @@
 
 namespace App\Services\StorageDisk\OpenWeather;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Models\OpenWeather\Weather;
 use App\Queries\OpenWeather\OpenWeatherQueries;
-use App\Services\ServiceManagerInterface;
 use App\StorageDisk\CopyingDatabaseDataToFile\OpenWeather\WeatherCopyist;
 
 final class CopyWeatherService

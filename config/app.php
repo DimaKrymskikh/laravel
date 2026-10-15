@@ -198,6 +198,7 @@ return [
         App\Providers\BindingInterfaces\Actors\ActorsListForPageProvider::class,
         App\Providers\BindingInterfaces\Films\FilmsListForPageProvider::class,
         App\Providers\BindingInterfaces\Weather\WeatherListForPageProvider::class,
+        App\Providers\BindingInterfaces\BindQueryProvider::class,
         App\Providers\BindingInterfaces\BindServiceProvider::class,
 
     ],

@@ -3,29 +3,17 @@
 namespace App\Queries\Thesaurus;
 
 use App\DataTransferObjects\Database\Thesaurus\Filters\LanguageFilterDto;
-use App\Exceptions\DatabaseException;
 use App\Models\Thesaurus\Language;
-use App\Queries\QueriesInterface;
+use App\Queries\ModelQueries;
 use App\Support\Collections\Thesaurus\LanguageCollection;
 
-class LanguageQueries implements QueriesInterface
+class LanguageQueries extends ModelQueries
 {
-    public const NOT_RECORD_WITH_ID = "В таблице 'thesaurus.languages' нет записи с id=%d";
     public const NUMBER_OF_ITEMS_IN_CHUNCK = 2;
     
-    public function exists(int $id): bool
+    protected function setClassName(): void
     {
-        return Language::where('id', $id)->exists();
-    }
-    
-    public function getById(int $id): Language
-    {
-        return Language::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
-    }
-    
-    public function getList(): LanguageCollection
-    {
-        return $this->getListWithFilter(new LanguageFilterDto(''));
+        $this->className = Language::class;
     }
     
     public function getListWithFilter(LanguageFilterDto $dto): LanguageCollection

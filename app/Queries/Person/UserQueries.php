@@ -3,18 +3,12 @@
 namespace App\Queries\Person;
 
 use App\Models\User;
-use App\Queries\DBqueries;
+use App\Queries\ModelQueries;
 
-class UserQueries extends DBqueries
+class UserQueries extends ModelQueries
 {
-    /**
-     * Получить пользователя из таблицы 'person.users' по его id.
-     * 
-     * @param int $id
-     * @return User
-     */
-    public function getById(int $id): User
+    protected function setClassName(): void
     {
-        return User::find($id);
+        $this->className = User::class;
     }
 }

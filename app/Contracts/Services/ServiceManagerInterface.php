@@ -1,6 +1,10 @@
 <?php
 
-namespace App\Services;
+namespace App\Contracts\Services;
+
+use App\Contracts\Curl\CurlRequestInterface;
+use App\Contracts\Database\DatabaseQueryInterface;
+use App\Contracts\StorageDisk\CopyistInterface;
 
 interface ServiceManagerInterface
 {

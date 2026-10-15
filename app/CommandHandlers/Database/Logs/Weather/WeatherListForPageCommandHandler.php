@@ -2,18 +2,18 @@
 
 namespace App\CommandHandlers\Database\Logs\Weather;
 
+use App\Contracts\Services\Database\Thesaurus\TimezoneServiceInterface;
 use App\DataTransferObjects\Database\OpenWeather\Filters\WeatherFilterDto;
 use App\Pagination\PaginatorDTO;
 use App\Models\Thesaurus\City;
 use App\Queries\Logs\WeatherListForPage\WeatherListForPageQueriesInterface;
-use App\Services\Database\Thesaurus\TimezoneService;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 final class WeatherListForPageCommandHandler
 {
     public function __construct(
             private WeatherListForPageQueriesInterface $weatherListForPageQueries,
-            private TimezoneService $timezoneService
+            private TimezoneServiceInterface $timezoneService
     ) {
     }
     

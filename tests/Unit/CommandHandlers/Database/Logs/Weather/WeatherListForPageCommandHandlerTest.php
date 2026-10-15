@@ -2,20 +2,16 @@
 
 namespace Tests\Unit\CommandHandlers\Database\Logs\Weather;
 
+use App\Contracts\Services\Database\Thesaurus\TimezoneServiceInterface;
 use App\CommandHandlers\Database\Logs\Weather\WeatherListForPageCommandHandler;
 use App\Queries\Logs\WeatherListForPage\WeatherListForPageQueriesInterface;
-use App\Queries\Thesaurus\TimezoneQueries;
-use App\Services\Database\Thesaurus\TimezoneService;
-use App\Services\ServiceManagerInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class WeatherListForPageCommandHandlerTest extends WeatherTestCase
 {
-    private ServiceManagerInterface $serviceManager;
     private WeatherListForPageCommandHandler $handler;
     private WeatherListForPageQueriesInterface $queries;
-    private TimezoneQueries $timezoneQueries;
-    private TimezoneService $timezoneService;
+    private TimezoneServiceInterface $timezoneService;
 
     public function test_success_handle(): void
     {
@@ -34,13 +30,8 @@ class WeatherListForPageCommandHandlerTest extends WeatherTestCase
     protected function setUp(): void
     {
         $this->queries = $this->createMock(WeatherListForPageQueriesInterface::class);
-        $this->timezoneQueries = $this->createMock(TimezoneQueries::class);
         
-        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
-        $this->serviceManager->method('getQueriesOrModifiers')
-                ->willReturn($this->timezoneQueries);
-        
-        $this->timezoneService = new TimezoneService($this->serviceManager);
+        $this->timezoneService = $this->createStub(TimezoneServiceInterface::class);
         
         $this->handler = new WeatherListForPageCommandHandler($this->queries, $this->timezoneService);
     }

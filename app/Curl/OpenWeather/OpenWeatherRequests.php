@@ -2,8 +2,8 @@
 
 namespace App\Curl\OpenWeather;
 
+use App\Contracts\Curl\CurlRequestInterface;
 use App\Models\Thesaurus\City;
-use App\Services\CurlRequestInterface;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 

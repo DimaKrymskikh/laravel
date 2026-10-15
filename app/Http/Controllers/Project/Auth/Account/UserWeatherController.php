@@ -26,7 +26,7 @@ class UserWeatherController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('Auth/Account/UserWeather', [
-            'cities' => $this->weatherService->getWeatherInCitiesForAuthUserByUserId($request->user()->id),
+            'cities' => $this->weatherService->getWeatherInCitiesForAuthUser($request->user()),
             'user' => $request->user()
         ]);
     }

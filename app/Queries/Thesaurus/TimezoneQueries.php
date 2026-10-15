@@ -3,7 +3,7 @@
 namespace App\Queries\Thesaurus;
 
 use App\Models\Thesaurus\Timezone;
-use App\Services\DatabaseQueryInterface;
+use App\Contracts\Database\DatabaseQueryInterface;
 use App\Support\Collections\Thesaurus\TimezoneCollection;
 
 class TimezoneQueries implements DatabaseQueryInterface

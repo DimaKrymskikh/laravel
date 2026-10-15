@@ -4,7 +4,7 @@ namespace App\Queries\Dvd;
 
 use App\Models\Dvd\FilmActor;
 use App\Services\Database\Dvd\Dto\FilmActorDto;
-use App\Services\DatabaseQueryInterface;
+use App\Contracts\Database\DatabaseQueryInterface;
 use App\Support\Collections\Dvd\FilmActorCollection;
 
 class FilmActorQueries implements DatabaseQueryInterface

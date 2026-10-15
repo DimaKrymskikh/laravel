@@ -3,6 +3,10 @@
 namespace App\Services;
 
 use LogicException;
+use App\Contracts\Curl\CurlRequestInterface;
+use App\Contracts\Database\DatabaseQueryInterface;
+use App\Contracts\Services\ServiceManagerInterface;
+use App\Contracts\StorageDisk\CopyistInterface;
 
 final class ServiceManager implements ServiceManagerInterface
 {

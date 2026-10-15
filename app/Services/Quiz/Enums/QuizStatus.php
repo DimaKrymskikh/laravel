@@ -2,8 +2,8 @@
 
 namespace App\Services\Quiz\Enums;
 
+use App\Contracts\Services\Quiz\StatusInterface;
 use App\Exceptions\RuleException;
-use App\Services\Quiz\StatusInterface;
 
 /**
  * Статусы опроса

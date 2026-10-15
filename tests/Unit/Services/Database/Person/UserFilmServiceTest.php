@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services\Database\Person;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Events\AddFilmInUserList;
 use App\Events\RemoveFilmFromUserList;
 use App\Exceptions\DatabaseException;
@@ -11,7 +12,6 @@ use App\Queries\Dvd\FilmQueries;
 use App\Queries\Person\UserFilmQueries;
 use App\Services\Database\Person\Dto\UserFilmDto;
 use App\Services\Database\Person\UserFilmService;
-use App\Services\ServiceManagerInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class UserFilmServiceTest extends UserTestCase
@@ -103,7 +103,7 @@ class UserFilmServiceTest extends UserTestCase
         $this->film = $this->factoryFilm();
         
         $this->userFilmModifiers = $this->createMock(UserFilmModifiers::class);
-        $this->filmQueries = $this->createMock(FilmQueries::class);
+        $this->filmQueries = $this->createStub(FilmQueries::class);
         $this->userFilmQueries = $this->createMock(UserFilmQueries::class);
         $this->dispatcher = $this->createMock(Dispatcher::class);
         
@@ -113,9 +113,7 @@ class UserFilmServiceTest extends UserTestCase
         
         $this->userFilmService = new UserFilmService($this->serviceManager, $this->dispatcher);
         
-        $this->filmQueries->expects($this->once())
-                ->method('getById')
-                ->with($this->dto->filmId)
+        $this->filmQueries->method('find')
                 ->willReturn($this->film);
     }
 }

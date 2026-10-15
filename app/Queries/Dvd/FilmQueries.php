@@ -3,27 +3,20 @@
 namespace App\Queries\Dvd;
 
 use App\DataTransferObjects\Database\Dvd\Filters\FilmFilterDto;
-use App\Exceptions\DatabaseException;
 use App\Models\Dvd\Film;
 use App\Providers\AppServiceProvider;
-use App\Queries\QueriesInterface;
+use App\Queries\ModelQueries;
 use App\Support\Collections\Dvd\FilmCollection;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
-class FilmQueries implements QueriesInterface
+class FilmQueries extends ModelQueries
 {
-    public const NOT_RECORD_WITH_ID = "В таблице 'dvd.films' нет записи с id=%d";
     public const NUMBER_OF_ITEMS_IN_CHUNCK = 25;
     
-    public function exists(int $id): bool
+    protected function setClassName(): void
     {
-        return Film::where('id', $id)->exists();
-    }
-    
-    public function getById(int $id): Film
-    {
-        return Film::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
+        $this->className = Film::class;
     }
     
     /**
@@ -58,11 +51,6 @@ class FilmQueries implements QueriesInterface
     public function count(FilmFilterDto $dto): int
     {
         return Film::filter($dto)->count();
-    }
-    
-    public function getList(): FilmCollection
-    {
-        return $this->getListWithFilter(new FilmFilterDto('', '', '', ''));
     }
     
     /**

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Modifiers;
+namespace App\Contracts\Database;
 
-use App\Services\DatabaseQueryInterface;
+use App\Contracts\Database\DatabaseQueryInterface;
 use Illuminate\Database\Eloquent\Model;
 
 interface ModifiersInterface extends DatabaseQueryInterface

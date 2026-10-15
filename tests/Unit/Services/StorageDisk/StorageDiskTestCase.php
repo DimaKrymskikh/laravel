@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\StorageDisk;
 
-use App\Services\ServiceManagerInterface;
+use App\Contracts\Services\ServiceManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 abstract class StorageDiskTestCase extends TestCase

@@ -3,30 +3,15 @@
 namespace App\Services\Quiz\Admin;
 
 use App\Models\Quiz\QuizItem;
-use App\Modifiers\Quiz\QuizItemModifiers;
-use App\Queries\Quiz\QuizItemQueries;
-use App\Queries\Quiz\QuizQueries;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Fields\DataTransferObjects\QuizItemDto;
 use App\Services\Quiz\Fields\QuizItemField;
 use App\Services\Quiz\Managers\QuizItemStatusManager;
-use App\Services\ServiceManagerInterface;
+use App\Services\Quiz\QuizService;
 
-final class AdminQuizItemService
+final class AdminQuizItemService extends QuizService
 {
-    private QuizItemModifiers $quizItemModifiers;
-    private QuizItemQueries $quizItemQueries;
-    private QuizQueries $quizQueries;
-    
-    public function __construct(
-            private ServiceManagerInterface $serviceManager,
-    ) {
-        $this->quizItemModifiers = $this->serviceManager->getQueriesOrModifiers(QuizItemModifiers::class);
-        $this->quizItemQueries = $this->serviceManager->getQueriesOrModifiers(QuizItemQueries::class);
-        $this->quizQueries = $this->serviceManager->getQueriesOrModifiers(QuizQueries::class);
-    }
-    
     /**
      * Возвращает данные вопроса с ответами для карточки вопроса
      * 
@@ -51,7 +36,7 @@ final class AdminQuizItemService
      */
     public function create(QuizItemDto $dto): QuizItem
     {
-        $quiz = $this->quizQueries->getById($dto->quizId);
+        $quiz = $this->quizQueries->find($dto->quizId);
         $quiz->status->allowQuizChanges();
         
         $quizItem = new QuizItem();
@@ -73,7 +58,7 @@ final class AdminQuizItemService
      */
     public function updateField(int $id, QuizItemField $quizItemField): QuizItem
     {
-        $quizItem = $this->quizItemQueries->getById($id);
+        $quizItem = $this->getQuizItemById($id);
         $this->checkQuizItemEditabilityByStatuses($quizItem->quiz->status, $quizItem->status);
         
         $field = $quizItemField->field;

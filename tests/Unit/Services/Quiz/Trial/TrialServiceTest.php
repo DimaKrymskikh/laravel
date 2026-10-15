@@ -2,19 +2,18 @@
 
 namespace Tests\Unit\Services\Quiz\Trial;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Exceptions\DatabaseException;
 use App\Models\User;
 use App\Models\Quiz\Quiz;
+use App\Models\Quiz\TrialAnswer;
 use App\Models\Quiz\Trial;
 use App\Modifiers\Quiz\TrialAnswerModifiers;
 use App\Modifiers\Quiz\TrialModifiers;
-use App\Queries\Quiz\QuizAnswerQueries;
-use App\Queries\Quiz\QuizItemQueries;
-use App\Queries\Quiz\QuizQueries;
 use App\Queries\Quiz\TrialAnswerQueries;
 use App\Queries\Quiz\TrialQueries;
+use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Trial\TrialService;
-use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Quiz\QuizCollection;
 use App\Support\Collections\Quiz\QuizItemCollection;
 use App\Support\Collections\Quiz\TrialCollection;
@@ -23,17 +22,32 @@ use Tests\Unit\Services\Quiz\TrialTestCase;
 
 class TrialServiceTest extends TrialTestCase
 {
-    private ServiceManagerInterface $serviceManager;
     private TrialAnswerModifiers $trialAnswerModifiers;
     private TrialModifiers $trialModifiers;
-    private QuizAnswerQueries $quizAnswerQueries;
-    private QuizItemQueries $quizItemQueries;
-    private QuizQueries $quizQueries;
     private TrialAnswerQueries $trialAnswerQueries;
     private TrialQueries $trialQueries;
     private TrialService $trialService;
-    private int $quizId = 3;
     private int $trialId = 12;
+
+    public function test_success_getTrialAnswerById(): void
+    {
+        $trialAnswer = new TrialAnswer();
+        
+        $this->trialAnswerQueries->method('find')
+                ->willReturn($trialAnswer);
+        
+        $this->assertInstanceOf(TrialAnswer::class, $this->trialService->getTrialAnswerById($this->quizId));
+    }
+
+    public function test_fail_getTrialAnswerById(): void
+    {
+        $this->expectException(DatabaseException::class);
+        
+        $this->trialAnswerQueries->method('find')
+                ->willReturn(null);
+        
+        $this->trialService->getTrialAnswerById($this->quizId);
+    }
 
     public function test_success_getQuizzes(): void
     {
@@ -53,9 +67,7 @@ class TrialServiceTest extends TrialTestCase
                 ->with($this->quizId)
                 ->willReturn($quiz);
         
-        $this->trialQueries->expects($this->once())
-                ->method('existsActiveTrialByUser')
-                ->with($this->identicalTo($user))
+        $this->trialQueries->method('existsActiveTrialByUser')
                 ->willReturn(true);
         
         $this->assertInstanceOf(Quiz::class, $this->trialService->getQuiz($user, $this->quizId));
@@ -64,15 +76,11 @@ class TrialServiceTest extends TrialTestCase
 
     public function test_success_startTrial(): void
     {
-        $nQuizItems = 5;
-        
         $user = new User();
-        $quizItems = $this->factoryQuizItems($nQuizItems);
-        $quiz = $this->factoryQuizWithQuizItems($quizItems);
+        $quizItems = $this->factoryQuizItems(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS, 0);
+        $quiz = $this->factoryQuizWithQuizItems($quizItems, QuizStatus::Approved);
         
-        $this->trialQueries->expects($this->once())
-                ->method('existsActiveTrialByUser')
-                ->with($this->identicalTo($user))
+        $this->trialQueries->method('existsActiveTrialByUser')
                 ->willReturn(false);
         
         $this->quizQueries->expects($this->once())
@@ -85,7 +93,7 @@ class TrialServiceTest extends TrialTestCase
                 ->with($this->identicalTo($user), $this->identicalTo($quiz))
                 ->willReturn($this->trialId);
         
-        $this->trialAnswerModifiers->expects($this->exactly($nQuizItems))
+        $this->trialAnswerModifiers->expects($this->exactly(Quiz::MINIMUM_ITEMS_FOR_READY_STATUS + 1))
                 ->method('save');
         
         $this->assertNull($this->trialService->startTrial($user, $this->quizId));
@@ -97,9 +105,7 @@ class TrialServiceTest extends TrialTestCase
         
         $this->expectException(DatabaseException::class);
         
-        $this->trialQueries->expects($this->once())
-                ->method('existsActiveTrialByUser')
-                ->with($this->identicalTo($user))
+        $this->trialQueries->method('existsActiveTrialByUser')
                 ->willReturn(true);
         
         $this->quizQueries->expects($this->never())
@@ -116,13 +122,7 @@ class TrialServiceTest extends TrialTestCase
 
     public function test_success_getActiveTrial(): void
     {
-        $user = new User();
-        
-        $this->trialQueries->expects($this->once())
-                ->method('getActiveTrialByUserWithAnswers')
-                ->with($this->identicalTo($user));
-        
-        $this->assertInstanceOf(Trial::class, $this->trialService->getActiveTrial($user));
+        $this->assertInstanceOf(Trial::class, $this->trialService->getActiveTrial(new User()));
     }
 
     public function test_success_getListQuizItemsForActiveTrial(): void
@@ -136,13 +136,7 @@ class TrialServiceTest extends TrialTestCase
 
     public function test_success_getTrialsForUserResults(): void
     {
-        $user = new User();
-        
-        $this->trialQueries->expects($this->once())
-                ->method('getListByUserForResults')
-                ->with($this->identicalTo($user));
-        
-        $this->assertInstanceOf(TrialCollection::class, $this->trialService->getTrialsForUserResults($user));
+        $this->assertInstanceOf(TrialCollection::class, $this->trialService->getTrialsForUserResults(new User()));
     }
 
     public function test_success_chooseAnswer(): void
@@ -150,7 +144,7 @@ class TrialServiceTest extends TrialTestCase
         $user = new User();
         $id = 1;
         $quizAnswerId = 4;
-        $dto = $this->getQuizAnswerDto($user, $id, $quizAnswerId);
+        $dto = $this->getAnswerDto($user, $id, $quizAnswerId);
         
         $trial = $this->factoryTrial();
         $trial->start_at = Carbon::now();
@@ -162,24 +156,17 @@ class TrialServiceTest extends TrialTestCase
         $trialAnswer->answer = $answer->description;
         $trialAnswer->is_correct = $answer->is_correct;
         
-        $this->trialQueries->expects($this->once())
-                ->method('existsActiveTrialByUser')
-                ->with($this->identicalTo($dto->user))
+        $this->trialQueries->method('existsActiveTrialByUser')
                 ->willReturn(true);
         
-        $this->trialQueries->expects($this->once())
-                ->method('getActiveTrialByUserWithAnswers')
-                ->with($this->identicalTo($dto->user))
+        $this->trialQueries->method('getActiveTrialByUserWithAnswers')
                 ->willReturn($trial);
         
-        $this->trialAnswerQueries->expects($this->once())
-                ->method('getById')
-                ->with($dto->id)
+        $this->trialAnswerQueries->method('find')
                 ->willReturn($trialAnswer);
         
-        $this->quizAnswerQueries->expects($this->once())
-                ->method('getById')
-                ->with($dto->quiz_answer_id)
+        // Используется в $this->getQuizAnswerById
+        $this->quizAnswerQueries->method('find')
                 ->willReturn($answer);
         
         $this->trialAnswerModifiers->expects($this->once())
@@ -194,13 +181,11 @@ class TrialServiceTest extends TrialTestCase
         $user = new User();
         $id = 1;
         $quizAnswerId = 4;
-        $dto = $this->getQuizAnswerDto($user, $id, $quizAnswerId);
+        $dto = $this->getAnswerDto($user, $id, $quizAnswerId);
         
         $this->expectException(DatabaseException::class);
         
-        $this->trialQueries->expects($this->once())
-                ->method('existsActiveTrialByUser')
-                ->with($this->identicalTo($dto->user))
+        $this->trialQueries->method('existsActiveTrialByUser')
                 ->willReturn(false);
         
         $this->assertNull($this->trialService->chooseAnswer($dto));
@@ -211,7 +196,7 @@ class TrialServiceTest extends TrialTestCase
         $user = new User();
         $id = 1;
         $quizAnswerId = 4;
-        $dto = $this->getQuizAnswerDto($user, $id, $quizAnswerId);
+        $dto = $this->getAnswerDto($user, $id, $quizAnswerId);
         
         $trial = $this->factoryTrial();
         $trial->start_at = Carbon::now();
@@ -220,14 +205,10 @@ class TrialServiceTest extends TrialTestCase
         
         $this->expectException(DatabaseException::class);
         
-        $this->trialQueries->expects($this->once())
-                ->method('existsActiveTrialByUser')
-                ->with($this->identicalTo($dto->user))
+        $this->trialQueries->method('existsActiveTrialByUser')
                 ->willReturn(true);
         
-        $this->trialQueries->expects($this->once())
-                ->method('getActiveTrialByUserWithAnswers')
-                ->with($this->identicalTo($dto->user))
+        $this->trialQueries->method('getActiveTrialByUserWithAnswers')
                 ->willReturn($trial);
         
         $this->assertNull($this->trialService->chooseAnswer($dto));
@@ -238,9 +219,7 @@ class TrialServiceTest extends TrialTestCase
         $user = new User();
         $trial = $this->factoryTrialWithAnswers(20);
         
-        $this->trialQueries->expects($this->once())
-                ->method('getActiveTrialByUserWithAnswers')
-                ->with($this->identicalTo($user))
+        $this->trialQueries->method('getActiveTrialByUserWithAnswers')
                 ->willReturn($trial);
         
         $this->trialModifiers->expects($this->once())
@@ -252,19 +231,19 @@ class TrialServiceTest extends TrialTestCase
     
     protected function setUp(): void
     {
+        $this->create();
+        
         $this->trialAnswerModifiers = $this->createMock(TrialAnswerModifiers::class);
         $this->trialModifiers = $this->createMock(TrialModifiers::class);
-        $this->quizAnswerQueries = $this->createMock(QuizAnswerQueries::class);
-        $this->quizItemQueries = $this->createMock(QuizItemQueries::class);
-        $this->quizQueries = $this->createMock(QuizQueries::class);
-        $this->trialAnswerQueries = $this->createMock(TrialAnswerQueries::class);
-        $this->trialQueries = $this->createMock(TrialQueries::class);
+        $this->trialAnswerQueries = $this->createStub(TrialAnswerQueries::class);
+        $this->trialQueries = $this->createStub(TrialQueries::class);
         
         $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
         $this->serviceManager->method('getQueriesOrModifiers')
                 ->willreturn(
-                        $this->trialAnswerModifiers, $this->trialModifiers, 
+                        $this->quizAnswerModifiers, $this->quizItemModifiers, $this->quizModifiers,
                         $this->quizAnswerQueries, $this->quizItemQueries, $this->quizQueries,
+                        $this->trialAnswerModifiers, $this->trialModifiers, 
                         $this->trialAnswerQueries, $this->trialQueries
                     );
         

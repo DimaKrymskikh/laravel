@@ -2,12 +2,17 @@
 
 namespace App\Queries\Logs;
 
-use App\Queries\DBqueries;
-use App\Services\OpenWeather\WeatherService;
 use App\Models\Logs\OpenWeatherWeather;
+use App\Queries\ModelQueries;
+use App\Services\OpenWeather\WeatherService;
 
-class OpenWeatherWeatherQueries extends DBqueries
+class OpenWeatherWeatherQueries extends ModelQueries
 {
+    protected function setClassName(): void
+    {
+        $this->className = OpenWeatherWeather::class;
+    }
+    
     /**
      * Возвращает число строк с данными о погоде за последнюю минуту.
      * 

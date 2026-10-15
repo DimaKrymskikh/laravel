@@ -2,36 +2,16 @@
 
 namespace App\Queries\Quiz;
 
-use App\Exceptions\DatabaseException;
 use App\Models\Quiz\QuizItem;
-use App\Queries\QueriesInterface;
+use App\Queries\ModelQueries;
 use App\Support\Collections\Quiz\QuizItemCollection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class QuizItemQueries implements QueriesInterface
+class QuizItemQueries extends ModelQueries
 {
-    const NOT_RECORD_WITH_ID = "В таблице 'quiz.quiz_items' нет записи с id=%d";
-    
-    /**
-     * {@inheritDoc} (таблица 'quiz.quiz_items')
-     * 
-     * @param int $id - первичный ключ таблицы 'quiz.quiz_items'
-     * @return bool
-     */
-    public function exists(int $id): bool
+    protected function setClassName(): void
     {
-        return QuizItem::where('id', $id)->exists();
-    }
-    
-    /**
-     * {@inheritDoc} (таблица 'quiz.quiz_items')
-     * 
-     * @param int $id - первичный ключ таблицы 'quiz.quiz_items'
-     * @return QuizItem
-     */
-    public function getById(int $id): QuizItem
-    {
-        return QuizItem::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
+        $this->className = QuizItem::class;
     }
     
     /**
@@ -47,16 +27,6 @@ class QuizItemQueries implements QueriesInterface
                 $query->orderBy('priority');
             }
         ])->find($id);
-    }
-    
-    /**
-     * {@inheritDoc} 'quiz.quiz_items'
-     * 
-     * @return QuizItemCollection
-     */
-    public function getList(): QuizItemCollection
-    {
-        return QuizItem::all();
     }
     
     /**

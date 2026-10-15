@@ -2,9 +2,8 @@
 
 namespace App\Queries\Quiz;
 
-use App\Exceptions\DatabaseException;
 use App\Models\Quiz\Quiz;
-use App\Queries\QueriesInterface;
+use App\Queries\ModelQueries;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Fields\ValueObjects\Quiz\QuizTitleValue;
@@ -12,19 +11,11 @@ use App\Support\Collections\Quiz\QuizCollection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class QuizQueries implements QueriesInterface
+class QuizQueries extends ModelQueries
 {
-    const NOT_RECORD_WITH_ID = "В таблице 'quiz.quizzes' нет записи с id=%d";
-    
-    /**
-     * {@inheritDoc} (таблица 'quiz.quizzes')
-     * 
-     * @param int $id - первичный ключ таблицы 'quiz.quizzes'
-     * @return bool
-     */
-    public function exists(int $id): bool
+    protected function setClassName(): void
     {
-        return Quiz::where('id', $id)->exists();
+        $this->className = Quiz::class;
     }
     
     /**
@@ -42,17 +33,6 @@ class QuizQueries implements QueriesInterface
                     $query->where('id', '!=', $id);
                 })
                 ->exists();
-    }
-    
-    /**
-     * {@inheritDoc} (таблица 'quiz.quizzes')
-     * 
-     * @param int $id - первичный ключ таблицы 'quiz.quizzes'
-     * @return Quiz
-     */
-    public function getById(int $id): Quiz
-    {
-        return Quiz::find($id) ?? throw new DatabaseException(sprintf(self::NOT_RECORD_WITH_ID, $id));
     }
     
     /**

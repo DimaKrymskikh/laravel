@@ -2,21 +2,17 @@
 
 namespace App\CommandHandlers\Database\Person;
 
+use App\Contracts\Database\DBqueriesInterface;
 use App\Console\Commands\Person\FilmsStatisticsAvailableToUsers;
-use App\Queries\Person\UserQueries;
-use App\Services\ServiceManagerInterface;
 
 /**
  * Класс для получения статистики фильмов, которые имеются в наличие у пользователей
  */
 final class FilmsStatisticsAvailableToUsersCommandHandler 
 {
-    private UserQueries $queries;
-    
     public function __construct(
-            private ServiceManagerInterface $serviceManager
+            private readonly DBqueriesInterface $queries
     ) {
-        $this->queries = $this->serviceManager->getQueriesOrModifiers(UserQueries::class);
     }
     
     public function handle(FilmsStatisticsAvailableToUsers $command): void

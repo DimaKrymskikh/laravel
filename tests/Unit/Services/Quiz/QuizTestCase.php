@@ -2,9 +2,16 @@
 
 namespace Tests\Unit\Services\Quiz;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Models\Quiz\Quiz;
 use App\Models\Quiz\QuizAnswer;
 use App\Models\Quiz\QuizItem;
+use App\Modifiers\Quiz\QuizAnswerModifiers;
+use App\Modifiers\Quiz\QuizItemModifiers;
+use App\Modifiers\Quiz\QuizModifiers;
+use App\Queries\Quiz\QuizAnswerQueries;
+use App\Queries\Quiz\QuizItemQueries;
+use App\Queries\Quiz\QuizQueries;
 use App\Services\Quiz\Enums\QuizItemStatus;
 use App\Services\Quiz\Enums\QuizStatus;
 use App\Services\Quiz\Fields\DataTransferObjects\QuizAnswerDto;
@@ -22,6 +29,17 @@ use PHPUnit\Framework\TestCase;
 
 abstract class QuizTestCase extends TestCase
 {
+    protected ServiceManagerInterface $serviceManager;
+    protected QuizAnswerModifiers $quizAnswerModifiers;
+    protected QuizItemModifiers $quizItemModifiers;
+    protected QuizModifiers $quizModifiers;
+    protected QuizAnswerQueries $quizAnswerQueries;
+    protected QuizItemQueries $quizItemQueries;
+    protected QuizQueries $quizQueries;
+    protected int $quizId = 17;
+    protected int $quizItemId = 29;
+    protected int $quizAnswerId = 11;
+    
     protected function getQuizAnswerDto(): QuizAnswerDto
     {
         $quizItemId = 17;
@@ -179,5 +197,25 @@ abstract class QuizTestCase extends TestCase
         $quizAnswer->quizItem = $quizItem;
         
         return $quizAnswer;
+    }
+    
+    protected function setUp(): void
+    {
+        $this->create();
+        
+        $this->serviceManager = $this->createStub(ServiceManagerInterface::class);
+        $this->serviceManager->method('getQueriesOrModifiers')
+                ->willReturn($this->quizAnswerModifiers, $this->quizItemModifiers, $this->quizModifiers,
+                        $this->quizAnswerQueries, $this->quizItemQueries, $this->quizQueries);
+    }
+    
+    protected function create(): void
+    {
+        $this->quizAnswerModifiers = $this->createMock(QuizAnswerModifiers::class);
+        $this->quizItemModifiers = $this->createMock(QuizItemModifiers::class);
+        $this->quizModifiers = $this->createMock(QuizModifiers::class);
+        $this->quizAnswerQueries = $this->createStub(QuizAnswerQueries::class);
+        $this->quizItemQueries = $this->createStub(QuizItemQueries::class);
+        $this->quizQueries = $this->createStub(QuizQueries::class);
     }
 }

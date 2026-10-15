@@ -1,8 +1,6 @@
 <?php
 
-namespace App\StorageDisk\CopyingDatabaseDataToFile;
-
-use App\Services\CopyistInterface;
+namespace App\Contracts\StorageDisk;
 
 interface BaseCopyistInterface extends CopyistInterface
 {

@@ -2,13 +2,13 @@
 
 namespace App\Services\Database\Dvd;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Exceptions\DatabaseException;
 use App\Modifiers\Dvd\FilmActorModifiers;
 use App\Queries\Dvd\ActorQueries;
 use App\Queries\Dvd\FilmQueries;
 use App\Queries\Dvd\FilmActorQueries;
 use App\Services\Database\Dvd\Dto\FilmActorDto;
-use App\Services\ServiceManagerInterface;
 use App\Support\Collections\Dvd\FilmActorCollection;
 
 final class FilmActorService
@@ -31,10 +31,9 @@ final class FilmActorService
     {
         if ($this->filmActorQueries->exists($dto)) {
             // Если пара существует, выбрасываем исключение
-            $filmTitle = $this->filmQueries->getById($dto->filmId)->title;
-            $actor = $this->actorQueries->getById($dto->actorId);
-            $name = "$actor->->first_name $actor->last_name";
-            throw new DatabaseException("Фильм '$filmTitle' уже содержит актёра $name");
+            $filmTitle = $this->filmQueries->find($dto->filmId)->title;
+            $actor = $this->actorQueries->find($dto->actorId);
+            throw new DatabaseException("Фильм '$filmTitle' уже содержит актёра $actor->full_name");
         }
         
         $this->filmActorModifiers->save($dto);

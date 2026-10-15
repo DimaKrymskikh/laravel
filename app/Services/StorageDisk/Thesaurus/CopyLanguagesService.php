@@ -2,9 +2,9 @@
 
 namespace App\Services\StorageDisk\Thesaurus;
 
+use App\Contracts\Services\ServiceManagerInterface;
 use App\Models\Thesaurus\Language;
 use App\Queries\Thesaurus\LanguageQueries;
-use App\Services\ServiceManagerInterface;
 use App\StorageDisk\CopyingDatabaseDataToFile\Thesaurus\LanguagesCopyist;
 
 final class CopyLanguagesService
